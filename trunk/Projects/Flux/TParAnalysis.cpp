@@ -177,23 +177,25 @@ void TParAnalysis::SetAppropriateVersions ()
 		cout << "TParAnalysis esta saindo com versãofinal!\n";
 		ver.ShortPrint(cout);
 		cout.flush();
-		OOPTerminationTask * termtask = new OOPTerminationTask(fProc);
+		//OOPTerminationTask * termtask = new OOPTerminationTask(fProc);
 		int i;
-		//for(i=0;i<ndep;i++){
-			OOPDataVersion termversion = fDataDepend.Dep (0).ObjPtr ()->Version ();
-			cout << "TermVersion\n";
-			cout.flush();
-			termversion.ShortPrint(cout);
-			cout << endl;
+		for(i=0;i<fNumPartitions;i++){
+			OOPTerminationTask * termtask = new OOPTerminationTask(i);
+			termtask->Submit();
+			//OOPDataVersion termversion = fDataDepend.Dep (0).ObjPtr ()->Version ();
+			//cout << "TermVersion\n";
+			//cout.flush();
+			//termversion.ShortPrint(cout);
+			//cout << endl;
 			//++termversion;
-			termversion.ShortPrint(cout);
-			cout << endl;
-			cout.flush();
-			cout << fDataDepend.Dep(0).Id() << endl;
-			cout.flush();
-			OOPMDataDepend d(fDataDepend.Dep(0).Id(), EWriteAccess, termversion);
+			//termversion.ShortPrint(cout);
+			//cout << endl;
+			//cout.flush();
+			//cout << fDataDepend.Dep(0).Id() << endl;
+			//cout.flush();
+			//OOPMDataDepend d(fDataDepend.Dep(0).Id(), EWriteAccess, termversion);
 			//termtask->AddDependentData(d);
-		//}
+		}
 		//termtask->Submit();
 		
 	}

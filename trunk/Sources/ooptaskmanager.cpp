@@ -1,6 +1,8 @@
 #include "ooptaskmanager.h"
 #include "oopcommmanager.h"
+#ifdef MPI
 #include "oopmpicomm.h"
+#endif
 #include "oopdatamanager.h"
 #include "ooptaskcontrol.h"
 class   OOPTask;
@@ -74,6 +76,86 @@ void OOPTaskManager::main ()
 	 * 
 	 * TM->Execute(); */
 }
+#ifdef MPI
+void * OOPTaskManager::ExecuteMT(void * data){
+
+	OOPTaskManager * lTM = (OOPTaskManager *)data;
+
+	//lock execute mutex
+	pthread_mutex_lock(&lTM->fExecuteMutex);
+	DM->SubmitAllObjects();
+	
+	CM->ReceiveMessages ();
+	lTM->TransferSubmittedTasks ();
+	list < OOPTaskControl * >::iterator i;
+	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
+	// "\n";
+	// TaskManLog << "Entering task list loop" << endl;
+	//PrintTaskQueues("Antes", TaskQueueLog);
+	lTM->fKeepGoing=true;
+	lTM->ExecuteDaemons();
+	while (lTM->fKeepGoing) {
+
+		DM->SubmitAllObjects();
+
+		CM->ReceiveMessages();
+		lTM->ExecuteDaemons();
+		
+		while (lTM->fExecutable.size ()) {
+			//pthread_mutex_unlock(&fExecuteMutex);
+			//DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
+			i = lTM->fExecutable.begin ();
+			OOPTaskControl *tc = (*i);
+			tc->Task ()->Execute ();
+//              TaskManLog << (*i)->Task() << ":";
+			OOPObjectId id;
+			id = tc->Task ()->Id ();
+			tc->Depend ().SetExecuting (tc->Task ()->Id (),
+						      false);
+			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
+							       Id ());
+
+			DM->SubmitAllObjects();
+
+
+#ifdef DEBUG
+			// TaskManLog << "Executing task on processor " << fProc << 
+			// endl;
+			// id.Print(TaskManLog);
+			// TaskManLog.flush();
+#endif
+			lTM->fFinished.push_back (tc);
+			lTM->fExecutable.erase (i);
+		}
+
+		DM->SubmitAllObjects();
+
+		lTM->TransferFinishedTasks ();
+		CM->ReceiveMessages ();
+		lTM->TransferSubmittedTasks ();
+		CM->SendMessages ();
+		lTM->ExecuteDaemons();
+		//wait
+//		pthread_mutex_lock(&fExecuteMutex);
+		if(!lTM->HasWorkTodo () && lTM->fKeepGoing){
+			cout << "Going into Blocking receive on TM->Execute()\n";
+			cout << "PID" << getpid() << endl;
+			cout.flush();
+			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
+			if(MPICM) MPICM->ReceiveBlocking();
+//			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
+			cout << "Leaving blocking receive PID " << getpid() << endl;
+			cout.flush();
+			DM->SubmitAllObjects();
+		}
+//		pthread_mutex_unlock(&fExecuteMutex);	
+	}
+	//PrintTaskQueues("Depois", TaskQueueLog);
+	CM->SendMessages ();
+
+	
+}
+#endif
 OOPTaskManager::OOPTaskManager (int proc)
 {
 	fProc = proc;
@@ -353,8 +435,10 @@ void OOPTaskManager::Execute ()
 			cout << "Going into Blocking receive on TM->Execute()\n";
 			cout << "PID" << getpid() << endl;
 			cout.flush();
+			#ifdef MPI
 			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 			if(MPICM) MPICM->ReceiveBlocking();
+			#endif
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
 			cout << "Leaving blocking receive PID " << getpid() << endl;
 			cout.flush();
@@ -411,6 +495,7 @@ void OOPTaskManager::Print (ostream & out)
 void OOPTaskManager::TransferSubmittedTasks ()
 {
 	list < OOPTask * >::iterator sub;
+	pthread_mutex_lock(&fExecuteMutex);
 	while (fSubmittedList.begin () != fSubmittedList.end ()) {
 		sub = fSubmittedList.begin ();
 		OOPTask * aux = (*sub);
@@ -433,6 +518,8 @@ void OOPTaskManager::TransferSubmittedTasks ()
 			}
 		}
 	}
+	pthread_cond_signal(&fExecuteCondition);
+	pthread_mutex_unlock(&fExecuteMutex);
 }
 void OOPTaskManager::TransferFinishedTasks ()
 {

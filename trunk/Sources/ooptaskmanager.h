@@ -141,6 +141,8 @@ class   OOPTaskManager
    * At least one call to one of the task managers should performed for the OOPar to start.
    */
 	void    Execute ();
+	
+	static void * ExecuteMT(void * data);
 private:
 	/**
 	 * Indicates if TM must continue its processing

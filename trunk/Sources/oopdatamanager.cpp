@@ -191,14 +191,18 @@ OOPDataManager::OOPDataManager (int Procid)
 	fObjId.SetProcId (Procid);
 	fLastCreated = 0;	// NUMOBJECTS * Procid;
 	fMaxId = 1000;	// fLastCreated + NUMOBJECTS;
+	pthread_mutex_init(&fDataMutex, NULL);
+
 	//DM = this;
 }
 void OOPDataManager::SubmitAllObjects(){
+	pthread_mutex_lock(&fDataMutex);
 	list<OOPMetaData *>::iterator lit=fSubmittedObjects.begin();
 	for(;lit!=fSubmittedObjects.end();lit++){
 		fObjects[(*lit)->Id()]=(*lit);
 	}
 	fSubmittedObjects.clear();
+	pthread_mutex_unlock(&fDataMutex);
 }
 OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 {
@@ -206,7 +210,9 @@ OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 	OOPObjectId id = DM->GenerateId ();
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor);
 	dat->SetTrace (trace);	// Erico
+	pthread_mutex_lock(&fDataMutex);
 	fSubmittedObjects.push_back(dat);
+	pthread_mutex_unlock(&fDataMutex);
 	//cout << "Aqui " << fSubmittedObjects.size() << endl;
 	
 	/* 

@@ -21,7 +21,8 @@
 class TParAnalysis : public OOPTask{
 public:
 
-  TParAnalysis(int Procid, int numpartitions);
+	TParAnalysis(int Procid);
+    TParAnalysis(int Procid, int numpartitions);
     /**
      * Initializes and submit all necessary data and tasks to the Data and Task managers. 
      */

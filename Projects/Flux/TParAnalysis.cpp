@@ -176,3 +176,11 @@ OOPMReturnType TParAnalysis::Execute() {
   else SetAppropriateVersions();
   return ESuccess;
 }
+
+TParAnalysis::TParAnalysis(int Procid) : OOPTask(Procid) {
+	fNumPartitions = 0;
+}
+TParAnalysis::TParAnalysis(int Procid, int numpartitions) : OOPTask(Procid) {
+	fNumPartitions = numpartitions;
+}
+

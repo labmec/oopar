@@ -71,7 +71,8 @@ module.include.files=\
 	TParRhs.h\
 	TParState.h\
 	TPartitionRelation.h\
-	TTaskComm.h
+	TTaskComm.h\
+	fluxdefs.h
 
 module.source.name=.
 module.source.type=

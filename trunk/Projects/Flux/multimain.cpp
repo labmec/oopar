@@ -34,6 +34,7 @@ vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
 vector < OOPTaskManager * >TMList (numproc);
 int     NumTasks ();
+
 void    Load (int iproc);
 using namespace std;
 int multimain ()
@@ -110,6 +111,8 @@ int mpimain (int argc, char *argv[])
 			new OOPDataManager (CMList[iproc]->GetProcID ());
 	}
 */
+	//pthread_join(testethread_1,0);
+	
 	int numproc = argc;
 	CM = new OOPMPICommManager (numproc, argv);
 	CM->Initialize (*(argv), numproc);
@@ -131,6 +134,7 @@ int mpimain (int argc, char *argv[])
 	}*/
 	return 0;
 }
+
 int NumTasks ()
 {
 	int     numproc = TMList.size ();

@@ -34,7 +34,9 @@ OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 	// Inicializa variaveis.
 	Err.GSetErrorFile("error.dat");
 	Err.SetErrorFile("errorlocal.dat");
-	f_num_proc = num_proc % 10;
+	// ATENCAO!!!! f_num_proc pode ser zero e causar excecao aritmetica!!!
+	// Thiago - 2003.09.25
+	f_num_proc = num_proc % 100;
 	f_myself = myID % f_num_proc;
 	strcpy (f_prefix, prefix);
 	sprintf (f_my_prefix, "%s.%1d", f_prefix, f_myself);

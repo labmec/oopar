@@ -1,0 +1,82 @@
+#LyX 1.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 220
+\textclass article
+\language brazil
+\inputencoding brazil
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Section
+
+DeleteObject()
+\layout Enumerate
+
+Quando e quem terá acesso ou precisará deste método ?
+\newline 
+1.
+ Quem -> Para mim só pode ser uma tarefa que por algum motivo decide apagar
+ o(s) dado(s).
+ Isso levanta uma nova questão, como isso é feito, direto ou através do
+ RequestDelete(), ou seja, DeleteObject() será público 
+\newline 
+2.
+ Quando.
+ Não faço ideia.
+\layout Enumerate
+
+Como será feito este acesso.
+\newline 
+A estrutura (na atual implementação) permite que cheguemos nos MetaData
+ por vários caminhos, qual deles deve ser usado para invocar funcionalidades
+ de tal impacto como a deleção de um objeto ?
+\newline 
+1.
+ Poderia chamar via DM (que eu acho errado !)
+\newline 
+2.
+ Poderia chamar via lista de dependências quando numa tarefa (aposto nessa)
+\layout Standard
+
+Um exemplo para tentar identificar estas necessidades !
+\layout Standard
+
+Uma tarefa usa um dado como uma variável temporária que será distribuida
+ no ambiente.
+ Depois de sua utilização, a tarefa pode submeter um pedido de deleção deste
+ objeto.
+ Como isso seria feito ? Digamos que o Id do dado temporário é guardado
+ pela tarefa.
+ Quando esta não mais utilizar o dado, e estando certo que nenhuma outra
+ tarefa utilizará o dado, este poderá ser excluído do DM.
+\layout Standard
+
+Uma vez que não existe requisição de acesso de nenhuma tarefa sobre o dado,
+ a deleção é imediata, caso contrário, inicia-se a solicitação de deleção
+ do dado.
+\layout Section
+
+AmIConsistent()
+\layout Standard
+
+Não entendo qual o erro no método.
+ Se eu (DataDepend) necessito de um dado em uma certa versão e este não
+ mais voltará a esta versão, acho que sou inconsistente não ?
+\the_end

@@ -78,6 +78,16 @@ public:
    * @param task Pointer to the submitted task.
    */
   OOPObjectId Submit (OOPTask * task);
+  
+  /**
+   * Re submits a task to the task manager. It won't call the GenerateId() method
+   * Assumes that the task was already given an Id.
+   * @param *task Pointer to the task which will be submitted
+   * @return Returns the Id of the current task.
+   * @since 25/07/2003
+   * @author Gustavo C Longhin
+   */
+  OOPObjectId ReSubmit(OOPTask *task);
 
   /**
    * Returns the number tasks currently being managed by this data manager

@@ -16,8 +16,22 @@ public:
 
     TParCompute(int procid);
 
+	/**
+     * Appends one Rhs ID to the fRhsId vector
+     */
+	void SetRhsId(OOPObjectId & Id);
+	/**
+     * Appends one StateID to the fRhsId vector
+     */
+	void SetStateId(OOPObjectId & Id);
+	/**
+     * Sets the whole Rhs ID vector
+     */
     void SetRhsId(vector<OOPObjectId> & Id);
 
+	/**
+     * Sets the whole State ID vector
+     */
     void SetStateId(vector<OOPObjectId> & Idp0);
 
     /**

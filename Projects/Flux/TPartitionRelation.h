@@ -4,13 +4,16 @@
 #define TPARTITIONRELATION_H
 
 #include "TContribution.h"
+#include "oopsaveable.h"
 
 /**
  * This class describe the relationship between the partitions of a mesh
  */
-class TPartitionRelation {
+class TPartitionRelation : public OOPSaveable {
 public:
 
+	long GetClassID();
+	TPartitionRelation();
   TPartitionRelation(int numpart);
     /**
      * Returns the total number of 
@@ -31,5 +34,6 @@ public:
 private:    
     int fNumPartitions;
     TContribution *fRelation;
+	long fClassId;
 };
 #endif //TPARTITIONRELATION_H

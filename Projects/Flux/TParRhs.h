@@ -6,6 +6,8 @@
 class TParRhs : public OOPSaveable {
 public:    
 
-    TParRhs(int ProcId, int Trace);
+    TParRhs();
+	long GetClassID();
+	long fClassId;
 };
 #endif //TPARRHS_H

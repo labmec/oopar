@@ -26,6 +26,8 @@ public:
      */
     vector<int> &DestinationVector(int index);
 
+	
+
     void InitializeRandom();
 
     TContribution();

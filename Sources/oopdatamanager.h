@@ -170,6 +170,10 @@ class   OOPDataManager
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
       public:
+	/**
+	 * Generates logging information
+	 */
+	void LogMe(ostream & out);
 	OOPMDMOwnerMessageType fType;
 	/**
 	* Access state associated with this message

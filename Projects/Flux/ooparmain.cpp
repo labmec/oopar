@@ -9,9 +9,11 @@
 #include "TLocalCompute.h"
 #include "TTaskComm.h"
 #include "fluxdefs.h"
+#include "OOPDataLogger.h"
 OOPCommunicationManager *CM;
 OOPDataManager *DM;
 OOPTaskManager *TM;
+OOPDataLogger *LogDM;
 using namespace std;
 void    ParAddClass ();
 int     multimain ();
@@ -26,6 +28,7 @@ int main (int argc, char *argv[])
 	OOPReceiveStorage::AddClassRestore (TLOCALCOMPUTE_ID,
 					    TLocalCompute::Restore);
 	OOPReceiveStorage::AddClassRestore (TTASKCOMM_ID, TTaskComm::Restore);
+	OOPDataLogger * LogDM = new OOPDataLogger("datalogger.log");
 	// return multimain();
 #ifdef MPI
 	return mpimain (argc, argv);

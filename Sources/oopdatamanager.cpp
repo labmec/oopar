@@ -453,6 +453,92 @@ OOPSaveable *OOPDMOwnerTask::Restore (OOPReceiveStorage * buf)
 	t->Unpack (buf);
 	return t;
 }
+void OOPDMOwnerTask::LogMe(ostream & out){
+	out << fProc << "\t";
+	out << fTaskId << "\t";
+	out << "regarding obj " << fObjId << "\t";
+	out << "type ";
+	/*
+	ENoMessage,
+	ECancelReadAccess,
+	ECancelReadAccessConfirmation,
+	ESuspendAccess,
+	ESuspendAccessConfirmation,
+	ESuspendSuspendAccess,
+	ETransferOwnership,
+	EGrantReadAccess,
+	EGrantVersionAccess,
+	ENotifyDeleteObject,
+	
+	*/
+	
+	switch (fType)
+	{
+		case  ENoMessage:
+			out << "ENoMessage\t";
+			break;
+		case  ECancelReadAccess:
+			out << "ECancelReadAccess\t";
+			break;
+		case  ECancelReadAccessConfirmation:
+			out << "ECancelReadAccessConfirmation\t";
+			break;
+		case  ESuspendAccess:
+			out << "ESuspendAccess\t";
+			break;
+		case  ESuspendAccessConfirmation:
+			out << "ESuspendAccessConfirmation\t";
+			break;
+		case  ESuspendSuspendAccess:
+			out << "ESuspendSuspendAccess\t";
+			break;
+		case  ETransferOwnership:
+			out << "ETransferOwnership\t";
+			break;
+		case  EGrantReadAccess:
+			out << "EGrantReadAccess\t";
+			break;
+		case  EGrantVersionAccess:
+			out << "EGrantVersionAccess\t";
+			break;
+		case  ENotifyDeleteObject:
+			out << "ENotifyDeleteObject\t";
+			break;
+		defaults:
+			out << "Uninitialized fType property\t";
+			break;
+	}
+	out << "State ";
+	/*
+	ENoAccess,
+	EReadAccess,
+	EWriteAccess,
+	EVersionAccess
+
+	*/
+	switch (fState )
+	{
+		case  ENoAccess:
+			out << "ENoAccess\t";
+			break;
+		case  EReadAccess:
+			out << "EReadAccess\t";
+			break;
+		case  EWriteAccess:
+			out << "EWriteAccess\t";
+			break;
+		case  EVersionAccess:
+			out << "EVersionAccess\t";
+			break;
+	}
+	
+	out << "Version " << fVersion << "\t";
+	out << "ProcOrigin " << fProcOrigin;
+	out.flush();
+
+
+	
+}
 int OOPDMOwnerTask::Pack (OOPSendStorage * buf)
 {
 	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<

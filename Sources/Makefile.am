@@ -35,6 +35,7 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	oopmdatadepend.cpp \
 	ooptaskcontrol.cpp \
 	oopaccessinfo.cpp \
+	OOPDataLogger.cpp \
 	oopmpicomm.cpp \
 	oopmpistorage.cpp
 else
@@ -53,7 +54,8 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	ooptask.cpp \
 	oopmdatadepend.cpp \
 	ooptaskcontrol.cpp \
-	oopaccessinfo.cpp
+	oopaccessinfo.cpp \
+	OOPDataLogger.cpp
 endif
 
 ## --| OOPar |------------------------------------------------------------------

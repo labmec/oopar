@@ -272,9 +272,10 @@ class   OOPDMRequestTask:public OOPDaemonTask
 	/**
 	 * Constructor
 	 */
-	        OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
-	        OOPDMRequestTask (const OOPDMRequestTask & task);
-	        OOPDMRequestTask ();
+	OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
+	OOPDMRequestTask (const OOPDMRequestTask & task);
+	OOPDMRequestTask ();
+	~OOPDMRequestTask();
 
 	virtual OOPMReturnType Execute ();
 

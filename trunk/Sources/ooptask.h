@@ -47,7 +47,9 @@ public:
 	 * Constructor based on a processor-id
 	 * @param Procid Id of processor where the object is being created
 	 */
-	OOPTask (int Procid);	
+	OOPTask (int Procid);
+
+  virtual ~OOPTask() { }
 
 	/**
 	 * Returns the Id of current object
@@ -185,14 +187,6 @@ public:
      */
     void SetRecurrence(bool recurrence = true);
 
-#ifndef WIN32
-//#warning "These methods will be deleted"
-#endif
-
-//  int CanExecute() { return fDataDepend.CanExecute();}
-//  void GrantAccess(const OOPMDataDepend &depend, OOPMetaData *objptr) {
-//    fDataDepend.GrantAccess(depend,objptr);
-//  }
 
 protected:
 

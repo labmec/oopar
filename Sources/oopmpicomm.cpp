@@ -23,7 +23,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-class   OOPMPIReceiveStorage;
+class   OOPMPIStorageBuffer;
 class   OOPMPICommManager;
 using namespace std;
 extern OOPTaskManager *TM;
@@ -37,13 +37,12 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 	f_argc = argc;
 	f_argv = argv;
 	fReceiveThreadExists=false;
-	
 	// f_proc = (int *) NULL; 
-       cout << "Before calling MPI_Init\n";
-       cout.flush();
+	cout << "Before calling MPI_Init\n";
+	cout.flush();
 	MPI_Init(&f_argc,&f_argv); 
-       cout << "After calling MPI_Init\n";
-       cout.flush();
+	cout << "After calling MPI_Init\n";
+	cout.flush();
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
@@ -69,7 +68,8 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 }
 int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
-	pthread_mutex_lock(&fCommunicate);
+	
+	//pthread_mutex_lock(&fCommunicate);
 #warning "Nao tem necessidade do mutex neste ponto"
 #ifdef VERBOSE
 	cout << "Sending task " << pTask->GetClassID() << endl;
@@ -89,41 +89,24 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 		delete pTask;
 		return -1;
 	}
-	pTask->Pack (&f_sendbuffer);
-	f_sendbuffer.Send(process_id);
+	pTask->Pack (&f_buffer);
+	f_buffer.Send(process_id);
 #ifdef VERBOSE
 	cout << "Message Sent\n";
 	cout.flush();
 #endif
 	delete pTask;
-	pthread_mutex_unlock(&fCommunicate);
+	//pthread_mutex_unlock(&fCommunicate);
 	return 1;
 };
 int OOPMPICommManager::ReceiveMessages ()
 {
-/*	
-	OOPMPICommManager * LocalCM = dynamic_cast<OOPMPICommManager * > (CM);
-	if(!fReceiveThreadExists) {
-		pthread_attr_t attr;
-		pthread_attr_init(&attr);
-		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-		pthread_create(&fReceiveThread, NULL, LocalCM->ReceiveMsgBlocking, NULL);
-		fReceiveThreadExists = true;
-	}
-	return 1;
-*/
-    f_receivebuffer.Receive();
-	if(f_receivebuffer.TestReceive()) {
-		ProcessMessage(f_receivebuffer);
-		f_receivebuffer.Receive();
+	
+    f_buffer.Receive();
+	if(f_buffer.TestReceive()) {
+		ProcessMessage(f_buffer);
+		f_buffer.Receive();
 	}		
-	/*OOPMPIReceiveStorage msg;
-	int ret = msg.Receive ();
-	// Se nao tiver mensagem, retorna.
-	if (ret <= 0)
-		return (ret);
-	ProcessMessage (msg);
-	return 1;*/
 	return 1;
 };
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
@@ -135,7 +118,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 #endif
 	while (1){
 		
-		OOPMPIReceiveStorage msg;
+		OOPMPIStorageBuffer msg;
 		pthread_mutex_lock(&fCommunicate);
 		int ret = msg.ReceiveBlocking ();
 		pthread_mutex_unlock(&fCommunicate);
@@ -161,7 +144,7 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 #endif
 	while (1){
 		
-		OOPMPIReceiveStorage msg;
+		OOPMPIStorageBuffer msg;
 		pthread_mutex_lock(&fCommunicate);
 		int ret = msg.ReceiveBlocking();
 		pthread_mutex_unlock(&fCommunicate);
@@ -181,16 +164,17 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 
 int OOPMPICommManager::ReceiveBlocking ()
 {
-	f_receivebuffer.ReceiveBlocking();
-	if(f_receivebuffer.TestReceive()) {
-		ProcessMessage (f_receivebuffer);
-		f_receivebuffer.Receive();
+	
+	f_buffer.ReceiveBlocking();
+	if(f_buffer.TestReceive()) {
+		ProcessMessage (f_buffer);
+		f_buffer.Receive();
 	} else {
 //		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
 	}
 	return 1;
 };
-int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
+int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 {
 	OOPSaveable *obj = msg.Restore ();
 #warning "Restore( &msg ); not implemented on OOPMPICommManager"
@@ -211,6 +195,6 @@ int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
 void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
 	cout.flush();
-	f_receivebuffer.FreeRequest();
+	f_buffer.FreeRequest();
 	MPI_Finalize();
 }

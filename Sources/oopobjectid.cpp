@@ -2,8 +2,8 @@
 #include <deque>
 #include "oopobjectid.h"
 #include <algorithm>
-class   OOPSendStorage;
-class   OOPReceiveStorage;
+class   OOPStorageBuffer;
+class   OOPStorageBuffer;
 //class OOPObjectId;
  
 OOPObjectId::OOPObjectId ()
@@ -147,7 +147,7 @@ OOPObjectId::OOPObjectId (const::OOPObjectId & obj)
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 }
-int OOPObjectId::Pack (OOPSendStorage * buf)
+int OOPObjectId::Pack (OOPStorageBuffer * buf)
 {
 	int aux = 0;
 	aux = GetId ();
@@ -156,7 +156,7 @@ int OOPObjectId::Pack (OOPSendStorage * buf)
 	buf->PkInt (&aux);
 	return 1;
 }
-int OOPObjectId::Unpack (OOPReceiveStorage * buf)
+int OOPObjectId::Unpack (OOPStorageBuffer * buf)
 {
 	int aux = 0;
 	buf->UpkInt (&aux);
@@ -164,4 +164,9 @@ int OOPObjectId::Unpack (OOPReceiveStorage * buf)
 	buf->UpkInt (&aux);
 	SetProcId (aux);
 	return 1;
+}
+
+int OOPObjectId::IsZeroOOP() const
+{
+	return (fId == 0 && fProcId == 0);
 }

@@ -122,7 +122,7 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
 		// can't cancel executing tasks
 		if (!(i->fVersion).AmICompatible (version)
 		    && !i->fIsAccessing) {
-			if (i->fTaskId.IsZero ()) {
+			if (i->fTaskId.IsZeroOOP ()) {
 				// This is a different processor requesting
 				// access
 				fList.erase (i);
@@ -267,7 +267,7 @@ void OOPAccessInfoList::RevokeAccessAndCancel ()
 	while (i != fList.end ()) {
 		if (i->fIsAccessing) {
 		}
-		else if (taskid.IsZero () && i->fIsGranted) {
+		else if (taskid.IsZeroOOP () && i->fIsGranted) {
 			taskid = i->fTaskId;
 			OOPMDataDepend depend (taskid, i->fState,
 					       i->fVersion);
@@ -279,7 +279,7 @@ void OOPAccessInfoList::RevokeAccessAndCancel ()
 			TM->RevokeAccess (taskid, depend);
 		}
 		i++;
-		if (i == fList.end () && !taskid.IsZero ()) {
+		if (i == fList.end () && !taskid.IsZeroOOP ()) {
 			TM->CancelTask (taskid);
 			taskid.Zero ();
 			i = fList.begin ();

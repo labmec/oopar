@@ -36,15 +36,15 @@ class   OOPSaveable;
 /************************ TReceiveStorage ************************/
 //TVoidPtrMap TReceiveStorage::gFuncTree(0);
 //void * TReceiveStorage::gFuncTree(long class_id);
-map < long, TRestFunction>OOPReceiveStorage::gFuncTree;
+map < long, TRestFunction>OOPStorageBuffer::gFuncTree;
 /******************/
 /*** Destructor ***/
-OOPReceiveStorage::~OOPReceiveStorage ()
+OOPStorageBuffer::~OOPStorageBuffer ()
 {
 }
 /***************/
 /*** Restore ***/
-OOPSaveable *OOPReceiveStorage::Restore ()
+OOPSaveable *OOPStorageBuffer::Restore ()
 {
 	long class_id = 0; 
 	UpkLong (&class_id);
@@ -70,7 +70,7 @@ OOPSaveable *OOPReceiveStorage::Restore ()
 	f = gFuncTree[class_id];	// i;//c;
 	return f (this);
 }
-void OOPReceiveStorage::AddClassRestore (long classid, TRestFunction f)
+void OOPStorageBuffer::AddClassRestore (long classid, TRestFunction f)
 {
 	gFuncTree[classid] = f;
 }

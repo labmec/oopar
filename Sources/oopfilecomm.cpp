@@ -41,7 +41,7 @@ OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 	strcpy (f_prefix, prefix);
 	sprintf (f_my_prefix, "%s.%1d", f_prefix, f_myself);
 	// Cria novos buffers.
-	f_buffer = new (PTSendStorageFile[f_num_proc]);
+	f_buffer = new (PTFileStorageBuffer[f_num_proc]);
 	if (f_buffer == NULL) {
 		Err.Error (1, "Constructor <can't alloc buffers>\n");
 	}
@@ -49,7 +49,7 @@ OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 	for (int i = 0; i < f_num_proc; i++) {
 		if (i != f_myself)
 			f_buffer[i] =
-				new OOPSendStorageFile (f_my_prefix,
+				new OOPFileStorageBuffer (f_my_prefix,
 							f_myself);
 		else
 			f_buffer[i] = NULL;
@@ -95,7 +95,7 @@ int OOPFileComManager::SendTaskVrt (OOPTask * pObject)
 		process_id = ipr;
 		pObject->SetProcID (process_id);
 		// Empacota o objeto no buffer destino.
-		OOPSendStorageFile *buf = f_buffer[process_id];
+		OOPFileStorageBuffer *buf = f_buffer[process_id];
 		char name[256];
 		buf->FileName (name);
 		buf->Open ();
@@ -134,7 +134,7 @@ int OOPFileComManager::SendTask (OOPTask * pObject)
 		process_id = ipr;
 		pObject->SetProcID (process_id);
 		// Empacota o objeto no buffer destino.
-		OOPSendStorageFile *buf = f_buffer[process_id];
+		OOPFileStorageBuffer *buf = f_buffer[process_id];
 		char name[256];
 		buf->FileName (name);
 		buf->Open ();
@@ -180,7 +180,7 @@ int OOPFileComManager::ReceiveMessages ()
 		// de recepcao de dados.
 		int check;
 		check = 1;
-		OOPReceiveStorageFile msg (msg_file_name);
+		OOPFileStorageBuffer msg (msg_file_name);
 		char has_more_objects;
 		has_more_objects = 0;
 		msg.UpkByte (&has_more_objects);

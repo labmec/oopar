@@ -7,8 +7,8 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include "oopmdatadepend.h"
-class   OOPSendStorage;
-class   OOPReceiveStorage;
+class   OOPStorageBuffer;
+class   OOPStorageBuffer;
 using namespace std;
 class   OOPMetaData;
 class   OOPMDataDepend;
@@ -168,13 +168,13 @@ public:
 	* Defines the necessary interface for task communication along the network.
 	* @param * buf Buffer for data manipulation.
 	*/
-	virtual int Unpack (OOPReceiveStorage * buf);
+	virtual int Unpack (OOPStorageBuffer * buf);
 	/**
 	* static function defined for the Restore functionality once TTask objects arrives
 	* on destination processor
 	*/
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
-	virtual int Pack (OOPSendStorage * buf);
+	static OOPSaveable *Restore (OOPStorageBuffer * buf);
+	virtual int Pack (OOPStorageBuffer * buf);
 // Apenas para DEBUG.
 //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
 //  virtual void Print() { Debug( "  TSaveable::Print." ); }
@@ -236,7 +236,7 @@ class   OOPDaemonTask:public OOPTask
 	{
 		return TDAEMONTASK_ID;
 	}
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+	static OOPSaveable *Restore (OOPStorageBuffer * buf);
 };
 extern int GLogMsgCounter;
 #endif

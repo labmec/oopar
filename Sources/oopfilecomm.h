@@ -19,7 +19,7 @@
 #include "oopfilestorage.h"
 #include "oopcommmanager.h"
 class   OOPTask;
-class   OOPSendStorageFile;
+class   OOPFileStorageBuffer;
 class   OOPTaskManager;
 class   OOPSaveable;
 /**
@@ -84,6 +84,6 @@ class   OOPFileComManager:public OOPCommunicationManager
   */
 	char    f_my_prefix[FILE_NAME_SIZE];
   /**1 buffer para cada processo do grupo.*/
-	OOPSendStorageFile **f_buffer;
+	OOPFileStorageBuffer **f_buffer;
 };
 #endif // _COM_FILEHH_

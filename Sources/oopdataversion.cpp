@@ -2,11 +2,11 @@
 #include <iostream>
 #include <typeinfo>
 #include "oopdataversion.h"
-class   OOPSendStorage;
-class   OOPReceiveStorage;
+class   OOPStorageBuffer;
+class   OOPStorageBuffer;
 class   OOPDataVersion;
 using namespace std;
-int OOPDataVersion::Pack (OOPSendStorage * buf)
+int OOPDataVersion::Pack (OOPStorageBuffer * buf)
 {
 	int aux = fVersion.size ();
 	buf->PkInt (&aux);
@@ -20,7 +20,7 @@ int OOPDataVersion::Pack (OOPSendStorage * buf)
 		buf->PkInt (&*ivl);
 	return 1;
 }
-int OOPDataVersion::Unpack (OOPReceiveStorage * buf)
+int OOPDataVersion::Unpack (OOPStorageBuffer * buf)
 {
 	int aux = 0, size = 0;
 	buf->UpkInt (&size);

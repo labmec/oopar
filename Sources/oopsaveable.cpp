@@ -14,12 +14,12 @@
        #include <sys/types.h>
        #include <unistd.h>
 
-class   OOPSendStorage;
-class   OOPReceiveStorage;
+class   OOPStorageBuffer;
+class   OOPStorageBuffer;
 class   OOPDataVersion;
 /************/
 /*** Pack ***/
-int OOPSaveable::Pack (OOPSendStorage * buf)
+int OOPSaveable::Pack (OOPStorageBuffer * buf)
 {
 #ifdef VERBOSE
 	cout << "PID" << getpid() << " Packing class ID " << GetClassID() << endl;
@@ -34,7 +34,7 @@ int OOPSaveable::Pack (OOPSendStorage * buf)
 }
 /**************/
 /*** Unpack ***/
-int OOPSaveable::Unpack (OOPReceiveStorage * buf)
+int OOPSaveable::Unpack (OOPStorageBuffer * buf)
 {
 #ifndef WIN32
 #warning "Unpack on the OOPSaveable class is empty ! Should it exist ?"
@@ -43,7 +43,7 @@ int OOPSaveable::Unpack (OOPReceiveStorage * buf)
 	return 1;
 }
 
-OOPSaveable *OOPSaveable::Restore(OOPReceiveStorage *buf)
+OOPSaveable *OOPSaveable::Restore(OOPStorageBuffer *buf)
 {
   return 0;
 }

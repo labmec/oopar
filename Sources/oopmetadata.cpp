@@ -168,7 +168,7 @@ bool OOPMetaData::CanGrantAccess () const
 		return false;
 	if (fToDelete)
 		return false;
-	if (!fTaskVersion.IsZero ())
+	if (!fTaskVersion.IsZeroOOP ())
 		return false;
 	return true;
 }
@@ -335,7 +335,7 @@ void OOPMetaData::CheckTransitionState ()
 }
 OOPMDataState OOPMetaData::State () const
 {
-	if (fTaskWrite.IsZero ()) {
+	if (fTaskWrite.IsZeroOOP ()) {
 		return EWriteAccess;
 	}
 	else {
@@ -549,7 +549,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 		fProcVersionAccess = DM->GetProcID();
 		fProc = ms.fProcOrigin;
 		VerifyAccessRequests();
-		if(fTaskVersion.IsZero()) {
+		if(fTaskVersion.IsZeroOOP()) {
 			DataLog << "grantversion access for obj " << fObjId << " did not find corresponding task\n";
 			VerifyAccessRequests();
 			DataLog.flush();

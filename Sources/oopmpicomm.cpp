@@ -32,18 +32,18 @@ pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 OOPMPICommManager::OOPMPICommManager(){
 	cerr << "Empty Constructor should never be called\n";
 }
-OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
+OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 {
 	f_myself = -1;
 	f_num_proc = 0;
-	f_argc = argc;
-	f_argv = argv;
 	fReceiveThreadExists=false;
 	// f_proc = (int *) NULL; 
 	cout << "Before calling MPI_Init\n";
 	cout.flush();
-	MPI_Init(&f_argc,&f_argv); 
+	MPI_Init(&argc,&argv); 
 	Initialize((char*)argv, argc);
+	f_argc = argc;
+	f_argv = argv;
 	cout << "After calling MPI_Init\n";
 	cout.flush();
 }

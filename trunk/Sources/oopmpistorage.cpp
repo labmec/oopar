@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.19 2004-03-10 21:50:08 longhin Exp $
-// $Revision: 1.19 $
+// $Id: oopmpistorage.cpp,v 1.20 2004-03-22 14:32:35 longhin Exp $
+// $Revision: 1.20 $
 
 
 #include "oopstorage.h"

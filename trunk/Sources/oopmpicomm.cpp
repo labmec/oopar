@@ -29,13 +29,13 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 {
 	f_buffer = (POOPMPISendStorage *) NULL;
 	f_myself = -1;
-	int     f_num_proc = 0;
+	f_num_proc = 0;
 	f_argc = argc;
 	f_argv = argv;
 	fReceiveThreadExists=false;
 	
 	// f_proc = (int *) NULL; 
-	// MPI_Init(&argc,&argv); 
+	//MPI_Init(&argc,&argv); 
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
@@ -55,8 +55,10 @@ OOPMPICommManager::~OOPMPICommManager ()
 int OOPMPICommManager::Initialize (char *process_name, int num_of_process)
 {
 	// cout << "process_name:" << argv <<endl;;
+	f_num_proc = num_of_process;
 	MPI_Init (&f_argc, &f_argv);
-	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
+	//MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
+	MPI_Comm_size (MPI_COMM_WORLD, &num_of_process);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
 	f_buffer = new (POOPMPISendStorage[f_num_proc]);
 	if (f_buffer == NULL) {
@@ -132,8 +134,10 @@ int OOPMPICommManager::ReceiveMessages ()
 	
 	OOPMPICommManager * LocalCM = dynamic_cast<OOPMPICommManager * > (CM);
 	if(!fReceiveThreadExists) {
-		
-		pthread_create(&receivethread, NULL, LocalCM->ReceiveMsgBlocking, NULL);
+/*		pthread_attr_t attr;
+		pthread_attr_init(&attr);
+		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);*/
+		pthread_create(&fReceiveThread, NULL, LocalCM->ReceiveMsgBlocking, NULL);
 		fReceiveThreadExists = true;
 	}
 	return 1;

@@ -60,8 +60,9 @@ int multimain ()
 	Load (0);
 	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);
 	TM->Submit (partask);
-	int nsteps=500;
+	int nsteps=30;
 	int k=0;
+
 	while (NumTasks () && k<nsteps) {
 		for (iproc = 0; iproc < numproc; iproc++) {
 			Load (iproc);

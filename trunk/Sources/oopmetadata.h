@@ -245,7 +245,10 @@ public:
 	void SubmitAccessRequest(OOPObjectId &taskId, OOPDataVersion &version, OOPMDataState access, long proc);
 	
 	/**
-	 * Returns true if current data satisfies the desired state
+	 * Returns true if current data can be accessed with the desired state
+	 * This method is virtually not implemented
+	 * it ONLY CHECKS whether the version is compatible
+	 * it does NOT CHECK whether there is already a task accessing the data
 	 * @param version Desired version for the data
 	 * @param access Desired access state for the data
 	 */

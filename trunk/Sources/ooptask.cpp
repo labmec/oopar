@@ -148,6 +148,7 @@ void OOPTask::RevokeAccess(OOPObjectId &id, OOPMDataState st){
   deque<OOPMDataDepend>::iterator i;
   bool found = false;
   bool compatible = false;
+#warning "OOPTask::RevokeAccess BADLY IMPLEMENTED METHOD";
   for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
     if(i->fDataId == id){
       found = true;
@@ -215,6 +216,7 @@ void OOPTask::RequestAccess() {
 void OOPTask::ReleaseAccessRequests(){
   deque<OOPMDataDepend>::iterator i;
   //poderia ser feito no mesmo loop 
+#warning "Why doesnt OOPTask::ReleaseAccessRequests zero the fDataDepend data structure?";
   for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
     //DM->SubmitAccessRequest(fTaskId,i->fDataId, i->fVersion, ENoAccess, (long)fProc);
     OOPMetaData *data = (OOPMetaData *) i->ObjPtr();

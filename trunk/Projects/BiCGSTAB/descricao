@@ -1,0 +1,226 @@
+Implementação do BiCGSTAB
+
+1 - Submter uma tarefa que simplesmente cria os dados e os incluí no ambiente, os seguintes objetos devem ser icluídos:
+	No processador #0
+		normb
+		rho_1
+		rho_2
+		alpha
+		beta
+		omega
+		max_iter
+		tol
+	Em todos os processadores
+		A
+		M
+		x
+		b
+
+		p
+		phat
+		s
+		shat
+		t
+		v
+		CMatrix
+
+		rtilde
+		r
+
+A funcionalidade de um BiCGSTAB será alcançada através da execução de uma série de subtarefas que serão submetidas ao ambiente paralelo. As tarefas necessárias e as suas dependencias de dados são:
+	Uma tarefa por processador.
+
+2 - normb = Norm(b)
+	Dependências
+	normb(Write,n)
+	b[i](Read,n)
+	CMatrix(Read,n)
+	Ao termino desta tarefa normb terá versão n+1.
+	Antes da submissão deve-se incrementar um nível da versão de normb para com a profundidade igual ao número de subdomínios.
+
+3 - A.MultAdd(x,b,r,-1.,1.);
+	Esta tarefa realiza a operação r = b - A * x;
+	Deve-se submete-la com as seguintes dependencias:
+	r[i](Write,n)
+	b[i](Read,n)
+	A[i](Read,n)
+	x[i](Read,n)
+	CMatrix[i](Read,n)
+	Todos os r[i] terão suas versões alteradas para n+1.
+	Cada processador recebe uma tarefa destas
+
+	3.1 - Deve-se para cada nó identificar a quantidade de contribuições que serão recebidas de nós vizinhos (Similar ao cálculo do Fluxo), ajustar a cardinalidade da versão para receber as tantas contribuiçòes.
+	Identificar também quais as os vizinhos receberão as contribuições para que as tarefas de contribuições sejam geradas com os alvos corretos.
+
+
+4 - rtilde = r
+	Pode ser implementada na função acima ? Deve ser implementada na tarefa anterior
+	Submeter uma tarefa por processador com a seguinte dependência.
+	rtilde[i](Write,n)
+	r[i](Read,n+1)
+	CMatrix[i](Read,n)
+	Com o término, a versão de rtilde -> n+1
+
+5 - resid = Norm(r) / normb
+	Devemos quebrar a instrução acima conforme:
+	normr = Norm(r)
+	resid = normr/normb
+	Para as duas novas instruções subemter uma tarefa, conforme:
+	normr = Norm(r)
+	5.1 - Submeter uma tarefa por processador com as seguintes dependencias:
+		normr(Write, n)
+		r[i](Read,n+1)
+	Versão de normr vai para n+1
+	5.2 - Submeter uma tarefa local com a seguinte dependencia:
+		resid(Write,n)
+		normr(Read,n+1)
+		normb(Read,n)
+	Após termino a versão de resid vai para n+1
+
+
+	Em seguida às tarefas acima citadas é necessário a execução de um loop, para tanto será criada uma tarefa recursiva que fará o papel das repetições.
+	A tarefa que implementa o loop repetidamente submeterá tarefas para suas necessárias operações.
+	Duas possibilidades para esta execução são notadas, uma onde onde o processador 0 é o único que abstrai a execução do loop, desta forma este loop submete todas as tarefas para todos os processadores, nota-se neste caso uma sincronização natural na execução desta tarefa. Uma segunda possibilidade seria a criação de uma tarefa loop por processador, neste caso cada processador submete suas específicas tarefas, incluindo as de contribuição. Numa análise superficial inicial, aparentemente a segunda opção reduz a quantidade de comunicação, mas isso ainda precisa ser checado com mais rigor. Será adotado para uma primeira implementação a opção incial, onde o loop é centralizado no processador #0.
+	O loop envolve os seguintes dados:
+	Submter a terafa com dependência de versão sobre todos os dados abaixo
+	max_iter
+	rho_1
+	r
+	rtilde
+	normb
+	p
+	rho_2
+	alpha
+	omega
+	beta
+	v
+	phat
+	s
+	x
+	shat
+	t
+	resid
+
+	Quando necessario a cardinalidade destas versões de dados serão incrementadas para refletir a paralelização da operação. A operação de incremento da cardinalidade, requer da tarefa que o faz, acesso à versão.
+
+6 - for (int i = 1; i <= max_iter; i++)
+	Dependências:
+	iter[i](Version,n)
+		Cardinalidade -1, tarefa recursiva
+
+	A tarefa 6 submete as seguintes tarefas
+	6.1 - rho_1 = Dot(rtilde, r)
+		Dependências
+		rho_1(Write,m.n)
+		rtilde(Read,m.n)
+		r(Read,m.n)
+	Ao termino desta tarefa a versão de rho_1 passa para m.n+1
+
+	6.2 - if(rho_1==0) tol = Norm(r)/normb
+	Por motivos de sincronização estabelece-se dependência inclusive com rho_1. Deve ainda verificar se isso é necessário, sendo que as duas tarefas poderiam ser executadas em paralelo. Visto que esta instrução deve ser executada apenas qdo o if é satisfeito, deve-se analisar esta parte com mais rigor.
+
+	6.3 - beta = (rho_1/rho_2) * (alpha/omega); (Dentro do else)
+		Dependências
+		beta(Write, m.n)
+		rho_1(Read,m.n+1)
+		rho_2(Read,m.n)
+		alpha(Read,m.n)
+		omega(Read,m.n)
+	Ao termino, a versão de beta passa para m.n+1
+
+	6.4 - p *= beta; (Dentro do else)
+		Dependências
+		p(Write,m.n)
+		beta(Read,m.n+1)
+	Ao termino a versão de p passa para m.n+1
+
+	6.5 - p.Add(1.,r)(Dentro do else)
+		Dependências
+		p(Write,m.n+1)
+		r(Read,m.n)
+	Ao termino a versão de p passa para m.n+2
+
+	6.6 - p.Add(-beta * omega, v)(Última instrução dentro do else)
+		Dependências
+		p(Write,m.n+2)
+		beta(Read,m.n+1)
+		omega(Read,m.n)
+		v(Read,m.n)
+	Ao termino a versão de p passa para m.n+3
+
+	6.7 - M.Solve(p, phat)
+		Dependências
+		M(Write,m.n)
+		p(Read,m.n+2)
+		phat(Read,m.n)
+	Ao termino a versão de M passa para m.n+1
+
+	6.8 - A.Multiply(phat,v)
+		Dependências
+		A(Write,m.n)
+		phat(Read,m.n)
+		v(Read,m.n)
+	Ao termino a versão de A passa para m.n+1
+
+	6.9 - alpha = rho_1 / Dot(rtilde, v)
+		Dependências
+		alpha(Write,m.n)
+		rho_1(Read,m.n+1)
+		rtilde(Read,m.n)
+		v(Read,m.n)
+
+	6.10 - s = r;
+		Dependências
+		s(Write,m.n)
+		r(Read,m.n)
+	Ao término a versão de s passa para m.n+1
+
+	6.11 - s.Add(-alpha,v)
+		Dependências
+		s(Write,m.n+1)
+		alpha(Read,m.n)
+		v(Read,m.n)
+	Ao término a versão de s passa para m.n+2
+
+	Inicio do IF
+	6.12
+	Estratégia para implementação de IF, como no caso
+	if ((resid = Norm(s)/normb) < tol) {
+		//x += alpha(0) * phat;
+		x.Add(alpha, phat);
+		tol = resid;
+		return 0;
+	}
+	A tarefa computa o teste do IF, deve ser submetida com acesso a versão ao objeto x. Já a tarefa que localizada dentro do IF deve ser submetida com requisição de acesso à escrita no objeto x, sendo a versão neste caso, a que será ajustada na eventualidade do IF ser satisfeito. Da seguinte maneira.
+	6.12.1 - resid = Norm(s)/normb
+		Dependências:
+		resid(Write,m.n) --> m = n+1
+		s(Read,m.n+2)
+		normb(Read,m.n) --> m = n+1
+		tol(Read,m.n)
+		x(Version,m.n.o)
+		Verificar com Philippe
+		A próxima tarefa que se refere às operações internas ao Loop dependerão de x, tol e etc em versões que serão setadas apenas se o IF for verificado.
+	6.12.2 Tarefas dentro do IF, verificar lógica com Philippe
+
+	-->Final do IF
+
+	6.13 - M.Solve(s, shat)
+		Dependências
+		M(Write,m.n+1)
+		s(Read,m.n+2)
+		shat(Read,m.n)
+		Ao termino versão de M passa para m.n+2
+
+	6.14 - A.Multiply(shat, t)
+		Dependências
+		A(Write,m.n+1)
+		shat(Read,m.n)
+		t(Read,m.n)
+		Ao termino versão de A passa para m.n+2
+
+	6.15 - omega = Dot(t/s) / Dot(t/t)
+		A lógica é simples mas como fazer sem sobrecarregar.
+
+
+

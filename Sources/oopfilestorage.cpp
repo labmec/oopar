@@ -117,7 +117,8 @@ OOPSendStorageFile::PkUint( u_int *p, int n )
 int
 OOPSendStorageFile::PkUshort( u_short *p, int n )
 {
-  for ( int i = 0; i < n; i++ )
+	unsigned long i;
+  for ( i = 0; i < (unsigned long)n; i++ )
     if ( fprintf( f_file, "%d ", *p++ ) == EOF )
       return( i );
   fprintf( f_file, "\n" );
@@ -127,8 +128,9 @@ OOPSendStorageFile::PkUshort( u_short *p, int n )
 int
 OOPSendStorageFile::PkUlong( u_long *p, int n )
 {
-  for ( int i = 0; i < n; i++ )
-    if ( fprintf( f_file, "%d ", *p++ ) == EOF )
+	unsigned long i;
+  for ( i = 0; i < (unsigned long)n; i++ )
+    if ( fprintf( f_file, "%d ", (int)*p++ ) == EOF )
       return( i );
   fprintf( f_file, "\n" );
   return( n );
@@ -213,7 +215,7 @@ int
 OOPSendStorageFile::Close()
 {
   if(! f_file) return 0;
-  f_wrote = (ftell(f_file) > HEADER_SIZE) ? 1 : 0;
+  f_wrote = ((unsigned int)ftell(f_file) > (unsigned int)HEADER_SIZE) ? 1 : 0;
   int closeres = fclose(f_file);
   f_file = 0;
   return closeres;

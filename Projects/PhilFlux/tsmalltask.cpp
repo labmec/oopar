@@ -13,6 +13,8 @@
 #include "oopmdatadepend.h"
 #include "oopmetadata.h"
 
+#include <unistd.h>
+
 TSmallTask::TSmallTask(int Procid): OOPTask(Procid)
 {
 }
@@ -40,6 +42,11 @@ void TSmallTask::Read(TPZStream & buf, void * context)
     OOPTask::Read(buf,context);
 }
 
+int TSmallTask::ClassId () const{
+  return TSMALLTASKID;
+}
+
+template class TPZRestoreClass<TSmallTask,TSMALLTASKID>;
 
 OOPMReturnType TSmallTask::Execute()
 {
@@ -54,6 +61,7 @@ OOPMReturnType TSmallTask::Execute()
       dep.ObjPtr()->SetVersion(ver,Id());
     }
   }
+  sleep(2);
   
   return ESuccess;
 }

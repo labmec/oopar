@@ -19,4 +19,4 @@ main_LDADD = $(top_builddir)/lib/liboopar.a @MPILIBDIR@ @MPILIB@ -lpthread
 ## --| OOPar |------------------------------------------------------------------
 noinst_HEADERS = tsmalltask.h
 INCLUDES = -I$(top_srcdir)/Common -I$(top_srcdir)/Save -I$(top_srcdir)/Sources -I$(top_srcdir)/Util
-AM_CXXFLAGS = -DMPI
+AM_CXXFLAGS = @USING_MPI@

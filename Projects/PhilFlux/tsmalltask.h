@@ -23,18 +23,18 @@ This is a class which only increments the version counter of the objects from wh
 class TSmallTask : public OOPTask
 {
 public:
-    TSmallTask(int Procid);
+    TSmallTask(int Procid = -1);
 
     ~TSmallTask();
 
-	virtual int    ClassId () const{
-		return TSMALLTASKID;
-	}
-	virtual void Write (TPZStream & buf, int withclassid=0);
-	virtual void Read (TPZStream & buf, void * context = 0);
+    virtual int    ClassId () const;
+    virtual void Write (TPZStream & buf, int withclassid=0);
+    virtual void Read (TPZStream & buf, void * context = 0);
     static TPZSaveable* Restore(TPZStream & buf, void * context);
     virtual OOPMReturnType Execute();
 
 };
+
+
 
 #endif

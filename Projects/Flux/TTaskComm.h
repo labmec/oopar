@@ -2,10 +2,10 @@
 
 #ifndef TTASKCOMM_H
 #define TTASKCOMM_H
-#include "Sources/ooptask.h"
+#include "ooptask.h"
 class OOPReceiveStorage;
 class OOPSendStorage;
-class OOPMReturnType;
+
 
 /**
  * Implements the communication itself among partitions.

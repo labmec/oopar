@@ -49,7 +49,7 @@ public:
 	/**
 	 * Sets the label property
 	 */
-	void SetLabel(char * label){
+	void SetLabel(const char * label){
 		fLabel = label;
 	}
 	void SetLabel(string label){
@@ -84,11 +84,13 @@ public:
 	 * Constructor based on a processor-id
 	 * @param Procid Id of processor where the object is being created
 	 */
+#warning "Gustavo, implementa o construtor vazio por favor!!"
 	OOPTask():fProc(-1){}
 	OOPTask (int Procid);
 	OOPTask (const OOPTask & task);
 	virtual ~ OOPTask ()
 	{
+#warning "Gustavo, implementa o destrutor por favor!!"
 	}
 	/**
 	 * Returns the Id of current object
@@ -171,11 +173,6 @@ public:
 	* @param * buf Buffer for data manipulation.
 	*/
 	virtual void Read (TPZStream & buf, void * context = 0);
-	/**
-	* static function defined for the Restore functionality once TTask objects arrives
-	* on destination processor
-	*/
-	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 	virtual void Write (TPZStream & buf, int withclassid=0);
 // Apenas para DEBUG.
 //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
@@ -190,6 +187,15 @@ public:
      * @since 12/06/2003 
      */
 	void    SetRecurrence (bool recurrence = true);
+	
+	/**
+	 * Return the pointer to the ith object from which this task depends
+	 */
+	TPZSaveable *GetDepObjPtr(int idepend);
+	/**
+	 * Increment the version of the ith object from which this task depends
+	 */
+	 void IncrementDepObjVersion(int idepend);
       protected:
 	/**
 	* Processor where the task should be executed

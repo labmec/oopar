@@ -792,6 +792,26 @@ OOPDataVersion OOPMetaData::Version () const
 {
 	return fVersion;
 }
+void OOPMetaData::IncrementVersion (const OOPObjectId &taskid) 
+{
+	DataLog << GLogMsgCounter << endl;
+	
+	GLogMsgCounter++;
+	if (fTaskWrite == taskid || fTaskVersion == taskid) {
+		OOPDataVersion ver = fVersion;
+		++ver;
+		LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver, State(),taskid);
+		fVersion = ver;
+		DataLog << "Incrementing Version for Obj " << this->fObjId << " to version "
+			<< ver << "\n";
+		++fVersion;
+	}
+	else {
+		DataLog << "OOPMetaData::IncrementVersion not executed for Obj "<< fObjId << "\n";
+	}
+	DataLog.flush();
+}
+
 void OOPMetaData::TraceMessage (OOPDMOwnerTask & ms)
 {
 	int myproc = CM->GetProcID ();

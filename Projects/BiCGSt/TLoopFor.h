@@ -6,7 +6,7 @@
 #include <bicgdefs.h>
 class TLoopFor : public OOPTask {
 public:
-  TLoopFor();
+  TLoopFor(int proc);
   ~TLoopFor();    
 
     /**

@@ -40,6 +40,7 @@ TPartitionRelation::TPartitionRelation(int npart){
 	int i;
 	for(i=0;i<npart;i++)
 		fRelation[i].resize(npart);
+	fNumPartitions = npart;
 }
 TPartitionRelation * TPartitionRelation::CreateRandom(int npart){
 	TPartitionRelation * part = new TPartitionRelation(npart);

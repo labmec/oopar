@@ -1796,7 +1796,9 @@ trap 'rm -fr `echo " Makefile OOP.mk OOP_user.mk \
 	Projects/Makefile \
 	Projects/Trivial/Makefile \
 	Projects/Flux/Makefile \
+  	Projects/BiCGSt/Makefile \
 	Projects/PhilFlux/Makefile \
+	Projects/BiCGSTAB/Makefile \
 " | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
@@ -1927,7 +1929,9 @@ CONFIG_FILES=\${CONFIG_FILES-"Makefile OOP.mk OOP_user.mk \
 	Projects/Makefile \
 	Projects/Trivial/Makefile \
 	Projects/Flux/Makefile \
+  	Projects/BiCGSt/Makefile \
 	Projects/PhilFlux/Makefile \
+	Projects/BiCGSTAB/Makefile \
 "}
 EOF
 cat >> $CONFIG_STATUS <<\EOF

@@ -68,7 +68,8 @@ void TParAnalysis::SetupEnvironment ()
 	fDataDepend.Clear ();
 	char * msg = "TParAnalysis dependency on all data relationtable version ";
 	PrintLog(TaskLog, msg);
-	ver.Print (TaskLog);
+	ver.ShortPrint (TaskLog);
+	TaskLog << endl;
 	AddDependentData (OOPMDataDepend (fRelationTable, st, ver));
 
 	st = EVersionAccess;
@@ -117,10 +118,11 @@ void TParAnalysis::CreateParCompute ()
 	// Setting the data version
 	// fTaskVersionAccess não estava sendo setado.
 	PrintLog(TaskLog, "TParAnalysis setting the version of rhs and state to ");
-	randver.Print(TaskLog);
+	randver.ShortPrint(TaskLog);
+	TaskLog << endl;
 	cout << "TParAnalysis setting the version of rhs and state to " <<
 		endl;
-	randver.Print (cout);
+	randver.ShortPrint (cout);
 	/*while (count < fNumPartitions) {
 		int index=count*3+2;
 		fDataDepend.Dep (index).ObjPtr()->SetVersion (randver, Id ());
@@ -156,9 +158,10 @@ void TParAnalysis::CreateParCompute ()
 	count = 0;
 	randver.Increment ();
 	PrintLog(TaskLog, "TParAnalysis::CreateParCompute I depend on version for rhs and state");
-	randver.Print(TaskLog);
+	randver.ShortPrint(TaskLog);
+	TaskLog << endl;
 	cout << "TParAnalysis::CreateParCompute I depend on version for rhs and state" << endl;
-	randver.Print (cout);
+	randver.ShortPrint (cout);
 //  while(count < fNumPartitions) {
 	// Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
 //    AddDependentData(OOPMDataDepend(fStateId[count],st,randver));
@@ -187,9 +190,10 @@ void TParAnalysis::SetAppropriateVersions ()
 			fDataDepend.Dep (id).ObjPtr ()->Version ();
 		AdaptSolutionVersion (solver);
 		PrintLog(TaskLog,"TParAnalysis::SetAppropriateVersion new version is ");
-		solver.Print (TaskLog);
+		solver.ShortPrint (TaskLog);
+		TaskLog << endl;
 		cout << "TParAnalysis::SetAppropriateVersion new version is ";
-		solver.Print (cout);
+		solver.ShortPrint (cout);
 		fDataDepend.Dep (id).ObjPtr ()->SetVersion (solver, Id ());
 		ver = solver;
 		id++;

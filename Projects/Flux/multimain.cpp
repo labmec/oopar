@@ -15,6 +15,7 @@
 #include "TTaskComm.h"
 #include "TPartitionRelation.h"
 #include "TParMesh.h"
+#include "TParVector.h"
 
 #include "fluxdefs.h"
 
@@ -66,6 +67,7 @@ int multimain ()
 
 	OOPReceiveStorage::AddClassRestore(TDMOWNERTASK_ID,OOPDMOwnerTask::Restore);
 	OOPReceiveStorage::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
 
 	Load (0);
 	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);

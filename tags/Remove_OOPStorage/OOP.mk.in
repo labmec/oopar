@@ -1,0 +1,12 @@
+#
+# OOP.mk options makefile for OOPar.
+#
+# It will be processed by GNU automake to produce Makefile.in
+#
+# $Id: OOP.mk.in,v 1.6 2004-08-09 19:11:07 longhin Exp $
+#
+
+CXXFLAGS = @OOP_CXXFLAGS@ @USING_MPI@ @USING_SLOAN@
+INCLUDES = -I$(top_srcdir)/Sources -I$(top_srcdir)/Save -I$(top_srcdir)/Util -I$(top_srcdir)/Common @MPIINCLUDE@
+
+## --| OOPar |------------------------------------------------------------------

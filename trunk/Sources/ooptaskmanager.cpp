@@ -192,7 +192,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	}
 	OOPObjectId id = task->Id();
 	// mutex lock 
-	if(!id.IsZero()) id = GenerateId ();
+	if(id.IsZero()) id = GenerateId ();
 	task->SetTaskId (id);
 	TaskManLog << id << endl;
 	TaskManLog.flush();
@@ -332,7 +332,7 @@ void OOPTaskManager::Execute ()
 			cout << "Leaving condwait PID " << getpid() << endl;
 			cout.flush();
 		}
-		
+		pthread_mutex_unlock(&fExecuteMutex);	
 			
 	}
 	PrintTaskQueues("Depois", TaskQueueLog);

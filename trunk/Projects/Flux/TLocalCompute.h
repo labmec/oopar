@@ -19,7 +19,9 @@ class   TContribution;
  */
 class   TLocalCompute:public OOPTask
 {
-      public:
+public:
+	virtual ~TLocalCompute(){}
+	
 	TLocalCompute(){}
 	/**
      * Simple constructor 
@@ -52,7 +54,7 @@ class   TLocalCompute:public OOPTask
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual void Write (TPZStream & buf);
+	virtual void Write (TPZStream & buf,int withclassid=0);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.

@@ -260,7 +260,7 @@ TParAnalysis::TParAnalysis (int Procid, int numpartitions, int numproc):OOPTask 
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-void TParAnalysis::Write (TPZStream & buf)
+void TParAnalysis::Write (TPZStream & buf, int withclassid)
 {
 	OOPTask::Write (buf);
 	buf.Write (&fNumPartitions);
@@ -300,7 +300,7 @@ void TParAnalysis::Read (TPZStream & buf, void * context)
 }
 TPZSaveable *TParAnalysis::Restore (TPZStream & buf, void * context)
 {
-	TParAnalysis *par = new TParAnalysis (0);
+	TParAnalysis *par = new TParAnalysis;// (0);
 	par->Read (buf);
 	return par;
 }

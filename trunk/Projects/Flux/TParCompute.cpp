@@ -82,7 +82,7 @@ void TParCompute::SetMeshId (vector < OOPObjectId > &Id,
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-void TParCompute::Write (TPZStream & buf)
+void TParCompute::Write (TPZStream & buf, int withclassid)
 {
 	PrintLog(TaskLog, "Packing TParCompute object");
 	OOPTask::Write (buf);
@@ -143,7 +143,7 @@ void TParCompute::Read (TPZStream & buf, void * context)
 }
 TPZSaveable *TParCompute::Restore (TPZStream & buf, void * context)
 {
-	TParCompute *par = new TParCompute (0,0);
+	TParCompute *par = new TParCompute;// (0,0);
 	par->Read (buf);
 	return par;
 }

@@ -223,7 +223,7 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	* @param t : type of ower task
 	* @param proc : processor which owns the message
 	*/
-	OOPDMOwnerTask (){}
+	OOPDMOwnerTask ();
 	OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
 	virtual ~OOPDMOwnerTask();
 	virtual OOPMReturnType Execute ();
@@ -233,7 +233,7 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	}
 	virtual void Read (TPZStream & buf, void * context = 0);
 	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
-	virtual void Write (TPZStream & buf);
+	virtual void Write (TPZStream & buf, int withclassid=0);
 	// Apenas para DEBUG.
 	// virtual void Work() { Debug( "\nTSaveable::Work." ); }
 	// virtual void Print() { Debug( " TSaveable::Print." ); }
@@ -257,9 +257,10 @@ class   OOPDMRequestTask:public OOPDaemonTask
 	/**
 	 * Constructor
 	 */
-	        OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
-	        OOPDMRequestTask (const OOPDMRequestTask & task);
-	        OOPDMRequestTask ();
+	OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
+	OOPDMRequestTask (const OOPDMRequestTask & task);
+	OOPDMRequestTask () ;
+	  
 	virtual OOPMReturnType Execute ();
 	virtual int ClassId () const
 	{

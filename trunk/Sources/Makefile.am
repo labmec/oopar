@@ -11,7 +11,7 @@ CLEANFILES     = @OOP_CLEANFILES@
 #Acredito que aqui tb precisamos de um include de mpi
 -include $(top_srcdir)/@OOP_MK@
 
-oopardir = $(prefix)/Sources
+oopardir = $(prefix)/Sources $(prefix)/NeoPZ/Save
 
 oopar_HEADERS = $(wildcard *.h)
 
@@ -21,7 +21,22 @@ SUBDIRS =
 
 #AM_CONDITIONAL(MPI, test "$enable_mpi" = yes)
 if OOPMPI
-liboopar_a_SOURCES = oopdatamanager.cpp 	ooptaskmanager.cpp 	oopdataversion.cpp 	ooperror.cpp 	oopmetadata.cpp 	oopobjectid.cpp 	oopparclass.cpp 	ooptask.cpp 	oopmdatadepend.cpp 	ooptaskcontrol.cpp 	oopaccessinfo.cpp 	OOPDataLogger.cpp ooppardefs.cpp oopmpicomm.cpp oopmpistorage.cpp oopwaittask.cpp
+liboopar_a_SOURCES = oopdatamanager.cpp \
+	ooptaskmanager.cpp 	\
+	oopdataversion.cpp 	\
+	ooperror.cpp \
+	oopmetadata.cpp \
+	oopobjectid.cpp \
+	oopparclass.cpp \
+	ooptask.cpp \
+	oopmdatadepend.cpp \
+	ooptaskcontrol.cpp \
+	oopaccessinfo.cpp \
+	OOPDataLogger.cpp \
+	ooppardefs.cpp \
+	oopmpicomm.cpp \
+	oopmpistorage.cpp \
+	oopwaittask.cpp 
 else
 liboopar_a_SOURCES = oopdatamanager.cpp \
 	ooptaskmanager.cpp \

@@ -17,7 +17,8 @@ using namespace std;
  */
 class   TContribution
 {
-      public:
+public:
+	virtual ~TContribution(){}
 	virtual int ClassId () const
 	{
 		return TCONTRIBUTION_ID;
@@ -65,7 +66,7 @@ class   TContribution
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	void Write (TPZStream & buf);
+	void Write (TPZStream & buf, int withclassid = 0);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.

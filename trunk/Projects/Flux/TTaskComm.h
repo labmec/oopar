@@ -16,12 +16,13 @@ class   OOPStorageBuffer;
 class   TTaskComm:public OOPTask
 {
 public:
+	virtual ~TTaskComm(){}
     /**
      * Virtual function must be redefined.
      * Used by the TM to access the task´s functinality. 
      */
 	OOPMReturnType Execute ();
-	void     Write (TPZStream & buf, int classid);
+	void     Write (TPZStream & buf, int withclassid=0);
 	/**
 	* Virtual Unpack function.
 	* Defines the necessary interface for task communication along the network.

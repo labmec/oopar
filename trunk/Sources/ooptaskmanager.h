@@ -44,7 +44,7 @@ class   OOPTaskManager
    * Used for testing purposes.
    * Checks all the public interfaces of the class
    */
-	static int main ();
+	static void main ();
   /**
      * Notifies the task that a required access was granted on the data.
    * @param TaskId Id of the task to which the access was granted.
@@ -226,6 +226,7 @@ private:
  */
 class   OOPTMTask:public OOPDaemonTask
 {
+public:
 
 	OOPTMTask();
 	~OOPTMTask();
@@ -233,6 +234,7 @@ class   OOPTMTask:public OOPDaemonTask
    * Simple constructor
    */
 	OOPTMTask (int ProcId);
+private:
   /**
    * Returns execution type
    */

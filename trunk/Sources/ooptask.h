@@ -84,7 +84,7 @@ public:
 	 * Constructor based on a processor-id
 	 * @param Procid Id of processor where the object is being created
 	 */
-	OOPTask(){}
+	OOPTask():fProc(-1){}
 	OOPTask (int Procid);
 	OOPTask (const OOPTask & task);
 	virtual ~ OOPTask ()
@@ -230,7 +230,7 @@ template class TPZRestoreClass<OOPTask, TTASK_ID>;
 class   OOPDaemonTask:public OOPTask
 {
       public:
-	OOPDaemonTask(){}
+	OOPDaemonTask():OOPTask() {}
 	OOPDaemonTask (int ProcId);
 	        OOPDaemonTask (const OOPDaemonTask & task):OOPTask (task)
 	{
@@ -240,6 +240,12 @@ class   OOPDaemonTask:public OOPTask
 	virtual int ClassId () const
 	{
 		return TDAEMONTASK_ID;
+	}
+	virtual void Write(TPZStream & buf, int withclassid = 0){
+		OOPTask::Write(buf);
+	}
+	virtual void Read(TPZStream & buf, void * context = 0){
+		OOPTask::Read(buf);
 	}
 	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 };

@@ -101,7 +101,7 @@ TContribution & TPartitionRelation::GetRelation (int parfrom, int parto)
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-void TPartitionRelation::Write (TPZStream & buf) {
+void TPartitionRelation::Write (TPZStream & buf, int withclassid) {
 	TPZSaveable::Write(buf);
 	buf.Write(&fNumPartitions);
 	int i,sz = fRelation.size();
@@ -140,7 +140,7 @@ void TPartitionRelation::Read (TPZStream & buf, void * context) {
 	}
 }
 TPZSaveable *TPartitionRelation::Restore (TPZStream & buf, void * context) {
-	TPartitionRelation *par = new TPartitionRelation(0);
+	TPartitionRelation *par = new TPartitionRelation;//(0);
 	par->Read(buf);
 	return par;
 }

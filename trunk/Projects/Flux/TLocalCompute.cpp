@@ -127,7 +127,7 @@ fPartition (partition)
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-void TLocalCompute::Write (TPZStream & buf){
+void TLocalCompute::Write (TPZStream & buf, int withclassid){
 	OOPTask::Write (buf);
 	buf.Write(&fPartition);
 	int i,sz = fRhsIds.size();

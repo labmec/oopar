@@ -8,7 +8,7 @@ void TTaskComm::Read (TPZStream & buf, void * context)
 {
 	OOPTask::Read (buf);
 }
-void TTaskComm::Write (TPZStream & buf, int classid)
+void TTaskComm::Write (TPZStream & buf, int withclassid)
 {
 	OOPTask::Write (buf);
 }
@@ -52,7 +52,7 @@ TTaskComm::TTaskComm (int ProcId):OOPTask (ProcId)
 {
 }
 TPZSaveable *TTaskComm::Restore (TPZStream & buf, void * context) {
-	TTaskComm *loc = new TTaskComm(0);
+	TTaskComm *loc = new TTaskComm;//(0);
 	loc->Read(buf);
 	return loc;
 }

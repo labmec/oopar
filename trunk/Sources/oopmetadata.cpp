@@ -710,8 +710,6 @@ void OOPMetaData::SuspendReadAccess ()
 	if (fReadAccessProcessors.size () != fSuspendAccessProcessors.size ()) {
 		fTrans = ESuspendReadTransition;
 	}
-	int nread = fReadAccessProcessors.size();
-	int iproc;
 	list<int>::const_iterator ir = fReadAccessProcessors.begin();
 	while(ir != fReadAccessProcessors.end()) {
 		if(*ir != DM->GetProcID()) {

@@ -18,7 +18,8 @@ using namespace std;
  */
 class   TParAnalysis:public OOPTask
 {
-      public:
+public:
+	virtual ~TParAnalysis(){}
 	TParAnalysis();
 	TParAnalysis (int Procid);
 	        TParAnalysis (int Procid, int numpartitions, int numproc);
@@ -50,7 +51,7 @@ class   TParAnalysis:public OOPTask
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual void Write (TPZStream & buf);
+	virtual void Write (TPZStream & buf, int withclassid=0);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.

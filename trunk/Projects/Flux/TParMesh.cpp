@@ -12,7 +12,7 @@ TParMesh::~TParMesh() {
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-void TParMesh::Write (TPZStream & buf) {
+void TParMesh::Write (TPZStream & buf, int withclassid) {
 	TPZSaveable::Write(buf);
 }
   /**

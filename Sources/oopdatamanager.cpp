@@ -156,7 +156,7 @@ void OOPDataManager::ReleaseAccessRequest(const OOPObjectId & TaskId, const OOPM
 	for(i=fObjects.begin();i!=fObjects.end();i++){
 		if (depend.Id() == (*i)->Id()){
 			found = true;
-			(*i)->ReleaseAccess(TaskId, depend.State(), depend.Version());
+			(*i)->ReleaseAccess(TaskId, depend);
 			//Talvez aqui!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			break;
 		}
@@ -174,76 +174,26 @@ void OOPDataManager::ReleaseAccessRequest(const OOPObjectId & TaskId, const OOPM
 
 
 int OOPDataManager::SubmitAccessRequest(const OOPObjectId & TaskId, const OOPMDataDepend &depend, const long ProcId){
-	//Access the specified data object and append an willing task.
-	OOPDMRequestMessageType req;
-	switch (depend.State())
-	{
-		case  EReadAccess:
-		{
-			req = ERequestReadAccess;
-			break;
-		}
-		case  EWriteAccess:
-		{
-			req = ERequestWriteAccess;
-			break;
-		}
-		case  EVersionAccess:
-		{
-			req = ERequestWriteAccess;// Atenção EVersionAccess;
-			break;
-		}
-		default:
-			req = ENoRequest;
-			break;
-	}
 	
 	deque<OOPMetaData *>::iterator i;
 	bool found=false;
 #ifndef WIN32
 #warning "Wrong logical  sequence in OOPDataManager::SubmitAccessRequest"
 #endif
-	if (fProcessor == ProcId) {
-		for(i=fObjects.begin();i!=fObjects.end();i++){
-			//OOPMetaData * dat = (OOPMetaData *)(*i);
-			if (depend.Id() == (*i)->Id()){
-				found = true;
-				if(! depend.Version().AmICompatible((*i)->Version())) return 0;
-				(*i)->SubmitAccessRequest(TaskId, depend.Version(), depend.State(), ProcId);
-				//				cout << "Access request submitted" << endl;
-				//				(*i)->Print(cout);
-				break;
-			}
+	for(i=fObjects.begin();i!=fObjects.end();i++){
+		//OOPMetaData * dat = (OOPMetaData *)(*i);
+		if (depend.Id() == (*i)->Id()){
+			found = true;
+			if(! depend.Version().AmICompatible((*i)->Version())) return 0;
+			(*i)->SubmitAccessRequest(TaskId, depend);
+			//				cout << "Access request submitted" << endl;
+			//				(*i)->Print(cout);
+			break;
 		}
-		if(!found){
-			//Erro, alguma coisa errada, dado supostamente deveria estar aqui.
-			//Submeter pedido de acesso ao processador que criou o dado.
-			OOPObjectId id;
-			id = depend.Id();
-			
-			OOPDMRequestTask *ms = new OOPDMRequestTask(req,id.GetProcId());
-			ms->fProcDestination = id.GetProcId();
-			ms->fProcOrigin = fProcessor;
-			//Id , como passar ?
-	//		ms.fObjId = id;
-			ms->Submit();
-			
-			return 1;
-		}
-	}else{
-		/*ENoAccess,
-		EReadAccess,
-		EWriteAccess*/
-		//Encontrar onde se encontra o OOPMetaData especificado.
-		//Enviar recado para quem o criou !
-		OOPDMRequestTask *ms = new OOPDMRequestTask(req,ProcId);
-		ms->fProcDestination = ProcId;
-		ms->fProcOrigin = fProcessor;
-		//Id , como passar ?
-//		ms.fObjId = id;
-		ms->Submit();
-		
-		
+	}
+	if(!found) {
+		cout << "Some appropriate action should be taken\n";
+		cout << "Create a metadata object on the fly\n";
 	}
 	return 1;
 			

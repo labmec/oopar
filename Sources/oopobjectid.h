@@ -35,7 +35,7 @@ public:
 	/**
 	 * returns true if the id is zero
 	 */
-	bool IsZero() {
+	bool IsZero() const {
 	  return fId == 0 && fProcId == 0;
 	}
     /**

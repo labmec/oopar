@@ -5,9 +5,10 @@
 #include "oopobjectid.h"
 #include "ooppardefs.h"
 #include "oopdataversion.h"
-#include "oopmetadata.h"
+//#include "oopmetadata.h"
 #include <deque>
 using namespace std;
+class OOPMetaData;
 
 /**
  * Implements the dependency relation between a Task a Data

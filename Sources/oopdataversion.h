@@ -47,7 +47,7 @@ public:
 	 * Returns true when the state of the current data is sufficient
 	 * for a task to start executing
 	 */
-	bool    CanExecute (OOPDataVersion & version);
+	bool    CanExecute (const OOPDataVersion & version) const;
 	/**
      * Increments version with a call to Increment method
 	 */

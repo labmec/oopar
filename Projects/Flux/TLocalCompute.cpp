@@ -11,12 +11,17 @@ void TLocalCompute::InitializePartitionRelationPointer() {
 
 void TLocalCompute::ComputeLocalFluxes(){
   OOPMetaData *ptr = fDataDepend.Dep(3).ObjPtr();
+  cout << "TLocalCompute contributes to object id ";
+  ptr->Id().Print(cout);
   OOPDataVersion ver = ptr->Version();
   //  int nlevel = ver.GetNLevels();
   int ncontr = fPartRelationPtr->IncomingContribution(fPartition);
   ver.IncrementLevel(ncontr);
+  cout << "After increment level ";
+  ver.Print(cout);
   ++ver;
-  cout << "TLocalCompute new version " << endl;
+  cout << "After increment ";
+  cout << "TLocalCompute number of contributions " << ncontr << " new version " << endl;
   ver.Print(cout);
   ptr->SetVersion(ver,Id());
 
@@ -34,20 +39,24 @@ void TLocalCompute::TransmitFLuxes(){
   rhsver.IncrementLevel(-1);
   int nver = rhsver.GetNLevels();
   rhsver.SetLevelVersion(nver-1,-1);
-  for(i = 1; i < npartitions; i++){
+  for(i = 0; i < npartitions; i++){
     if(i==fPartition) continue;
     TContribution *cont = &fPartRelationPtr->GetRelation(fPartition,i);
     if(cont->IsEmpty()) continue;
     TTaskComm * task = new TTaskComm(GetProcID());
-    OOPMDataDepend depend(fDataDepend.Dep(3).Id(), EWriteAccess, rhsver);
-    cout << "TLocalCompute::TransmitFluxes depend on version " << endl;
+    OOPMDataDepend depend(fRhsIds[i], EWriteAccess, rhsver);
+    cout << "TLocalCompute::TransmitFluxes targets ";
+	fRhsIds[i].Print(cout);
+	cout << " and depends on version " << endl;
     rhsver.Print(cout);
     task->AddDependentData(depend);
     task->Submit();
   }
 }
 void TLocalCompute::ComputeFrontierFluxes(){
+#ifndef WIN32
 #warning "ComputeFrontierFluxes is empty"
+#endif
 	cout << "Nothing Implemented in ComputeFrontierFluxes\n";
 	cout.flush();	
 }

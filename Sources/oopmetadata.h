@@ -16,97 +16,13 @@
 #include "ooppardefs.h"
 #include "oopdataversion.h"
 #include "oopobjectid.h"
+#include "oopaccessinfo.h"
 using namespace std;
 // NOT IMPLEMENTED :
 
-// If various tasks on a same processor request blocking read access,
-// only one task number is registered.
-// this implies that the other tasks may have their processing interrupted
-// because of the termination of the original task
 class OOPDataManager;
 extern OOPDataManager *DM;
 class OOPDMOwnerTask;
-
-/**
- * Implements functionalities concerning access information on a data.
- * It is sufficient to describe all the possible access requirements from a TTask to any data
- */
-class OOPAccessInfo{
-public:
-
-    /**
-     * Describes the type of access state 
-     */
-	OOPMDataState fState;
-
-    /**
-     * Identifies the TaskId willing to access the data object 
-     */
-	OOPObjectId fTaskId;
-
-    /**
-     * Identifies in which version the task needs the data to be 
-     */
-	OOPDataVersion fVersion;
-
-    /**
-     * Identifies in what processor the access is required 
-     */
-	long fProc;
-
-    /**
-     * Indicates if data is being accessed 
-     */
-  	int fIsAccessing;
-
-    /**
-     * Constructor with initial parameters
-	 * @param TaskId Id of task requiring access on the data.
-	 * @param st Type of access on the data
-	 * @param version Version required on the data
-	 * @param proc Processor where the access should occur
-     */
-	OOPAccessInfo(const OOPObjectId &TaskId, const OOPMDataState &st,const OOPDataVersion &version, long proc){
-		fTaskId= TaskId;
-		fState = st;
-		fVersion = version;
-		fProc = proc;
-		fIsAccessing = 0;
-	}		
-	
-	/**
-	 * Operator equal overloaded
-	 */
-	OOPAccessInfo & operator = (const OOPAccessInfo & aci){
-		fTaskId= aci.fTaskId;
-		fState = aci.fState;
-		fVersion = aci.fVersion;
-		fProc = aci.fProc;
-		fIsAccessing = aci.fIsAccessing;
-		return *this;
-	}
-	/**
-	 * Copy constructor
-	 * @param aci AccessInfo object to be copied
-	 */
-	OOPAccessInfo(const ::OOPAccessInfo & aci){
-		fTaskId= aci.fTaskId;
-		fState = aci.fState;
-		fVersion = aci.fVersion;
-		fProc = aci.fProc;
-		fIsAccessing = aci.fIsAccessing;
-	}
-	void Print(ostream & out = cout){
-		out << "Is Accessing ? " << (bool)fIsAccessing << endl;
-		out << "Proc " << fProc << endl;
-		out << "Data State " << fState << endl;
-		out << "TaskId " << endl;
-		fTaskId.Print(out);
-		out << "Version" << endl;
-		fVersion.Print(out);
-	}
-	
-};
 
 /**
  * Implements some sort of tag which must be attatched to any obejct subjected
@@ -123,15 +39,9 @@ class OOPMetaData : public OOPSaveable
 private:
 	
 	/**
-	 * Identifies currente class
-	 */
-	 long int fClassId;
-
-	
-	/**
 	 * List of tasks which requires specific access to this data.
 	 */
-	deque <OOPAccessInfo> fTaskList;
+	OOPAccessInfoList fAccessList;
 	
 // dados:
     /**
@@ -158,9 +68,15 @@ private:
 	OOPObjectId fTaskWrite;
 	
 	/**
-	 * Indicates the id of the task with current version access
+	 * Indicates the processor with current version access
+	 * If no processor accesses the object, its value == -1
 	 */
-	OOPObjectId fTaskVersionAccess;
+	int fProcVersionAccess;
+
+	/**
+	 * Indicates the id of the task which has version access
+	 */
+	OOPObjectId fTaskVersion;
 	
      /**
       * Indicates in which transition state the object is
@@ -171,14 +87,10 @@ private:
       */
 	int fToDelete;
      /**
-      * Number of confirmations pending to get out of the transition state
-      */
-	int fNumConfirm;
-     /**
       * Processors accessing current data for read access.
 	  * Whenever the data is under write access, the vector contains only the id of that processor
       */
-	vector <long> fAccessProcessors;	  
+	list <int> fAccessProcessors;	  
 	
 	 
      /**
@@ -192,23 +104,6 @@ private:
 public:
 	void Print(ostream & out = cout);
 	/**
-	 * Accesses the TDataVersion data of the current object actuating on it to
-	 * set the required data version.
-	 * @param level Level where to acuate
-	 * @param cardinality The desired cardinality to be set
-	 */
-	void SetCardinality(int level, int cardinality);
-	/**
-	 * Increments the version level seting its cardinality.
-	 * @param cardinality Cardinality to be set on new level.
-	 */
-	void IncrementVersionLevel(int cardinality);
-	/**
-	 * Decreases the level of the data version subtracting its last level.
-	 */
-	void DecreaseVersionLevel();
-
-	/**
 	 * SetVersion is allowed if the task has read and/or version access
 	 */
 	void SetVersion(const OOPDataVersion &ver, const OOPObjectId &taskid);
@@ -221,18 +116,17 @@ public:
 	/**
 	 * Empty constructor
 	 */
-	OOPMetaData (){}
+	OOPMetaData ();
 
      /**
       * Constructor
       * @param *ObPtr Pointer to object TSaveable
       * @param ObjId Id of object
       * @param proc Processor number which owns TData.
-      * @param st Indicates status of data.
       */
-	  OOPMetaData (OOPSaveable * ObPtr, OOPObjectId & ObjId, int proc, OOPMDataState st =
-		 ENoAccess);
+	  OOPMetaData (OOPSaveable * ObPtr,const OOPObjectId & ObjId,const int proc);
 		 
+	virtual long GetClassID();
 	/**
 	 * Checks if some task on the task access list is satisfied by the current data state
 	 */
@@ -240,21 +134,10 @@ public:
 	/**
 	 * Submits a task which requires access on current data.
 	 * @param taskId Identifier of the task willing to access current data object.
-	 * @param version Version for the required data.
-	 * @param access Access state for current data.
-	 * @param proc Processor where the access shoud occur
+	 * @param depend dependency type requested.
 	 */
-	void SubmitAccessRequest(const OOPObjectId &taskId, const OOPDataVersion &version, const OOPMDataState access,const long proc);
+	void SubmitAccessRequest(const OOPObjectId &taskId, const OOPMDataDepend &depend);
 	
-	/**
-	 * Returns true if current data can be accessed with the desired state
-	 * This method is virtually not implemented
-	 * it ONLY CHECKS whether the version is compatible
-	 * it does NOT CHECK whether there is already a task accessing the data
-	 * @param version Desired version for the data
-	 * @param access Desired access state for the data
-	 */
-	bool CanExecute(const OOPDataVersion & version, OOPMDataState access);
      /**
       * Returns pointer to the TSaveable object
       */
@@ -295,34 +178,52 @@ public:
      /**
       * Returns the access state of this data
       */
-	OOPMDataState State ();
+	OOPMDataState State () const;
      /**
       * Returns the processor to which the object belongs
       */
-	int Proc ();
+	int Proc () const;
+     /**
+      * returns 1 if the current processor has read access
+	  * on the given data
+      */
+
+	bool HasReadAccess () const;
      /**
       * returns 1 if the processor has read access
 	  * on the given data
-	  * if(Procid == -1) returns the number of processors different than the owner
-	  * that have read access
       * @param Procid Identifies processor id
       */
 
-	int HasReadAccess (long Procid );
+	bool HasReadAccess (const int Procid ) const;
      /**
-      * Returns 1 if the processor has write access
+      * Returns 1 if the task has write access
 	  * on the given data
-      * @param Procid Identifies processor id
+      * @param taskid Identifies the task id
       */
 
-	int HasWriteAccess (OOPObjectId &Procid);
-     /**
-      * Return true if it TaskId has the access no the data
-	  * @param TaskId Id of inquired task
-	  * @param AccessType Type of access the task should have on the data
-	  * @param version Data version the data should be for the taskId and AccessType
-      */
-	int HasAccess(OOPObjectId & TaskId, OOPMDataState AccessType, OOPDataVersion & version);
+	/**
+	 * Indicates whether the object can be accessed for version
+	 */
+	bool HasVersionAccess() const;
+
+	/**
+	 * Indicates whether the version access has been granted to a task
+	 */
+	bool HasVersionAccessTask() const {
+		return !fTaskVersion.IsZero();
+	}
+
+	/**
+	 * Indicates whether a task has write access to the object
+	 */
+	bool HasWriteAccessTask() const {
+		return !fTaskWrite.IsZero();
+	}
+	/**
+	 * Indicates whether the task has write access to the data
+	 */
+	bool HasWriteAccess (const OOPObjectId &taskid) const;
     /**
      * Attempts to delete the object pointed to by the object
      * Issues deletion request message
@@ -378,11 +279,6 @@ public:
      */
 	OOPDataVersion Version () const ;
     /**
-     * Increments the version by one
-	 * calls NotifyAccessStates to update the version
-     */
-	void IncrementVersion ();
-    /**
      * Sets trace on data
      * @param trace Indicates trace to be followed*/
 	void SetTrace (int trace);
@@ -399,10 +295,6 @@ protected:
      */
 	void TraceMessage (char *message);
       public:
-    /**
-     * Returns the thread which owns the data
-     */
-	int Thread ();
 	
 	/**
 	 * Returns current object Id
@@ -412,19 +304,17 @@ protected:
 	 * It releases the access posted by the Task identified by id.
 	 * It erases the id entry from the task list.
 	 * If any of the conditions mismatches an error message is issued.
-	 * @param id Identifies the task from which the access request should be dropped
-	 * @param st The required access state
-	 * @param ver The required data version.
+	 * @param taskid Identifies the task from which the access request should be dropped
+	 * @param depend Identifies the type of dependency
 	 */
-	void ReleaseAccess(const OOPObjectId &id, const OOPMDataState &st,const OOPDataVersion & ver);
+	void ReleaseAccess(const OOPObjectId &taskid, const OOPMDataDepend &depend);
 
-    /**
-     * Requests access on current data according to data version restrictions
-     * @param taskId : Id of the task willing to access current data
-     * @param version : current data version must be compliant with version 
-     */
-	 long int GetClassID() { return fClassId;}
 
+	 /**
+	  * Verifies whether the object can grant any type of access
+	  * @return true if there are types of access which can be granted
+	  */
+	 bool CanGrantAccess() const;
 };
 
 /*
@@ -457,7 +347,7 @@ TData::State ()
 
 
 inline int
-OOPMetaData::Proc ()
+OOPMetaData::Proc() const
 {
 	return fProc;
 }

@@ -38,6 +38,7 @@ enum OOPMDataState {
 enum OOPMTransitionState {
 	ENoTransition,
 	EReadTransition,
+	EVersionTransition,
 	EOwnerTransition,
 	EDeleteTransition
 };
@@ -55,5 +56,6 @@ enum OOPMReturnType {
 #define TTMMESSAGETASK_ID 3002
 #define TDMOWNERTASK_ID 3003
 #define TDMREQUESTTASK_ID 3004
+#define OOPMETADATA_ID 3005
 #endif
 

@@ -2,6 +2,7 @@
 #include "oopmdatadepend.h"
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
+#include "oopmetadata.h"
 
 OOPMDataDepend::OOPMDataDepend(const OOPObjectId &id, OOPMDataState st, const OOPDataVersion &ver) {
   fDataId = id;

@@ -1,5 +1,6 @@
 #include "ooptaskmanager.h"
 #include "oopcommmanager.h"
+#include "oopmpicomm.h"
 #include "oopdatamanager.h"
 #include "ooptaskcontrol.h"
 //#include "tmultidata.h"
@@ -233,9 +234,22 @@ OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)
 }
 int OOPTaskManager::NumberOfTasks ()
 {
-	return fExecutable.size () + fFinished.size () +
+	pthread_mutex_lock(&fExecuteMutex);
+	int numtasks = fExecutable.size () + fFinished.size () +
 		fSubmittedList.size () + fTaskList.size () + fDaemon.size();
+	pthread_mutex_unlock(&fExecuteMutex);
+	return numtasks;
 }
+bool OOPTaskManager::HasWorkTodo ()
+{
+	pthread_mutex_lock(&fExecuteMutex);
+	int numtasks = fExecutable.size () + fFinished.size () +
+		fSubmittedList.size () + fDaemon.size();
+	pthread_mutex_unlock(&fExecuteMutex);
+	return numtasks != 0;
+}
+
+
 int OOPTaskManager::ChangePriority (OOPObjectId & taskid, int newpriority)
 {
 	// if(!ExistsTask(taskid)) return 0;
@@ -299,6 +313,8 @@ void OOPTaskManager::Execute ()
 	ExecuteDaemons();
 	while (1) {
 		//pthread_mutex_lock(&fExecuteMutex);
+		CM->ReceiveMessages();
+		ExecuteDaemons();
 		while (fExecutable.size ()) {
 			//pthread_mutex_unlock(&fExecuteMutex);
 			//DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
@@ -322,23 +338,23 @@ void OOPTaskManager::Execute ()
 			fExecutable.erase (i);
 		}
 		TransferFinishedTasks ();
-		//CM->ReceiveMessages ();
+		CM->ReceiveMessages ();
 		TransferSubmittedTasks ();
 		CM->SendMessages ();
 		ExecuteDaemons();
 		//wait
-		pthread_mutex_lock(&fExecuteMutex);
-		if(!fExecutable.size ()){
-			cout << "Going into condwait on TM->Execute()\n";
+//		pthread_mutex_lock(&fExecuteMutex);
+		if(!HasWorkTodo ()){
+			cout << "Going into Blocking receive on TM->Execute()\n";
 			cout << "ProcessID " << getpid() << endl;
-			cout.flush();			
-			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
-			cout << "Leaving condwait PID " << getpid() << endl;
+			cout.flush();
+			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
+			if(MPICM) MPICM->ReceiveBlocking();
+//			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
+			cout << "Leaving blocking receive PID " << getpid() << endl;
 			cout.flush();
 		}
-		pthread_mutex_unlock(&fExecuteMutex);	
-		
-			
+//		pthread_mutex_unlock(&fExecuteMutex);	
 	}
 	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();

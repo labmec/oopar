@@ -35,7 +35,8 @@ public:
 
   int Pack (OOPSendStorage * buf);
 	int Unpack (OOPReceiveStorage * buf);
-  
+	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+
 };
 
 #endif

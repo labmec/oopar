@@ -18,6 +18,12 @@
 #include "tbicg_one.h"
 #include <oopmetadata.h>
 
+OOPSaveable * TBiCG_One::Restore(OOPReceiveStorage * buf){
+      TBiCG_One * bicgone = new TBiCG_One(0);
+      bicgone->Unpack(buf);
+      return bicgone;
+}
+
 TBiCG_One::TBiCG_One(int proc) : OOPTask(proc) {
 }
 TBiCG_One::~TBiCG_One(){
@@ -31,6 +37,7 @@ int TBiCG_One::Unpack (OOPReceiveStorage * buf){
 }
 OOPMReturnType TBiCG_One::Execute (){
 #warning "Not yet implemented"
+#warning "Version increment not implemented"
 /**
   if(resid = normr/normb){
       tol=resid;

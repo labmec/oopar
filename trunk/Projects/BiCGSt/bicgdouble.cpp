@@ -17,6 +17,11 @@
 
 #include "bicgdouble.h"
 
+OOPSaveable * BiCGDouble::Restore (OOPReceiveStorage * buf) {
+	BiCGDouble *bd = new BiCGDouble;
+	bd->Unpack(buf);
+	return bd;
+}
 
 BiCGDouble::BiCGDouble() : OOPSaveable() {
 }

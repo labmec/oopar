@@ -11,6 +11,7 @@
 class TBiCGStab : public OOPTask {
 public:    
 
+      static OOPSaveable * Restore(OOPReceiveStorage * buf);
   TBiCGStab(int nproc);
   ~TBiCGStab();
   /**

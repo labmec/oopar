@@ -11,17 +11,17 @@ OOPMReturnType TDistNorm::Execute ()
 {
 #warning "Execute not completely implemented"
 	double val = ComputeLocalNorm();
-  //On the serial implementation the value of normb is set to 1 if the computed norm is 0
-  //How to implement
+      //On the serial implementation the value of normb is set to 1 if the computed norm is 0
+      //How to implement
 	TTaskComm * tcmm = new TTaskComm(0);
 	tcmm->SetValue(val);
 	OOPDataVersion ver;
-  OOPMDataDepend dep = fDataDepend.Dep(fId_Target);
-  ver = dep.ObjPtr()->Version();
+      OOPMDataDepend dep = fDataDepend.Dep(fId_Target);
+      ver = dep.ObjPtr()->Version();
 	ver.SetLevelVersion(1,-1);
 	tcmm->AddDependentData(OOPMDataDepend(fId_Target, EWriteAccess, ver));
 	tcmm->Submit();
-	return ESuccess;	// execute the task, verifying that
+	return ESuccess;
 }
 long TDistNorm::ExecTime ()
 {
@@ -29,5 +29,6 @@ long TDistNorm::ExecTime ()
 }
 double TDistNorm::ComputeLocalNorm(){
 #warning "ComputeLocalNorm not implemented"
+#warning "What norm should be computed ?"
 	return 0.;
 }

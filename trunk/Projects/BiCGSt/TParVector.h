@@ -11,9 +11,14 @@ class   TParVector:public OOPSaveable
 	int     Pack (OOPSendStorage * buf);
 	int     Unpack (OOPReceiveStorage * buf);
 	void    Resize (int size);
-	void    SetVector (vector < double >data);
-static OOPSaveable *Restore(OOPReceiveStorage *buf);
+	void    SetVector (vector < double *>data);
+      double & operator[]( const int index ) const;
+      static OOPSaveable *Restore(OOPReceiveStorage *buf);
+      int NElements(){
+            return fData.size();
+      }
+
       private:
-	        vector < double >fData;
+	vector < double *>fData;
 };
 #endif // TPARRHS_H

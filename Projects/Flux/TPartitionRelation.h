@@ -7,6 +7,8 @@
 
 #include "TContribution.h"
 #include "oopsaveable.h"
+#include "fluxdefs.h"
+
 #include <vector>
 
 /**
@@ -16,7 +18,9 @@ class   TPartitionRelation:public OOPSaveable
 {
       public:
 
-	long    GetClassID ();
+		  virtual long    GetClassID () {
+			  return TPARTITIONRELATION_ID;
+		  }
 	        TPartitionRelation ();
 	        TPartitionRelation (int npart);
     /**
@@ -42,10 +46,28 @@ class   TPartitionRelation:public OOPSaveable
      * inform to the relation table the mesh id
      */
 	void    SetMeshId (int index, OOPObjectId & meshid);
+
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+	virtual int Pack (OOPSendStorage * buf);
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+	virtual int Unpack (OOPReceiveStorage * buf);
+
+	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+
+
       private:
 	int     fNumPartitions;
-	        vector < vector < TContribution > >fRelation;
+	        
+	vector < vector < TContribution > >fRelation;
 
-	long    fClassId;
+
 };
 #endif // TPARTITIONRELATION_H

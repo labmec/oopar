@@ -46,17 +46,14 @@ int TPartitionRelation::GetNPartitions ()
 	return fNumPartitions;
 }
 
-long TPartitionRelation::GetClassID ()
-{
-	return fClassId;
-}
 
 TPartitionRelation::TPartitionRelation (int npart)
 {
 	fRelation.resize (npart);
 	int     i;
-	for (i = 0; i < npart; i++)
+	for (i = 0; i < npart; i++) {
 		fRelation[i].resize (npart);
+	}
 	fNumPartitions = npart;
 }
 TPartitionRelation *TPartitionRelation::CreateRandom (int npart)
@@ -108,3 +105,49 @@ TContribution & TPartitionRelation::GetRelation (int parfrom, int parto)
 {
 	return fRelation[parfrom][parto];
 }
+
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+int TPartitionRelation::Pack (OOPSendStorage * buf) {
+	OOPSaveable::Pack(buf);
+
+	buf->PkInt(&fNumPartitions);
+	int i,sz = fRelation.size();
+	buf->PkInt(&sz);
+	for(i=0; i<sz; i++) {
+		int il,lsz = fRelation[i].size();
+		buf->PkInt(&lsz);
+		for(il=0; il<lsz; il++) fRelation[i][il].Pack(buf);
+	}
+	return 0;
+}
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+int TPartitionRelation::Unpack (OOPReceiveStorage * buf) {
+	OOPSaveable::Unpack(buf);
+
+	buf->UpkInt(&fNumPartitions);
+	int i,sz;
+	buf->UpkInt(&sz);
+	fRelation.resize(sz);
+	for(i=0; i<sz; i++) {
+		int il,lsz;
+		buf->UpkInt(&lsz);
+		fRelation[i].resize(lsz);
+		for(il=0; il<lsz; il++) fRelation[i][il].Unpack(buf);
+	}
+	return 0;
+}
+
+OOPSaveable *TPartitionRelation::Restore (OOPReceiveStorage * buf) {
+	TPartitionRelation *par = new TPartitionRelation(0);
+	par->Unpack(buf);
+	return par;
+}
+

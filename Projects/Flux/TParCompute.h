@@ -6,6 +6,7 @@
 #include "ooptask.h"
 #include "oopobjectid.h"
 #include "TPartitionRelation.h"
+#include "fluxdefs.h"
 #include <vector>
 using namespace std;
 
@@ -16,7 +17,7 @@ class   TLocalCompute;
  * Is responsible for assigning partitions and all its necessary data for a independent flux computation to different processors.
  * Hierarchically, this class are on the highest level on the parallel environment.
  */
-class   TParCompute:public OOPTask
+class   TParCompute : public OOPTask
 {
       public:
 
@@ -110,6 +111,28 @@ class   TParCompute:public OOPTask
      * @since 03/06/2003
      */
 	void    InitializeSolutionVersion ();
+
+	  public:
+
+	virtual long GetClassID ()
+	{
+		return TPARCOMPUTE_ID;
+	}
+
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+	virtual int Pack (OOPSendStorage * buf);
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+	virtual int Unpack (OOPReceiveStorage * buf);
+
+	static OOPSaveable *Restore (OOPReceiveStorage * buf);
 
       private:
 

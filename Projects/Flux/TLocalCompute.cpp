@@ -92,3 +92,39 @@ TLocalCompute::TLocalCompute (int ProcId, int partition):OOPTask (ProcId),
 fPartition (partition)
 {
 }
+
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+int TLocalCompute::Pack (OOPSendStorage * buf){
+	OOPTask::Pack (buf);
+	buf->PkInt(&fPartition);
+	int i,sz = fRhsIds.size();
+	buf->PkInt(&sz);
+	for(i=0; i<sz; i++) fRhsIds[i].Pack(buf);
+	fRhsVersion.Pack(buf);
+	return 0;
+}
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+int TLocalCompute::Unpack (OOPReceiveStorage * buf){
+	OOPTask::Unpack(buf);
+	buf->UpkInt(&fPartition);
+	int i,sz;
+	buf->UpkInt(&sz);
+	fRhsIds.resize(sz);
+	for(i=0; i<sz; i++) fRhsIds[i].Unpack(buf);
+	fRhsVersion.Unpack(buf);
+	return 0;
+}
+
+OOPSaveable *TLocalCompute::Restore (OOPReceiveStorage * buf) {
+	TLocalCompute *loc = new TLocalCompute(0,0);
+	loc->Unpack(buf);
+	return loc;
+}

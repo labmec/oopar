@@ -5,10 +5,17 @@
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 #include "oopfilecomm.h"
+#include "ooperror.h"
 #ifdef MPI
 #include "oopmpicomm.h"
 #endif
 #include "TParAnalysis.h"
+#include "TParCompute.h"
+#include "TLocalCompute.h"
+#include "TTaskComm.h"
+#include "TPartitionRelation.h"
+#include "TParMesh.h"
+
 #include "fluxdefs.h"
 const int numproc = 2;
 vector < OOPCommunicationManager * >CMList (numproc);
@@ -39,6 +46,14 @@ int multimain ()
 	}
 	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARCOMPUTE_ID,TParCompute::Restore);
+	OOPReceiveStorage::AddClassRestore(TLOCALCOMPUTE_ID,TLocalCompute::Restore);
+	OOPReceiveStorage::AddClassRestore(TTASKCOMM_ID,TTaskComm::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARMESH_ID,TParMesh::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARTITIONRELATION_ID,TPartitionRelation::Restore);
+
+	OOPReceiveStorage::AddClassRestore(TDMOWNERTASK_ID,OOPDMOwnerTask::Restore);
+	OOPReceiveStorage::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
 
 	Load (0);
 	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);

@@ -4,6 +4,7 @@
 #ifndef TLOCALCOMPUTE_H
 #define TLOCALCOMPUTE_H
 #include "ooptask.h"
+#include "fluxdefs.h"
 class   TPartitionRelation;
 class   TContribution;
 
@@ -47,6 +48,26 @@ class   TLocalCompute:public OOPTask
 	void    TransmitFLuxes ();
 
 	void    ComputeLocalFluxes ();
+
+	virtual long GetClassID ()
+	{
+		return TLOCALCOMPUTE_ID;
+	}
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+	virtual int Pack (OOPSendStorage * buf);
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+	virtual int Unpack (OOPReceiveStorage * buf);
+
+	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+
       private:
 
   /**

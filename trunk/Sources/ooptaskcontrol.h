@@ -18,6 +18,26 @@ class   OOPTaskControl
 	 * List of dependency for the current object.
 	 */
 	OOPMDataDependList fDepend;
+ 
+ /**
+ Mutex to control changes in the state of the object
+ */
+   pthread_mutex_t fStateMutex;
+   /**
+   Flag indicating whether the thread was started
+   Only if this flag is true the thread will have meaningful data
+   */
+   int fExecStarted;
+   /**
+   Flag indicating whether the thread finished execution
+   */
+   int fExecFinished;
+   
+   /**
+   Thread created to execute the task
+   */
+   pthread_t fExecutor;
+  
       public:
   /**
    * constructor, will initiate the data dependency list with the dependency list of the task
@@ -48,5 +68,36 @@ class   OOPTaskControl
 	{
 		fTask = 0;
 	}
+   /*
+   Execute the task in a separate thread
+   */
+   void Execute();
+   
+   /**
+   Entry point for the execution thread
+   */
+static void *ThreadExec(void *tcobject);
+
+    /*!
+        \fn OOPTaskControl::TaskStarted() const
+        returns true if the task started
+     */
+    int TaskStarted() const
+    {
+        return fExecStarted;
+    }
+
+    /*!
+        \fn OOPTaskControl::TaskFinished() const
+      returns true if the task finished
+     */
+    int TaskFinished() 
+    {
+      int res;
+      pthread_mutex_lock(&fStateMutex);
+      res = fExecFinished;
+      pthread_mutex_unlock(&fStateMutex);
+      return res;
+    }
 };
 #endif

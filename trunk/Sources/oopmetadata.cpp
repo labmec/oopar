@@ -9,6 +9,7 @@ class   OOPDMOwnerTask;
 //class OOPMDataState;
 class   OOPSaveable;
 class   OOPObjectId;
+
 /*
 SEQUENCES
   A task wants to access the data, the processor does not own the data

@@ -10,10 +10,10 @@ class   OOPDataVersion;
 class   OOPSaveable;
 class   OOPObjectId;
 class	OOPTerminationTask;
-#include <sys/types.h>
-#include <unistd.h>
+//#include <sys/types.h>
+//#include <unistd.h>
 
-void OOPTaskManager::main ()
+int OOPTaskManager::main ()
 {
 	/* 
 	 * OOPObjectId Rhs_id[4], State_id[4], Mesh_id[4], task_id;
@@ -91,6 +91,10 @@ void OOPTaskManager::TransferExecutingTasks(){
 		isexec = auxtc->Task ()->IsExecuting();
 		pthread_mutex_unlock(&fExecutingMutex);
 		if (!isexec){
+			OOPObjectId id;
+			id = auxtc->Task ()->Id ();
+			auxtc->Depend ().SetExecuting (id, false);
+			auxtc->Depend ().ReleaseAccessRequests (id);
 			fFinished.push_back(auxtc);
 			fExecuting.erase(sub);
 		}
@@ -132,7 +136,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	list < OOPTaskControl * >::iterator i;
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
-	// TaskManLog << "Entering task list loop" << endl;
+        TaskManLog << "Entering task list loop" << endl;
 	//PrintTaskQueues("Antes", TaskQueueLog);
 	lTM->fKeepGoing=true;
 	lTM->ExecuteDaemons();
@@ -141,30 +145,17 @@ void * OOPTaskManager::ExecuteMT(void * data){
 		DM->SubmitAllObjects();
 		CM->ReceiveMessages();
 		lTM->ExecuteDaemons();
-		while (lTM->fExecutable.size ()) {
+		while (lTM->fExecutable.size () && lTM->fExecuting.size() < 5) {
 			i = lTM->fExecutable.begin ();
 			OOPTaskControl *tc = (*i);
 			lTM->fExecutable.erase(i);
 			lTM->fExecuting.push_back(tc);
 			tc->Task()->SetExecuting(true);
-			pthread_t task_thread;
-			pthread_create(&task_thread, NULL, TriggerTask, tc);
-			pthread_join(task_thread,NULL);
+                        TaskManLog << "Entering taskcontrol execute for task " << tc->Task()->Id() << endl;
+                        TaskManLog.flush();
+                        tc->Execute();
 			lTM->TransferExecutingTasks();
-			OOPObjectId id;
-			id = tc->Task ()->Id ();
-			tc->Depend ().SetExecuting (tc->Task ()->Id (),
-						      false);
-			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
-							       Id ());
 			DM->SubmitAllObjects();
-
-#ifdef DEBUG
-			// TaskManLog << "Executing task on processor " << fProc << 
-			// endl;
-			// id.Print(TaskManLog);
-			// TaskManLog.flush();
-#endif
 		}
 		DM->SubmitAllObjects();
 		lTM->TransferExecutingTasks();
@@ -177,16 +168,16 @@ void * OOPTaskManager::ExecuteMT(void * data){
 		//wait
 //		pthread_mutex_lock(&fExecuteMutex);
 		if(!lTM->HasWorkTodo () && lTM->fKeepGoing){
-			cout << "Going into Blocking receive on TM->Execute()\n";
-			cout << "PID" << getpid() << endl;
+//			cout << "Going into Blocking receive on TM->Execute() ";
+//			cout << "PID" << getpid() << endl;
 			cout.flush();
 			#ifdef MPI
 			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 			if(MPICM) MPICM->ReceiveBlocking();
 			#endif
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
-			cout << "Leaving blocking receive PID " << getpid() << endl;
-			cout.flush();
+//			cout << "Leaving blocking receive PID " << getpid() << endl;
+//			cout.flush();
 			DM->SubmitAllObjects();
 		}
 //		pthread_mutex_unlock(&fExecuteMutex)
@@ -291,6 +282,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
 	TaskManLog << "Calling Submit on OOPTaskManager ";
+        TaskManLog.flush();
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
 	if(dmt) {
 		// lock
@@ -301,32 +293,12 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	OOPObjectId id = task->Id();
 	if(id.IsZero()) id = GenerateId ();
 	task->SetTaskId (id);
-	TaskManLog << id << endl;
+	TaskManLog << "Task with id " << id << " submitted " << endl;
 	TaskManLog.flush();
 	pthread_mutex_lock(&fSubmittedMutex);
 	fSubmittedList.push_back (task);
 	pthread_mutex_unlock(&fSubmittedMutex);
 	return id;
-}
-OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)
-{
-	// mutex lock 
-	OOPObjectId auxId = task->Id ();
-	int intId = auxId.GetId ();
-	if (intId == -1) {
-		cerr << "ReSubmite called on task with no Id\n";
-		cerr << "File " << __FILE__ << endl;
-		exit (-1);
-	}
-	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
-	if(dmt) {
-		SubmitDaemon(dmt);
-//		TaskManLog << "Task ReSubmitted is a daemon\n";
-		return OOPObjectId();
-	}
-	fSubmittedList.push_back (task);
-	// mutex unlock
-	return task->Id ();
 }
 int OOPTaskManager::NumberOfTasks ()
 {
@@ -454,8 +426,8 @@ void OOPTaskManager::Execute ()
 		//wait
 //		pthread_mutex_lock(&fExecuteMutex);
 		if(!HasWorkTodo () && fKeepGoing){
-			cout << "Going into Blocking receive on TM->Execute()\n";
-			cout << "PID" << getpid() << endl;
+//			cout << "Going into Blocking receive on TM->Execute()\n";
+//			cout << "PID" << getpid() << endl;
 			cout.flush();
 			#ifdef MPI
 			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
@@ -471,10 +443,10 @@ void OOPTaskManager::Execute ()
 	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
 #else
-	pthread_t execute_thread;
+//	pthread_t execute_thread;
 	cout << "Creating service thread\n";
 	cout.flush();
-	if(pthread_create(&execute_thread, NULL, ExecuteMT, this)){
+	if(pthread_create(&fexecute_thread, NULL, ExecuteMT, this)){
 		cerr << "Fail to create service thread\n";
 		cerr << "Going out\n";
 		cerr.flush();
@@ -482,7 +454,7 @@ void OOPTaskManager::Execute ()
 	cout << "Created succesfuly\n";
 	cout.flush();
 		
-	pthread_join(execute_thread,NULL);
+//	pthread_join(execute_thread,NULL);
 #endif
 }
 void OOPTaskManager::SetKeepGoing(bool go){

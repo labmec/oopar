@@ -65,7 +65,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
    */
 	int     IAmTheMaster ()
 	{
-		return (f_num_proc > 0);
+		return (f_myself == 0);
 	}
   /**
    * Used for error management

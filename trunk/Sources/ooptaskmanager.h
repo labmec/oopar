@@ -42,7 +42,7 @@ class   OOPTaskManager
    * Used for testing purposes.
    * Checks all the public interfaces of the class
    */
-	static void main ();
+	static int main ();
   /**
      * Notifies the task that a required access was granted on the data.
    * @param TaskId Id of the task to which the access was granted.
@@ -79,15 +79,6 @@ class   OOPTaskManager
    * @param task Pointer to the submitted task.
    */
 	void SubmitDaemon (OOPDaemonTask * task);
-  /**
-   * Re submits a task to the task manager. It won't call the GenerateId() method
-   * Assumes that the task was already given an Id.
-   * @param *task Pointer to the task which will be submitted
-   * @return Returns the Id of the current task.
-   * @since 25/07/2003
-   * @author Gustavo C Longhin
-   */
-	OOPObjectId ReSubmit (OOPTask * task);
   /**
    * Returns the number tasks currently being managed by this data manager
    */
@@ -147,6 +138,12 @@ class   OOPTaskManager
 	
 	static void * ExecuteMT(void * data);
 private:
+  
+  /**
+  thread which is the main execution loop of the task manager
+  */
+	pthread_t fexecute_thread;
+
 	/**
 	 * Indicates if TM must continue its processing
 	 */

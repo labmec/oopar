@@ -39,7 +39,11 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 	fReceiveThreadExists=false;
 	
 	// f_proc = (int *) NULL; 
+       cout << "Before calling MPI_Init\n";
+       cout.flush();
 	MPI_Init(&f_argc,&f_argv); 
+       cout << "After calling MPI_Init\n";
+       cout.flush();
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
@@ -56,7 +60,8 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 {
 	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
-	
+	cout << "MPIComm Initialize f_myself " << f_myself << " f_num_proc " << f_num_proc << endl;
+        cout.flush();
 	if (f_myself == 0)
 		return f_num_proc;
 	else
@@ -181,7 +186,7 @@ int OOPMPICommManager::ReceiveBlocking ()
 		ProcessMessage (f_receivebuffer);
 		f_receivebuffer.Receive();
 	} else {
-		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
+//		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
 	}
 	return 1;
 };

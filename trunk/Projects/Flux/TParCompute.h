@@ -25,57 +25,53 @@ public:
    * @param numpartitions : number of partitions of the mesh
    */
     TParCompute(int procid, int numpartitions);
+  /**
+   * Sets the whole Rhs ID vector
+   */
+  void SetRhsId(vector<OOPObjectId> & Id, OOPDataVersion &rhsversion);
+  
+  /**
+   * Sets the whole State ID vector
+   */
+  void SetStateId(vector<OOPObjectId> & Idp0, OOPDataVersion &stateversion);
 
-	/**
-     * Appends one Rhs ID to the fRhsId vector
-     */
-	void SetRhsId(OOPObjectId & Id);
-	/**
-     * Appends one StateID to the fRhsId vector
-     */
-	void SetStateId(OOPObjectId & Id);
-	/**
-     * Sets the whole Rhs ID vector
-     */
-    void SetRhsId(vector<OOPObjectId> & Id);
+  /**
+   * Sets the whole Mesh ID vector
+   */
+  void SetMeshId(vector<OOPObjectId> & meshid, OOPDataVersion &meshversion);
 
-	/**
-     * Sets the whole State ID vector
-     */
-    void SetStateId(vector<OOPObjectId> & Idp0);
+  /**
+   * Retrieves the OOPObjectId from the ¨ith¨ element on the fStateIds vector.
+   * @param pos Index of the enquired partition
+   * @since 03/06/2002
+   */
+  OOPObjectId &GetStateId(int pos);
+  
+  /**
+   * Retrieves the OOPObjectId for the ¨ith¨ element on the fRhsIds vector.
+   * @param pos Index of the enquired partition
+   * @since 03/06/2003
+   */
+  OOPObjectId &GetRhsId(int pos);
 
-    /**
-     * Retrieves the OOPObjectId from the ¨ith¨ element on the fStateIds vector.
-     * @param pos Index of the enquired partition
-     * @since 03/06/2002
-     */
-    OOPObjectId &GetStateId(int pos);
+  /**
+   * Sets the Id of the Partition Relation object
+   * @param Id Id of the TPartitionRelation object
+   * @since 03/06/2003
+   */
+  void SetPartitionRelationId(OOPObjectId & Id, OOPDataVersion &version);
 
-    /**
-     * Retrieves the OOPObjectId for the ¨ith¨ element on the fRhsIds vector.
-     * @param pos Index of the enquired partition
-     * @since 03/06/2003
-     */
-    OOPObjectId &GetRhsId(int pos);
-
-    /**
-     * Sets the Id of the Partition Relation object
-     * @param Id Id of the TPartitionRelation object
-     * @since 03/06/2003
-     */
-    void SetPartitionRelationId(OOPObjectId & Id, OOPDataVersion &version);
-
-    /**
-     * Returns the Id of the TPartitionRelation object.
-     * @since 03/06/2003
-     */
-    OOPObjectId GetPartitionRelationId();
+  /**
+   * Returns the Id of the TPartitionRelation object.
+   * @since 03/06/2003
+   */
+  OOPObjectId GetPartitionRelationId();
 
 private:
     /**
      * Within the Execute Method we should be able to get the data pointer
      */
-     void InitializePartitionRelationPointer();
+TPartitionRelation *InitializePartitionRelationPointer();
 
 public:
     /**
@@ -122,7 +118,10 @@ private:
      * Holds all Ids from State variables in the parallel computation
      */
     vector<OOPObjectId> fStateIds;
-
+    /**
+     * Holds all Ids from mesh variables in the parallel computation
+     */
+    vector<OOPObjectId> fMeshIds;
     /**
      * pointer to the PartitionRelation object (valid during execute)
      */
@@ -132,7 +131,6 @@ private:
      * @since 03/06/2003
      */
     OOPObjectId fPartRelationId;
-    
     /**
      * The version of Partition Relation
      */
@@ -142,19 +140,14 @@ private:
      * @since 03/06/2003
      */
     vector<OOPObjectId> fTaskIds;
-
     /**
      * Holds the version of the solution and data upon which the tasks will depend
      */
      OOPDataVersion fDataVersions;
-
-     /**
-      * Holds the TLocalCompute poiters.
-      * In the case of recurrence tasks this is populated only in the first run.
-      * @since 04/06/2003 
-      */
-     TLocalCompute * fTasks;
-
+    /**
+     * Holds the version of the mesh  upon which the tasks will depend
+     */
+     OOPDataVersion fMeshVersions;
      /**
       * Number of partitions 
       */

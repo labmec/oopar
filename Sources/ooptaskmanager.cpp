@@ -1,6 +1,8 @@
 #include "ooptaskmanager.h"
 #include "oopcommmanager.h"
+#ifdef MPI
 #include "oopmpicomm.h"
+#endif
 #include "oopdatamanager.h"
 #include "ooptaskcontrol.h"
 //#include "tmultidata.h"
@@ -365,11 +367,15 @@ void OOPTaskManager::Execute ()
 			cout << "Going into Blocking receive on TM->Execute()\n";
 			cout << "PID" << getpid() << endl;
 			cout.flush();
+#ifdef MPI			
 			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 			if(MPICM) MPICM->ReceiveBlocking();
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
 			cout << "Leaving blocking receive PID " << getpid() << endl;
 			cout.flush();
+#else
+			CM->ReceiveBlocking();
+#endif
 		}
 //		pthread_mutex_unlock(&fExecuteMutex);	
 	}

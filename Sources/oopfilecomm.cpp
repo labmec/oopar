@@ -150,6 +150,7 @@ int OOPFileComManager::SendTask (OOPTask * pObject)
 int OOPFileComManager::ReceiveMessages ()
 {
 	// Monta o nome do arquivo de recepcao dos dados.
+	TM->SetKeepGoing(false);
 	char rcv_file[FILE_NAME_SIZE];
 	sprintf (rcv_file, "%s00", f_my_prefix);
 	// Verifica se o arquivo de recepcao existe.
@@ -193,8 +194,8 @@ int OOPFileComManager::ReceiveMessages ()
 				Err.Error (1,
 					   "ReceiveMessages <Erro em Restore() do objeto>.\n");
 			}
-			TM->ReSubmit ((OOPTask *) new_object);
-			// TM->Submit((OOPTask *) new_object);
+			//TM->ReSubmit ((OOPTask *) new_object);
+			TM->Submit((OOPTask *) new_object);
 			msg.UpkByte (&has_more_objects);
 		}
 		leu_msg = 1;

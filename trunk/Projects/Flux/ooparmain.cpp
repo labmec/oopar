@@ -44,6 +44,7 @@ int main(int argc, char *argv[]){
 
 	TM->Execute();
 	
+	
 	delete DM; 
 	delete TM;
 	delete CM;

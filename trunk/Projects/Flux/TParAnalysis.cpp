@@ -3,6 +3,9 @@
 #include "TParAnalysis.h"
 #include <iostream>
 
+TParAnalysis::~TParAnalysis(){
+	//DeleteObjects();
+}
 void TParAnalysis::Print(ostream &out){
 	out << "Print ParAnalysis" << endl;
 }
@@ -161,6 +164,7 @@ void TParAnalysis::SetAppropriateVersions() {
   ver.Increment();
   fDataDepend.Clear();
   if(ver.GetNLevels() < 2) {
+	  DeleteObjects();
 	  this->SetRecurrence(false);
   } else {
 	  int count = 0;
@@ -188,6 +192,7 @@ void TParAnalysis::AdaptSolutionVersion(OOPDataVersion &version) {
       version.SetLevelVersion(d,1); 
     }
   }
+  
 //  cout << "TParAnalysis::AdaptSolutionVersion after "; version.Print(cout);
 }
 
@@ -209,4 +214,13 @@ TParAnalysis::TParAnalysis(int Procid) : OOPTask(Procid) {
 TParAnalysis::TParAnalysis(int Procid, int numpartitions) : OOPTask(Procid) {
 	fNumPartitions = numpartitions;
 	SetRecurrence();
+}
+
+
+void TParAnalysis::DeleteObjects(){
+	//Deletting all fMeshIds.
+	int i=0;
+	for(i=0;i<fNumPartitions;i++){
+		DM->RequestDeleteObject(fMeshId[i]);
+	}
 }

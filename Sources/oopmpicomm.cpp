@@ -229,7 +229,8 @@ int OOPMPICommManager::SendMessages ()
 		if (p != NULL && p->Length () > 0) {
 			p->PkByte (&end_of_message);	// coloca int = 0 no
 							// final da mensagem
-			if (p->Send (1) < 1) {	// msg_id=1,
+			//alterei aqui
+			if (p->Send (1)) {	// msg_id=1,
 						// target=TSendStorage::f_target_tid 
 						// 
 #warning "Finish ("SendMessages <send error>" );"

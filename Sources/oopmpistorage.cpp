@@ -141,10 +141,16 @@ int OOPMPISendStorage::Send (int msg_id)
 	// MPI_Send(&f_position,1,MPI_INT,f_target_tid,msg_id,MPI_COMM_WORLD);
 	int size_position = 0, max_buffr_size = 1000000, ret;
 	// empacota extensao no inicio do pacote
-	MPI_Pack (&f_position, 1, MPI_INT, f_buffr, f_position,
+	int packret=MPI_Pack (&f_position, 1, MPI_INT, f_buffr, f_position,
 		  &size_position, MPI_COMM_WORLD);
-	cout << "Called MPI_Pack\n";
-	cout.flush();
+	if(packret==MPI_SUCCESS){
+		cout << "Called MPI_Pack success\n";
+		cout.flush();
+	}else{
+		cout << "MPI_Pack failed with error " << packret << endl;
+		cout.flush();
+		exit(-1);
+	}
 	// envia 1000000 bytes de cada vez
 	for (int i = 0; i < f_position; i = i + max_buffr_size) {
 		char   *send_buffr = f_buffr + i;
@@ -239,11 +245,12 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 	char   *receive_buffer;
 	receive_buffer = new (char[max_buffr_size]);
 	// recebe primeiros 10^6 bytes
-	MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED, MPI_ANY_SOURCE,
-		  MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+	cout << "MPI_Recv returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED, MPI_ANY_SOURCE,
+		  MPI_ANY_TAG, MPI_COMM_WORLD, &status) << endl;
 	// desempacota dimensao do pacote completo
-	MPI_Unpack (receive_buffer, max_buffr_size, &size_position, &f_size,
-		    1, MPI_INT, MPI_COMM_WORLD);
+	cout << "MPI_Unpack ret " << MPI_Unpack (receive_buffer, max_buffr_size, &size_position, &f_size,
+		    1, MPI_INT, MPI_COMM_WORLD) << endl;
+	cout.flush();
 	f_buffr = new (char[f_size]);
 	f_sender_tid = status.MPI_SOURCE;
 	f_msg_id = status.MPI_TAG;

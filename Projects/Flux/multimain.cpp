@@ -72,7 +72,7 @@ int multimain ()
 	
 	
 	
-	TParAnalysis *partask = new TParAnalysis (5, numproc, numproc);
+	TParAnalysis *partask = new TParAnalysis (1, numproc, numproc);
 	TM->Submit (partask);
 	int nsteps=500;
 	int k=0;
@@ -132,6 +132,8 @@ int mpimain (int argc, char **argv)
 			TM->Execute ();
 		}
 	}*/
+	cout << "Leaving mpimain\n";
+	cout.flush();
 	return 0;
 }
 

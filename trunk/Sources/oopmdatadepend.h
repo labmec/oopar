@@ -147,6 +147,17 @@ public:
   OOPMDataDepend &Dep(int i) {
 	  return fDependList[i];
   }
+  
+  /**
+   * Indicates if the dependecy list is still consistent.
+   * Consistency is based on the existence of non compatible version requirements
+   * If on the dependency list, there exist a incompatible version request, false
+   * will be returned.
+   * @return Returns true if dependency list is still consistent. Returns false otherwise.
+   * @since 04/07/2003
+   * @author Gustavo C Longhin
+   */
+  bool AmIConsistent();
 
 };
 

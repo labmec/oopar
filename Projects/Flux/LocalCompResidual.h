@@ -3,7 +3,7 @@
 #ifndef LOCALCOMPRESIDUAL_H
 #define LOCALCOMPRESIDUAL_H
 #include "ooptask.h"
-//class OOPMReturnType;
+class OOPMReturnType;
 class LocalCompResidual : public OOPTask {
 public:    
 

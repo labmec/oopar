@@ -204,6 +204,8 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 			cout.flush();
 			exit (-1);
 		}
+		cout << "Calling ProcessMessage\n";
+		cout.flush();
 		LocalCM->ProcessMessage (msg);
 	}
 	return NULL;

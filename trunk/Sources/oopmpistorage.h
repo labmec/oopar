@@ -20,6 +20,8 @@
 #ifndef _STR_MPIHH_
 #define _STR_MPIHH_
 #include "oopstorage.h"
+#include "pzmanvector.h"
+#include "mpi.h"
 /** 
  * Non abstract class, which implements the send buffer
  * using MPI (Message Passing Interface) library for 
@@ -32,7 +34,7 @@ class   OOPMPISendStorage:public OOPSendStorage
    * Constructor
    * @param f_target Processor Id for which buffer may be sent
    */
-	OOPMPISendStorage (int f_target = -1);
+	OOPMPISendStorage ();
   /**
    * Packs array of characteres into send buffer
    * @param p Pointer to array which has the elements to be packed
@@ -115,7 +117,12 @@ class   OOPMPISendStorage:public OOPSendStorage
 	{
 		return ("TSendStorageMpi::");
 	}
-      private:
+private:
+
+/**
+ * Generic method to pach data into an MPI buffer
+ */
+ int PackGeneric(void *ptr, int n, int mpitype);
   /**
    * Clears send buffer 
    */
@@ -125,11 +132,9 @@ class   OOPMPISendStorage:public OOPSendStorage
    */
 	void    ExpandBuffer (int more_dimension);
   /** Stores the message to be sent */
-	char   *f_buffr;
-  /** Dimension of send buffer */
-	int     f_size;
+	TPZManVector<char,50000>   f_buffr;
   /** Length os message to be sent. Must aways
-   * be equal or lower than f_size */
+   * be equal or lower than number of elements of f_buffr */
 	int     f_position;
   /** Id of process for which message shall be sent */
 	int     f_target_tid;
@@ -142,18 +147,27 @@ typedef OOPMPISendStorage *POOPMPISendStorage;
 */
 class   OOPMPIReceiveStorage:public OOPReceiveStorage
 {
-      private:
+private:
   /** Buffer which stores received messages */
-	char   *f_buffr;
+	TPZManVector<char,5000> f_buffr;
   /** Dimension of received message */
 	int     f_size;
   /** Receive buffer position to be unpack */
 	int     f_position;
   /** Id of process that sent received message */
 	int     f_sender_tid;
-  /** Id of received message */
-	int     f_msg_id;
-      public:
+  /** Tag of received message */
+	int     f_msg_tag;
+  /** request object for non-blocking receive operation */
+	MPI_Request f_request;
+
+public:
+	/**
+     * Contructor which initializes the buffer
+	 */
+   OOPMPIReceiveStorage() : f_buffr(50000) {
+	   f_size = 0; f_position = 0; f_sender_tid = -1; f_msg_tag = 0;
+   }
    /**
    * Unpacks array of characteres from received buffer
    * @param p Pointer to array for which elements must be unpacked

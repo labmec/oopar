@@ -32,7 +32,6 @@ pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 
 OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 {
-	f_buffer = (POOPMPISendStorage *) NULL;
 	f_myself = -1;
 	f_num_proc = 0;
 	f_argc = argc;
@@ -44,10 +43,6 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
-	for (int i = 0; i < f_num_proc; i++)
-		if (f_buffer[i])
-			delete (f_buffer[i]);
-	delete[]f_buffer;
 	MPI_Finalize ();
 }
  // Diferente de PVM, o argumento Destino em mpi nao eh o endereco absoluto
@@ -87,7 +82,7 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 		cout << largv[i] << endl;
 	}
 	
-/*&Argv 0 = /home/ic/facastro/exemplo_comm
+&Argv 0 = /home/ic/facastro/exemplo_comm
 &Argv 1 = -p4pg
 &Argv 2 = /home/pos/longhin/PI3180
 &Argv 3 = -p4wd
@@ -97,22 +92,6 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
 	//MPI_Comm_size (MPI_COMM_WORLD, &local_num_procs);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
-	f_buffer = new (POOPMPISendStorage[f_num_proc]);
-	if (f_buffer == NULL) {
-#warning "//Finish( "Initialize <Error allocating sending buffers>" );"
-#warning "Finish not defined ??? No idea !"
-	}
-	for (i = 0; i < f_num_proc; i++) {
-		if (i == f_myself) {
-			f_buffer[i] = (OOPMPISendStorage *) NULL;
-		}
-		else {
-			f_buffer[i] = new OOPMPISendStorage (i);	// inicializador 
-									// nao-padrao
-			// if ( f_buffer[i] == NULL ) Finish( "Initialize
-			// <Error making sendings buffers>");
-		}
-	}
 	if (f_myself == 0)
 		return f_num_proc;
 	else
@@ -121,6 +100,7 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
 	pthread_mutex_lock(&fCommunicate);
+#warning "Nao tem necessidade do mutex neste ponto"
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
 						// ser executada
 	// Se "process_id" nao for valido.
@@ -133,6 +113,8 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 									// of 
 									// range>" 
 									// );
+		delete pTask;
+		return -1;
 	}
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
@@ -144,29 +126,14 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 									// to 
 									// myself>" 
 									// );
+		delete pTask;
+		return -1;
 	}
-	// Se 'process_id' < 0, faz um multi cast.
-	// se process_id < 0, first = 0. se > 0, first = process_id.
-	int first = (process_id < 0 ? 0 : process_id);
-	// se process_id < 0, last = numero de processos. se > 0, last =
-	// process_id + 1.
-	int last = (process_id < 0 ? f_num_proc : process_id + 1);	// 
-	char has_an_object = 1;
-	for (int i = first; i < last; i++)
-		if (i != f_myself) {
-			// Empacota o objeto no buffer destino.
-			pTask->SetProcID (i);	// muda destino para
-						// processador i 
-			OOPMPISendStorage *buf = f_buffer[i];
-			// buf->Activate(); // soh no pvm
-			buf->PkByte (&has_an_object);	// empacota primeiro
-							// valor = int = 1
-			pTask->Pack (buf);
-			cout << "Message Sent\n";
-			cout.flush();
-		}
-	// Restaura o ID do processador destino na 'task'.
-	pTask->SetProcID (process_id);
+	pTask->Pack (&f_sendbuffer);
+	f_sendbuffer.Send(process_id);
+	cout << "Message Sent\n";
+	cout.flush();
+	delete pTask;
 	pthread_mutex_unlock(&fCommunicate);
 	return 1;
 };
@@ -228,53 +195,20 @@ int OOPMPICommManager::ReceiveBlocking ()
 	ProcessMessage (msg);
 	return 1;
 };
-int OOPMPICommManager::SendMessages ()
-{
-	OOPMPISendStorage *p;
-	char end_of_message = 0;
-	int length = 0;
-	for (int i = 0; i < f_num_proc; i++) {
-		p = f_buffer[i];
-		if (p != NULL && p->Length () > 0) {
-			pthread_mutex_lock(&fCommunicate);
-			p->PkByte (&end_of_message);	// coloca int = 0 no
-							// final da mensagem
-			//alterei aqui
-			if (p->Send (1)) {	// msg_id=1,
-						// target=TSendStorage::f_target_tid 
-						// 
-#warning "Finish ("SendMessages <send error>" );"
-				cout << "SendMessages <send error>\n";
-				cout.flush();
-				//exit(-1);
-			}
-			pthread_mutex_unlock(&fCommunicate);
-		}
-	}
-	return (1);
-};
 int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
 {
 	// Trace("Recebendo uma mensagem do processador ");
 	// Trace( FindID(msg.GetSender())<<"\n");
-	int count;
-	char has_more_objects = 0;
-	msg.UpkByte (&has_more_objects);
-	for (count = 0; has_more_objects; count++) {
-		OOPSaveable *obj = msg.Restore ();;
+	OOPSaveable *obj = msg.Restore ();
 #warning "Restore( &msg ); not implemented on OOPMPICommManager"
-		if (obj == NULL) {
+	if (obj == NULL) {
 #warning "Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );"
 			cout << "ReceiveMessages <Erro em Restore() do objeto>.\n"; 
 			cout.flush();
 			exit (-1);
-		}
-		// Trace( " ClassID do objeto recebido: " );
-		// Trace( obj->GetClassID() << ".\n" );
-		TM->Submit ((OOPTask *) obj);
-		msg.UpkByte (&has_more_objects);
-		cout << "Message Processed\n";
-		cout.flush();
 	}
+	// Trace( " ClassID do objeto recebido: " );
+	// Trace( obj->GetClassID() << ".\n" );
+	TM->Submit ((OOPTask *) obj);
 	return 1;
 }

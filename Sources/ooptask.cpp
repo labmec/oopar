@@ -6,7 +6,12 @@
 #include <stdlib.h>
 #include <algorithm>
 //#include "../gnu/gnudefs.h"
-class OOPTask;
+
+void OOPTask::SetRecurrence(bool recurrence){
+    fIsRecurrent = recurrence;
+}
+int OOPTask::IsRecurrent(){}
+
 class OOPSendStorage;
 class OOPReceiveStorage;
 class OOPObjectId;
@@ -70,6 +75,7 @@ int OOPTask::GetNDependentData(){
 OOPTask::OOPTask(int proc){
 	fProc=proc;
 	fPriority=0;
+    fIsRecurrent=0;
 }
 
 void OOPTask::AddDependentData(OOPObjectId &DataId,

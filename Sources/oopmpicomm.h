@@ -56,10 +56,6 @@ class   OOPMPICommManager:public OOPCommunicationManager
 	 */
 	static void * ReceiveMsgBlocking (void *t);
   /**
-   * Sends all messages stored in the SendStorage buffers
-   */
-	int     SendMessages ();
-  /**
    * Retorna 0 se o processo não tiver sido disparado 
    * pelo console. What does it really mean?
    */
@@ -88,7 +84,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
    */
 	int     SendTask (OOPTask * pTask);
   /** Array of send buffers */
-	OOPMPISendStorage **f_buffer;
+	OOPMPISendStorage f_sendbuffer;
   /** Communication argument */
 	int     f_argc;
   /** Communication argument */

@@ -17,272 +17,145 @@
 //
 // Versao:  01 / 03.
 //
+
+// $Author: phil $
+// $Id: oopmpistorage.cpp,v 1.10 2003-10-11 19:21:34 phil Exp $
+// $Revision: 1.10 $
+
+
 #include "oopstorage.h"
 #include "oopmpistorage.h"
 #include "mpi.h"
 #include <iostream>
 using namespace std;
 //TSend
-OOPMPISendStorage::OOPMPISendStorage (int f_target)
+OOPMPISendStorage::OOPMPISendStorage ()
 {
-	f_target_tid = f_target;
 	ResetBuffer ();
 }
   // Metodos para EMPACOTAR os dados a serem enviados.
   // p : Ponteiro para o buffer que contem os dados a serem empacotados.
   // n : Numero de elementos no buffer (default: um unico dado).
   // 
+int OOPMPISendStorage::PackGeneric (void *ptr, int n, int mpitype)
+{
+	int nbytes;
+	MPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
+	f_buffr.Resize(f_position+nbytes);
+	int mpiret;
+	mpiret = MPI_Pack (ptr, n, mpitype, &f_buffr[0], f_buffr.NElements(), &f_position,
+		  MPI_COMM_WORLD);
+	return mpiret;
+}
 int OOPMPISendStorage::PkByte (char *p, int n)
 {
-	if (f_position + n * (sizeof (char)) > f_size)
-		ExpandBuffer (n * (sizeof (char)) + 1000);
-	MPI_Pack (p, n, MPI_CHAR, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_CHAR);
 }
 int OOPMPISendStorage::PkInt (int *p, int n)
 {
-	if (f_position + n * (sizeof (int)) > f_size)
-		ExpandBuffer (n * (sizeof (int)) + 1000);
-	MPI_Pack (p, n, MPI_INT, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_INT);
 }
 int OOPMPISendStorage::PkShort (short *p, int n)
 {
-	if (f_position + n * (sizeof (short)) > f_size)
-		ExpandBuffer (n * (sizeof (short)) + 1000);
-	MPI_Pack (p, n, MPI_SHORT, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_SHORT);
 }
 int OOPMPISendStorage::PkLong (long *p, int n)
 {
-	if (f_position + n * (sizeof (long)) > f_size)
-		ExpandBuffer (n * (sizeof (long)) + 1000);
-	MPI_Pack (p, n, MPI_LONG, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_LONG);
 }
 int OOPMPISendStorage::PkUint (u_int * p, int n)
 {
-	if (f_position + n * (sizeof (u_int)) > f_size)
-		ExpandBuffer (n * (sizeof (u_int)) + 1000);
-	MPI_Pack (p, n, MPI_UNSIGNED, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_UNSIGNED);
 }
 int OOPMPISendStorage::PkUshort (u_short * p, int n)
 {
-	if (f_position + n * (sizeof (u_short)) > f_size)
-		ExpandBuffer (n * (sizeof (u_short)) + 1000);
-	MPI_Pack (p, n, MPI_UNSIGNED_SHORT, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_UNSIGNED_SHORT);
 }
 int OOPMPISendStorage::PkUlong (u_long * p, int n)
 {
-	if (f_position + n * (sizeof (u_long)) > f_size)
-		ExpandBuffer (n * (sizeof (u_long)) + 1000);
-	MPI_Pack (p, n, MPI_UNSIGNED_LONG, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_UNSIGNED_LONG);
 }
 int OOPMPISendStorage::PkFloat (float *p, int n)
 {
-	if (f_position + n * (sizeof (float)) > f_size)
-		ExpandBuffer (n * (sizeof (float)) + 1000);
-	MPI_Pack (p, n, MPI_FLOAT, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_FLOAT);
 }
 int OOPMPISendStorage::PkDouble (double *p, int n)
 {
-	if (f_position + n * (sizeof (double)) > f_size)
-		ExpandBuffer (n * (sizeof (double)) + 1000);
-	MPI_Pack (p, n, MPI_DOUBLE, f_buffr, f_size, &f_position,
-		  MPI_COMM_WORLD);
-	return 1;
+	return PackGeneric(p,n,MPI_DOUBLE);
 }
 int OOPMPISendStorage::PkStr (char *p)
 {
-	// em PkStr, conta-se o número de caracteres na string para depois
-	// empacotá-la
-	int n = 0;
-	for (; p[n] != '\0'; n++) ;
-	if (f_position + n * (sizeof (char)) > f_size)
-		ExpandBuffer (n * (sizeof (char)) + 1000);
-	int maxbuff = f_position + n * (sizeof (char));
-	MPI_Pack (p, n, MPI_CHAR, f_buffr, maxbuff, &f_position,
-		  MPI_COMM_WORLD);
-	return 0;
+	int len = strlen(p);
+	PkInt(&len,1);
+	return PackGeneric(p,len,MPI_CHAR);
 }
 void OOPMPISendStorage::ExpandBuffer (int more_dimension)
 {
+	f_buffr.Resize(f_buffr.NElements()+more_dimension);
 	if (more_dimension < 0) {
 #warning "Finish("ExpandBuffer <Cannot accept negative number as an argument>");"
 	}
-	f_size = f_size + more_dimension;
-	const char *prov_buffer = f_buffr;
-	f_buffr = new (char[sizeof (int)]);
-	for (int i = 0; i < f_position; i++)
-		f_buffr[i] = prov_buffer[i];
-	return;
 }
 int OOPMPISendStorage::ResetBuffer ()
 {
-	f_position = sizeof (int);
-	f_size = sizeof (int);
-	f_buffr = new (char[sizeof (int)]);
+	f_position = 0;
+	f_buffr.Resize(0);
 	return 1;
 }
-int OOPMPISendStorage::Send (int msg_id)
+int OOPMPISendStorage::Send (int target)
 {
-	// MPI_Send(&f_position,1,MPI_INT,f_target_tid,msg_id,MPI_COMM_WORLD);
-	int size_position = 0, max_buffr_size = 1000000, ret;
-	//int packret=MPI_Send(&f_position,1,MPI_INT,f_target_tid,msg_id,MPI_COMM_WORLD);
-	// empacota extensao no inicio do pacote
-	//int * locbuffer = new int[1];
-	int packret=MPI_Pack (&f_position, 1, MPI_INT, f_buffr, f_position,&size_position, MPI_COMM_WORLD);
-	//int packret=MPI_Pack (locbuffer, 1, MPI_INT, f_buffr, f_position,&size_position, MPI_COMM_WORLD);
-	if(packret==MPI_SUCCESS){
-		cout << "Called MPI_Pack success\n";
-		cout.flush();
-	}else{
-		cout << "MPI_Pack failed with error " << packret << endl;
-		cout.flush();
-		exit(-1);
-	}
-	// envia 1000000 bytes de cada vez
-	for (int i = 0; i < f_position; i = i + max_buffr_size) {
-		char   *send_buffr = f_buffr + i;
-		int block_size = max_buffr_size;
-		if (f_position < i + max_buffr_size) {
-			block_size = f_position - i;
-		}
-		
-		ret = MPI_Send (send_buffr, block_size, MPI_PACKED,
-				f_target_tid, msg_id, MPI_COMM_WORLD);
-		/*ret = MPI_Send (send_buffr, block_size, MPI_INT,
-				f_target_tid, msg_id, MPI_COMM_WORLD);*/
-		cout << "Called MPI_Send ret = " << ret << "\n";
-		cout.flush();
-		switch(ret){
-			case MPI_SUCCESS:
-				cout <<" - No error; MPI routine completed successfully\n";
-				break;
-			case MPI_ERR_COMM:
-            	cout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).\n";
-				break;
-       		case MPI_ERR_COUNT:
-              	cout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid\n";
-       			break;
-			case MPI_ERR_TYPE:
-              cout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).\n";
-				break;
-			case MPI_ERR_TAG:
-              cout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
-               << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
-              	<< "be MPI_ANY_TAG .  The largest tag value is available through the\n"
-              << "the attribute MPI_TAG_UB .\n";
-				break;
-       		case MPI_ERR_RANK:
-				cout << "-  Invalid  source  or  destination rank.\n";
-				break;
-		}
-		cout.flush();
 
+	int ret;
+	int tag = 0;
+	ret = MPI_Send (&f_buffr[0], f_position, MPI_PACKED,
+				target, tag, MPI_COMM_WORLD);
+	cout << "Called MPI_Send ret = " << ret << "\n";
+	cout.flush();
+	switch(ret){
+		case MPI_SUCCESS:
+			cout <<" - No error; MPI routine completed successfully\n";
+			break;
+		case MPI_ERR_COMM:
+			cout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).\n";
+			break;
+		case MPI_ERR_COUNT:
+			cout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid\n";
+			break;
+		case MPI_ERR_TYPE:
+		  cout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).\n";
+			break;
+		case MPI_ERR_TAG:
+		  cout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
+		   << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
+			<< "be MPI_ANY_TAG .  The largest tag value is available through the\n"
+		  << "the attribute MPI_TAG_UB .\n";
+			break;
+		case MPI_ERR_RANK:
+			cout << "-  Invalid  source  or  destination rank.\n";
+			break;
 	}
-	if (ret){
-		cout << "Reseting buffer\n";
-		cout.flush();
-		ResetBuffer ();
-	}
+	cout.flush();
+	ResetBuffer();
 	return ret;
 }
 //       TReceiveStorageMpi
 int OOPMPIReceiveStorage::Receive ()
 {      // nonblocking!!!!
 	MPI_Status status;
-	MPI_Request request;
-	int max_buffr_size = 1000000, size_position = 0, request_flag;
-	char   *receive_buffer;
-	receive_buffer = new (char[max_buffr_size]);
+	int test_flag;
 	// recebe (nonblocking) primeros 10^6 bytes
-	MPI_Irecv (receive_buffer, max_buffr_size, MPI_PACKED, MPI_ANY_SOURCE,
-		   MPI_ANY_TAG, MPI_COMM_WORLD, &request);
-	MPI_Test (&request, &request_flag, &status);
-	if (request_flag) {
-		// desempacota dimensao do pacote completo
-		MPI_Unpack (receive_buffer, max_buffr_size, &size_position,
-			    &f_size, 1, MPI_INT, MPI_COMM_WORLD);
-		f_buffr = new (char[f_size]);
-		f_sender_tid = status.MPI_SOURCE;
-		f_msg_id = status.MPI_TAG;
-		f_position = sizeof (int);
-		// recebe demais blocos de 10^6 bytes
-		int receive_position;
-		for (receive_position = 0; receive_position < max_buffr_size;
-		     receive_position++)
-			if (receive_position < f_size)
-				f_buffr[receive_position] =
-					receive_buffer[receive_position];
-		for (int i = max_buffr_size; i < f_size;
-		     i = i + max_buffr_size) {
-			MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED,
-				  f_sender_tid, f_msg_id, MPI_COMM_WORLD,
-				  &status);
-			for (int j = 0; j < max_buffr_size;
-			     j++, receive_position++)
-				if (receive_position < f_size)
-					f_buffr[receive_position] =
-						receive_buffer
-						[receive_position];
-		}
-		return 1;
-	}
-	else {
-		MPI_Cancel (&request);
-		return 0;
-	}
+	MPI_Irecv (&f_buffr[0], f_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
+		   MPI_ANY_TAG, MPI_COMM_WORLD, &f_request);
+	MPI_Test (&f_request, &test_flag, &status);
 }
 int OOPMPIReceiveStorage::ReceiveBlocking ()
 {
 	MPI_Status status;
-	int max_buffr_size = 1000000, size_position = 0;
-	char   *receive_buffer;
-	receive_buffer = new (char[max_buffr_size]);
 	// recebe primeiros 10^6 bytes
-	cout << "MPI_Recv returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED, MPI_ANY_SOURCE,
-		  MPI_ANY_TAG, MPI_COMM_WORLD, &status) << endl;
+	cout << "MPI_Recv returned " << 
+	MPI_Recv (&f_buffr[0], f_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
+		   MPI_ANY_TAG, MPI_COMM_WORLD, &status) << endl;
 	// desempacota dimensao do pacote completo
-	cout << "MPI_Unpack ret " << MPI_Unpack (receive_buffer, max_buffr_size, &size_position, &f_size,
-		    1, MPI_INT, MPI_COMM_WORLD) << endl;
-	/*cout << "MPI_Recv returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_INT, MPI_ANY_SOURCE,
-		  MPI_ANY_TAG, MPI_COMM_WORLD, &status) << endl;*/
-	cout.flush();
-	f_buffr = new (char[f_size]);
-	f_sender_tid = status.MPI_SOURCE;
-	f_msg_id = status.MPI_TAG;
-	f_position = sizeof (int);
-	// recebe demais blocos de 10^6 bytes
-	int receive_position;
-	for (receive_position = 0; receive_position < max_buffr_size;
-	     receive_position++)
-		if (receive_position < f_size)
-			f_buffr[receive_position] =
-				receive_buffer[receive_position];
-	for (int i = max_buffr_size; i < f_size; i = i + max_buffr_size) {
-		/*cout << "MPI_Recv on loop returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED,
-			  f_sender_tid, f_msg_id, MPI_COMM_WORLD, &status) << endl;*/
-		cout << "MPI_Recv on loop returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_INT,
-			  f_sender_tid, f_msg_id, MPI_COMM_WORLD, &status) << endl;
-		cout.flush();
-		for (int j = 0; j < max_buffr_size; j++, receive_position++)
-			if (receive_position < f_size)
-				f_buffr[receive_position] =
-					receive_buffer[receive_position];
-	}
 	cout << "Returning 1\n";
 	cout.flush();
 	return 1;
@@ -292,63 +165,63 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
   // n : Numero de elementos a serem lidos (default: um unico dado).
 int OOPMPIReceiveStorage::UpkByte (char *p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_CHAR,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_CHAR,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(char);
 	return 1;
 }
 int OOPMPIReceiveStorage::UpkInt (int *p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_INT,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_INT,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(int);
 	return 1;
 }
 int OOPMPIReceiveStorage::UpkShort (short *p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_SHORT,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_SHORT,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(short);
 	return 1;
 }
 int OOPMPIReceiveStorage::UpkLong (long *p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_LONG,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_LONG,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(long);
 	return 1;
 }
 int OOPMPIReceiveStorage::UpkUint (u_int * p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_UNSIGNED,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_UNSIGNED,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(u_int);
 	return 1;
 }
 int OOPMPIReceiveStorage::UpkUshort (u_short * p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_UNSIGNED_SHORT,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_UNSIGNED_SHORT,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(u_short);
 	return 1;
 }
 int OOPMPIReceiveStorage::UpkUlong (u_long * p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_UNSIGNED_LONG,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_UNSIGNED_LONG,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(u_long);
 	return 1;
 }
 int OOPMPIReceiveStorage::UpkFloat (float *p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_FLOAT,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_FLOAT,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(float);
 	return 1;
 }
 int OOPMPIReceiveStorage::UpkDouble (double *p, int n)
 {
-	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_DOUBLE,
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, p, n, MPI_DOUBLE,
 		    MPI_COMM_WORLD);
 	// f_position=f_position+n*sizeof(double);
 	return 1;
@@ -356,12 +229,9 @@ int OOPMPIReceiveStorage::UpkDouble (double *p, int n)
 //essa eh meio complicada...
 int OOPMPIReceiveStorage::UpkStr (char *p)
 {
-	int n = -1;
-	do {
-		n++;
-		MPI_Unpack (f_buffr, f_size, &f_position, &p[n], 1,
-			    MPI_DOUBLE, MPI_COMM_WORLD);
-	} while (p[n] != '\0"');
-	// f_position=f_position+n;
-	return 0;
+	int n;
+	MPI_Unpack (&f_buffr[0], f_buffr.NElements(), &f_position, &n, 1,
+			    MPI_INT, MPI_COMM_WORLD);
+	UpkByte(p,n);
+	return 1;
 }

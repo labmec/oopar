@@ -153,14 +153,7 @@ int OOPMPICommManager::ReceiveMessages ()
 */
     f_receivebuffer.Receive();
 	if(f_receivebuffer.TestReceive()) {
-		OOPSaveable *obj = f_receivebuffer.Restore();
-		OOPTask *task = dynamic_cast<OOPTask *> (obj);
-		if(task) {
-			TM->Submit(task);
-		} else {
-			cout << "OOPMPICommManager::ReceiveMessages received an object which isnt a task\n";
-			delete obj;
-		}
+		ProcessMessage(f_receivebuffer);
 		f_receivebuffer.Receive();
 	}		
 	/*OOPMPIReceiveStorage msg;
@@ -194,9 +187,11 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 		LocalCM->ProcessMessage (msg);
 	}
 	return NULL;
+	
 }
 int OOPMPICommManager::ReceiveBlocking ()
 {
+	/*
 	OOPMPIReceiveStorage msg;
 	
 	int ret = msg.ReceiveBlocking ();
@@ -205,7 +200,14 @@ int OOPMPICommManager::ReceiveBlocking ()
 	if (ret <= 0) {
 #warning "Finish("ReceiveBlocking <receive error>");\n";
 	}
-	ProcessMessage (msg);
+	*/
+	f_receivebuffer.ReceiveBlocking();
+	if(f_receivebuffer.TestReceive()) {
+		ProcessMessage (f_receivebuffer);
+		f_receivebuffer.Receive();
+	} else {
+		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
+	}
 	return 1;
 };
 int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
@@ -222,6 +224,12 @@ int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
 	}
 	// Trace( " ClassID do objeto recebido: " );
 	// Trace( obj->GetClassID() << ".\n" );
-	TM->Submit ((OOPTask *) obj);
+	OOPTask *task = dynamic_cast<OOPTask *> (obj);
+	if(task) {
+		TM->Submit (task);
+	} else {
+		cout << "OOPMPICommManager::ProcessMessage received an object which is not a task\n";
+		delete obj;
+	}
 	return 1;
 }

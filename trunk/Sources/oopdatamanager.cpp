@@ -194,6 +194,7 @@ int OOPDataManager::SubmitAccessRequest(const OOPObjectId & TaskId, const OOPMDa
 	if(!found) {
 		cout << "Some appropriate action should be taken\n";
 		cout << "Create a metadata object on the fly\n";
+		return 0;
 	}
 	return 1;
 			

@@ -80,7 +80,7 @@ void OOPTaskManager::main ()
 #define MT
 void * OOPTaskManager::ExecuteMT(void * data){
 
-	OOPTaskManager * lTM = (OOPTaskManager *)data;
+	OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
 
 	//lock execute mutex
 	cout << "locking mutex on ExecuteMT\n";
@@ -92,24 +92,29 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	
 	CM->ReceiveMessages ();
 	lTM->TransferSubmittedTasks ();
+	//pthread_mutex_lock(&lTM->fExecuteMutex);
 	list < OOPTaskControl * >::iterator i;
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
 	// TaskManLog << "Entering task list loop" << endl;
 	//PrintTaskQueues("Antes", TaskQueueLog);
 	lTM->fKeepGoing=true;
+	//pthread_mutex_unlock(&lTM->fExecuteMutex);
 	lTM->ExecuteDaemons();
+	//pthread_mutex_lock(&lTM->fExecuteMutex);
 	while (lTM->fKeepGoing) {
 
 		DM->SubmitAllObjects();
 
+		//pthread_mutex_unlock(&lTM->fExecuteMutex);
 		CM->ReceiveMessages();
+		//pthread_mutex_lock(&lTM->fExecuteMutex);
 		lTM->ExecuteDaemons();
-		
+		pthread_mutex_lock(&lTM->fExecuteMutex);
 		while (lTM->fExecutable.size ()) {
-			//pthread_mutex_unlock(&fExecuteMutex);
 			//DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
 			i = lTM->fExecutable.begin ();
+			pthread_mutex_unlock(&lTM->fExecuteMutex);
 			OOPTaskControl *tc = (*i);
 			tc->Task ()->Execute ();
 //              TaskManLog << (*i)->Task() << ":";
@@ -117,9 +122,10 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			id = tc->Task ()->Id ();
 			tc->Depend ().SetExecuting (tc->Task ()->Id (),
 						      false);
+			//pthread_mutex_unlock(&lTM->fExecuteMutex);
 			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
 							       Id ());
-
+			//pthread_mutex_lock(&lTM->fExecuteMutex);
 			DM->SubmitAllObjects();
 
 
@@ -128,11 +134,12 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			// endl;
 			// id.Print(TaskManLog);
 			// TaskManLog.flush();
-#endif
+#endif		pthread_mutex_lock(&lTM->fExecuteMutex);
 			lTM->fFinished.push_back (tc);
 			lTM->fExecutable.erase (i);
+			pthread_mutex_unlock(&lTM->fExecuteMutex);
 		}
-
+		pthread_mutex_unlock(&lTM->fExecuteMutex);
 		DM->SubmitAllObjects();
 
 		lTM->TransferFinishedTasks ();
@@ -151,6 +158,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			if(MPICM) MPICM->ReceiveBlocking();
 			cout << "Leaving blocking receive PID " << getpid() << endl;
 			cout.flush();
+			//pthread_mutex_lock(&lTM->fExecuteMutex);
 			DM->SubmitAllObjects();
 		}
 		cout << "Unlocking mutex on ExecuteMT\n";
@@ -158,6 +166,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
 		//pthread_mutex_unlock(&lTM->fExecuteMutex);	
 	}
 	//PrintTaskQueues("Depois", TaskQueueLog);
+	//fpthread_mutex_unlock(&lTM->fExecuteMutex);
 	CM->SendMessages ();
 
 	

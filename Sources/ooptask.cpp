@@ -147,8 +147,10 @@ TPZSaveable *OOPTask::GetDepObjPtr(int idepend)
 void OOPTask::IncrementDepObjVersion(int idepend)
 {
 	int numdep = fDataDepend.NElements();
-#warning "Gustavo colocar recado de erro"
-	if(idepend < 0 || idepend >= numdep) return;
+	if(idepend < 0 || idepend >= numdep) {
+		cout << "Dpendency Id is bigger then number of objects\n";
+		return;
+	}
 	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
 	dep.ObjPtr()->IncrementVersion(Id());
 }

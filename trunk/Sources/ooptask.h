@@ -198,6 +198,19 @@ public:
 	* Revoke access to an object
 	*/
 	void RevokeAccess(OOPObjectId &id, OOPMDataState st);	
+
+    /**
+     * Returns the recurrence information 
+     */
+    int IsRecurrent();
+
+    /**
+     * Sets the recurrence parameter
+     * @param recurrence Holds the recurrence value
+     * @since 12/06/2003 
+     */
+    void SetRecurrence(bool recurrence = true);
+
 protected:
 
 	/**
@@ -219,6 +232,14 @@ protected:
 	* Priority of current task
 	*/
 	int fPriority;
+private:
+
+    /**
+     * Indicates when a task is recurrent.
+     * @since 12/06/2003 
+     */
+    int fIsRecurrent;
+protected:
 
 };
 

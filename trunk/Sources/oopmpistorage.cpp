@@ -20,6 +20,8 @@
 #include "oopstorage.h"
 #include "oopmpistorage.h"
 #include "mpi.h"
+#include <iostream>
+using namespace std;
 //TSend
 OOPMPISendStorage::OOPMPISendStorage (int f_target)
 {
@@ -141,6 +143,8 @@ int OOPMPISendStorage::Send (int msg_id)
 	// empacota extensao no inicio do pacote
 	MPI_Pack (&f_position, 1, MPI_INT, f_buffr, f_position,
 		  &size_position, MPI_COMM_WORLD);
+	cout << "Called MPI_Pack\n";
+	cout.flush();
 	// envia 1000000 bytes de cada vez
 	for (int i = 0; i < f_position; i = i + max_buffr_size) {
 		char   *send_buffr = f_buffr + i;
@@ -150,6 +154,33 @@ int OOPMPISendStorage::Send (int msg_id)
 		}
 		ret = MPI_Send (send_buffr, block_size, MPI_PACKED,
 				f_target_tid, msg_id, MPI_COMM_WORLD);
+		cout << "Called MPI_Send ret = " << ret << "\n";
+		cout.flush();
+		switch(ret){
+			case MPI_SUCCESS:
+				cout <<" - No error; MPI routine completed successfully\n";
+				break;
+			case MPI_ERR_COMM:
+            	cout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).\n";
+				break;
+       		case MPI_ERR_COUNT:
+              	cout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid\n";
+       			break;
+			case MPI_ERR_TYPE:
+              cout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).\n";
+				break;
+			case MPI_ERR_TAG:
+              cout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
+               << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
+              	<< "be MPI_ANY_TAG .  The largest tag value is available through the\n"
+              << "the attribute MPI_TAG_UB .\n";
+				break;
+       		case MPI_ERR_RANK:
+				cout << "-  Invalid  source  or  destination rank.\n";
+				break;
+		}
+		cout.flush();
+
 	}
 	if (ret > 0)
 		ResetBuffer ();

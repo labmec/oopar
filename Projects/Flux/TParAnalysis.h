@@ -20,9 +20,13 @@
  */
 class TParAnalysis : public OOPTask{
 public:
-
+	/**
+	 * Deletes dependent Object
+	 */
+	void DeleteObjects();
 	TParAnalysis(int Procid);
     TParAnalysis(int Procid, int numpartitions);
+	~TParAnalysis();
     /**
      * Initializes and submit all necessary data and tasks to the Data and Task managers. 
      */

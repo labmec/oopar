@@ -24,10 +24,101 @@ void OOPDataLogger::GrantAccessLog(OOPDMOwnerTask *town){
 	fLogger << "\tsent\n";
 	fLogger.flush();
 }
+void OOPDataLogger::GrantAccessLog(int proc, 
+									const OOPObjectId & objId,
+									OOPMDMOwnerMessageType mtype,
+									OOPMDataState mstate,
+									const OOPDataVersion & version,
+									int procorig){
+	//town->LogMe(fLogger);
+	fLogger << proc << "\t";
+	fLogger << "Granting\t";
+	fLogger << "regarding obj " << objId << "\t";
+	fLogger << "type ";
+	/*
+	ENoMessage,
+	ECancelReadAccess,
+	ECancelReadAccessConfirmation,
+	ESuspendAccess,
+	ESuspendAccessConfirmation,
+	ESuspendSuspendAccess,
+	ETransferOwnership,
+	EGrantReadAccess,
+	EGrantVersionAccess,
+	ENotifyDeleteObject,
+	
+	*/
+	
+	switch (mtype)
+	{
+		case  ENoMessage:
+			fLogger << "ENoMessage\t";
+			break;
+		case  ECancelReadAccess:
+			fLogger << "ECancelReadAccess\t";
+			break;
+		case  ECancelReadAccessConfirmation:
+			fLogger << "ECancelReadAccessConfirmation\t";
+			break;
+		case  ESuspendAccess:
+			fLogger << "ESuspendAccess\t";
+			break;
+		case  ESuspendAccessConfirmation:
+			fLogger << "ESuspendAccessConfirmation\t";
+			break;
+		case  ESuspendSuspendAccess:
+			fLogger << "ESuspendSuspendAccess\t";
+			break;
+		case  ETransferOwnership:
+			fLogger << "ETransferOwnership\t";
+			break;
+		case  EGrantReadAccess:
+			fLogger << "EGrantReadAccess\t";
+			break;
+		case  EGrantVersionAccess:
+			fLogger << "EGrantVersionAccess\t";
+			break;
+		case  ENotifyDeleteObject:
+			fLogger << "ENotifyDeleteObject\t";
+			break;
+		defaults:
+			fLogger << "Uninitialized fType property\t";
+			break;
+	}
+	fLogger << "State ";
+	/*
+	ENoAccess,
+	EReadAccess,
+	EWriteAccess,
+	EVersionAccess
+
+	*/
+	switch (mstate )
+	{
+		case  ENoAccess:
+			fLogger << "ENoAccess\t";
+			break;
+		case  EReadAccess:
+			fLogger << "EReadAccess\t";
+			break;
+		case  EWriteAccess:
+			fLogger << "EWriteAccess\t";
+			break;
+		case  EVersionAccess:
+			fLogger << "EVersionAccess\t";
+			break;
+	}
+	
+	fLogger << "Version " << version << "\t";
+	fLogger << "ProcOrigin " << procorig;
+	fLogger << "\n";
+	fLogger.flush();
+}
+
 void OOPDataLogger::SendOwnTask(OOPDMOwnerTask *town){
 	town->LogMe(fLogger);
     fLogger << "\tsent\n";
-	fLogger.flush();
+	fLogger.flush(); 
 }
 void OOPDataLogger::ReceiveOwnTask(OOPDMOwnerTask *town){
 	town->LogMe(fLogger);
@@ -39,6 +130,96 @@ void OOPDataLogger::SendReqTask(OOPDMRequestTask *req){
     fLogger << "\tsent\n";
 	fLogger.flush();
 }
+void OOPDataLogger::SubmitAccessRequestLog(int proc, 
+									const OOPObjectId & objId,
+									OOPMDMOwnerMessageType mtype,
+									OOPMDataState mstate,
+									const OOPDataVersion & version,
+									int procorig){
+	fLogger << proc << "\t";
+	fLogger << "Submitting\t";
+	fLogger << "regarding obj " << objId << "\t";
+	fLogger << "type ";
+	/*
+	ENoMessage,
+	ECancelReadAccess,
+	ECancelReadAccessConfirmation,
+	ESuspendAccess,
+	ESuspendAccessConfirmation,
+	ESuspendSuspendAccess,
+	ETransferOwnership,
+	EGrantReadAccess,
+	EGrantVersionAccess,
+	ENotifyDeleteObject,
+	
+	*/
+	
+	switch (mtype)
+	{
+		case  ENoMessage:
+			fLogger << "ENoMessage\t";
+			break;
+		case  ECancelReadAccess:
+			fLogger << "ECancelReadAccess\t";
+			break;
+		case  ECancelReadAccessConfirmation:
+			fLogger << "ECancelReadAccessConfirmation\t";
+			break;
+		case  ESuspendAccess:
+			fLogger << "ESuspendAccess\t";
+			break;
+		case  ESuspendAccessConfirmation:
+			fLogger << "ESuspendAccessConfirmation\t";
+			break;
+		case  ESuspendSuspendAccess:
+			fLogger << "ESuspendSuspendAccess\t";
+			break;
+		case  ETransferOwnership:
+			fLogger << "ETransferOwnership\t";
+			break;
+		case  EGrantReadAccess:
+			fLogger << "EGrantReadAccess\t";
+			break;
+		case  EGrantVersionAccess:
+			fLogger << "EGrantVersionAccess\t";
+			break;
+		case  ENotifyDeleteObject:
+			fLogger << "ENotifyDeleteObject\t";
+			break;
+		defaults:
+			fLogger << "Uninitialized fType property\t";
+			break;
+	}
+	fLogger << "State ";
+	/*
+	ENoAccess,
+	EReadAccess,
+	EWriteAccess,
+	EVersionAccess
+
+	*/
+	switch (mstate )
+	{
+		case  ENoAccess:
+			fLogger << "ENoAccess\t";
+			break;
+		case  EReadAccess:
+			fLogger << "EReadAccess\t";
+			break;
+		case  EWriteAccess:
+			fLogger << "EWriteAccess\t";
+			break;
+		case  EVersionAccess:
+			fLogger << "EVersionAccess\t";
+			break;
+	}
+	
+	fLogger << "Version " << version << "\t";
+	fLogger << "ProcOrigin " << procorig;
+	fLogger << "\n";
+	fLogger.flush();
+}
+
 void OOPDataLogger::ReceiveReqTask(OOPDMRequestTask *req){
 	req->LogMe(fLogger);
 	fLogger << "\t\treceived\n";

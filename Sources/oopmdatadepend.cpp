@@ -46,7 +46,7 @@ ostream &OOPMDataDepend::ShortPrint(ostream &out) const {
 }
 
 void OOPMDataDepend::LogMe(ostream &out) {
-	out << "regarding obj " << fDataId << "\ttype ";
+	out << "regarding obj " << fDataId << "\t\tState ";
 	/*
 	ENoAccess,
 	EReadAccess,
@@ -72,7 +72,7 @@ void OOPMDataDepend::LogMe(ostream &out) {
 			out << "Uninitialized fNeed attribute\t";
 			break;
 	}
-	out << "\tVersion " << fVersion;
+	out << "Version " << fVersion;
 }
 
 void OOPMDataDepend::Pack (OOPSendStorage * buf)

@@ -199,7 +199,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,this->fProc);
 			town->fObjId = fObjId;
 			town->fVersion = fVersion;
-			LogDM->SendOwnTask(town);
+			LogDM->SendOwnTask(town); 
 			TM->SubmitDaemon(town);
 			
 		} else {
@@ -353,6 +353,7 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
 	GLogMsgCounter++;
 	DataLog << "SubmitAccessRequest task " << taskId << " depend " << depend << " proc " << processor << endl;
 	DataLog.flush();
+	LogDM->SubmitAccessRequestLog(processor,Id(),ENoMessage,depend.State(),depend.Version(),processor);
 	fAccessList.AddAccessRequest (taskId, depend, processor);
 	if (!IamOwner ()) {
 		VerifyAccessRequests();

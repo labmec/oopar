@@ -2,6 +2,7 @@
 
 #include "TParAnalysis.h"
 #include <iostream>
+#include "TParVector.h"
 
 void TParAnalysis::Print(ostream &out){
 	out << "Print ParAnalysis" << endl;

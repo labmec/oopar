@@ -224,6 +224,7 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 class   OOPDMRequestTask:public OOPDaemonTask
 {
       public:
+	void LogMe(ostream & out);
 	/**
 	 * Id of the processor to which the request applies.
 	 */

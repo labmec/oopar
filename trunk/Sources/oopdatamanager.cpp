@@ -210,7 +210,7 @@ OOPDataManager::OOPDataManager (int Procid):fObjects (0)
 	fObjId.SetProcId (Procid);
 	fLastCreated = 0;	// NUMOBJECTS * Procid;
 	fMaxId = 1000;	// fLastCreated + NUMOBJECTS;
-	DM = this;
+	//DM = this;
 }
 /**
  * HELP ....
@@ -455,7 +455,7 @@ OOPSaveable *OOPDMOwnerTask::Restore (OOPReceiveStorage * buf)
 }
 void OOPDMOwnerTask::LogMe(ostream & out){
 	out << fProc << "\t";
-	out << fTaskId << "\t";
+	out << "Own\t";
 	out << "regarding obj " << fObjId << "\t";
 	out << "type ";
 	/*
@@ -592,3 +592,12 @@ int OOPDMRequestTask::Pack (OOPSendStorage * buf)
 	fDepend.Pack (buf);
 	return 1;
 }
+
+void OOPDMRequestTask::LogMe(ostream & out){
+	out << fProc << "\t";
+	out << "Req\t";
+	fDepend.LogMe(out);
+	out << "\tfProcOrigin " << fProc;
+	out.flush();
+}
+

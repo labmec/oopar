@@ -33,31 +33,33 @@ int OOPMetaData::HasAccess(OOPObjectId & TaskId, OOPMDataState AccessType, OOPDa
 }
 
 void OOPMetaData::VerifyAccessRequests(){
-  deque<OOPAccessInfo>::iterator i;
-  for(i=fTaskList.begin();i!=fTaskList.end();i++){
-    /*if ((i->fVersion == fVersion) &&
-      (i->fState == State())){
-      if (i->fProc == fProc)*/
-    if(CanExecute(i->fVersion, i->fState)){
-      if (i->fProc == fProc){
-	//Avisar ao TM para validar o acesso ao dado requrido
-	OOPObjectId objid;
-	objid=i->fTaskId;
-	OOPDataVersion ver = i->fVersion;
-	OOPObjectId objData = Id();
-	TM->NotifyAccessGranted(objid, objData, i->fState, ver, this);
-      }else{
-	if (i->fState==EReadAccess){
-	  //Criar mensagem
-	  if (!HasReadAccess(i->fProc)){
-	    fAccessProcessors.push_back(i->fProc);
-	    GrantReadAccess(i->fTaskId, i->fProc, i->fState, i->fVersion);
-	  }
-					
+	deque<OOPAccessInfo>::iterator i;
+	for(i=fTaskList.begin();i!=fTaskList.end();i++){
+		/*if ((i->fVersion == fVersion) &&
+		  (i->fState == State())){
+		  if (i->fProc == fProc)*/
+		if(CanExecute(i->fVersion, i->fState)){
+			OOPObjectId objid;
+			objid=i->fTaskId;
+			if (i->fProc == fProc){
+				//Avisar ao TM para validar o acesso ao dado requrido
+				OOPObjectId objid;
+				objid=i->fTaskId;
+				OOPDataVersion ver = i->fVersion;
+				OOPObjectId objData = Id();
+				TM->NotifyAccessGranted(objid, objData, i->fState, ver, this);
+			}else if(i->fState==EReadAccess){
+				//Criar mensagem
+				if (!HasReadAccess(i->fProc)){
+					fAccessProcessors.push_back(i->fProc);
+					GrantReadAccess(i->fTaskId, i->fProc, i->fState, i->fVersion);
+				}
+			}else if(i->fState==EVersionAccess){
+				//Do something
+				fTaskVersionAccess = objid;
+			}
+		}
 	}
-      }
-    }
-  }
 }
 
 OOPObjectId OOPMetaData::Id() const { return fObjId;}

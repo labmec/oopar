@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.17 2003-11-13 19:24:49 longhin Exp $
-// $Revision: 1.17 $
+// $Id: oopmpistorage.cpp,v 1.18 2004-03-10 02:02:37 longhin Exp $
+// $Revision: 1.18 $
 
 
 #include "oopstorage.h"
@@ -205,7 +205,8 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 	cout << "PID" << getpid() << endl;
 	cout.flush();
 #endif
-	MPI_Wait(&f_request,&status);
+	//MPI_Wait(&f_request,&status);
+	sleep(10);
 	return 1;
 	/*
 	MPI_Status status;

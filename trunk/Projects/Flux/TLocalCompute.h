@@ -3,6 +3,7 @@
 #ifndef TLOCALCOMPUTE_H
 #define TLOCALCOMPUTE_H
 #include "ooptask.h"
+class TPartitionRelation;
 
 /**
  * Implements the local flux computation on each partition.
@@ -23,6 +24,28 @@ public:
         	* @since 02/06/2003
         	*/
 	virtual OOPMReturnType Execute ();    
+
+    void ComputeFrontierFluxes();
+
+    /**
+     * Generates the tasks for transmitting the local computation for its neighbor partitions. 
+     */
+    void TransmitFLuxes(TContribution &);
+
+    void ComputeLocalFluxes();
+private:    
+
+    /**
+         * pointer to the PartitionRelation object (valid during execute)
+         */
+    TPartitionRelation *fPartRelationPtr;
+
+    /**
+     * Within the Execute Method we should be able to get the data pointer
+     */
+    void InitializePartitionRelationPointer();
+
+public:
 
     /**
      * Simple constructor 

@@ -3,7 +3,7 @@
 #include "TPartitionRelation.h"
 
 TPartitionRelation::TPartitionRelation() : OOPSaveable() {}
-int TPartitionRelation::OutgoingContribution(int partition){}
+vector<int> TPartitionRelation::OutgoingContribution(int partition){}
 int TPartitionRelation::IncomingContribution(int partition){}
 int TPartitionRelation::GetNPartitions(){}
 long TPartitionRelation::GetClassID(){

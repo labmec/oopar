@@ -4,7 +4,9 @@
 
 
 OOPMReturnType TParCompute::Execute(){
+
     //submit subtasks to the Task Manager
+    InitializePartitionRelationPointer();
     int i;
     for(i=0;i<fNPartitions;i++){
         fTaskIds[i]=fTasks[i].Submit();
@@ -47,6 +49,7 @@ void TParCompute::CreateFluxesTasks(  ){
     OOPDataVersion part_version;
     int ncontributions;
 	OOPObjectId aux_Id = Id();
+    vector<int> out;
     //Set data dependence and submit tasks to the TM;
     for(i=0;i<fPartRelationPtr->GetNPartitions();i++){
         //Data dependence on the Tasks objects
@@ -56,9 +59,27 @@ void TParCompute::CreateFluxesTasks(  ){
 
         //Contributions to each partition
         ncontributions = fPartRelationPtr->IncomingContribution(i);
+        out = fPartRelationPtr->OutgoingContribution(i);
         //Passar para as subtarefas.
 		DM->IncrementLevel(aux_Id, fRhsIds[i], ncontributions, (long)fProc);
     }
+
+    OOPDataVersion * version = new OOPDataVersion[fPartRelationPtr->GetNPartitions()];
+    //Inserir as dependências de escrita sobre os fluxos de outros partições.
+    for(i=0;i<fPartRelationPtr->GetNPartitions();i++)
+        version[i]=DM->GetVersion(fRhsId[i]);
+
+    //Para cada Rhs, deve-se ainda estabelecer as dependências referentes à comu-
+    //nicação
+    for(i=0;i<fPartRelationPtr->GetNPartitions();i++){
+        out = fPartRelationPtr->OutgoingContribution(i);
+        for(j=0;j<out.size();j++){
+            version[out[j]]++;
+            fTask[i].AddDependentData(fRhsIds[out[j]], st_w, version[out[j]]);
+        }
+
+    }
+
 }
 
 OOPObjectId TParCompute::GetPartitionRelationId(){

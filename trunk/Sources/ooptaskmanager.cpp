@@ -235,8 +235,8 @@ void OOPTaskManager::Execute ()
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
 	// TaskManLog << "Entering task list loop" << endl;
-	PrintTaskQueues("Antes", TaskQueueLog);
 	while (fExecutable.size ()) {
+		PrintTaskQueues("Antes", TaskQueueLog);
 		while (fExecutable.size ()) {
 			DM->PrintDataQueues("Dentro do Loop ----------------------------------------",DataQueueLog);
 			i = fExecutable.begin ();
@@ -258,12 +258,13 @@ void OOPTaskManager::Execute ()
 			fFinished.push_back (tc);
 			fExecutable.erase (i);
 		}
+		PrintTaskQueues("Depois", TaskQueueLog);
 		TransferFinishedTasks ();
 		CM->ReceiveMessages ();
 		TransferSubmittedTasks ();
 		CM->SendMessages ();
+		PrintTaskQueues("Depois De Novo", TaskQueueLog);
 	}
-	PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
 }
 OOPObjectId OOPTaskManager::GenerateId ()

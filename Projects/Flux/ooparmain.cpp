@@ -21,7 +21,7 @@ int     singlemain ();
 int     mpimain (int argc, char *argv[]);
 
 
-int main (int argc, char *argv[])
+int main (int argc, char **argv)
 {
 	OOPReceiveStorage::AddClassRestore (TPARCOMPUTE_ID,
 					    TParCompute::Restore);

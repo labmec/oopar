@@ -108,6 +108,11 @@ public:
 	void    SetVersion (const OOPDataVersion & ver,
 			    const OOPObjectId & taskid);
 	/**
+	 * IncrementVersion is allowed if the task has read and/or version access
+	 */
+	void    IncrementVersion (
+			    const OOPObjectId & taskid);
+	/**
 	 * Sets the Id of current data
 	 * @param id Id to be set
 	 */

@@ -101,15 +101,9 @@ OOPObjectId OOPTask::Id ()
 {
 	return fTaskId;
 }
-TPZSaveable *OOPTask::Restore (TPZStream & buf, void * context)
-{
-	OOPTask *v = new OOPTask;// (0);
-	v->Read (buf);
-	return v;
-}
 void OOPTask::Write (TPZStream & buf, int withclassid)
 {
-	TPZSaveable::Write (buf);
+	TPZSaveable::Write (buf,withclassid);
 	// ObjectId packing and unpacking
 	fTaskId.Write (buf);
 	buf.Write (&fProc);	// Processor where the task should be
@@ -135,4 +129,26 @@ TPZSaveable *OOPDaemonTask::Restore (TPZStream & buf, void * context)
 	OOPDaemonTask *v = new OOPDaemonTask (0);
 	v->Read (buf);
 	return v;
+}
+
+	/**
+	 * Return the pointer to the ith object from which this task depends
+	 */
+TPZSaveable *OOPTask::GetDepObjPtr(int idepend)
+{
+	int numdep = fDataDepend.NElements();
+	if(idepend < 0 || idepend >= numdep) return 0;
+	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
+	return dep.ObjPtr()->Ptr();
+}
+	/**
+	 * Increment the version of the ith object from which this task depends
+	 */
+void OOPTask::IncrementDepObjVersion(int idepend)
+{
+	int numdep = fDataDepend.NElements();
+#warning "Gustavo colocar recado de erro"
+	if(idepend < 0 || idepend >= numdep) return;
+	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
+	dep.ObjPtr()->IncrementVersion(Id());
 }

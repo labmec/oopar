@@ -431,7 +431,26 @@ OOPDMOwnerTask::OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc):OOPDaemonTas
 //      fObjId = 0;
 	fTrace = 0;	// Erico
 }
+/*
+	ENoMessage,
+	ECancelReadAccess,
+	ECancelReadAccessConfirmation,
+	ESuspendAccess,
+	ESuspendAccessConfirmation,
+	ESuspendSuspendAccess,
+	ETransferOwnership,
+	EGrantReadAccess,
+	EGrantVersionAccess,
+	ENotifyDeleteObject,
+*/
+OOPDMOwnerTask::~OOPDMOwnerTask() {
 
+	switch(this->fType) {
+	case ETransferOwnership:
+		if(this->fObjPtr) delete fObjPtr;
+		break;
+	}
+}
 
 
 
@@ -474,6 +493,9 @@ int OOPDMOwnerTask::Unpack (OOPReceiveStorage * buf)
 	buf->UpkInt (&fProcOrigin);
 	// Não faz sentido !!!
 	fObjId.Unpack(buf);
+	DataLog << "Unpacking Owner task for Obj " << fObjId << " message type " <<
+		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
+		endl;
 	return 1;
 }
 
@@ -486,6 +508,10 @@ OOPSaveable *OOPDMOwnerTask::Restore (OOPReceiveStorage * buf)
 
 int OOPDMOwnerTask::Pack (OOPSendStorage * buf)
 {
+	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<
+		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
+		endl;
+
 	OOPDaemonTask::Pack (buf);
 	char type = fType;
 	buf->PkByte (&type);

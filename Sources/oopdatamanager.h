@@ -231,6 +231,8 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	*/
 	OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
 
+	virtual ~OOPDMOwnerTask();
+
 	virtual OOPMReturnType Execute ();
 
 	virtual long GetClassID ()

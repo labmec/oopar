@@ -30,8 +30,8 @@ using namespace std;
 
 void OOPTask::Print (ostream & out)
 {
-	out << "OOPTask Id" << endl;
-	fTaskId.Print (out);
+	out << "OOPTask Id" << fTaskId << endl;
+//	fTaskId.Print (out);
 	out << "Priority\t" << fPriority << endl;
 	out << "Processor\t" << fProc << endl;
 	out << "Data Dependence\t" << endl;
@@ -64,9 +64,9 @@ void OOPTask::AddDependentData (const OOPMDataDepend & depend)
 }
 
 void OOPTask::PrintLog(ostream & out, char * message){
-	out << GLogMsgCounter << endl;
+//	out << GLogMsgCounter << endl;
+	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message << ":" << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message << endl;
 	out.flush();
 }
 

@@ -138,7 +138,7 @@ void OOPMDataDependList::Print (ostream & out)
 	out << "OOPMDataDependList printout\n";
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
-		i->Print (out);
+		i->ShortPrint (out) << endl;
 	}
 }
 
@@ -172,7 +172,8 @@ void OOPMDataDependList::GrantAccess (const OOPMDataDepend & depend,
 	}
 	if (i == fDependList.end ()) {
 		cerr << "OOPMDataDepend::GrantAccess didn't find the corresponding dependency\n";
-		depend.Print (cerr);
+		depend.ShortPrint (cerr);
+		cerr << endl;
 		Print (cerr);
 	}
 }
@@ -189,7 +190,8 @@ void OOPMDataDependList::RevokeAccess (const OOPMDataDepend & depend)
 	}
 	if (i == fDependList.end ()) {
 		cerr << "OOPMDataDepend::RevokeAccess didn't find the corresponding dependency\n";
-		depend.Print (cerr);
+		depend.ShortPrint (cerr);
+		cerr << endl;
 		Print (cerr);
 	}
 }

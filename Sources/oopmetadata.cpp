@@ -99,7 +99,7 @@ TRANSITION STATES
 void OOPMetaData::VerifyAccessRequests ()
 {
 	DataLog << GLogMsgCounter << endl;
-	DataLog << "Calling VerifyAccessRequests\n";
+	DataLog << "Entering VerifyAccessRequests for Obj " << this->fObjId << "\n";
 	GLogMsgCounter++;
 	DataLog.flush();
 	//Isso ta errado
@@ -212,7 +212,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 				 const OOPMDataDepend & depend)
 {
 	DataLog << GLogMsgCounter << ":";
-	DataLog << fObjId << ":Calling ReleaseAccess:";
+	DataLog << fObjId << ":Entering ReleaseAccess:";
 	TransferDataLog << fObjId;
 	TransferDataLog.flush();
 	DataLog.flush();
@@ -439,7 +439,11 @@ void OOPMetaData::TransferObject (int ProcId)
 	OOPDMOwnerTask *town = new OOPDMOwnerTask(ETransferOwnership,ProcId);
 	//alterei aqui
 	town->fObjId=fObjId;
-	town->fVersion=fVersion;
+	town->fObjPtr = this->fObjPtr;
+	town->fVersion = this->fVersion;
+	this->fProc = ProcId;
+	this->fObjPtr = 0;
+	
 	TM->Submit(town);
 	fAccessList.TransferAccessRequests(fObjId,ProcId);
 	DataLog << "Transfer object " << fObjId << " to proc " << ProcId << "\n";
@@ -755,6 +759,7 @@ void OOPMetaData::GrantVersionAccess (OOPObjectId TaskId, int ProcId,
 void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 {
 	DataLog << GLogMsgCounter << endl;
+	DataLog << "Entering GrantAccess for Object " << this->fObjId << endl;
 	GLogMsgCounter++;
 	switch(state) {
 	case EVersionAccess: {
@@ -781,7 +786,8 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		break;
 	}
 	case EWriteAccess: 
-		DataLog << "OOPMetaData::GrantAccess Granting writting access" << fObjId << " State " << state << endl;
+		DataLog << "OOPMetaData::GrantAccess transferring object" << fObjId << " State "
+			<< state << " to proc " << processor << endl;
 		DataLog.flush();
 		TransferObject(processor);
 		break;
@@ -871,10 +877,11 @@ void OOPMetaData::SetVersion (const OOPDataVersion & ver,
 	GLogMsgCounter++;
 	if (fTaskWrite == taskid || fTaskVersion == taskid) {
 		fVersion = ver;
-		DataLog << "Setting Version\n";
+		DataLog << "Setting Version for Obj " << this->fObjId << " to version "
+			<< ver << "\n";
 	}
 	else {
-		DataLog << "OOPMetaData::SetVersion not executed "<< fObjId << "\n";
+		DataLog << "OOPMetaData::SetVersion not executed for Obj "<< fObjId << "\n";
 	}
 	DataLog.flush();
 }

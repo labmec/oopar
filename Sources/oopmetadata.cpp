@@ -161,12 +161,33 @@ bool OOPMetaData::HasWriteAccess(const OOPObjectId &taskid) const {
   return false;
 }
 
-int OOPMetaData::DeleteObject(OOPObjectId & ObjId){	
-	return 1;
+void OOPMetaData::DeleteObject(){
+	this->fToDelete = 1;
+	if(fAccessProcessors.size()) {
+#ifndef WIN32
+#warning "mandar recado para deletar os objetos nesses processadores"
+#endif
+	}
+	if(!(fProcVersionAccess != -1)) {
+#ifndef WIN32
+#warning "mandar recado para deletar os objetos nesse processador"
+#endif
+	}
+	fAccessList.RevokeAccessAndCancel();
+	if(!fAccessList.HasExecutingTasks() && fProcVersionAccess == -1) {
+		DM->DeleteObject(fObjId);
+	}
 }
 
 
-void OOPMetaData::RequestDelete(OOPObjectId & ObjId) {
+void OOPMetaData::RequestDelete() {
+	if(this->fProc == DM->GetProcID()) {
+		DeleteObject();
+	} else {
+#ifndef WIN32
+#warning "mandar um recado para o processador dono do dado"
+#endif
+	}
 }
 //rewritten: longhin 30/01/2003
 void OOPMetaData::CancelReadAccess() {

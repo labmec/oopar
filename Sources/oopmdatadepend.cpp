@@ -126,6 +126,22 @@ void OOPMDataDependList::GrantAccess(const OOPMDataDepend &depend, OOPMetaData *
   }
 }
 
+void OOPMDataDependList::RevokeAccess(const OOPMDataDepend &depend) {
+
+  deque<OOPMDataDepend>::iterator i;
+  for(i=fDependList.begin();i!=fDependList.end();i++){
+    if(*i == depend && i->Status()) {
+      i->SetObjPtr(0);
+      break;
+    }
+  }
+  if(i == fDependList.end()) {
+    cerr << "OOPMDataDepend::RevokeAccess didn't find the corresponding dependency\n";
+    depend.Print(cerr);
+    Print(cerr);
+  }
+}
+
 void OOPMDataDependList::Clear() {
   fDependList.clear();
 }

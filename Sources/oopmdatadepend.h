@@ -129,6 +129,12 @@ public:
   void GrantAccess(const OOPMDataDepend &depend, OOPMetaData *ObjPtr);
 
   /**
+   * Signals the dependency list that a accessrequest has been revoked
+   * @param depend Dependent data as requested
+   */
+  void RevokeAccess(const OOPMDataDepend &depend);
+
+  /**
    * deletes all elements
    */
   void Clear();

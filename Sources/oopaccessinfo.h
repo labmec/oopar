@@ -175,6 +175,17 @@ bool HasVersionAccessRequests(const OOPDataVersion &object) const;
  * Flags if the task is going into/out-of execution
  */
 void SetExecute(const OOPObjectId &taskid, const OOPMDataDepend &depend, bool condition);
+
+ /**
+ * Revokes all access requests and cancels the tasks which are not executing
+ */
+void RevokeAccessAndCancel();
+
+ /**
+  * Returns true if a task is accessing the data
+  */
+bool HasExecutingTasks();
+
 };
 
 #endif

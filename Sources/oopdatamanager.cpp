@@ -232,7 +232,8 @@ OOPObjectId OOPDataManager::SubmitObject(OOPSaveable *obj, int trace) {
 	//cout << "Object submitted." << endl;
 	return id;
 }
-int OOPDataManager::DeleteObject(OOPObjectId & ObjId) {
+
+void OOPDataManager::DeleteObject(OOPObjectId & ObjId) {
 	deque<OOPMetaData *>::iterator i;
 	//OOPMetaData *dat=0;
 	bool found = false;
@@ -241,41 +242,35 @@ int OOPDataManager::DeleteObject(OOPObjectId & ObjId) {
 		//dat = (OOPMetaData*) (*i);
 		if ((*i)->Id() == ObjId) {
 			found = true;
-			if((*i)->DeleteObject(ObjId)) {
-				fObjects.erase(i);
-				delete (*i);
-				return 1;
-			} else {
-				return 0;
-			}
+			delete (*i);
+			fObjects.erase(i);
 			break;
 		}
 	}
 	if(!found) {
 		// Issue a sever warning message !!!
-		cerr << "Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
-		return 0;
+		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
+	}
+}
+
+void OOPDataManager::RequestDeleteObject(OOPObjectId & ObjId) {
+	deque<OOPMetaData *>::iterator i;
+	//OOPMetaData *dat=0;
+	bool found = false;
+	for(i = fObjects.begin(); i!=fObjects.end();i++){
+		//dat = 0;
+		//dat = (OOPMetaData*) (*i);
+		if ((*i)->Id() == ObjId) {
+			found = true;
+			(*i)->RequestDelete();
+			break;
+		}
+	}
+	if(!found) {
+		// Issue a sever warning message !!!
+		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
 	}
 			
-		
-/*	 Pix i = fObjects.seek(ObjId);
-	 if(i) {
-		OOPMetaData *dat = (OOPMetaData *) fObjects.contents(i);
-		if(dat) {
-			if(dat->DeleteObject(ObjId)) {
-				fObjects.del(ObjId);
-				delete dat;
-				return 1;
-			} else {
-				return 0;
-			}
-		} else {
-			fObjects.del(fObjects.key(i));
-			// Issue a sever warning message !!!
-			return 1;
-		}
-	}*/
-	return 1;
 }
 
 void OOPDataManager::TransferObject(OOPObjectId & ObjId, int ProcId) {
@@ -320,19 +315,7 @@ void OOPDataManager::GetUpdate(OOPDMOwnerTask *task){
 		return;
 	}
 	if(task->fType == ENotifyDeleteObject) {
-		dat->DeleteObject(task->fObjId);
-		delete dat;
-		deque<OOPMetaData *>::iterator i;
-		OOPMetaData *dat=0;
-		for(i = fObjects.begin(); i!=fObjects.end();i++){
-			dat = (*i);
-			if (dat->Id() == task->fObjId) {
-				fObjects.erase(i);
-				break;
-			}
-		}
-		
-		
+		dat->DeleteObject();
 	} else {
 		dat->HandleMessage(*task);
 	}

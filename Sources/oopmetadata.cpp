@@ -44,11 +44,24 @@ void OOPMetaData::VerifyAccessRequests(){
 			objid=i->fTaskId;
 			if (i->fProc == fProc){
 				//Avisar ao TM para validar o acesso ao dado requrido
-				OOPObjectId objid;
-				objid=i->fTaskId;
 				OOPDataVersion ver = i->fVersion;
 				OOPObjectId objData = Id();
 				TM->NotifyAccessGranted(objid, objData, i->fState, ver, this);
+				switch (i->fState)
+				{
+					case  EWriteAccess:
+						GrantWriteAccess(i->fTaskId, i->fState, i->fVersion);
+						break;
+					case  EVersionAccess:
+						GrantVersionAccess(i->fTaskId, i->fProc, i->fState, i->fVersion);
+						break;
+					case  EReadAccess:
+						GrantReadAccess(i->fTaskId, i->fProc, i->fState, i->fVersion);
+						break;
+					defaults:
+						break;
+				}
+
 			}else if(i->fState==EReadAccess){
 				//Criar mensagem
 				if (!HasReadAccess(i->fProc)){
@@ -56,9 +69,14 @@ void OOPMetaData::VerifyAccessRequests(){
 					GrantReadAccess(i->fTaskId, i->fProc, i->fState, i->fVersion);
 				}
 			}else if(i->fState==EVersionAccess){
+//<<<<<<< oopmetadata.cpp
+				//Do something ?
+
+//=======
 				//Do something
-				fTaskVersionAccess = objid;
+//				fTaskVersionAccess = objid;
 				cout << "Some code is missing";
+//>>>>>>> 1.4
 			}
 		}
 	}
@@ -66,7 +84,7 @@ void OOPMetaData::VerifyAccessRequests(){
 
 OOPObjectId OOPMetaData::Id() const { return fObjId;}
 bool OOPMetaData::CanExecute(OOPDataVersion & version, OOPMDataState access){
-	
+
 #warning "OOPMetaData::CanExecute BADLY IMPLEMENTED METHOD"
   // THIS METHOD IS OBSOLETE ANYWAY
   //	if(fTaskWrite) return false;
@@ -143,7 +161,7 @@ void OOPMetaData::SubmitAccessRequest(OOPObjectId &taskId, OOPDataVersion &versi
     //Pegar ponteiro para o objeto TTask no TM e avisar ao tal Task que este
     //dado está pronto para ser usado.
     TM->NotifyAccessGranted(taskId, fObjId, access, version, this);
-		
+
   }
   if(fProc != proc){
     if (!HasReadAccess(proc)){
@@ -153,7 +171,7 @@ void OOPMetaData::SubmitAccessRequest(OOPObjectId &taskId, OOPDataVersion &versi
   }
 }
 
-	
+
 
 
 OOPMetaData::OOPMetaData(OOPSaveable *ObPtr, OOPObjectId & ObjId, int ProcId, OOPMDataState st) //:
@@ -163,7 +181,7 @@ OOPMetaData::OOPMetaData(OOPSaveable *ObPtr, OOPObjectId & ObjId, int ProcId, OO
   fObjPtr = ObPtr;
   fObjId = ObjId;
   //fTaskWrite = 0;
-  //Initializes fVersion to Level 0 and cardinality 0;				
+  //Initializes fVersion to Level 0 and cardinality 0;
   //fVersion.Initialize();
   fTrans = ENoTransition;
   fNumConfirm = 0;
@@ -194,7 +212,7 @@ int OOPMetaData::TransferObject(int ProcId, OOPObjectId & TaskId, OOPMDataState 
   // if the data does not belong to this processor, issue only a request
   //	if(HasAccess(ProcId, TaskId, AccessRequest,version)) return 1;
   //Check if versions are compatible, when such things happen
-  //(version <= fVersion && fProc != DM->GetProcID()) 
+  //(version <= fVersion && fProc != DM->GetProcID())
   if(fVersion.AmICompatible(version) && fProc != DM->GetProcID()) {
     RequestTransferObject(ProcId, TaskId, AccessRequest, version);
     return 0;
@@ -207,7 +225,7 @@ int OOPMetaData::TransferObject(int ProcId, OOPObjectId & TaskId, OOPMDataState 
   //	if(!CompatibleState(AccessRequest, version)) return 0;
 
   if(HasWriteAccess(TaskId)){
-    return 1;	
+    return 1;
     //if (fTaskWrite && fTaskList[0]==TaskId) return 1;
   }
   //	if(HasExclusiveWriteAccess()) {
@@ -397,7 +415,7 @@ void OOPMetaData::HandleMessage(OOPDMOwnerTask & ms) {
 
 void OOPMetaData::RequestTransferObject(int ProcId, OOPObjectId & TaskId,
 					OOPMDataState AccessRequest, OOPDataVersion & version){
-  //void TData::RequestTransferObject(OOPObjectId TaskId, MDataState AccessRequest, OOPDataVersion version){	
+  //void TData::RequestTransferObject(OOPObjectId TaskId, MDataState AccessRequest, OOPDataVersion version){
   switch(AccessRequest) {
   case EReadAccess :
     /*		case EBlockingReadAccess : {
@@ -433,7 +451,7 @@ void OOPMetaData::TransferOwnerShip(OOPObjectId & TaskId, int ProcId, OOPMDataSt
   if(fObjId.GetProcId() != DM->GetProcID()) return;
   //if(fVersion < version) return;
   if(!(fVersion.AmICompatible(version))) return;
-	
+
   if(fTrans != ENoTransition) {
     cout << "TransferOwnerShip called with data in transition = " << fTrans << endl;
     exit(-1);
@@ -504,7 +522,7 @@ int OOPMetaData::HasWriteAccess(OOPObjectId &ProcId){
   if(fAccessProcessors[i] == EExclusiveWriteAccess) result++;
   }
   return result;
-	
+
   }
 */
 //To be transformed to readaccess only
@@ -550,8 +568,8 @@ int OOPMetaData::DeleteObject(OOPObjectId & ObjId){	// attempts to delete the ob
     return 0;
   }
   /*Notify current processor*/
-	
-	
+
+
   if(fTrans != ENoTransition) return 0;
   fTrans = EDeleteTransition;
   int myproc = CM->GetProcID();
@@ -563,7 +581,7 @@ int OOPMetaData::DeleteObject(OOPObjectId & ObjId){	// attempts to delete the ob
       m.fProcDestination = i;
       m.fProcOrigin = myproc;
       CM->SendTask(&m);
-			
+
     }
     //Uma vez que existe uma pendência sobre o objeto não deletar automaticamente
     return 0;
@@ -580,7 +598,7 @@ int OOPMetaData::DeleteObject(OOPObjectId & ObjId){	// attempts to delete the ob
     return 0;
   }
   return 1;
-	
+
   /*
     Implementação inicial envia uma mensagem para todos os processadore de o corrente objeto está sendo deletado,
     Será que isso ainda é necessário
@@ -626,11 +644,11 @@ void OOPMetaData::CancelReadAccess() {
   }
   //Write access should be given only when all cancel read were confirmed
   if(!fTaskWrite.IsZero()) exit(-1);
-		
+
   for(int i=0; i<numproc; i++) {
     //Not applicable anymore
     //if(i != myproc && fAccessProcessors[i] != ENoAccess) {
-		
+
     fNumConfirm++;
     //OOPDMOwnerTask m(ECancelReadAccess,i);
     OOPDMOwnerTask m(ECancelReadAccess,fAccessProcessors[i]);
@@ -683,12 +701,14 @@ void OOPMetaData::GrantWriteAccess(OOPObjectId & TaskId, OOPMDataState st, OOPDa
 }
 
 void OOPMetaData::GrantReadAccess(OOPObjectId TaskId, int ProcId, OOPMDataState AccessRequest, OOPDataVersion version){
-	
+
   // Changes the access state of the data, notify the TaskManager
   if(version > fVersion) {
-    exit(-1);
+	  cerr << "GrantReadAccess version inconsistency" << endl;
+	  cerr << "Keep going anyway" << endl;
+    //exit(-1);
   }
-	
+
   if(AccessRequest != EReadAccess) return;
   int myproc = DM->GetProcID();
   if(fProc != myproc) {
@@ -714,40 +734,24 @@ void OOPMetaData::GrantReadAccess(OOPObjectId TaskId, int ProcId, OOPMDataState 
   CM->SendTask(&m);
 }
 void OOPMetaData::GrantVersionAccess(OOPObjectId TaskId, int ProcId, OOPMDataState AccessRequest, OOPDataVersion version){
-	
   // Changes the access state of the data, notify the TaskManager
   if(version > fVersion) {
-    exit(-1);
+	  cerr << "GrantVersionAccess inconsistent" << endl;
+	  cerr << "Keep going anyway !" << endl;
+    //exit(-1);
   }
-	
+
   if(AccessRequest != EVersionAccess) return;
   int myproc = DM->GetProcID();
   if(fProc != myproc) {
     // I cannot do anything
     exit(-1);
   }
-
-  fNumConfirm++;
-  //Não sei se é necessário a transição deste tipo.
-  fTrans = EReadTransition;
-  //fAccessProcessors[ProcId] = AccessRequest;
-  //fAccessProcessors.push_back(ProcId);
-  /*if(AccessRequest == EBlockingReadAccess) {
-    AddBlockingReadProcess(TaskId);
-    }*/
-  OOPDMOwnerTask m(EGrantVersionAccess,ProcId);
-  m.fProcDestination = ProcId;
-  m.fProcOrigin = myproc;
-  m.fObjId = fObjId;
-  m.fObjPtr = fObjPtr;
-  m.fTaskId = TaskId;
-  m.fState = AccessRequest;
-  m.fVersion = version;
-  CM->SendTask(&m);
+  fTaskVersionAccess = TaskId;
 }
 
 /*void TData::NotifyAccessStates() {
-	
+
 int myproc = CM->GetProcID();
 // este procedimento so pode ser chamado pelo dono do dado
 if(fProc != myproc) {
@@ -767,12 +771,12 @@ TM->NotifyAccessGranted(i->fTaskId, fObjId, i->fState, i->fVersion, fObjPtr);
 }else{
 //Mandar mensagem para o processador especificado
 //Identificar AccessState e traduzir para access request.
-				 
+
 }
 }
 }
 
-	 
+
 OOPDMOwnerTask m(ENotifyAccessState,-1);
 m.fProcDestination = -1;
 m.fProcOrigin = myproc;
@@ -805,7 +809,7 @@ void OOPMetaData::IncrementVersion() {
   cout << "Incrementing data version on TData" << endl;
 #endif
   ++fVersion;
-	
+
   //NotifyAccessStates();
   //VerifyAccessRequests();
 }

@@ -18,6 +18,19 @@
 #include "oopfilestorage.h"
 #include "oopsaveable.h"
 #include "cmdefs.h"
+
+#include <sstream>
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPFileStorageBuffer"));
+
+
 /*** Find New Buffer ***/
 int OOPFileStorageBuffer::FindNewBuffer ()
 {
@@ -44,6 +57,7 @@ int OOPFileStorageBuffer::FindNewBuffer ()
 	// Se nao encontrou nenhum arquivo livre.
 	if (i == 100)
 		Error (1, "FindNewBuffer <cannot find a new file buffer>\n");
+    LOG4CXX_ERROR(logger, "FindNewBuffer <cannot find a new file buffer>\n");
 	// Indica que o arquivo e' virgem.
 	f_wrote = 0;
 	// Se encontrou um nome de arquivo inexistente...
@@ -85,6 +99,7 @@ int OOPFileStorageBuffer::Open ()
 	sprintf (related_file, "%s%02d", f_prefix, f_file_num);
 	if ((f_file = fopen (related_file, "a")) == NULL)
 		Error (1, "Open <can't open related file>\n");
+    LOG4CXX_ERROR(logger, "Open <can't open related file>\n");
 	return (1);
 }
 /*** Has Some Thing To Send ***/
@@ -101,6 +116,7 @@ int OOPFileStorageBuffer::HasSomeThingToSend (char *file_to_send)
 	sprintf (file_to_send, "%s%02d", f_prefix, f_file_num);
 	if (!FindNewBuffer ())
 		Error (1, "HasSomeThingToSend <can't find a new buffer>\n");
+    LOG4CXX_ERROR(logger, "HasSomeThingToSend <can't find a new buffer>\n");
 	return (1);
 }
 int OOPFileStorageBuffer::PkStr (char *str)
@@ -202,6 +218,7 @@ OOPFileStorageBuffer::OOPFileStorageBuffer (char *prefix, int my_id)
 	// Ja inicializa 'f_file' e 'f_wroten'.
 	if (!FindNewBuffer ())
 		Error (1, "Constructor <can't find a new buffer>\n");
+    LOG4CXX_ERROR(logger, "Constructor <can't find a new buffer>\n");
 }
 /******************/
 /*** Destructor ***/
@@ -233,6 +250,7 @@ OOPFileStorageBuffer::OOPFileStorageBuffer (char *fname)
 	if ((f_file = fopen (f_file_name, "r")) == NULL)
 		Error (1, "Constructor <can't open file '%s'>\n",
 		       f_file_name);
+    LOG4CXX_ERROR(logger, "Constructor <can't open file '%s'>\n");
 	// Le o HEADER da mensagem.
 	UpkInt (&f_sender);
 }
@@ -245,6 +263,7 @@ OOPFileStorageBuffer::~OOPFileStorageBuffer ()
 	if (remove (f_file_name))
 		Error (1, "Destructor <Nao consegui remover o arquivo %s\n",
 		       f_file_name);
+    LOG4CXX_ERROR(logger, "Destructor <Nao consegui remover o arquivo %s\n");
 /*	char    file_name[FILE_NAME_SIZE];
 	sprintf (file_name, "%s%02d", f_prefix, f_file_num);
 	remove (file_name);

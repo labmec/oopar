@@ -6,6 +6,19 @@
 #include <stdlib.h>
 #include <algorithm>
 //#include "../gnu/gnudefs.h"
+
+#include <sstream>
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTask"));
+
+
 void OOPTask::SetRecurrence (bool recurrence)
 {
 	fIsRecurrent = recurrence;
@@ -22,7 +35,7 @@ class OOPDaemonTask;
 class OOPMDataDepend;
 class OOPSaveable;
 using namespace std;
-void OOPTask::Print (ostream & out)
+void OOPTask::Print (std::ostream & out)
 {
 	out << "OOPTask Id" << fTaskId << endl;
 	out << fLabel << endl;
@@ -53,7 +66,7 @@ void OOPTask::AddDependentData (const OOPMDataDepend & depend)
 {
 	fDataDepend.AppendDependency (depend);
 }
-void OOPTask::PrintLog(ostream & out, char * message){
+void OOPTask::PrintLog(std::ostream & out, char * message){
 //	out << GLogMsgCounter << endl;
 	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message << ":" << GLogMsgCounter << endl;
 	GLogMsgCounter++;
@@ -82,9 +95,11 @@ int OOPDaemonTask::CanExecute ()
 }
 OOPMReturnType OOPTask::Execute ()
 {
-	cout << "OOPTask::Execute should never be called!\n";
-	cout << "Called from ClassId " << ClassId() << endl;
-	return ESuccess;	// execute the task, verifying that
+  stringstream sout;
+  sout << "OOPTask::Execute should never be called!\n";
+  sout << "Called from ClassId " << ClassId() << endl;
+  LOG4CXX_ERROR(logger, sout.str());
+  return ESuccess;	// execute the task, verifying that
 }
 int OOPTask::GetProcID ()
 {
@@ -133,11 +148,13 @@ TPZSaveable *OOPTask::GetDepObjPtr(int idepend)
 {
 	int numdep = fDataDepend.NElements();
 	if(idepend < 0 || idepend >= numdep) 
- {
-   cout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " << idepend << " " << numdep << endl;
-   return 0;
- }
-	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " << idepend << " " << numdep << endl;
+    LOG4CXX_WARN(logger, sout.str());
+    return 0;
+  }
+  OOPMDataDepend &dep = fDataDepend.Dep(idepend);
 	return dep.ObjPtr()->Ptr();
 }
 	/**
@@ -147,7 +164,9 @@ void OOPTask::IncrementDepObjVersion(int idepend)
 {
 	int numdep = fDataDepend.NElements();
 	if(idepend < 0 || idepend >= numdep) {
-		cout << "Dpendency Id is bigger then number of objects\n";
+    stringstream sout;
+		sout << "Dpendency Id is bigger then number of objects\n";
+    LOG4CXX_WARN(logger, sout.str());
 		return;
 	}
 	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
@@ -161,15 +180,18 @@ void OOPTask::IncrementWriteDependentData()
 	for(i=0;i<numdep;i++){
 		if(fDataDepend.Dep(i).State()==EWriteAccess){
       OOPMetaData *meta = fDataDepend.Dep(i).ObjPtr();
+      stringstream sout;
 			if(meta)
       {
         meta->IncrementVersion(Id());
-			  cout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id() << "\n";
-			  cout.flush();
+        sout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id() << "\n";
+        LOG4CXX_INFO(logger, sout.str());
+        sout.clear();
       }
       else
       {
-        cout << __PRETTY_FUNCTION__ << " meta is NULL!!!\n";
+        sout << __PRETTY_FUNCTION__ << " meta is NULL!!!\n";
+        LOG4CXX_WARN(logger, sout.str());
       }
 		}
 	}

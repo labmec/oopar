@@ -2,6 +2,17 @@
 
 #include "OOPVector.h"
 
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPVector"));
+
+
 #define OOPVECINT_ID 4040
 #define OOPVECDOUBLE_ID 4041
 template class TPZRestoreClass<OOPVector < int > , OOPVECINT_ID>;
@@ -26,7 +37,7 @@ void OOPVector<T>::Read(TPZStream & buf, void * context){
     int clsid=0;
     buf.Read(&clsid);
     if(clsid!=ClassId()){
-        cerr << "ClassId mismatch on OOPVector::Read";
+        LOG4CXX_WARN(logger, "ClassId mismatch on OOPVector::Read");
     }
 }
 template <class T>

@@ -189,7 +189,7 @@ public:
    */
 	void     Read (TPZStream & buf, void * context = 0);
 };
-inline ostream &operator<<(ostream &out, const OOPMDataDepend &obj) {
+inline std::ostream &operator<<(std::ostream &out, const OOPMDataDepend &obj) {
 	return obj.ShortPrint(out);
 }
 #endif

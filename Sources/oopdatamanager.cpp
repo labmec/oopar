@@ -30,7 +30,6 @@ class   OOPSaveable;
 using namespace std;
 class   OOPObjectId;
 
-#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
@@ -38,8 +37,8 @@ class   OOPObjectId;
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-LoggerPtr loggerOOPDataManager(Logger::getLogger("OOPAR.OOPDataManager"));
-#endif
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDataManager"));
+//#endif
 
 //#include "pzvec.h"
 /*
@@ -142,17 +141,19 @@ OOPDataManager::~OOPDataManager ()
 {
 	map< OOPObjectId,  OOPMetaData * >::iterator i=fObjects.begin ();
 	for(;i!=fObjects.end();i++){
-            TPZSaveable *dead = (*i).second->Ptr();
-            delete dead;
-			delete (i->second);
-		  	fObjects.erase(i);
+    TPZSaveable *dead = (*i).second->Ptr();
+    delete dead;
+    delete (i->second);
+    fObjects.erase(i);
 	}
 	fObjects.clear ();
-#ifdef LOG4CXX
-  LOG4CXX_WARN(loggerOOPDataManager,"Terminating DM");
-#endif 
-	DataManLog << "Terminating DM\n";
-	DataManLog.flush();
+  stringstream sout;
+  sout << "Terminating DM\n";
+//#ifdef LOG4CXX
+  LOG4CXX_INFO(logger,sout.str());
+//#endif 
+//	DataManLog << sout;
+//	DataManLog.flush();
 }
 bool OOPDataManager::HasObject (OOPObjectId & id)
 {
@@ -164,59 +165,72 @@ bool OOPDataManager::HasObject (OOPObjectId & id)
             return false;
 }
 void OOPDataManager::ReleaseAccessRequest (const OOPObjectId & TaskId, const OOPMDataDepend & depend){
-      map<OOPObjectId, OOPMetaData *>::iterator it;
-      it=fObjects.find(depend.Id());
-      if(it!=fObjects.end()){
-            (*it).second->ReleaseAccess(TaskId, depend);
-      }else{
-#ifdef LOG4CXX
-        LOG4CXX_WARN(loggerOOPDataManager,"Object not found");
-#else        
-        cerr << "Object not found\n";
-#endif
-      }
+  map<OOPObjectId, OOPMetaData *>::iterator it;
+  it=fObjects.find(depend.Id());
+  if(it!=fObjects.end()){
+    (*it).second->ReleaseAccess(TaskId, depend);
+  }else{
+    stringstream sout;
+    sout << "Object not found\n";
+//#ifdef LOG4CXX
+    LOG4CXX_WARN(logger,sout.str());
+//#else        
+//    cerr << sout;
+//#endif
+  }
 }
 int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 					 const OOPMDataDepend & depend,
 					 const long ProcId)
 {
-	DataManLog << GLogMsgCounter << endl;
-	GLogMsgCounter++;
-	map <OOPObjectId, OOPMetaData * >::iterator i;
-	i=fObjects.find(depend.Id());
-	if(i!=fObjects.end()){
+  DataManLog << GLogMsgCounter << endl;
+  GLogMsgCounter++;
+  map <OOPObjectId, OOPMetaData * >::iterator i;
+  i=fObjects.find(depend.Id());
+  stringstream sout;
+  if(i!=fObjects.end()){
     if (!depend.Version ().AmICompatible ((*i).second->Version ()))
     {
-      DataManLog << "AmICompatible returned false " << endl;
+      sout << "AmICompatible returned false " << endl;
+//#ifdef LOG4CXX
+      LOG4CXX_DEBUG(logger,sout.str());
+      sout.clear();
+//#else        
+//      DataManLog << sout;
+//#endif
       return 0;
     }
+    sout << "Access request submitted" << endl;
     (*i).second->SubmitAccessRequest (TaskId, depend, GetProcID ());
-    DataManLog << "Access request submitted" << endl;
-    (*i).second->Print(DataManLog);
-	}else{
+//#ifdef LOG4CXX
+    LOG4CXX_DEBUG(logger,sout);
+    sout.clear();
+//#else        
+//    DataManLog << sout;
+//#endif
+    (*i).second->Print(sout);
+  }else{
     if (depend.Id ().GetProcId () == fProcessor) {
-      DataManLog << "SubmitAccessRequest for deleted object, returning 0\n";
-#ifdef LOG4CXX
-      std::string aux = "SubmitAccessRequest for deleted object, returning 0 size of submitted list";
-      aux += itoa(fSubmittedObjects.size());
-      LOG4CXX_WARN(loggerOOPDataManager,aux.c_str());
-#else        
-      cout << "SubmitAccessRequest for deleted object, returning 0 size of submitted list " << fSubmittedObjects.size() << "\n";
-#endif
-			return 0;
+      sout << "SubmitAccessRequest for deleted object, returning 0\n";
+      sout << "SubmitAccessRequest for deleted object, returning 0 size of submitted list " << fSubmittedObjects.size() << "\n";
+//#ifdef LOG4CXX
+      LOG4CXX_WARN(logger,sout);
+      sout.clear();
+//#else        
+//      DataManLog << sout;
+//#endif
+      return 0;
     }
-		else {
-			OOPMetaData *dat =
-				new OOPMetaData (0, depend.Id (),
-						 depend.Id ().GetProcId ());
-			dat->SetTrace (true);	// Erico
-			fObjects[depend.Id()]= dat;	// [id] = dat;
-			dat->SubmitAccessRequest (TaskId, depend,
-						  GetProcID ());
-			return 1;
-		}
-	}
-	return 1;
+    else {
+      OOPMetaData *dat =
+      new OOPMetaData (0, depend.Id (),depend.Id ().GetProcId ());
+      dat->SetTrace (true);	// Erico
+      fObjects[depend.Id()]= dat;	// [id] = dat;
+      dat->SubmitAccessRequest (TaskId, depend,GetProcID ());
+      return 1;
+    }
+  }
+  return 1;
 }
 OOPDataManager::OOPDataManager (int Procid)
 {
@@ -258,7 +272,7 @@ OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace, OOPDataV
       TPZFileStream PZFS;
       PZFS.OpenWrite(FileName.str());
       obj->Write(PZFS,1);
-    }
+     }
      {
       TPZFileStream PZFS;
       PZFS.OpenRead(FileName.str());
@@ -271,7 +285,9 @@ OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace, OOPDataV
     command << "diff --brief " << FileName.str() << " " << FileName2.str() << endl;
     FILE *pipe = popen(command.str().c_str(),"r");
 #ifdef DEBUGALL
-    cout << "Command executed " << command.str() << endl;
+    stringstream sout;
+    sout << "Command executed " << command.str() << endl;
+    LOG4CXX_INFO(logger,sout);
 #endif
     char *compare = new char[256];
     compare[0] = '\0';
@@ -282,7 +298,9 @@ OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace, OOPDataV
     pclose(pipe);
     if(strlen(compare))
     {
-      cout << __PRETTY_FUNCTION__ << compare << endl;
+      sout << __PRETTY_FUNCTION__ << compare << endl;
+      LOG4CXX_WARN(logger,sout);
+      sout.clear();
     }
     delete []compare;    
   }
@@ -305,13 +323,10 @@ void OOPDataManager::DeleteObject (OOPObjectId & ObjId)
 		delete (*i).second;
 		fObjects.erase (i);
 	}else{
-#ifdef LOG4CXX
-      LOG4CXX_ERROR(loggerOOPDataManager,"OOPDataManager::DeleteObject Inconsistent object deletion");
-#else        
-		// Issue a server warning message !!!
-		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
-#endif
-// 	}
+    stringstream sout;
+    sout << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
+    LOG4CXX_ERROR(logger,sout.str());
+  }
 }
 void OOPDataManager::RequestDeleteObject (OOPObjectId & ObjId)
 {
@@ -320,86 +335,92 @@ void OOPDataManager::RequestDeleteObject (OOPObjectId & ObjId)
 	if (i != fObjects.end ()) {
 		(*i).second->RequestDelete ();
 	}else{
-#ifdef LOG4CXX
-      LOG4CXX_ERROR(loggerOOPDataManager,"DeleteObject Inconsistent object deletion File");
-#else        
-		// Issue a sever warning message !!!
-		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
-#endif
-	}
+    stringstream sout;
+    sout << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
+    LOG4CXX_ERROR(logger,sout.str());
+  }
 }
 void OOPDataManager::TransferObject (OOPObjectId & ObjId, int ProcId)
 {
 	map < OOPObjectId, OOPMetaData * >::iterator i;
 	OOPMetaData *dat = 0;
-    i=fObjects.find(ObjId);
+  i=fObjects.find(ObjId);
 	if(i != fObjects.end ()) {
 		dat = (*i).second;
-      	dat->TransferObject (ProcId);
+    dat->TransferObject (ProcId);
 	}else{
-            return;
-    }
+    return;
+  }
 }
 void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 {
-	DataManLog << GLogMsgCounter << endl;
+  stringstream sout;
+	sout << GLogMsgCounter << endl;
 	GLogMsgCounter++; 
-	DataManLog << "Calling GetUpdate(OOPDMOwnerTask)\n"; 
+	sout << "Calling GetUpdate(OOPDMOwnerTask)\n"; 
+  LOG4CXX_INFO(logger,sout.str());
+  sout.clear();
 	OOPMetaData *dat = Data (task->fObjId);
 	if (!dat) {
-#ifdef LOG4CXX
-      LOG4CXX_FATAL(loggerOOPDataManager,"GetUpdate called with invalid ojbid");
-#endif        
-		DataManLog << "TDataManager:GetUpdate called with invalid ojbid:";
-		cout << "TDataManager:GetUpdate called with invalid ojbid:";
-		task->fObjId.Print (DataManLog);
-		task->fObjId.Print (cout);
-		exit (-1);
-		return;
+    stringstream sout;
+    sout << "TDataManager:GetUpdate called with invalid ojbid:";
+    task->fObjId.Print (sout);
+    LOG4CXX_FATAL(logger,"GetUpdate called with invalid ojbid");
+    exit (-1);
+    return;
 	}
 	if (task->fType == ENotifyDeleteObject) {
-		DataManLog << "TDataManager:GetUpdate calling DeleteObject:";
+    sout << "TDataManager:GetUpdate calling DeleteObject:";
+    LOG4CXX_DEBUG(logger,sout.str());
+    sout.clear();
 		task->fObjId.Print(DataManLog);
 		dat->DeleteObject ();
 	}
 	else {
-		DataManLog << "TDataManager:GetUpdate Message Handled:";
+    sout << "TDataManager:GetUpdate Message Handled:";
+    LOG4CXX_DEBUG(logger,sout.str());
+    sout.clear();
 		task->fObjId.Print(DataManLog);
 		dat->HandleMessage (*task);
 	}
 }
 void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 {
-	DataManLog << GLogMsgCounter << endl;
+  stringstream sout;
+	sout << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-	DataManLog << "Calling GetUpdate(OOPDMRequestTask):\n";
+	sout << "Calling GetUpdate(OOPDMRequestTask):\n";
+  LOG4CXX_DEBUG(logger,sout.str());
+  sout.clear();
+
 	OOPObjectId id = task->fDepend.Id ();
 	map <OOPObjectId, OOPMetaData * >::iterator i;
       i=fObjects.find(id);
 	if (i == fObjects.end ()) {
 		if (id.GetProcId () == this->GetProcID ()) {
-			DataManLog << "OOPDataManager::GetUpdate send a delete object message to the original processor\n";
+      sout << "OOPDataManager::GetUpdate send a delete object message to the original processor\n";
+      LOG4CXX_DEBUG(logger,sout.str());
+      sout.clear();
 		}
 		else {
-			OOPDMRequestTask *ntask =
-				new OOPDMRequestTask (*task);
-			DataManLog << "OOPDataManager::GetUpdate Submitting received task\n";
+			OOPDMRequestTask *ntask = new OOPDMRequestTask (*task);
+      sout << "OOPDataManager::GetUpdate Submitting received task\n";
+      LOG4CXX_DEBUG(logger,sout.str());
+      sout.clear();
 			ntask->SetProcID (id.GetProcId ());
 			TM->SubmitDaemon(ntask);
 		}
 	}
 	else {
-		DataManLog << "OOPDataManager::GetUpdate fDepend.Id() found in this processor:" << id << endl;
+    sout << "OOPDataManager::GetUpdate fDepend.Id() found in this processor:" << id << endl;
+    LOG4CXX_DEBUG(logger,sout.str());
+    sout.clear();
 		if(!(*i).second->IamOwner()) {
 			OOPDMRequestTask *ntask = new OOPDMRequestTask(*task);
 			ntask->SetProcID((*i).second->Proc());
 			TM->SubmitDaemon(ntask);
 		} else if((*i).second->IamOwner() && task->fProcOrigin == (*i).second->Proc()) {
-#ifdef LOG4CXX
-      LOG4CXX_WARN(loggerOOPDataManager,"Task request ignored");
-#else        
-  		cout << "Task request ignored\n";
-#endif
+      LOG4CXX_WARN(logger,"Task request ignored");
 		} else {
 			(*i).second->SubmitAccessRequest (OOPObjectId(), task->fDepend,
 					   task->fProcOrigin);
@@ -423,7 +444,7 @@ OOPMetaData *OOPDataManager::Data (OOPObjectId ObjId)
 	}
 	return 0;
 }
-void OOPDataManager::PrintDataQueues(char * msg, ostream & out){
+void OOPDataManager::PrintDataQueues(char * msg, std::ostream & out){
 	out << "Printing Data Queues on processor :" << fProcessor << msg << endl;
 	map <OOPObjectId, OOPMetaData * >::iterator i;
 	OOPAccessInfoList auxlist;
@@ -502,29 +523,30 @@ void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 //      buf->UpkLong(&fVersion);
 	fVersion.Read (buf);
 	//fObjPtr = buf->Restore ();
-#ifdef LOG4CXX
-  LOG4CXX_DEBUG(loggerOOPDataManager,"Restoring fObjPtr");
-#else        
-#ifdef DEBUGALL
-	cout << "Restoring fObjPtr\n";
-#endif
-#endif
-	fObjPtr = TPZSaveable::Restore (buf,0);//, 0);
+
+  LOG4CXX_DEBUG(logger,"Restoring fObjPtr");
+	
+  fObjPtr = TPZSaveable::Restore (buf,0);//, 0);
 	// buf->UpkLong(&fTaskId);
 	buf.Read (&fTrace);
 	buf.Read (&fProcOrigin);
 	// Não faz sentido !!!
 	fObjId.Read(buf);
-	DataLog << "Unpacking Owner task for Obj " << fObjId << " message type " <<
-		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
-		endl;
-
+  stringstream sout;
+  sout << "Unpacking Owner task for Obj " << fObjId << " message type " 
+       <<  fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion 
+       <<  endl;
+  LOG4CXX_DEBUG(logger,sout.str());
 }
 void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 {
-	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<
-		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
-		endl;
+  stringstream sout;
+  sout << "Packing Owner task for Obj " << fObjId << " message type " 
+       << fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion 
+       << endl;
+  LOG4CXX_DEBUG(logger,sout.str());
+  sout.clear();
+
 	OOPDaemonTask::Write (buf, withclassid);
 	char type = fType;
 	buf.Write (&type);
@@ -532,16 +554,10 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 	buf.Write (&access);
 	fVersion.Write (buf);	// buf->PkLong(&fVersion);
 	if (fObjPtr) {
-#ifdef LOG4CXX
-  std::strign aux = "writing object of type";
-  aux += itoa (fObjPtr->ClassId());
-  LOG4CXX_DEBUG(loggerOOPDataManager,aux);
-#else        
-#ifdef DEBUGALL
-    cout << __PRETTY_FUNCTION__ << " writing object of type " << fObjPtr->ClassId() << endl;
-#endif
-#endif
-		fObjPtr->Write (buf,1);
+    sout << __PRETTY_FUNCTION__ << " writing object of type " << fObjPtr->ClassId() << endl;
+    LOG4CXX_DEBUG(logger,sout.str());
+    sout.clear();
+    fObjPtr->Write (buf,1);
 	}
 	else {
 		int zero = -1;
@@ -552,7 +568,7 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 	fObjId.Write (buf);	// buf->PkLong(&fObjId);
 	
 }
-void OOPDMOwnerTask::LogMe(ostream & out){
+void OOPDMOwnerTask::LogMe(std::ostream & out){
 	out << fProc;
 	out << "\tId "<< fObjId;
 	out << "\tSending ";
@@ -617,7 +633,7 @@ void OOPDMOwnerTask::LogMe(ostream & out){
 
 	
 }
-void OOPDMOwnerTask::LogMeReceived(ostream & out){
+void OOPDMOwnerTask::LogMeReceived(std::ostream & out){
 	out << fProc;
 	out << "\tId "<< fObjId;
 	out << "\tReceiving ";
@@ -711,7 +727,7 @@ void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
 
 }
 
-void OOPDMRequestTask::LogMe(ostream & out){
+void OOPDMRequestTask::LogMe(std::ostream & out){
 	out << fProc << "\t";
 	out << "Id " << fDepend.Id();
 	out << "\tRequesting ";

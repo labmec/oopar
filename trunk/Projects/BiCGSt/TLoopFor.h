@@ -3,9 +3,11 @@
 #ifndef TLOOPFOR_H
 #define TLOOPFOR_H
 #include <ooptask.h>
-class OOPMReturnType;
+#include <bicgdefs.h>
 class TLoopFor : public OOPTask {
-public:    
+public:
+  TLoopFor();
+  ~TLoopFor();    
 
     /**
     * Returns the estimated execution time.
@@ -25,7 +27,7 @@ public:
 	*/
 	virtual long GetClassID ()
 	{
-		return TDISTNORM_ID;
+		return TLOOPFOR_ID;
 	}
   void SetupVersions();
 public:
@@ -73,10 +75,10 @@ private:
 	vector <OOPObjectId> f_lId_x;
 	vector <OOPObjectId> f_lId_b;
 	vector <OOPObjectId> f_lId_p;
-	vector <OOPObjectId> f_lId_rtilde;
 	vector <OOPObjectId> f_lId_s;
 	vector <OOPObjectId> f_lId_shat;
-	vector <OOPObjectId> f_lId_t;
+	vector <OOPObjectId> f_lId_phat;
+  vector <OOPObjectId> f_lId_t;
 	vector <OOPObjectId> f_lId_v;
 	vector <OOPObjectId> f_lId_CMatrix;
 	vector <OOPObjectId> f_lId_rtilde;

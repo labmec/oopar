@@ -1,7 +1,7 @@
 /***************************************************************************
-                          bicgdouble.h  -  description
+                          tparmatrix.h  -  description
                              -------------------
-    begin                : Wed Feb 11 2004
+    begin                : Thu Feb 12 2004
     copyright            : (C) 2004 by longhin
     email                : longhin@carlsberg.fec.unicamp.br
  ***************************************************************************/
@@ -15,26 +15,27 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef BICGDOUBLE_H
-#define BICGDOUBLE_H
+#ifndef TPARMATRIX_H
+#define TPARMATRIX_H
 
-#include <bicgdefs.h>
 #include <oopsaveable.h>
+#include <bicgdefs.h>
 
-/**Implements the transmitable double variable
+/**Implements a matrix which can be trasnmitted through the network.
   *@author longhin
   */
 
-class BiCGDouble : public OOPSaveable {
-public:
-  double value;
-	BiCGDouble();
-	~BiCGDouble();
-  long GetClassID();
+class TParMatrix : public OOPSaveable  {
+public: 
+	TParMatrix();
+	~TParMatrix();
+  long GetClassID(){
+    return TPARMATRIX_ID;
+  }
 
   int Pack (OOPSendStorage * buf);
 	int Unpack (OOPReceiveStorage * buf);
-  
+
 };
 
 #endif

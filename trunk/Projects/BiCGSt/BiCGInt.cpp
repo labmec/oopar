@@ -1,7 +1,7 @@
 /***************************************************************************
-                          bicgdouble.h  -  description
+                          BiCGInt.cpp  -  description
                              -------------------
-    begin                : Wed Feb 11 2004
+    begin                : Thu Feb 12 2004
     copyright            : (C) 2004 by longhin
     email                : longhin@carlsberg.fec.unicamp.br
  ***************************************************************************/
@@ -14,27 +14,19 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "BiCGInt.h"
+TBiCGInt::TBiCGInt() : OOPSaveable(){}
 
-#ifndef BICGDOUBLE_H
-#define BICGDOUBLE_H
+int TBiCGInt::Pack(OOPSendStorage * buf){
+  OOPSaveable::Pack(buf);
+  buf->PkInt(&value);
+  return 1;
+}
 
-#include <bicgdefs.h>
-#include <oopsaveable.h>
-
-/**Implements the transmitable double variable
-  *@author longhin
-  */
-
-class BiCGDouble : public OOPSaveable {
-public:
-  double value;
-	BiCGDouble();
-	~BiCGDouble();
-  long GetClassID();
-
-  int Pack (OOPSendStorage * buf);
-	int Unpack (OOPReceiveStorage * buf);
-  
-};
-
-#endif
+int TBiCGInt::Unpack(OOPReceiveStorage * buf){
+  OOPSaveable::Unpack(buf);
+  int aux;
+  buf->UpkInt(&aux);
+  value = aux;
+  return 1;
+}

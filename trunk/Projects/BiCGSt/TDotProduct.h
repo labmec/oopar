@@ -3,10 +3,12 @@
 #ifndef TDOTPRODUCT_H
 #define TDOTPRODUCT_H
 #include <ooptask.h>
-class OOPMReturnType;
+#include <bicgdefs.h>
+
 class TDotProduct : public OOPTask {
 public:	
 
+  TDotProduct(int proc);
  /**
  	* Returns the estimated execution time.
  	* returns 0 if the task is instantaneous
@@ -25,7 +27,7 @@ public:
 	*/
 	virtual long GetClassID ()
 	{
-		return TDISTNORM_ID;
+		return TDISTPRODUCT_ID;
 	}
 };
 #endif //TDOTPRODUCT_H

@@ -3,7 +3,9 @@
 #ifndef TDISTNORM_H
 #define TDISTNORM_H
 #include "ooptask.h"
-class OOPMReturnType;
+#include <bicgdefs.h>
+#include "TTaskComm.h"
+#include <oopdatamanager.h>
 class OOPObjectId;
 
 /**
@@ -14,6 +16,8 @@ class OOPObjectId;
 class TDistNorm : public OOPTask {
 public:
 
+  TDistNorm(int proc);
+  ~TDistNorm();
 	/**
 	* Returns the estimated execution time.
 	* returns 0 if the task is instantaneous

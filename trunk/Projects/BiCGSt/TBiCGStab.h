@@ -5,11 +5,13 @@
 #include <ooptask.h>
 #include <TLoopFor.h>
 #include <TDistNorm.h>
-#include <TIfConditional.h>
-class OOPMReturnType;
+
+
 class TBiCGStab : public OOPTask {
 public:    
 
+  TBiCGStab(int nproc);
+  ~TBiCGStab();
   /**
   * Returns the estimated execution time.
   * returns 0 if the task is instantaneous
@@ -70,7 +72,7 @@ private:
 	vector <OOPObjectId> f_lId_p;
 	vector <OOPObjectId> f_lId_shat;
 	vector <OOPObjectId> f_lId_s;
-	vector <OOPObjectId> f_lId_shat;
+	vector <OOPObjectId> f_lId_phat;
 	vector <OOPObjectId> f_lId_t;
 	vector <OOPObjectId> f_lId_v;
 	vector <OOPObjectId> f_lId_CMatrix;

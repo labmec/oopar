@@ -114,9 +114,13 @@ void * OOPTaskManager::ReceiveMessages(void * data){
 	pthread_mutex_lock(&fMPIMutex);
 	OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 	if(!MPICM) return 0;//MPICM->ReceiveBlocking();
+	// Set timer to 0.5s - Thiago M. N. Oliveira - 2003.03.17
+	struct timespec t;
+	t.tv_sec = 0; // 0 seconds
+	t.tv_nsec = 500000000;  // 0.5 * 10^6 nanoseconds
 	while(MPICM){
 		MPICM->Receive();
-		pthread_cond_timedwait();		
+		pthread_cond_timedwait(&fMPICond, &fMPIMutex, &t);
 	}
 	
 }

@@ -24,6 +24,7 @@ class   OOPTask:public OOPSaveable
 private:
 	bool fIsExecuting;
 public:
+	bool IsExecuting(){return fIsExecuting;}
 	void SetExecuting(bool value = true){
 		fIsExecuting = value;
 	}

@@ -76,26 +76,49 @@ void OOPTaskManager::main ()
 	 * 
 	 * TM->Execute(); */
 }
+void OOPTaskManager::TransferExecutingTasks(){
+		
+	list < OOPTaskControl * >::iterator sub;
+	int listsize = fExecuting.size();
+	sub = fExecuting.begin();
+	OOPTaskControl * auxtc=0;
+	if(listsize){
+		auxtc = (*sub);
+	}
+	while (auxtc){
+		bool isexec=false;
+		pthread_mutex_lock(&fExecutingMutex);
+		isexec = auxtc->Task ()->IsExecuting();
+		pthread_mutex_unlock(&fExecutingMutex);
+		if (!isexec){
+			fFinished.push_back(auxtc);
+			fExecuting.erase(sub);
+		}
+		listsize = fFinished.size();
+		sub = fFinished.begin ();
+		auxtc = 0;
+		if(listsize) {
+			auxtc = (*sub);
+		}
+		
+		
+	}
+
+
+}
+
 #ifdef MPI
 #define MT
+
+
 void * OOPTaskManager::TriggerTask(void * data){
 	OOPTaskControl * tc = static_cast<OOPTaskControl *> (data);
 	OOPTaskManager * lTM = dynamic_cast<OOPTaskManager *> (TM);
 	tc->Task ()->Execute ();
-	tc->Task()->SetExecuting(false);
 	pthread_mutex_lock(&lTM->fExecutingMutex);
-	pthread_mutex_lock(&lTM->fFinishedMutex);
-	map<OOPObjectId, OOPTaskControl *>::iterator i;
-	i = lTM->fExecuting.find(tc->Task()->Id());
-	if(i==lTM->fExecuting.end()) {
-		//algo errado
-		cerr << "Going out of task thread\n";
-		exit (-1);
-	}
-	lTM->fExecuting.erase(i);
-	lTM->fFinished.push_back(tc);
+	tc->Task()->SetExecuting(false);
 	pthread_mutex_unlock(&lTM->fExecutingMutex);
-	pthread_mutex_unlock(&lTM->fFinishedMutex);
+	
 }
 /**
 	disparar o thread de execução da tarefa.
@@ -121,11 +144,19 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	lTM->fKeepGoing=true;
 	lTM->ExecuteDaemons();
 	while (lTM->fKeepGoing) {
+		cout << "Dentro do While em ExecuteMT\n";
+		cout.flush();
 		//pthread_mutex_lock(&fExecuteMutex);
 		DM->SubmitAllObjects();
+		cout << "chamando ReceiveMessages\n";
+		cout.flush();
 		CM->ReceiveMessages();
+		cout << "chamou ReceiveMessages\n";
+		cout.flush();
 		lTM->ExecuteDaemons();
 		while (lTM->fExecutable.size ()) {
+			cout << "Aqui\n";
+			cout.flush();
 			//pthread_mutex_unlock(&fExecuteMutex);
 			//DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
 			i = lTM->fExecutable.begin ();
@@ -133,7 +164,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			lTM->fExecutable.erase(i);
 			//Shouldn't a lock be required here ?
 			pthread_mutex_lock(&lTM->fExecutingMutex);
-			lTM->fExecuting[tc->Task ()->Id ()]=tc;
+			lTM->fExecuting.push_back(tc);
 			pthread_mutex_unlock(&lTM->fExecutingMutex);
 			tc->Task()->SetExecuting(true);
 			pthread_t task_thread;
@@ -142,8 +173,8 @@ void * OOPTaskManager::ExecuteMT(void * data){
 //              TaskManLog << (*i)->Task() << ":";
 			
 			
+			lTM->TransferExecutingTasks();
 			OOPObjectId id;
-			
 			id = tc->Task ()->Id ();
 			tc->Depend ().SetExecuting (tc->Task ()->Id (),
 						      false);
@@ -158,6 +189,10 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			// TaskManLog.flush();
 #endif
 		}
+		cout << "Aqui 2\n";
+		cout.flush();
+		DM->SubmitAllObjects();
+		lTM->TransferExecutingTasks();
 		DM->SubmitAllObjects();
 		lTM->TransferFinishedTasks ();
 		CM->ReceiveMessages ();
@@ -564,6 +599,7 @@ void OOPTaskManager::TransferSubmittedTasks ()
 	
 	while (aux){//(fSubmittedList.begin () != fSubmittedList.end ()) {
 		cout << 4;
+		cout.flush();
 		//sub = fSubmittedList.begin ();
 		//OOPTask * aux = (*sub);
 		if (aux->GetProcID () != fProc) {
@@ -585,6 +621,7 @@ void OOPTaskManager::TransferSubmittedTasks ()
 		pthread_mutex_lock(&fSubmittedMutex);
 		listsize = fSubmittedList.size();
 		sub = fSubmittedList.begin ();
+		aux = 0;
 		cout << "ListSize " << listsize << endl;
 		cout.flush();
 		if(listsize) {
@@ -594,6 +631,9 @@ void OOPTaskManager::TransferSubmittedTasks ()
 		pthread_mutex_unlock(&fSubmittedMutex);
 		
 	}
+	cout << "Saiu\n";
+	cout.flush();
+
 }
 void OOPTaskManager::TransferFinishedTasks ()
 {
@@ -632,6 +672,7 @@ void OOPTaskManager::TransferFinishedTasks ()
 		}
 		pthread_mutex_lock(&fFinishedMutex);
 		listsize = fFinished.size();
+		auxtc=0;
 		sub = fFinished.begin ();
 		if(listsize) {
 			auxtc = (*sub);

@@ -156,7 +156,7 @@ public:
      * @param p Pointer to array which has the elements to be packed
      * @param n Number of elements to be packed
      */
-	int     PkByte (char *p, int n = 1);
+	int     PkByte (const char *p, int n = 1);
 
     /**
      * Packs array of integers into send buffer
@@ -266,7 +266,7 @@ public:
 
     virtual void Write(double *p, int size = 1);
 
-    virtual void Write(char *p, int size = 1);
+    virtual void Write(const char *p, int size = 1);
 
     virtual void Write(string *p, int size = 1);
 

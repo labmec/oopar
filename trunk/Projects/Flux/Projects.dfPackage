@@ -1,0 +1,120 @@
+package id2ygyedfwfnbyqdfwfnrba;
+
+/**
+@version 2.0
+@physicalPackage
+@__modelType diagram 
+*/
+class diagram {
+/**
+@__ref <oiref:cpp#Class#ParCompResidual:oiref><oihard>
+@__modelType reference 
+*/
+class reference {
+}/**
+@__ref <oiref:cpp#Class#OOPTask:oiref><oihard>
+@__modelType reference
+@__imported 
+*/
+class reference4 {
+}/**
+@__ref <oiref:cpp#Class#OOPMetaData:oiref><oihard>
+@__modelType reference
+@__imported 
+*/
+class reference5 {
+}/**
+@__ref <oiref:cpp#Class#OOPDataVersion:oiref><oihard>
+@__modelType reference
+@__imported 
+*/
+class reference6 {
+}/**
+@__ref <oiref:cpp#Class#OOPSaveable:oiref><oihard>
+@__modelType reference
+@__imported 
+*/
+class reference7 {
+}/**
+@__ref <oiref:cpp#Class#LocalCompResidual:oiref><oihard>
+@__modelType reference 
+*/
+class reference8 {
+}/**
+@__ref <oiref:cpp#Class#TPartitionRelation:oiref><oihard>
+@__modelType reference 
+*/
+class reference3 {
+}/**
+@__ref <oiref:cpp#Class#TContribution:oiref><oihard>
+@__modelType reference 
+*/
+class reference1 {
+}/**
+@__ref <oiref:cpp#Class#TParCompute:oiref><oihard>
+@__modelType reference 
+*/
+class reference14 {
+}/**
+@__ref <oiref:cpp#Class#TParState:oiref><oihard>
+@__modelType reference 
+*/
+class reference15 {
+}/**
+@__ref <oiref:cpp#Class#TParRhs:oiref><oihard>
+@__modelType reference 
+*/
+class reference16 {
+}/**
+@__ref <oiref:cpp#Class#TParMesh:oiref><oihard>
+@__modelType reference 
+*/
+class reference17 {
+}/**
+@__ref <oiref:cpp#Class#TParAnalysis:oiref><oihard>
+@__modelType reference 
+*/
+class reference20 {
+}}/**
+@__tags
+@shapeType ClassDiagram 
+*/
+class __tags {
+}/**
+@__options 
+*/
+class __options {
+}/**
+@__positions <oigroup:<oiref:cpp#Class#OOPDataVersion:oiref>=539,309,200,440,1:oigroup>
+<oigroup:<oiref:cpp#Class#TParMesh:oiref>=10,309,84,79,1:oigroup>
+<oigroup:<oiref:cpp#Class#TPartitionRelation:oiref>=561,10,200,111,1:oigroup>
+<oigroup:<oiref:cpp#Class#LocalCompResidual:oiref>=319,1056,186,92,1:oigroup>
+<oigroup:<oiref:cpp#Extends#TParCompute#OOPTask:oiref>=237,1056,366,788:oigroup>
+<oigroup:<oiref:cpp#Extends#OOPMetaData#OOPSaveable:oiref>=885,309,474,242:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#TPartitionRelation#fRelation:oiref>=761,65,869,65:oigroup>
+<oigroup:<oiref:cpp#Class#OOPMetaData:oiref>=819,309,200,687,1:oigroup>
+<oigroup:<oiref:cpp#Member#LocalCompResidual#Execute#(##)#:oiref>=329,1118,0,0,1:oigroup>
+<oigroup:Composite#supplierCardinality#MemberLink#<oiref:cpp#Member#OOPMetaData#fObjPtr:oiref>=480,242,32,13,0:oigroup>
+<oigroup:<oiref:cpp#Member#ParCompResidual#ExecuteOld#(##)#:oiref>=407,690,0,0,1:oigroup>
+<oigroup:<oiref:cpp#Member#LocalCompResidual#$$constructor$$#(#int#)#:oiref>=300,1137,0,0,1:oigroup>
+<oigroup:<oiref:cpp#Class#OOPSaveable:oiref>=364,10,177,232,1:oigroup>
+<oigroup:<oiref:cpp#Extends#TParRhs#OOPSaveable:oiref>=154,309,402,242:oigroup>
+<oigroup:Composite#supplierCardinality#MemberLink#<oiref:cpp#Member#TPartitionRelation#fRelation:oiref>=835,48,30,13,0:oigroup>
+<oigroup:<oiref:cpp#Class#TParCompute:oiref>=176,1056,119,118,1:oigroup>
+<oigroup:<oiref:cpp#Extends#ParCompResidual#OOPTask:oiref>=609,1056,466,788:oigroup>
+<oigroup:<oiref:cpp#Extends#TParState#OOPSaveable:oiref>=257,309,421,242:oigroup>
+<oigroup:<oiref:cpp#Class#OOPTask:oiref>=319,309,200,479,1:oigroup>
+<oigroup:<oiref:cpp#Class#ParCompResidual:oiref>=525,1056,168,221,0:oigroup>
+<oigroup:<oiref:cpp#Class#TParRhs:oiref>=113,309,83,79,1:oigroup>
+<oigroup:<oiref:cpp#Member#TContribution#fDestination:oiref>=702,1000,0,0,1:oigroup>
+<oigroup:<oiref:cpp#Extends#OOPTask#OOPSaveable:oiref>=441,309,441,242:oigroup>
+<oigroup:<oiref:cpp#Class#TParAnalysis:oiref>=188,175,139,79,1:oigroup>
+<oigroup:<oiref:cpp#Extends#TParMesh#OOPSaveable:oiref>=51,309,383,242:oigroup>
+<oigroup:<oiref:cpp#Extends#LocalCompResidual#OOPTask:oiref>=414,1056,414,788:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#OOPMetaData#fVersion:oiref>=819,529,739,529:oigroup>
+<oigroup:<oiref:cpp#Class#TParState:oiref>=216,309,83,79,1:oigroup>
+<oigroup:<oiref:cpp#Class#TContribution:oiref>=869,10,200,140,0:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#OOPMetaData#fObjPtr:oiref>=952,309,516,242:oigroup>
+*/
+class __positions {
+}

@@ -193,13 +193,21 @@ OOPDataManager::OOPDataManager (int Procid)
 	fMaxId = 1000;	// fLastCreated + NUMOBJECTS;
 	//DM = this;
 }
+void OOPDataManager::SubmitAllObjects(){
+	list<OOPMetaData *>::iterator lit=fSubmittedObjects.begin();
+	for(;lit!=fSubmittedObjects.end();lit++){
+		fObjects[(*lit)->Id()]=(*lit);
+	}
+	fSubmittedObjects.clear();
+}
 OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 {
 	// como fazer ?? 
 	OOPObjectId id = DM->GenerateId ();
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor);
 	dat->SetTrace (trace);	// Erico
-	fObjects[id] = dat;	// [id] = dat;
+	fSubmittedObjects.push_back(dat);
+	//cout << "Aqui " << fSubmittedObjects.size() << endl;
 	
 	/* 
 	 * TDMOwnerTask ms(ENotifyCreateObject,-1); //ms.fTaskId = //0;

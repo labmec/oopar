@@ -3,7 +3,6 @@
 #define TTASKMANAGER
 #ifndef WIN32
 #include <pthread.h>
-#include <time.h>  // included by Thiago M. N. Oliveira - 2003.03.17
 #endif
 #include "ooptask.h"
 #include <list>
@@ -154,8 +153,7 @@ private:
 	bool fKeepGoing;
 #ifndef WIN32
   /**
-   * Mutual exclusion locks and conditional variables for adding tasks to the 
-   * submission task list.
+   * Mutual exclusion locks for adding tasks to the submission task list.
    */
    	pthread_mutex_t fMPIMutex;
 	pthread_mutex_t fSubmittedMutex;
@@ -164,8 +162,6 @@ private:
 	pthread_cond_t fMPICond;
 	pthread_cond_t fExecuteCondition;
 	pthread_cond_t fExecuteTaskCondition;
-
-
 
 #endif
 	static void * TriggerTask(void * data);
@@ -195,6 +191,7 @@ private:
    * Maximum number of generated Id.
    */
 	long    fMaxId;
+	int fReceiveThreadCreated;
   /**
    * List of tasks which can't be executed yet
    */

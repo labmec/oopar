@@ -111,7 +111,7 @@ void OOPTaskManager::TransferExecutingTasks(){
 
 void * OOPTaskManager::ReceiveMessages(void * data){
 	OOPTaskManager * lTM = static_cast<OOPTaskManager *> (data);
-	pthread_mutex_lock(&fMPIMutex);
+	pthread_mutex_lock(&lTM->fMPIMutex);
 	OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 	if(!MPICM) return 0;//MPICM->ReceiveBlocking();
 	// Set timer to 0.5s - Thiago M. N. Oliveira - 2003.03.17
@@ -119,8 +119,8 @@ void * OOPTaskManager::ReceiveMessages(void * data){
 	t.tv_sec = 0; // 0 seconds
 	t.tv_nsec = 500000000;  // 0.5 * 10^6 nanoseconds
 	while(MPICM){
-		MPICM->Receive();
-		pthread_cond_timedwait(&fMPICond, &fMPIMutex, &t);
+		MPICM->ReceiveBlocking();
+		pthread_cond_timedwait(&lTM->fMPICond, &lTM->fMPIMutex, &t);
 	}
 	
 }
@@ -197,8 +197,11 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			#ifdef MPI
 			//OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 			//if(MPICM) MPICM->ReceiveBlocking();
-			if(!fReceiveThreadCreated)
-				pthread_create(&receivethread, NULL, ReceiveMessages, this);
+			if(!lTM->fReceiveThreadCreated){
+				pthread_t receivethread;
+				pthread_create(&receivethread, NULL, ReceiveMessages, lTM);
+				//Do we need to call join ?
+			}
 			//criar um thread com o recebimento não blocking.
 			//if(MPICM) MPICM->Receive();
 			#endif
@@ -219,6 +222,7 @@ OOPTaskManager::OOPTaskManager (int proc)
 {
 	fProc = proc;
 	fLastCreated = 0;//NUMOBJECTS * fProc;
+	fReceiveThreadCreated=0;
 	fMaxId = fLastCreated + NUMOBJECTS;
 	pthread_cond_init(&fExecuteCondition, NULL);
 	pthread_cond_init(&fExecuteTaskCondition, NULL);

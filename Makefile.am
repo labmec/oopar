@@ -1,9 +1,9 @@
 #
-# Top Makefile.am for NeoPZ
+# Top Makefile.am for OOPar
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.1 2003-05-31 11:02:27 phil Exp $
+# $Id: Makefile.am,v 1.2 2003-07-18 21:41:26 longhin Exp $
 #
 
 usermkdir = $(prefix)

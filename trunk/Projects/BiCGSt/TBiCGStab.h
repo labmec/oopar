@@ -5,6 +5,7 @@
 #include <ooptask.h>
 #include <TLoopFor.h>
 #include <TDistNorm.h>
+#include <oopobjectid.h>
 
 
 class TBiCGStab : public OOPTask {
@@ -34,6 +35,7 @@ public:
 	}
   
 private:
+	bool fObjectsSubmitted;
 	/**
 	 * Submits the necessary data objects for the BiCGStab completion
 	 */

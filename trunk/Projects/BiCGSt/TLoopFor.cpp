@@ -27,6 +27,7 @@ void TLoopFor::SubmitIf(){
   * fId_tol will be incremented anyway -->n+1
   */
 }
+TLoopFor::TLoopFor(int proc) : OOPTask(proc) {}
 
 OOPMReturnType TLoopFor::Execute ()
 {

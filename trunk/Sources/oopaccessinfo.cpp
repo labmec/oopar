@@ -15,6 +15,8 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		return false;
 	switch (this->fState) {
 	case EReadAccess:
+          cout << __PRETTY_FUNCTION__ << "version access " << object.HasVersionAccessTask () << " has write access " <<
+            object.HasWriteAccess (fTaskId) << " has read access " << object.HasReadAccess () << endl;
 		if (object.HasVersionAccessTask ())
 			return false;
 		if (object.HasWriteAccess (fTaskId))
@@ -69,7 +71,7 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 	ac = fList.end ();
 	if (!object.CanGrantAccess ())
 	{
-		DataLog << "VerifyAccessRequests object returned CanGrantAccess false\n";
+		DataLog << __PRETTY_FUNCTION__ << "VerifyAccessRequests object returned CanGrantAccess false\n";
 		return false;
 	}
 	list < OOPAccessInfo >::iterator i;
@@ -91,6 +93,7 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 			if (!(i->fIsGranted) && i->fState == EReadAccess) {
 				/*if (HasReadAccessGranted ())
 					return false;*/
+                                cout << __PRETTY_FUNCTION__ << __LINE__ << " Can execute returned "<< i->CanExecute(object) << endl;
 				if (i->CanExecute (object)) {
 					ac = i;
 					return true;

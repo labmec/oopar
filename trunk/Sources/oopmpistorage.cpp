@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.25 2004-08-29 15:26:29 longhin Exp $
-// $Revision: 1.25 $
+// $Author: phil $
+// $Id: oopmpistorage.cpp,v 1.26 2004-11-07 19:23:31 phil Exp $
+// $Revision: 1.26 $
 
 
 
@@ -170,9 +170,9 @@ bool OOPMPIStorageBuffer::TestReceive() {
 	int test_flag, ret_test;
 	ret_test=MPI_Test (&f_request, &test_flag, &status);
 #ifdef DEBUG
-	cout << "Test returned " << ret_test << endl;
+/*	cout << "Test returned " << ret_test << endl;
 	cout << "Flag " << test_flag << endl;
-	cout.flush();
+	cout.flush();*/
 #endif	
 	return test_flag;
 }
@@ -188,6 +188,9 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 	f_isreceiving = 0;
 	f_recv_position = 0;
 	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
+#ifdef DEBUG
+        cout << __PRETTY_FUNCTION__ << " Restored object with classid " << obj->ClassId() << endl;
+#endif
 	//MPI_Request_free(&f_request);
 	return obj;
 }
@@ -202,9 +205,9 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 	}
 	//MPI_Status status;
 #ifdef DEBUG
-	cout << "Going to MPI_Wait\n";
+/*	cout << "Going to MPI_Wait\n";
 	cout << "PID" << getpid() << endl;
-	cout.flush();
+	cout.flush();*/
 #endif
 	//MPI_Wait(&f_request,&status);
 	sleep(1);

@@ -39,7 +39,13 @@ OOPMReturnType TTaskComm::Execute(){
         if (fDataDepend.Dep(i).State() == EWriteAccess){
 	        //dat->IncrementVersion();
 	        //DM->GetObjPtr(i->fDataId)->IncrementVersion();
-	        fDataDepend.Dep(i).ObjPtr()->IncrementVersion();
+			cout << "TTaskComm object id ";
+			fDataDepend.Dep(i).ObjPtr()->Id().Print(cout);
+			cout << "TTaskComm::Execute the previous version is " << endl;
+			fDataDepend.Dep(i).ObjPtr()->Version().Print(cout);
+	        OOPDataVersion ver = fDataDepend.Dep(i).ObjPtr()->Version();
+			ver.Increment();
+			fDataDepend.Dep(i).ObjPtr()->SetVersion(ver,this->Id());
 		cout << "TTaskComm::Execute the new version is " << endl;
 		fDataDepend.Dep(i).ObjPtr()->Version().Print(cout);
 	    }

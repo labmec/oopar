@@ -391,3 +391,15 @@ OOPDataVersion::OOPDataVersion ()
 	fLevelCardinality.push_back (-1);
 
 }
+
+bool OOPDataVersion::CanExecute(const OOPDataVersion &dataversion) const {
+	if(fVersion.size() != dataversion.fVersion.size()) return false;
+  bool can_I = true;
+  int i;
+  for(i=0;i < dataversion.GetNLevels();i++){
+    if(GetLevelVersion(i)!=dataversion.GetLevelVersion(i) && GetLevelVersion(i)!=-1){
+      can_I = false;
+    }
+  }
+  return can_I;
+}

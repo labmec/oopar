@@ -5,9 +5,10 @@
 
 TPartitionRelation::TPartitionRelation() : OOPSaveable() {}
 int TPartitionRelation::OutgoingContribution(int partition){
-	int counter;
+	int counter = 1;
 	int i;
 	for(i=0;i<fNumPartitions;i++){
+		if(i==partition) continue;
 		//Ainda precisa ser implementado com a funcionalidade esperada
 		if (fRelation[partition][i].NContributions()){
 			counter++;
@@ -19,8 +20,9 @@ int TPartitionRelation::OutgoingContribution(int partition){
 }
 int TPartitionRelation::IncomingContribution(int partition){
 	int i;
-	int count = 0;
+	int count = 1;
 	for(i=0;i<fNumPartitions;i++){
+		if(i==partition) continue;
 		//Ainda precisa ser implementado com a funcionalidade esperada
 		if (fRelation[i][partition].NContributions()){
 			count ++;

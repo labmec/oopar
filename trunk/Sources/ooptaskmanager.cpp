@@ -133,6 +133,9 @@ void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPMD
 #endif
 	  if(tc->Depend().CanExecute()) {
 		  TransfertoExecutable(tc->Task()->Id());
+		  cout << "OOPTaskManager task is executable ";
+		  TaskId.Print(cout);
+
 	  }
 	  break;
 	}
@@ -184,6 +187,7 @@ int OOPTaskManager::CancelTask(OOPObjectId taskid){
     if (tc->Task()->Id() == taskid){
       cout << "Task erased" << endl;
       cout << "Task ID "; tc->Task()->Id().Print(cout);
+	  tc->Depend().ReleaseAccessRequests(tc->Task()->Id());
       delete tc;
       fTaskList.erase(i);
       return 1;
@@ -208,7 +212,7 @@ void OOPTaskManager::Execute(){
 	  while(fExecutable.size()){
 		i=fExecutable.begin();
 		(*i)->Task()->Execute();
-		cout << (*i)->Task() << ":";
+//		cout << (*i)->Task() << ":";
 		OOPObjectId id;
 		id = (*i)->Task()->Id();
  		(*i)->Depend().ReleaseAccessRequests((*i)->Task()->Id());

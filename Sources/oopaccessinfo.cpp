@@ -82,6 +82,33 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 			i++;
 		}
 	}
+	if (!HasWriteAccessGranted()) {
+		i = fList.begin ();
+		while (i != fList.end ()) {
+			if (!(i->fIsGranted) && i->fState == EReadAccess) {
+				/*if (HasReadAccessGranted ())
+					return false;*/
+				if (i->CanExecute (object)) {
+					ac = i;
+					return true;
+				}
+			}
+			i++;
+		}
+	}
+	if(!object.HasReadAccess() && object.IamOwner()){
+		i = fList.begin ();
+		while (i != fList.end ()) {
+			if (!(i->fIsGranted) && i->fState == EWriteAccess) {
+				if (i->CanExecute (object)) {
+					ac = i;
+					return true;
+				}
+			}
+			i++;
+		}
+	}
+	/*
 	if (!HasReadAccessGranted ()) {
 		i = fList.begin ();
 		while (i != fList.end ()) {
@@ -106,6 +133,7 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 		}
 		i++;
 	}
+	*/
 	return false;
 }
 /**
@@ -166,6 +194,28 @@ bool OOPAccessInfoList::HasWriteAccessGranted () const
 	}
 	return false;
 }
+bool OOPAccessInfoList::HasVersionAccessGranted () const
+{
+	list < OOPAccessInfo >::const_iterator i = fList.begin ();
+	while (i != fList.end ()) {
+		if (i->fState == EVersionAccess && i->fIsGranted)
+			return true;
+		i++;
+	}
+	return false;
+}
+
+void 
+OOPAccessInfoList::PostPoneWriteAccessGranted () 
+{
+	list < OOPAccessInfo >::iterator i = fList.begin ();
+	while (i != fList.end ()) {
+		if (i->fState == EWriteAccess && i->fIsGranted){
+			i->fIsGranted = 0;
+		}
+		i++;
+	}
+}
 void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 				       const OOPMDataDepend & depend)
 {
@@ -179,8 +229,11 @@ void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 		i++;
 	}
 	if(i == fList.end()) {
-		cout << "InfoList::ReleaseAccess didn't find the object" << endl;
+		cout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend << endl;
+		Print(cout);
+		cout.flush();
 	}
+	
 }
 bool OOPAccessInfoList::HasAccessGranted (const OOPObjectId & taskid,
 					  const OOPMDataDepend & depend) const
@@ -216,6 +269,18 @@ HasWriteAccessRequests (const OOPDataVersion & version) const
 	list < OOPAccessInfo >::const_iterator i = fList.begin ();
 	while (i != fList.end ()) {
 		if (i->fState == EWriteAccess
+		    && i->fVersion.CanExecute (version))
+			return true;
+		i++;
+	}
+	return false;
+}
+bool OOPAccessInfoList::
+HasReadAccessRequests (const OOPDataVersion & version) const
+{
+	list < OOPAccessInfo >::const_iterator i = fList.begin ();
+	while (i != fList.end ()) {
+		if (i->fState == EReadAccess
 		    && i->fVersion.CanExecute (version))
 			return true;
 		i++;
@@ -289,22 +354,18 @@ void OOPAccessInfoList::RevokeAccessAndCancel ()
  /**
  * Revokes all access which have been granted
  */
-void OOPAccessInfoList::RevokeAccess (const OOPMetaData & obj)
+void OOPAccessInfoList::RevokeWriteAccess (const OOPMetaData & obj)
 {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while (i != fList.end ()) {
 		if (i->fIsAccessing) {
 		}
-		else if (i->fIsGranted) {
+		else if (i->fIsGranted && !(i->fState == EReadAccess)) {
 			OOPMDataDepend depend (i->fTaskId, i->fState,
 					       i->fVersion);
 			TM->RevokeAccess (i->fTaskId, depend);
-			if (!obj.IamOwner ()) {
-				cout << "OOPAccessInfoList::RevokeAccess send an access request to the owning processor" << endl;
-#ifndef WIN32
-#warning "send an access request to the owning processor"
-#endif
-			}
+			i->fIsGranted=0;
+
 		}
 		i++;
 	}
@@ -312,11 +373,11 @@ void OOPAccessInfoList::RevokeAccess (const OOPMetaData & obj)
  /**
   * Returns true if a task is accessing the data
   */
-bool OOPAccessInfoList::HasExecutingTasks ()
+bool OOPAccessInfoList::HasExecutingOrReadGrantedTasks ()
 {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while (i != fList.end ()) {
-		if (i->fIsAccessing)
+		if (i->fIsAccessing || (i->fState == EReadAccess && i->fIsGranted))
 			return true;
 		i++;
 	}
@@ -359,7 +420,6 @@ void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
 /**
  * Resend the granted access requests (because a read access has been 
  * canceled)
- */
 void OOPAccessInfoList::ResendGrantedAccessRequests(OOPObjectId &id, int owningproc) {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while(i != fList.end()) {
@@ -372,6 +432,8 @@ void OOPAccessInfoList::ResendGrantedAccessRequests(OOPObjectId &id, int owningp
 		i++;
 	}
 }
+ */
+
 void OOPAccessInfoList::Print(ostream & out) {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while(i != fList.end()) {

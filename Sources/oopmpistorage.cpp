@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.24 2004-08-09 19:12:13 longhin Exp $
-// $Revision: 1.24 $
+// $Id: oopmpistorage.cpp,v 1.25 2004-08-29 15:26:29 longhin Exp $
+// $Revision: 1.25 $
 
 
 
@@ -55,7 +55,7 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, int mpitype)
 }
 int OOPMPIStorageBuffer::Send (int target)
 {
-#ifdef VERBOSE
+#ifdef DEBUG
 	cout << "PID" << getpid() << " Called MPI_Send ret = \n";
 	cout.flush();
 #endif
@@ -63,7 +63,7 @@ int OOPMPIStorageBuffer::Send (int target)
 	int tag = 0;
 	ret = MPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);
-#ifdef VERBOSE
+#ifdef DEBUG
 	switch(ret){
 		case MPI_SUCCESS:
 			cout <<" - No error; MPI routine completed successfully\n";
@@ -169,7 +169,7 @@ bool OOPMPIStorageBuffer::TestReceive() {
 	MPI_Status status;
 	int test_flag, ret_test;
 	ret_test=MPI_Test (&f_request, &test_flag, &status);
-#ifdef VERBOSE
+#ifdef DEBUG
 	cout << "Test returned " << ret_test << endl;
 	cout << "Flag " << test_flag << endl;
 	cout.flush();
@@ -201,7 +201,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 		
 	}
 	//MPI_Status status;
-#ifdef VERBOSE
+#ifdef DEBUG
 	cout << "Going to MPI_Wait\n";
 	cout << "PID" << getpid() << endl;
 	cout.flush();

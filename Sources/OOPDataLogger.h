@@ -95,6 +95,7 @@ private:
      * @since 18/09/2003 
      */
     ofstream fLogger;
+	ofstream fMetaDataLogger;
 	LogStructure fLog;
 	
 };

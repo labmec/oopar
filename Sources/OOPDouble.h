@@ -17,4 +17,5 @@ public:
 
     
 };
+template class TPZRestoreClass<OOPDouble, OOPDOUBLE_ID>;
 #endif //OOPDOUBLE_H

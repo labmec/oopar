@@ -47,8 +47,8 @@ public:
 
     ~OOPWaitTask();
 
-    virtual void Write(TPZStream & buf, int withclassid = 0);
-    virtual void Read(TPZStream & buf, void * context = 0);
+    virtual void Write(TPZStream & buf, int withclassid);
+    virtual void Read(TPZStream & buf, void * context);
     virtual int ClassId() const;
     virtual OOPMReturnType Execute();
     void Finish();

@@ -48,7 +48,7 @@ OOPSaveable *OOPStorageBuffer::Restore ()
 {
 	long class_id = 0; 
 	UpkLong (&class_id);
-#ifdef VERBOSE
+#ifdef DEBUG
 	cout << "PID" << getpid() << " Restorig object of class Id " << class_id << endl;
 	cout.flush();
 #endif

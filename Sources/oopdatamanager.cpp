@@ -397,7 +397,7 @@ OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
 }
 void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 {
-	OOPDaemonTask::Read (buf);
+	OOPDaemonTask::Read (buf, context);
 	char type;
 	buf.Read (&type);
 	fType = (OOPMDMOwnerMessageType) type;
@@ -407,7 +407,7 @@ void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 //      buf->UpkLong(&fVersion);
 	fVersion.Read (buf);
 	//fObjPtr = buf->Restore ();
-	//Atenção aqui
+	cout << "Restoring fObjPtr\n";
 	fObjPtr = TPZSaveable::Restore (buf,0);//, 0);
 	// buf->UpkLong(&fTaskId);
 	buf.Read (&fTrace);
@@ -419,11 +419,28 @@ void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 		endl;
 
 }
-TPZSaveable *OOPDMOwnerTask::Restore (TPZStream & buf, void * context)
+void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 {
-	OOPDMOwnerTask *t = new OOPDMOwnerTask;// (ENoMessage, 0);
-	t->Read (buf);
-	return t;
+	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<
+		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
+		endl;
+	OOPDaemonTask::Write (buf, withclassid);
+	char type = fType;
+	buf.Write (&type);
+	int access = fState;
+	buf.Write (&access);
+	fVersion.Write (buf);	// buf->PkLong(&fVersion);
+	if (fObjPtr) {
+		fObjPtr->Write (buf);
+	}
+	else {
+		int zero = -1;
+		buf.Write (&zero);
+	}
+	buf.Write (&fTrace);
+	buf.Write (&fProcOrigin);
+	fObjId.Write (buf);	// buf->PkLong(&fObjId);
+	
 }
 void OOPDMOwnerTask::LogMe(ostream & out){
 	out << fProc;
@@ -551,29 +568,6 @@ void OOPDMOwnerTask::LogMeReceived(ostream & out){
 	out << "\tFrom Processor " << fProcOrigin;
 	out.flush();
 }
-void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
-{
-	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<
-		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
-		endl;
-	OOPDaemonTask::Write (buf);
-	char type = fType;
-	buf.Write (&type);
-	int access = fState;
-	buf.Write (&access);
-	fVersion.Write (buf);	// buf->PkLong(&fVersion);
-	if (fObjPtr) {
-		fObjPtr->Write (buf);
-	}
-	else {
-		int zero = -1;
-		buf.Write (&zero);
-	}
-	buf.Write (&fTrace);
-	buf.Write (&fProcOrigin);
-	fObjId.Write (buf);	// buf->PkLong(&fObjId);
-	
-}
 OOPMReturnType OOPDMOwnerTask::Execute ()
 {
 	DM->GetUpdate (this);
@@ -587,7 +581,7 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 void OOPDMRequestTask::Read(TPZStream & buf, void * context)
 {
 	cout.flush();
-	OOPDaemonTask::Read(buf);
+	OOPDaemonTask::Read(buf, context);
 	buf.Read (&fProcOrigin);
 	fDepend.Read (buf);
 
@@ -601,7 +595,7 @@ TPZSaveable *OOPDMRequestTask::Restore (TPZStream & buf, void * context)
 void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
 {
 	cout.flush();
-	OOPDaemonTask::Write (buf);
+	OOPDaemonTask::Write (buf, withclassid);
 	buf.Write (&fProcOrigin);
 	fDepend.Write (buf);
 

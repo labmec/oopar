@@ -1,0 +1,259 @@
+package idvss7dg9n3drqdg9p04t8;
+
+/**
+@version 2.0
+@__modelType diagram 
+*/
+class diagram {
+/**
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node:oiref><oihard>
+@__modelType reference 
+*/
+class reference {
+}/**
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node4:oiref><oihard>
+@__modelType reference 
+*/
+class reference5 {
+}/**
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node8:oiref><oihard>
+@__modelType reference 
+*/
+class reference9 {
+}/**
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node14:oiref><oihard>
+@__modelType reference 
+*/
+class reference15 {
+}}/**
+Describes the sequence of operations in the Execute Method on the ParComp Residual class.
+The Execute method is the one triggered by the OOPar parallelization environment.
+The purpose of the Execute method is to create tasks, data and also set task/data dependency and submit the created tasks and data to the TM and DM respectively
+@__tags
+@shapeType SequenceDiagram 
+*/
+class __tags {
+}/**
+@__options 
+*/
+class __options {
+}/**
+@__positions <oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.node2:oiref>=107,122,14,408,0:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link6:oiref>=121,230,553,230:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link7:oiref>=:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link10:oiref>=121,148,721,148:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node14:oiref>=840,255,93,355,0:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node4.node:oiref>=553,230,14,20,1:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node:oiref>=30,30,151,580,1:oigroup>
+<oigroup:Composite#$messageInplaceEditing#<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link10:oiref>=125,131,32,13,0:oigroup>
+<oigroup:Composite#$messageInplaceEditing#<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link1:oiref>=125,128,194,13,0:oigroup>
+<oigroup:Composite#$messageInplaceEditing#<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link6:oiref>=125,213,287,13,0:oigroup>
+<oigroup:Composite#$messageInplaceEditing#<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link16:oiref>=125,273,154,13,0:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node8.node:oiref>=753,148,14,50,1:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link3:oiref>=:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link16:oiref>=121,290,840,290:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link11:oiref>=:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link1:oiref>=112,122,112,116,152,116,152,128,121,128:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node8:oiref>=721,113,78,497,0:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link19:oiref>=130,410,879,410:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link17:oiref>=:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node4:oiref>=500,30,121,580,0:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.node18:oiref>=116,381,14,139,0:oigroup>
+<oigroup:Composite#$messageInplaceEditing#<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link19:oiref>=134,393,400,13,0:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node14.node20:oiref>=879,410,14,20,1:oigroup>
+<oigroup:<oiref:design#Class#idvss7dg9n3drqdg9p04t8.node14.node:oiref>=879,290,14,50,1:oigroup>
+*/
+class __positions {
+}/**
+@shapeType Object
+@__modelType node
+@name pc
+@stereotype actor 
+*/
+class node {
+/**
+@shapeType DependencyLink
+@__modelType link
+@__ref <oiref:cpp#Class#ParCompResidual:oiref><oihard> 
+*/
+class link {
+}/**
+@shapeType MessageLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node:oiref><oihard>
+@sendingInstant 122
+@processingDuration 408
+@sequenceNumber 1
+@diagram_uniqe_name <oiref:design#Class#idvss7dg9n3drqdg9p04t8.diagram:oiref>
+@showReturnArrow
+@operation <oiref:cpp#Member#ParCompResidual#Execute#(##)#:oiref>
+@operationNameAsText 'operation1():void' 
+@minProcessingDuration 298
+*/
+class link1 {
+}/**
+@shapeType Activation
+@__modelType node
+@name Activation1
+@activationMessage <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link1:oiref> 
+*/
+class node2 {
+}/**
+@shapeType CollaborationLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node:oiref><oihard> 
+*/
+class link3 {
+}/**
+@shapeType MessageLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node4:oiref><oihard>
+@sendingInstant 230
+@processingDuration 20 
+@sequenceNumber 1.2
+@diagram_uniqe_name <oiref:design#Class#idvss7dg9n3drqdg9p04t8.diagram:oiref>
+@showReturnArrow
+@operation <oiref:cpp#Member#OOPDataManager#GetObjPtr#(#OOPObjectId#)#:oiref>
+@operationNameAsText 'GetObjPtr(OOPObjectId):OOPSaveable *'
+@arguments tableId
+@return table
+*/
+class link6 {
+}/**
+@shapeType CollaborationLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node4:oiref><oihard> 
+*/
+class link7 {
+}/**
+@shapeType MessageLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node8:oiref><oihard>
+@sendingInstant 148
+@processingDuration 50
+@sequenceNumber 1.1
+@diagram_uniqe_name <oiref:design#Class#idvss7dg9n3drqdg9p04t8.diagram:oiref>
+@showReturnArrow
+@creationMessage true
+*/
+class link10 {
+}/**
+@shapeType CollaborationLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node8:oiref><oihard> 
+*/
+class link11 {
+}/**
+@shapeType MessageLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node14:oiref><oihard>
+@sendingInstant 290
+@processingDuration 50
+@sequenceNumber 1.3
+@diagram_uniqe_name <oiref:design#Class#idvss7dg9n3drqdg9p04t8.diagram:oiref>
+@showReturnArrow
+@creationMessage true
+@operation <oiref:cpp#Member#LocalCompResidual#$$constructor$$#(#int#)#:oiref>
+@operationNameAsText '<constructor>(int)'
+*/
+class link16 {
+}/**
+@shapeType CollaborationLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node14:oiref><oihard> 
+*/
+class link17 {
+}/**
+@shapeType StatementBlock
+@__modelType node
+@name StatementBlock1
+@initialInstant 381
+@processingDuration 139
+@statementType for
+@sequenceNumber 1.4
+@diagram_uniqe_name <oiref:design#Class#idvss7dg9n3drqdg9p04t8.diagram:oiref>
+@statementExpression i=0;i<table->GetNPartitions();i++
+@minProcessingDuration 139
+*/
+class node18 {
+}/**
+@shapeType MessageLink
+@__modelType link
+@__ref <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node14:oiref><oihard>
+@sendingInstant 410
+@processingDuration 20 
+@sequenceNumber 1.4.1
+@diagram_uniqe_name <oiref:design#Class#idvss7dg9n3drqdg9p04t8.diagram:oiref>
+@showReturnArrow
+@operation <oiref:cpp#Member#OOPTask#AddDependentData#(#OOPObjectId&#OOPMDataState#OOPDataVersion&#)#:oiref>
+@operationNameAsText 'AddDependentData(OOPObjectId &,OOPMDataState,OOPDataVersion &):void'
+@arguments this->GetRhsId(), EWriteAccess, version
+*/
+class link19 {
+}}/**
+@shapeType Object
+@__modelType node
+@name DM 
+*/
+class node4 {
+/**
+@shapeType DependencyLink
+@__modelType link
+@__ref <oiref:cpp#Class#OOPDataManager:oiref><oihard> 
+*/
+class link {
+}/**
+@shapeType Activation
+@__modelType node
+@name Activation2
+@activationMessage <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link6:oiref> 
+*/
+class node {
+}}/**
+@shapeType Object
+@__modelType node
+@name table
+@created true 
+*/
+class node8 {
+/**
+@shapeType DependencyLink
+@__modelType link
+@__ref <oiref:cpp#Class#TPartitionRelation:oiref><oihard> 
+*/
+class link {
+}/**
+@shapeType Activation
+@__modelType node
+@name Activation3
+@activationMessage <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link10:oiref> 
+*/
+class node {
+}}/**
+@shapeType Object
+@__modelType node
+@name lpc
+@created true 
+*/
+class node14 {
+/**
+@shapeType DependencyLink
+@__modelType link
+@__ref <oiref:cpp#Class#LocalCompResidual:oiref><oihard> 
+*/
+class link {
+}/**
+@shapeType Activation
+@__modelType node
+@name Activation4
+@activationMessage <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link16:oiref> 
+*/
+class node {
+}/**
+@shapeType Activation
+@__modelType node
+@name Activation5
+@activationMessage <oiref:design#Class#idvss7dg9n3drqdg9p04t8.node.link19:oiref> 
+*/
+class node20 {
+}}

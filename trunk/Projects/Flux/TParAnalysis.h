@@ -10,11 +10,17 @@
 #include "oopdatamanager.h"
 
 /**
- * Implements the functionalities of the Analysis classes incorporating parallelization optimization. 
+ * Implements the functionalities of the Analysis classes incorporating
+ * parallelization optimization.
+ * This class is not part of the parallel environment, although it make some calls to the Data and Task manager.
+ * Its an auxiliar class which triggers the environment.
  */
 class TParAnalysis {
 public:
 
+    /**
+     * Initializes and submit all necessary data and tasks to the Data and Task managers. 
+     */
     void ComputeFlux(TPartitionRelation * table);
 };
 #endif //TPARANALYSIS_H

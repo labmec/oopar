@@ -375,7 +375,7 @@ TData::State ()
 */
 
 
-     inline int OOPMetaData::Proc () const const const
+     inline int OOPMetaData::Proc () const
      {
 	     return fProc;
      }

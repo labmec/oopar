@@ -30,14 +30,14 @@ void OOPMDataDepend::SetObjPtr (OOPMetaData * objptr)
 	fObjPtr = objptr;
 }
 
-bool OOPMDataDepend::operator == (const OOPMDataDepend & dd) const const
+bool OOPMDataDepend::operator == (const OOPMDataDepend & dd) const
 {
 	return ((fDataId == dd.fDataId && fNeed == dd.fNeed && fVersion == dd.fVersion));	// return 
 												// true;
 	// return false;
 }
 
-void OOPMDataDepend::Print (ostream & out) const const
+void OOPMDataDepend::Print (ostream & out) const
 {
 	out << "Data Id" << endl;
 	fDataId.Print (out);

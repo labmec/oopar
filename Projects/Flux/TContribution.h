@@ -87,7 +87,7 @@ class   TContribution
      * tition. Each element on the TMBData has its destination indexes on each
      * TMBData of the fDestination
      */
-	vector < vector < int >>fLocalIndices;
+	vector < vector<int> >fLocalIndices;
 
     /**
      * Indicates the number of contributions between fFrom and fTo partitions. 

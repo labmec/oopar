@@ -170,12 +170,12 @@ void OOPMetaData::VerifyAccessRequests ()
 	}
 }
 
-OOPObjectId OOPMetaData::Id () const const
+OOPObjectId OOPMetaData::Id () const 
 {
 	return fObjId;
 }
 
-bool OOPMetaData::CanGrantAccess () const const
+bool OOPMetaData::CanGrantAccess () const
 {
 	if (fTrans != ENoTransition)
 		return false;
@@ -192,7 +192,7 @@ bool OOPMetaData::CanGrantAccess () const const
 	/**
 	 * returns true if the current processor is owner of the object
 	 */
-bool OOPMetaData::IamOwner () const const
+bool OOPMetaData::IamOwner () const
 {
 	return Proc () == DM->GetProcID ();
 }
@@ -297,7 +297,7 @@ void OOPMetaData::CheckTransitionState ()
 
 
 
-OOPMDataState OOPMetaData::State () const const
+OOPMDataState OOPMetaData::State () const
 {
 	if (fTaskWrite.IsZero ()) {
 		return EWriteAccess;
@@ -377,19 +377,19 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 {
 }
 
-bool OOPMetaData::HasReadAccess () const const
+bool OOPMetaData::HasReadAccess () const
 {
 	return (fReadAccessProcessors.size () != 0);
 }
 
-bool OOPMetaData::HasVersionAccess () const const
+bool OOPMetaData::HasVersionAccess () const
 {
 	if (fProcVersionAccess == DM->GetProcID ())
 		return true;
 	return false;
 }
 
-bool OOPMetaData::HasReadAccess (const int Procid) const const
+bool OOPMetaData::HasReadAccess (const int Procid) const
 {
 #ifdef WIN32
 	list < int >::const_iterator i = fReadAccessProcessors.begin ();
@@ -414,7 +414,7 @@ bool OOPMetaData::HasReadAccess (const int Procid) const const
 
 
 
-bool OOPMetaData::HasWriteAccess (const OOPObjectId & taskid) const const
+bool OOPMetaData::HasWriteAccess (const OOPObjectId & taskid) const
 {
 	if (fTaskWrite == taskid)
 		return true;
@@ -515,7 +515,7 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 
 }
 
-OOPDataVersion OOPMetaData::Version () const const
+OOPDataVersion OOPMetaData::Version () const
 {
 	return fVersion;
 }

@@ -118,7 +118,7 @@ void OOPDataVersion::SetLevelCardinality (int level, int depth)
 	fLevelCardinality[level] = depth;
 }
 
-     bool OOPDataVersion::AmICompatible (const OOPDataVersion & version) const const const const const const
+     bool OOPDataVersion::AmICompatible (const OOPDataVersion & version) const
      {
 	     unsigned int i = 0;
 	     for (i = 0; i < fVersion.size (); i++)
@@ -155,7 +155,7 @@ void OOPDataVersion::operator ++ ()
 	this->Increment ();
 }
 
-     bool OOPDataVersion::operator == (const OOPDataVersion & version) const const const const const const
+     bool OOPDataVersion::operator == (const OOPDataVersion & version) const
      {
 	     if (GetNLevels () != version.GetNLevels ())
 		     return false;
@@ -220,7 +220,7 @@ bool OOPDataVersion::operator > (const OOPDataVersion & version)
 
 }
 
-     void OOPDataVersion::Print (ostream & out) const const const const const const
+     void OOPDataVersion::Print (ostream & out) const 
      {
 	     out << "Number of levels " << GetNLevels () << endl;
 	     int i = 0;
@@ -293,16 +293,16 @@ void OOPDataVersion::Increment ()
 	}
 }
 
-     vector < int >OOPDataVersion::GetLevelCardinality () const const const const const const
+     vector < int >OOPDataVersion::GetLevelCardinality () const 
      {
 	     return fLevelCardinality;
      }
-     vector < int >OOPDataVersion::GetLevelVersion () const const const const const const
+     vector < int >OOPDataVersion::GetLevelVersion () const
      {
 	     return fVersion;
      }
 
-     int OOPDataVersion::GetLevelCardinality (int level) const const const const const const
+     int OOPDataVersion::GetLevelCardinality (int level) const
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
@@ -317,7 +317,7 @@ void OOPDataVersion::Increment ()
 	     return fLevelCardinality[level];
      }
 
-     int OOPDataVersion::GetLevelVersion (int level) const const const const const const
+     int OOPDataVersion::GetLevelVersion (int level) const
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
@@ -332,7 +332,7 @@ void OOPDataVersion::Increment ()
 	     return fVersion[level];
      }
 
-     int OOPDataVersion::GetNLevels () const const const const const const
+     int OOPDataVersion::GetNLevels () const 
      {
 	     return fVersion.size ();
      }
@@ -358,7 +358,7 @@ OOPDataVersion::OOPDataVersion ()
 
 }
 
-     bool OOPDataVersion::CanExecute (const OOPDataVersion & dataversion) const const const const const const
+     bool OOPDataVersion::CanExecute (const OOPDataVersion & dataversion) const
      {
 	     if (fVersion.size () != dataversion.fVersion.size ())
 		     return false;

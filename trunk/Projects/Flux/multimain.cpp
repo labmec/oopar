@@ -138,7 +138,7 @@ int mpimain (int argc, char **argv)
 	DM = new OOPDataManager (CM->GetProcID ());
 				    
 //	Load (0);
-	numproc = 2;//atoi(argv[argc-1]);
+	numproc = CM->NumProcessors();//atoi(argv[argc-1]);
 	if(!CM->GetProcID()){
 		cout << "Create ParAnalysis on processor " << CM->GetProcID() << endl;
 		cout.flush();

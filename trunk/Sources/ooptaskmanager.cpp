@@ -83,6 +83,8 @@ void OOPTaskManager::TransferExecutingTasks(){
 	sub = fExecuting.begin();
 	OOPTaskControl * auxtc=0;
 	if(listsize){
+		cout <<"ListSize TET " << listsize << endl;
+		cout.flush();
 		auxtc = (*sub);
 	}
 	while (auxtc){
@@ -94,8 +96,8 @@ void OOPTaskManager::TransferExecutingTasks(){
 			fFinished.push_back(auxtc);
 			fExecuting.erase(sub);
 		}
-		listsize = fFinished.size();
-		sub = fFinished.begin ();
+		listsize = fExecuting.size();
+		sub = fExecuting.begin ();
 		auxtc = 0;
 		if(listsize) {
 			auxtc = (*sub);
@@ -103,7 +105,8 @@ void OOPTaskManager::TransferExecutingTasks(){
 		
 		
 	}
-
+	cout << "Saiu do TET\n";
+	cout.flush();
 
 }
 
@@ -163,17 +166,23 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			OOPTaskControl *tc = (*i);
 			lTM->fExecutable.erase(i);
 			//Shouldn't a lock be required here ?
-			pthread_mutex_lock(&lTM->fExecutingMutex);
+			//pthread_mutex_lock(&lTM->fExecutingMutex);
 			lTM->fExecuting.push_back(tc);
-			pthread_mutex_unlock(&lTM->fExecutingMutex);
+			cout << "while 2\n";
+			cout.flush();
+			//pthread_mutex_unlock(&lTM->fExecutingMutex);
 			tc->Task()->SetExecuting(true);
 			pthread_t task_thread;
 			pthread_create(&task_thread, NULL, TriggerTask, tc);
 			pthread_join(task_thread,NULL);
 //              TaskManLog << (*i)->Task() << ":";
+			cout << "while 3\n";
+			cout.flush();
 			
 			
 			lTM->TransferExecutingTasks();
+			cout << "while 4\n";
+			cout.flush();
 			OOPObjectId id;
 			id = tc->Task ()->Id ();
 			tc->Depend ().SetExecuting (tc->Task ()->Id (),
@@ -187,17 +196,33 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			// endl;
 			// id.Print(TaskManLog);
 			// TaskManLog.flush();
+			cout << "Aqui ainda\n";
+			cout.flush();
 #endif
 		}
 		cout << "Aqui 2\n";
 		cout.flush();
 		DM->SubmitAllObjects();
+		cout << "Aqui 3\n";
+		cout.flush();
 		lTM->TransferExecutingTasks();
+		cout << "Aqui 4\n";
+		cout.flush();
 		DM->SubmitAllObjects();
+		cout << "Aqui 5\n";
+		cout.flush();
 		lTM->TransferFinishedTasks ();
+		cout << "Aqui 6\n";
+		cout.flush();
 		CM->ReceiveMessages ();
+		cout << "Aqui 7\n";
+		cout.flush();
 		lTM->TransferSubmittedTasks ();
+		cout << "Aqui 8\n";
+		cout.flush();
 		CM->SendMessages ();
+		cout << "Aqui 9\n";
+		cout.flush();
 		lTM->ExecuteDaemons();
 		//wait
 //		pthread_mutex_lock(&fExecuteMutex);
@@ -214,6 +239,8 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			cout.flush();
 			DM->SubmitAllObjects();
 		}
+		cout << "Aqui 10\n";
+		cout.flush();
 //		pthread_mutex_unlock(&fExecuteMutex)
 	}
 	//PrintTaskQueues("Depois", TaskQueueLog);

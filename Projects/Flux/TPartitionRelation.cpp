@@ -35,13 +35,28 @@ int TPartitionRelation::GetNPartitions(){
 long TPartitionRelation::GetClassID(){
 	return fClassId;
 }
-
+TPartitionRelation::TPartitionRelation(int npart){
+	fRelation.resize(npart);
+	int i;
+	for(i=0;i<npart;i++)
+		fRelation[i].resize(npart);
+}
 TPartitionRelation * TPartitionRelation::CreateRandom(int npart){
 	TPartitionRelation * part = new TPartitionRelation(npart);
-	part->fRelation.resize(npart);
+	//part->fRelation.resize(npart);
 	int i,j;
+	TContribution cont;
+	vector<TContribution> vec;
+	vec.resize(npart);
+	
 	for(i=0;i<npart;i++)
-		part->fRelation[i].resize(npart);
+		part->fRelation.push_back(vec);
+
+	for(i=0;i<npart;i++){
+		for(j=0;j<npart;j++){
+			part->fRelation[i].resize(npart);
+		}
+	}
 	
 	for(i=0;i<npart;i++){
 		for(j=0;j<npart;j++){
@@ -65,4 +80,7 @@ void TPartitionRelation::SetMeshId(int index, OOPObjectId &meshid) {
   for(ip =0; ip<fNumPartitions; ip++) {
     fRelation[ip][index].SetMeshId(meshid);
   }
+}
+TContribution &TPartitionRelation::GetRelation(int parfrom, int parto){
+	return fRelation[parfrom][parto];
 }

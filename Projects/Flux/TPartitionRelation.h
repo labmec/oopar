@@ -17,7 +17,7 @@ public:
 
 	long GetClassID();
 	TPartitionRelation();
-  TPartitionRelation(int numpart);
+    TPartitionRelation(int npart);
     /**
      * Returns the total number of 
      */
@@ -43,7 +43,8 @@ public:
     void SetMeshId(int index, OOPObjectId &meshid);
 private:    
     int fNumPartitions;
-    vector< vector<TContribution > > fRelation;
+	vector< vector<TContribution > > fRelation;
+
 	long fClassId;
 };
 #endif //TPARTITIONRELATION_H

@@ -20,32 +20,32 @@ class   OOPMDataDepend
   /**
    * Operator overloaded
    */
-	bool    operator == (const OOPMDataDepend & dd) const;
+   bool    operator == (const OOPMDataDepend & dd) const;
   /**
    * Copy constructor
    */
-	        OOPMDataDepend (const::OOPMDataDepend & dd);
+   OOPMDataDepend (const::OOPMDataDepend & dd);
   /**
    * return ths ObjectId to which the dependency refers
    */
-	const   OOPObjectId & Id () const
-	{
-		return fDataId;
-	}
+   const   OOPObjectId & Id () const
+   {
+     return fDataId;
+   }
   /**
    * returns the version to which the dependency refers
    */
-	const   OOPDataVersion & Version () const
-	{
-		return fVersion;
-	}
+   const   OOPDataVersion & Version () const
+   {
+     return fVersion;
+   }
   /**
    * returns the state corresponding to the dependency
    */
-	const   OOPMDataState & State () const
-	{
-		return fNeed;
-	}
+   const   OOPMDataState & State () const
+   {
+     return fNeed;
+   }
   /**
    * method which will serialize the object
    */

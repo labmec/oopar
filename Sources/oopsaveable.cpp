@@ -17,12 +17,6 @@
 class   OOPSendStorage;
 class   OOPReceiveStorage;
 class   OOPDataVersion;
-/********************/
-/*** Get Class ID ***/
-long OOPSaveable::GetClassID ()
-{
-	return 0;
-}
 /************/
 /*** Pack ***/
 int OOPSaveable::Pack (OOPSendStorage * buf)
@@ -32,6 +26,9 @@ int OOPSaveable::Pack (OOPSendStorage * buf)
 	cout.flush();
 #endif
 	long class_id = GetClassID ();
+        if(class_id == -1) {
+          cout << "Packing class with uninitialized classid expect trouble\n";
+        }
 	buf->PkLong (&class_id);
 	return 1;
 }
@@ -44,4 +41,9 @@ int OOPSaveable::Unpack (OOPReceiveStorage * buf)
 #warning "Shouldn't it be virtual ?"
 #endif
 	return 1;
+}
+
+OOPSaveable *OOPSaveable::Restore(OOPReceiveStorage *buf)
+{
+  return 0;
 }

@@ -4,6 +4,8 @@
 
 using namespace std;
 class OOPDMOwnerTask;
+OOPDataLogger * LogDM = 0;
+int GLogMsgCounter = 0;
 
 void OOPDataLogger::GenerateHeader(){
 	fLogger << "ProcId\t"

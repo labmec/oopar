@@ -44,7 +44,10 @@ class   OOPSaveable
   /**
    * Returns a Class ID identifier
    */
-	virtual long GetClassID () = 0;
+  virtual long GetClassID () 
+  {
+    return -1;
+  }
   /**
    * Packs the object in on the buffer so it can be transmitted through the network.
    * The Pack function  packs the object's class_id while function Unpack() doesn't,
@@ -57,5 +60,7 @@ class   OOPSaveable
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
 	virtual int Unpack (OOPReceiveStorage * buf);
+ 
+static OOPSaveable *Restore(OOPReceiveStorage *buf);
 };
 #endif // _SAVEABLEHH_

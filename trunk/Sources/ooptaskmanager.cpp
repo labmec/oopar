@@ -326,7 +326,7 @@ int OOPTaskManager::NumberOfTasks() {
 int OOPTaskManager::ChangePriority(OOPObjectId taskid, int newpriority) {
 	//if(!ExistsTask(taskid)) return 0;
 	//int proc = fTaskExist[taskid];
-	int proc = taskid.GetProcId();
+  //	int proc = taskid.GetProcId();
 	OOPTask *t = FindTask(taskid);
 	if(t) {
 		t->ChangePriority(newpriority);
@@ -340,7 +340,7 @@ int OOPTaskManager::CancelTask(OOPObjectId taskid){
 	//int proc = fTaskExist[taskid]; //How to get that information ?
 	OOPTask * task;
 	task = FindTask(taskid);
-	int proc = task->GetProcID();
+	//	int proc = task->GetProcID();
 	deque<OOPTask * >::iterator i;//, iprev, atual;
 	i = fTimeConsuming.begin();
 //	iprev = 0, atual = 0;
@@ -395,7 +395,7 @@ int TTaskManager::TryTask(OOPObjectId TaskId){
 			//O que fazer ?
 		}
 	}
-	/*Pix iprev = 0,atual = 0,inext = 0;
+	Pix iprev = 0,atual = 0,inext = 0;
 	atual = fTimeConsuming.first();
 	OOPTask *t = 0;
 	while(atual) {

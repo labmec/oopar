@@ -229,7 +229,7 @@ void OOPDataManager::SubmitAccessRequest(OOPObjectId & TaskId, OOPObjectId & dat
 			req = ERequestWriteAccess;// Atenção EVersionAccess;
 			break;
 		}
-		defaults:
+		default:
 			req = ENoRequest;
 			break;
 	}
@@ -320,7 +320,7 @@ OOPObjectId OOPDataManager::SubmitObject(OOPSaveable *obj, int trace) {
  */
 void OOPDataManager::IncrementVersion(OOPObjectId & ObjId) {
 	deque<OOPMetaData *>::iterator i;
-	OOPMetaData *dat;
+	//	OOPMetaData *dat;
 	bool found = false;
 	for(i = fObjects.begin(); i!=fObjects.end();i++){
 		//dat = (OOPMetaData*) (*i);
@@ -416,7 +416,7 @@ int OOPDataManager::TransferObject(OOPObjectId & ObjId, int ProcId, OOPObjectId 
 
 int OOPDataManager::HasAccess(OOPObjectId & ObjId, OOPObjectId & TaskId, OOPMDataState AccessType, OOPDataVersion & version){
 	deque<OOPMetaData *>::iterator i;
-	OOPMetaData *dat=0;
+	//	OOPMetaData *dat=0;
 	for(i = fObjects.begin(); i!=fObjects.end();i++){
 		//dat = (OOPMetaData*) (*i);
 		if ((*i)->Id() == ObjId) {
@@ -501,6 +501,7 @@ OOPMetaData *OOPDataManager::MetaData(OOPObjectId ObjId) {
 			return (*i);
 		}
 	}
+	return 0;
 }
 
 OOPMetaData *OOPDataManager::Data(OOPObjectId ObjId) {
@@ -510,6 +511,7 @@ OOPMetaData *OOPDataManager::Data(OOPObjectId ObjId) {
 			return (*i);
 		}
 	}
+	return 0;
 }
 
 long OOPDataManager::CurrentLocation(OOPObjectId & Id){

@@ -20,7 +20,7 @@ void OOPObjectId::Print(ostream & out=cout){
     out << "ObjectId: " << fId << endl;
     out << "ProcessorId: " << GetProcId() << endl;
 }
-void OOPObjectId::main(){
+int OOPObjectId::main(){
 	deque <OOPObjectId * > TestDeQue;
 	OOPObjectId id(20,1);
 	
@@ -60,6 +60,7 @@ void OOPObjectId::main(){
 	
 	i=TestDeQue.end();
 	delete *i;
+	return 0;
 }
 
 void OOPObjectId::Zero(){

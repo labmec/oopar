@@ -24,8 +24,7 @@ void TParCompute::InitializeSolutionVersion(){
 //    int ncont=0;
 //    for(i=0;i<table->GetNPartitions();i++){
 //        ncont = Relation.IncomingContribution(i);
-        //Isso deve ser substituído por um acesso a partir da tarefa, que terá
-        //acesso à versão.
+        //Isso deve ser substituï¿½o por um acesso a partir da tarefa, que terï¿½        //acesso ï¿½versï¿½.
 //        DM->IncrementLevel(fRhsIds[i], Id(), ncont, fProc);
 //    }
 
@@ -35,13 +34,13 @@ void TParCompute::CreateFluxesTasks(  ){
     int i;
     //Pointers to LocalTasks created
     fTasks = new TLocalCompute[fPartRelationPtr->GetNPartitions()] (fProc);
-    //Atenção com DELETE !!!!
+    //Atenï¿½o com DELETE !!!!
 
     //For each LocalTask its necessary data dependence attribution
     OOPMDataState st_read = EReadAccess;
     OOPMDataState st_w = EWriteAccess;
     OOPDataVersion ver;
-    //Atençao com versão!
+    //Atenï¿½o com versï¿½!
     ver.SetLevelVersion(0,-1);
     ver.IncrementLevel(0);
     ver.SetLevelVersion(1,-1);
@@ -65,12 +64,12 @@ void TParCompute::CreateFluxesTasks(  ){
     }
 
     OOPDataVersion * version = new OOPDataVersion[fPartRelationPtr->GetNPartitions()];
-    //Inserir as dependências de escrita sobre os fluxos de outros partições.
+    //Inserir as dependï¿½cias de escrita sobre os fluxos de outros partiï¿½es.
     for(i=0;i<fPartRelationPtr->GetNPartitions();i++)
         version[i]=DM->GetVersion(fRhsId[i]);
 
-    //Para cada Rhs, deve-se ainda estabelecer as dependências referentes à comu-
-    //nicação
+    //Para cada Rhs, deve-se ainda estabelecer as dependï¿½cias referentes ï¿½comu-
+    //nicaï¿½o
     for(i=0;i<fPartRelationPtr->GetNPartitions();i++){
         out = fPartRelationPtr->OutgoingContribution(i);
         for(j=0;j<out.size();j++){
@@ -79,6 +78,7 @@ void TParCompute::CreateFluxesTasks(  ){
         }
 
     }
+    delete [] version;
 
 }
 

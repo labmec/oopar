@@ -29,7 +29,8 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	oopsaveable.cpp \
 	oopstorage.cpp \
 	oopstore.cpp \
-	ooptask.cpp
+	ooptask.cpp \
+	oopmdatadepend.cpp
 
 
 ## --| OOPar |------------------------------------------------------------------

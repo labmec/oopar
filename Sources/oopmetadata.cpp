@@ -1,4 +1,5 @@
 #include "oopmetadata.h"
+#include "oopdatamanager.h"
 #include "oopcommmanager.h"
 #include "ooptaskmanager.h"
 #include <vector>
@@ -58,7 +59,7 @@ void OOPMetaData::VerifyAccessRequests(){
 					case  EReadAccess:
 						GrantReadAccess(i->fTaskId, i->fProc, i->fState, i->fVersion);
 						break;
-					defaults:
+					default:
 						break;
 				}
 
@@ -83,7 +84,7 @@ void OOPMetaData::VerifyAccessRequests(){
 }
 
 OOPObjectId OOPMetaData::Id() const { return fObjId;}
-bool OOPMetaData::CanExecute(OOPDataVersion & version, OOPMDataState access){
+bool OOPMetaData::CanExecute(const OOPDataVersion & version, OOPMDataState access){
 
 #warning "OOPMetaData::CanExecute BADLY IMPLEMENTED METHOD"
   // THIS METHOD IS OBSOLETE ANYWAY
@@ -104,7 +105,7 @@ bool OOPMetaData::CanExecute(OOPDataVersion & version, OOPMDataState access){
   return can_I;
 }
 
-void OOPMetaData::ReleaseAccess(OOPObjectId &id, OOPMDataState st, OOPDataVersion & ver){
+void OOPMetaData::ReleaseAccess(const OOPObjectId &id, const OOPMDataState &st,const OOPDataVersion & ver){
   deque<OOPAccessInfo>::iterator i;
   bool bobj = false;
   bool bstate = false;
@@ -149,7 +150,7 @@ OOPMDataState OOPMetaData::State(){
   }
 }
 
-void OOPMetaData::SubmitAccessRequest(OOPObjectId &taskId, OOPDataVersion &version, OOPMDataState access, long proc){
+void OOPMetaData::SubmitAccessRequest(const OOPObjectId &taskId,const OOPDataVersion &version, OOPMDataState access, long proc){
   OOPAccessInfo ac(taskId, access, version, proc);
   fTaskList.push_back(ac);
 #ifdef DEBUG
@@ -207,62 +208,14 @@ void OOPMetaData::SetId(OOPObjectId & id){
   return fObjPtr;
   }
 */
-int OOPMetaData::TransferObject(int ProcId, OOPObjectId & TaskId, OOPMDataState AccessRequest, OOPDataVersion & version) {
+void OOPMetaData::TransferObject(int ProcId) {
   //int TData::TransferObject(int ProcId, OOPObjectId TaskId, MDataState AccessRequest, OOPDataVersion version) {
   // if the data does not belong to this processor, issue only a request
   //	if(HasAccess(ProcId, TaskId, AccessRequest,version)) return 1;
   //Check if versions are compatible, when such things happen
   //(version <= fVersion && fProc != DM->GetProcID())
-  if(fVersion.AmICompatible(version) && fProc != DM->GetProcID()) {
-    RequestTransferObject(ProcId, TaskId, AccessRequest, version);
-    return 0;
-  }
-
-  // The processor is owner of the data from here on!!!
-
-
-  // if the state of the data does not permit the given accessrequest, stop processing
-  //	if(!CompatibleState(AccessRequest, version)) return 0;
-
-  if(HasWriteAccess(TaskId)){
-    return 1;
-    //if (fTaskWrite && fTaskList[0]==TaskId) return 1;
-  }
-  //	if(HasExclusiveWriteAccess()) {
-  //		TM->AddTaskDependence(TaskId,fTaskWrite);	// The task may give up write access and not terminate
-  //		return 0;
-  //	}
-
-  // the access request refers to a read access on this processor
-
-  if(ProcId == CM->GetProcID() && AccessRequest == EReadAccess) {
-    GrantReadAccess(TaskId, ProcId, AccessRequest, version);
-    return 1;
-  }
-
-
-  // the access request refers to a write access
-  // or the access request refers to read access request for a diferent processor
-
-  if(ProcId == CM->GetProcID() && AccessRequest == EWriteAccess) {
-    //ProcId passed as parameter to HasReadAccess function !! longhin !!!
-    if(HasReadAccess(ProcId)) {
-      CancelReadAccess();
-      //entrar em algum estado de espera para que seja dado o acesso a escrita
-      return 0;
-    } else {
-      GrantWriteAccess(TaskId,AccessRequest, version);
-      return 1;
-    }
-  } else {		// the request refers to a diferent processor
-    if(AccessRequest == EWriteAccess /*|| AccessRequest == EExclusiveWriteAccess*/) {
-      TransferOwnerShip(TaskId,ProcId,AccessRequest, version);
-      return 0;
-    } else {
-      GrantReadAccess(TaskId,ProcId,AccessRequest, version);
-      return 0;
-    }
-  }
+  //    RequestTransferObject(ProcId, TaskId, AccessRequest, version);
+#warning "OOPMetaData::TransferObject is not implemented"
 }
 
 

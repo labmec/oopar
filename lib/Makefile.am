@@ -27,6 +27,7 @@ liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/oopsaveable.o \
 	../Sources/oopstorage.o \
 	../Sources/oopstore.o \
-	../Sources/ooptask.o
+	../Sources/ooptask.o \
+	../Sources/oopmdatadepend.o
 
-## --| NeoPZ |------------------------------------------------------------------
+## --| OOPar |------------------------------------------------------------------

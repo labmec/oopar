@@ -1,10 +1,12 @@
-#ifndef TDATAH
-#define TDATAH
+// -*- c++ -*-
+
+#ifndef TMETADATAH
+#define TMETADATAH
 
 #include "oopdataversion.h"
 #include "oopsaveable.h"
 //#include "longvec.h"
-#include "oopdatamanager.h"
+//#include "oopdatamanager.h"
 #include "ooppardefs.h"
 
 #include "oopdataversion.h"
@@ -64,7 +66,7 @@ public:
 	 * @param version Version required on the data
 	 * @param proc Processor where the access should occur
      */
-	OOPAccessInfo(OOPObjectId &TaskId, OOPMDataState &st, OOPDataVersion &version, long proc){
+	OOPAccessInfo(const OOPObjectId &TaskId, const OOPMDataState &st,const OOPDataVersion &version, long proc){
 		fTaskId= TaskId;
 		fState = st;
 		fVersion = version;
@@ -242,7 +244,7 @@ public:
 	 * @param access Access state for current data.
 	 * @param proc Processor where the access shoud occur
 	 */
-	void SubmitAccessRequest(OOPObjectId &taskId, OOPDataVersion &version, OOPMDataState access, long proc);
+	void SubmitAccessRequest(const OOPObjectId &taskId, const OOPDataVersion &version, const OOPMDataState access,const long proc);
 	
 	/**
 	 * Returns true if current data can be accessed with the desired state
@@ -252,7 +254,7 @@ public:
 	 * @param version Desired version for the data
 	 * @param access Desired access state for the data
 	 */
-	bool CanExecute(OOPDataVersion & version, OOPMDataState access);
+	bool CanExecute(const OOPDataVersion & version, OOPMDataState access);
      /**
       * Returns pointer to the TSaveable object
       */
@@ -261,15 +263,11 @@ public:
       * Overloading of operator
       */
 	OOPSaveable *operator-> ();
-     /**
-      * Transfer an object based on the parameters.
-      * @param ProcId Identifies processor Id
-      * @param TaskId Identifies task Id
-      * @param AccessRequest Represents actual data state
-      * @param version Version of the object.
-      */
-	int TransferObject (int ProcId, OOPObjectId & TaskId, OOPMDataState AccessRequest,
-			    OOPDataVersion & version);
+  /**
+   * Transfer an object based on the parameters.
+   * @param ProcId Identifies processor Id
+   */
+  void TransferObject (int ProcId);
 	 /**
       * Takes the appropriate action to satisfy the request. This method is used when the data belongs to this processor.
       * Takes action on an incoming message
@@ -418,7 +416,7 @@ protected:
 	 * @param st The required access state
 	 * @param ver The required data version.
 	 */
-	void ReleaseAccess(OOPObjectId &id, OOPMDataState st, OOPDataVersion & ver);
+	void ReleaseAccess(const OOPObjectId &id, const OOPMDataState &st,const OOPDataVersion & ver);
 
     /**
      * Requests access on current data according to data version restrictions

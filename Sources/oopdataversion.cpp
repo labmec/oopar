@@ -128,7 +128,7 @@ void OOPDataVersion::SetLevelCardinality (int level,
 	fLevelCardinality[level] = depth;
 }
 
-bool OOPDataVersion::AmICompatible (OOPDataVersion & version)
+bool OOPDataVersion::AmICompatible (const OOPDataVersion & version) const
 {
 	// checks for level compatibility
 	// assumes versions must have same depth
@@ -177,7 +177,7 @@ void OOPDataVersion::operator ++ ()
 	this->Increment ();
 }
 
-bool OOPDataVersion::operator == (const OOPDataVersion & version)
+bool OOPDataVersion::operator == (const OOPDataVersion & version) const
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
@@ -199,7 +199,7 @@ bool OOPDataVersion::operator == (const OOPDataVersion & version)
 
 }
 
-bool OOPDataVersion::operator < (const OOPDataVersion & version)
+bool OOPDataVersion::operator < (const OOPDataVersion & version) 
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
@@ -221,7 +221,7 @@ bool OOPDataVersion::operator < (const OOPDataVersion & version)
 
 }
 
-bool OOPDataVersion::operator > (const OOPDataVersion & version)
+bool OOPDataVersion::operator > (const OOPDataVersion & version) 
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
@@ -243,7 +243,7 @@ bool OOPDataVersion::operator > (const OOPDataVersion & version)
 
 }
 
-void OOPDataVersion::Print (ostream & out)
+void OOPDataVersion::Print (ostream & out) const
 {
 	out << "Number of levels " << GetNLevels () << endl;
 	int i = 0;

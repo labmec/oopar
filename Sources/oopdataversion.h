@@ -41,7 +41,7 @@ public:
 	 * Checks wheter two versions are compatible
 	 * @param version : object TDataVersion to checked against
 	 */
-	bool    AmICompatible (OOPDataVersion & version);
+	bool    AmICompatible (const OOPDataVersion & version) const;
 
 	/**
 	 * Returns true when the state of the current data is sufficient
@@ -56,16 +56,16 @@ public:
 	/**
      * Streams out TDataVersion data structure
 	 */
-	void    Print (ostream & out = cout);
+	void    Print (ostream & out = cout) const;
 	/**
 	 * Operator overloaded
 	 */
-	        OOPDataVersion & operator = (const OOPDataVersion & version);
+	        OOPDataVersion & operator = (const OOPDataVersion & version) ;
 
 	/**
 	 * Operator overloaded
 	 */
-	bool    operator == (const OOPDataVersion & version);
+	bool    operator == (const OOPDataVersion & version) const;
 
 	/**
 	 * Overloaded operator

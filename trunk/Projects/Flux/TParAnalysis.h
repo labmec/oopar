@@ -5,8 +5,6 @@
 #define TPARANALYSIS_H
 
 #include "TParCompute.h"
-#include "TParRhs.h"
-#include "TParState.h"
 #include "TParMesh.h"
 #include "oopdatamanager.h"
 #include "ooptask.h"

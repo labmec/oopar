@@ -140,6 +140,8 @@ void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPMD
 
   if (!found) {
     cerr << "Task not found on current TM: File:" << __FILE__ << " Line:" << __LINE__ << endl;
+	cerr << "Task \n";
+	TaskId.Print(cerr);
   }
 }
 
@@ -183,7 +185,6 @@ int OOPTaskManager::CancelTask(OOPObjectId taskid){
       cout << "Task erased" << endl;
       delete tc;
       fTaskList.erase(i);
-      //returns 1 if task was canceled
       return 1;
     }
   }
@@ -205,17 +206,19 @@ void OOPTaskManager::Execute(){
   while(fExecutable.size()) {
 	  while(fExecutable.size()){
 		i=fExecutable.begin();
-		cout << "Executing task on processor " << fProc << endl;
 		(*i)->Task()->Execute();
 		cout << (*i)->Task() << ":";
 		OOPObjectId id;
 		id = (*i)->Task()->Id();
-		(*i)->Depend().ReleaseAccessRequests((*i)->Task()->Id());
+ 		(*i)->Depend().ReleaseAccessRequests((*i)->Task()->Id());
+#ifdef DEBUG		  
+		cout << "Executing task on processor " << fProc << endl;
 		id.Print(cout);
+		cout.flush();
+#endif		  
 		fFinished.push_back(*i);
 		fExecutable.erase(i);
 	  }
-	  cout << endl;
 	  TransferFinishedTasks();
 	  CM->ReceiveMessages();
 	  TransferSubmittedTasks();

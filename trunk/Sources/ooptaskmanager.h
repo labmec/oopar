@@ -167,7 +167,7 @@ private:
    */
   long fMaxId;	
   /**
-   * List of tasks which cant be executed yet
+   * List of tasks which can't be executed yet
    */
   deque <OOPTaskControl *> fTaskList;
 	

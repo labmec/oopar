@@ -11,15 +11,16 @@
 #include "oopmdatadepend.h"
 using namespace std;
 
-class OOPMetaData;
+class   OOPMetaData;
 
 
 /**
  * Implements functionalities concerning access information on a data.
  * It is sufficient to describe all the possible access requirements from a TTask to any data
  */
-class OOPAccessInfo {
-public:
+class   OOPAccessInfo
+{
+      public:
 
     /**
      * Describes the type of access state 
@@ -39,16 +40,16 @@ public:
 	/**
 	 * Indicates whether the corresponding access was granted
 	 */
-	int fIsGranted;
+	int     fIsGranted;
     /**
      * Indicates if data is being accessed (i.e. task is executing)
      */
-  	int fIsAccessing;
+	int     fIsAccessing;
 
 	/**
 	 * Processor which filed the request
 	 */
-	int fProcessor;
+	int     fProcessor;
 
     /**
      * Constructor with initial parameters
@@ -57,29 +58,35 @@ public:
 	 * @param version Version required on the data
 	 * @param proc Processor where the access should occur
      */
-	OOPAccessInfo(const OOPObjectId &TaskId, const OOPMDataState &st,const OOPDataVersion &version, int processor){
-		fTaskId= TaskId;
+	        OOPAccessInfo (const OOPObjectId & TaskId,
+			       const OOPMDataState & st,
+			       const OOPDataVersion & version, int processor)
+	{
+		fTaskId = TaskId;
 		fState = st;
 		fVersion = version;
 		fIsGranted = 0;
 		fIsAccessing = 0;
 		fProcessor = processor;
 	}
-	
-	OOPAccessInfo(const OOPObjectId &taskid,const OOPMDataDepend &depend, int processor) {
-		fTaskId= taskid;
-		fState = depend.State();
-		fVersion = depend.Version();
+
+	OOPAccessInfo (const OOPObjectId & taskid,
+		       const OOPMDataDepend & depend, int processor)
+	{
+		fTaskId = taskid;
+		fState = depend.State ();
+		fVersion = depend.Version ();
 		fIsGranted = 0;
 		fIsAccessing = 0;
 		fProcessor = processor;
 	}
-	
+
 	/**
 	 * Operator equal overloaded
 	 */
-	OOPAccessInfo & operator = (const OOPAccessInfo & aci){
-		fTaskId= aci.fTaskId;
+	OOPAccessInfo & operator = (const OOPAccessInfo & aci)
+	{
+		fTaskId = aci.fTaskId;
 		fState = aci.fState;
 		fVersion = aci.fVersion;
 		fIsGranted = aci.fIsGranted;
@@ -91,8 +98,9 @@ public:
 	 * Copy constructor
 	 * @param aci AccessInfo object to be copied
 	 */
-	OOPAccessInfo(const ::OOPAccessInfo & aci){
-		fTaskId= aci.fTaskId;
+	OOPAccessInfo (const::OOPAccessInfo & aci)
+	{
+		fTaskId = aci.fTaskId;
 		fState = aci.fState;
 		fVersion = aci.fVersion;
 		fIsGranted = aci.fIsGranted;
@@ -100,45 +108,51 @@ public:
 		fProcessor = aci.fProcessor;
 	}
 
-	bool OOPAccessInfo::operator ==(const OOPAccessInfo &other) {
-		return (fTaskId == other.fTaskId && fState == other.fState && fVersion == other.fVersion
+	bool    OOPAccessInfo::operator == (const OOPAccessInfo & other)
+	{
+		return (fTaskId == other.fTaskId && fState == other.fState
+			&& fVersion == other.fVersion
 			&& fProcessor == other.fProcessor);
 	}
 
-	void Print(ostream & out = cout){
-		out << "Is Accessing ? " << (bool)fIsAccessing << endl;
+	void    Print (ostream & out = cout)
+	{
+		out << "Is Accessing ? " << (bool) fIsAccessing << endl;
 		out << "Is Granted ? " << fIsGranted << endl;
 		out << "Data State " << fState << endl;
 		out << "Processor " << fProcessor << endl;
 		out << "TaskId " << endl;
-		fTaskId.Print(out);
+		fTaskId.Print (out);
 		out << "Version" << endl;
-		fVersion.Print(out);
+		fVersion.Print (out);
 	}
 
-	bool CanExecute(const OOPMetaData &object) const;
-	
+	bool    CanExecute (const OOPMetaData & object) const;
+
 };
 
 /**
  * This class manages the set of access requests which were filed
  * to an OOPar object (data + OOPMetaData)
  */
-class OOPAccessInfoList {
-	list<OOPAccessInfo> fList;
-public:
+class   OOPAccessInfoList
+{
+	list < OOPAccessInfo > fList;
+      public:
 
 	/**
 	 * returns the number of elements in the list
 	 */
-	int NElements();
+	int     NElements ();
 /**
  * This method adds an access request as passed by SubmitAccessRequest
  * It does no verifications
  * @param taskid Id of the task corresponding to the reques
  * @param depend Dependency information 
  */
-void AddAccessRequest(const OOPObjectId &taskid, const OOPMDataDepend &depend, int processor);
+	void    AddAccessRequest (const OOPObjectId & taskid,
+				  const OOPMDataDepend & depend,
+				  int processor);
 
 
 /**
@@ -148,7 +162,8 @@ void AddAccessRequest(const OOPObjectId &taskid, const OOPMDataDepend &depend, i
  * @param ac If an access request was found, its reference will be stored into ac
  * @return true if an access request was found which can be granted
  */
-bool VerifyAccessRequests(const OOPMetaData &object, list<OOPAccessInfo>::iterator &ac);
+	bool    VerifyAccessRequests (const OOPMetaData & object,
+				      list < OOPAccessInfo >::iterator & ac);
 
 /**
  * Verifies whether an access request is incompatible with the version/state
@@ -156,61 +171,66 @@ bool VerifyAccessRequests(const OOPMetaData &object, list<OOPAccessInfo>::iterat
  * @param taskid if a request was found then the taskid will indicate the corresponding task
  * @return true if an incompatible task was found
  */
-bool HasIncompatibleTask(const OOPDataVersion &version, OOPObjectId &taskid);
+	bool    HasIncompatibleTask (const OOPDataVersion & version,
+				     OOPObjectId & taskid);
 
 /**
  * Indicates whether any access request of type ReadAccess has been granted
  */
-bool HasReadAccessGranted() const;
+	bool    HasReadAccessGranted () const;
 
 /**
  * Indicates whether the task has the specified access request granted
  */
-bool HasAccessGranted(const OOPObjectId &taskid,const OOPMDataDepend &depend) const;
+	bool    HasAccessGranted (const OOPObjectId & taskid,
+				  const OOPMDataDepend & depend) const;
 /**
  * Indicates whether any access request of type WriteAccess has been granted
  */
-bool HasWriteAccessGranted() const;
+	bool    HasWriteAccessGranted () const;
 
 /**
  * Indicates whether write requests are filed with appropriate version
  */
-bool HasWriteAccessRequests(const OOPDataVersion &object) const;
+	bool    HasWriteAccessRequests (const OOPDataVersion & object) const;
 
 /**
  * Indicates whether version requests are filed with appropriate version
  */
-bool HasVersionAccessRequests(const OOPDataVersion &object) const;
+	bool    HasVersionAccessRequests (const OOPDataVersion & object)
+		const;
 
 /**
  * Deletes the corresponding access request record from the list
  */
-	void ReleaseAccess(const OOPObjectId &taskid,const OOPMDataDepend &depend);
+	void    ReleaseAccess (const OOPObjectId & taskid,
+			       const OOPMDataDepend & depend);
 
 /**
  * Deletes the corresponding access request record from the list
  */
-	void ReleaseAccess(list<OOPAccessInfo>::iterator &ac);
+	void    ReleaseAccess (list < OOPAccessInfo >::iterator & ac);
 
 /**
  * Flags if the task is going into/out-of execution
  */
-void SetExecute(const OOPObjectId &taskid, const OOPMDataDepend &depend, bool condition);
+	void    SetExecute (const OOPObjectId & taskid,
+			    const OOPMDataDepend & depend, bool condition);
 
  /**
  * Revokes all access requests and cancels the tasks which are not executing
  */
-void RevokeAccessAndCancel();
+	void    RevokeAccessAndCancel ();
 
  /**
  * Revokes all access requests and cancels the tasks which are not executing
  */
-void RevokeAccess(const OOPMetaData &obj);
+	void    RevokeAccess (const OOPMetaData & obj);
 
  /**
   * Returns true if a task is accessing the data
   */
-bool HasExecutingTasks();
+	bool    HasExecutingTasks ();
 
 };
 

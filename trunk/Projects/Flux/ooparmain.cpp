@@ -20,43 +20,44 @@ OOPTaskManager *TM;
 using namespace std;
 
 
-void ParAddClass();
-int multimain();
-int singlemain();
-int mpimain(int argc, char *argv[]);
+void    ParAddClass ();
+int     multimain ();
+int     singlemain ();
+int     mpimain (int argc, char *argv[]);
 
-int main(int argc, char *argv[]){
+int main (int argc, char *argv[])
+{
 
 
-  OOPReceiveStorage::AddClassRestore(TPARCOMPUTE_ID,
-				     TParCompute::Restore);
-  OOPReceiveStorage::AddClassRestore(TPARANAYSIS_ID,
-				     TParAnalysis::Restore);
-  OOPReceiveStorage::AddClassRestore(TLOCALCOMPUTE_ID,
-				     TLocalCompute::Restore);
-  OOPReceiveStorage::AddClassRestore(TTASKCOMM_ID,
-				     TTaskComm::Restore);
-  //return multimain();
-	return mpimain(argc, argv);
+	OOPReceiveStorage::AddClassRestore (TPARCOMPUTE_ID,
+					    TParCompute::Restore);
+	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
+					    TParAnalysis::Restore);
+	OOPReceiveStorage::AddClassRestore (TLOCALCOMPUTE_ID,
+					    TLocalCompute::Restore);
+	OOPReceiveStorage::AddClassRestore (TTASKCOMM_ID, TTaskComm::Restore);
+	// return multimain();
+	return mpimain (argc, argv);
 }
 
-int singlemain() {
- 
-  CM = new OOPFileComManager("test",1,0);
-  //	CM->Initialize( argv[0], 0 );
-  TM = new OOPTaskManager(CM->GetProcID());
-  DM = new OOPDataManager(CM->GetProcID());
-  
-  TParAnalysis * paranalysis = new TParAnalysis(DM->GetProcID(), 2);
-  paranalysis->Submit();
-  
-  TM->Execute();
-  
-  delete DM; 
-  delete TM;
-  delete CM;
+int singlemain ()
+{
 
-  //cout.flush();
-  return 0;
+	CM = new OOPFileComManager ("test", 1, 0);
+	// CM->Initialize( argv[0], 0 );
+	TM = new OOPTaskManager (CM->GetProcID ());
+	DM = new OOPDataManager (CM->GetProcID ());
+
+	TParAnalysis *paranalysis = new TParAnalysis (DM->GetProcID (), 2);
+	paranalysis->Submit ();
+
+	TM->Execute ();
+
+	delete  DM;
+	delete  TM;
+	delete  CM;
+
+	// cout.flush();
+	return 0;
 
 }

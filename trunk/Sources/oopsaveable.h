@@ -23,7 +23,7 @@
 #include "oopobjectid.h"
 #include "oopstorage.h"
 #include "cmdefs.h"
-class OOPDataVersion;
+class   OOPDataVersion;
 
 using namespace std;
 
@@ -33,24 +33,28 @@ using namespace std;
  * Its virtual methods makes all derived classes compliant with the communication protocol
  * stablished by the OOPar.
  */
-class OOPSaveable
+class   OOPSaveable
 {
-public:
+      public:
 
   /**
    * Simple Constructor 
    */
-  OOPSaveable()  {}
+	OOPSaveable ()
+	{
+	}
 
   /**
    * Simple Desctructor 
    */
-  virtual ~OOPSaveable() {}
+	virtual ~ OOPSaveable ()
+	{
+	}
 
   /**
    * Returns a Class ID identifier
    */
-  virtual long GetClassID() = 0;
+	virtual long GetClassID () = 0;
 
   /**
    * Packs the object in on the buffer so it can be transmitted through the network.
@@ -58,11 +62,11 @@ public:
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-  virtual int Pack(OOPSendStorage * buf);
+	virtual int Pack (OOPSendStorage * buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-  virtual int Unpack( OOPReceiveStorage *buf );
+	virtual int Unpack (OOPReceiveStorage * buf);
 };
-#endif //_SAVEABLEHH_
+#endif // _SAVEABLEHH_

@@ -17,37 +17,39 @@
  * This class is not part of the parallel environment, although it make some calls to the Data and Task manager.
  * Its an auxiliar class which triggers the environment.
  */
-class TParAnalysis : public OOPTask{
-public:
+class   TParAnalysis:public OOPTask
+{
+      public:
 
-	TParAnalysis(int Procid);
-    TParAnalysis(int Procid, int numpartitions);
+	TParAnalysis (int Procid);
+	        TParAnalysis (int Procid, int numpartitions);
     /**
      * Initializes and submit all necessary data and tasks to the Data and Task managers. 
      */
-    void SetupEnvironment();
+	void    SetupEnvironment ();
 
-  virtual long GetClassID() {
-    return TPARANAYSIS_ID;
-  }
+	virtual long GetClassID ()
+	{
+		return TPARANAYSIS_ID;
+	}
     /**
      * Sets the version of the mesh, state and rhs to random values and creates the parcompute task
      */
-    void CreateParCompute();
+	void    CreateParCompute ();
 
     /**
      * Sets the version of the rhs and state appropriate for the TParCompute class to kick in
      */
-    void SetAppropriateVersions();
+	void    SetAppropriateVersions ();
 
     /**
      * Modify the solution version to adequate the TParCompute tasks
      */
-    void AdaptSolutionVersion(OOPDataVersion &version);
+	void    AdaptSolutionVersion (OOPDataVersion & version);
 
-    virtual OOPMReturnType Execute();
+	virtual OOPMReturnType Execute ();
 
-    void Print(ostream &out = cout);
+	void    Print (ostream & out = cout);
 
   /**
    * Packs the object in on the buffer so it can be transmitted through the network.
@@ -55,22 +57,22 @@ public:
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-  virtual int Pack(OOPSendStorage * buf);
+	virtual int Pack (OOPSendStorage * buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-  virtual int Unpack( OOPReceiveStorage *buf );
+	virtual int Unpack (OOPReceiveStorage * buf);
 
-  static OOPSaveable *Restore(OOPReceiveStorage *buf);
+	static OOPSaveable *Restore (OOPReceiveStorage * buf);
 
 
-private:
-  OOPObjectId fRelationTable;
-  int fNumPartitions;
-  OOPDataVersion fTaskVersion;
-  vector<OOPObjectId> fRhsId;
-  vector<OOPObjectId> fMeshId;
-  vector<OOPObjectId> fStateId;
+      private:
+	OOPObjectId fRelationTable;
+	int     fNumPartitions;
+	OOPDataVersion fTaskVersion;
+	vector < OOPObjectId > fRhsId;
+	vector < OOPObjectId > fMeshId;
+	vector < OOPObjectId > fStateId;
 };
-#endif //TPARANALYSIS_H
+#endif // TPARANALYSIS_H

@@ -15,39 +15,36 @@
 
 #include "oopsaveable.h"
 
-class OOPSendStorage;
-class OOPReceiveStorage;
-class OOPDataVersion;
+class   OOPSendStorage;
+class   OOPReceiveStorage;
+class   OOPDataVersion;
 
 
 
 /********************/
 /*** Get Class ID ***/
-long
-OOPSaveable::GetClassID()
+long OOPSaveable::GetClassID ()
 {
-  return 0;
+	return 0;
 }
 
 /************/
 /*** Pack ***/
-int
-OOPSaveable::Pack(OOPSendStorage * buf)
+int OOPSaveable::Pack (OOPSendStorage * buf)
 {
-	long class_id = GetClassID();
-	buf->PkLong(&class_id);
+	long class_id = GetClassID ();
+	buf->PkLong (&class_id);
 	return 1;
 }
 
 
 /**************/
 /*** Unpack ***/
-int 
-OOPSaveable::Unpack( OOPReceiveStorage *buf ) 
+int OOPSaveable::Unpack (OOPReceiveStorage * buf)
 {
-	#ifndef WIN32
-	#warning "Unpack on the OOPSaveable class is empty ! Should it exist ?"
-	#warning "Souldn't it be virtual ?"
-	#endif
+#ifndef WIN32
+#warning "Unpack on the OOPSaveable class is empty ! Should it exist ?"
+#warning "Shouldn't it be virtual ?"
+#endif
 	return 1;
 }

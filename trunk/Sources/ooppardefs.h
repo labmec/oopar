@@ -1,7 +1,8 @@
 #ifndef PARDEFSH
 #define PARDEFSH
 
-enum OOPMDMOwnerMessageType {
+enum OOPMDMOwnerMessageType
+{
 	ENoMessage,
 	ECancelReadAccess,
 	ECancelReadAccessConfirmation,
@@ -14,7 +15,8 @@ enum OOPMDMOwnerMessageType {
 	ENotifyDeleteObject,
 };
 
-enum OOPDMRequestMessageType {
+enum OOPDMRequestMessageType
+{
 	ENoRequest,
 	ERequestReadAccess,
 	ERequestWriteAccess,
@@ -24,21 +26,24 @@ enum OOPDMRequestMessageType {
 //longhin: 30/01/2003
 /**
  * Describes the possible access states for a data
- */	
-enum OOPMDataState {
+ */
+enum OOPMDataState
+{
 	ENoAccess,
 	EReadAccess,
 	EWriteAccess,
 	EVersionAccess
 };
 
-enum OOPMTransitionState {
+enum OOPMTransitionState
+{
 	ENoTransition,
 	ECancelReadTransition,
 	ESuspendReadTransition
 };
 
-enum OOPMReturnType {
+enum OOPMReturnType
+{
 	ESuccess,
 	EFail,
 	EContinue
@@ -53,4 +58,3 @@ enum OOPMReturnType {
 #define TDMREQUESTTASK_ID 3004
 #define OOPMETADATA_ID 3005
 #endif
-

@@ -30,7 +30,7 @@
 #include "oopstorage.h"
 //#include "oopsaveable.h"
 #include "cmdefs.h"
-class OOPSaveable;
+class   OOPSaveable;
 
 
 
@@ -42,12 +42,12 @@ class OOPSaveable;
 
 //TVoidPtrMap TReceiveStorage::gFuncTree(0);
 //void * TReceiveStorage::gFuncTree(long class_id);
-map<long,void*> OOPReceiveStorage::gFuncTree;
+map < long, void *>OOPReceiveStorage::gFuncTree;
 
 /******************/
 /*** Destructor ***/
 
-OOPReceiveStorage::~OOPReceiveStorage()
+OOPReceiveStorage::~OOPReceiveStorage ()
 {
 }
 
@@ -55,37 +55,31 @@ OOPReceiveStorage::~OOPReceiveStorage()
 
 /***************/
 /*** Restore ***/
-OOPSaveable *
-OOPReceiveStorage::Restore()
+OOPSaveable *OOPReceiveStorage::Restore ()
 {
-  long class_id;
-  UpkLong(&class_id);
-  if ( !class_id )
-    return( 0 );
+	long class_id;
+	UpkLong (&class_id);
+	if (!class_id)
+		return (0);
 
-  map<long,void*>::iterator i;
-  i = gFuncTree.find(class_id);
-  //i = gFuncTree.find(class_id);
-  if (i==gFuncTree.end())
-    {
-      char str[20];
-      sprintf( str, "%d", (int)class_id );
-      Error( 1, "Restore <class_id %s not recognized>\n", str );
-    }
+	map < long, void *>::iterator i;
+	i = gFuncTree.find (class_id);
+	// i = gFuncTree.find(class_id);
+	if (i == gFuncTree.end ()) {
+		char str[20];
+		sprintf (str, "%d", (int) class_id);
+		Error (1, "Restore <class_id %s not recognized>\n", str);
+	}
 
-  TRestFunction f;
-  //void *c = i;//gFuncTree.contents(i);
-  f = (TRestFunction) gFuncTree[class_id];//i;//c;
+	TRestFunction f;
+	// void *c = i;//gFuncTree.contents(i);
+	f = (TRestFunction) gFuncTree[class_id];	// i;//c;
 
-  return f(this);
+	return f (this);
 }
 
 
-void
-OOPReceiveStorage::AddClassRestore(long classid,TRestFunction f)
+void OOPReceiveStorage::AddClassRestore (long classid, TRestFunction f)
 {
-  gFuncTree[classid]= (void *) f;
+	gFuncTree[classid] = (void *) f;
 }
-
-
-

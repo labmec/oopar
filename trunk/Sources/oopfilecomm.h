@@ -21,12 +21,12 @@
 #include "oopcommmanager.h"
 #include "oopfilestorage.h"
 #include "oopcommmanager.h"
-class OOPTask;
-class OOPSendStorageFile;
+class   OOPTask;
+class   OOPSendStorageFile;
 
 
-class OOPTaskManager;
-class OOPSaveable;
+class   OOPTaskManager;
+class   OOPSaveable;
 
 
 /**
@@ -35,9 +35,9 @@ class OOPSaveable;
  * @author Mauro Enrique de Souza Munoz
  * @since 07/08/95
  */
-class OOPFileComManager: public OOPCommunicationManager
+class   OOPFileComManager:public OOPCommunicationManager
 {
-public:
+      public:
   /**
    Cria os buffers a serem usados na comunicacao e seta o prefixo
     "process_name" a ser usado nos nomes dos arquivos de
@@ -51,9 +51,9 @@ public:
                   == '00' - arquivo de recepcao de dados,
                   != '00' - arquivo usado como buffer temporario.
   */
-  OOPFileComManager( char *prefix, int num_proc, int myID );
-  OOPFileComManager();
-  ~OOPFileComManager();
+	OOPFileComManager (char *prefix, int num_proc, int myID);
+	        OOPFileComManager ();
+	       ~OOPFileComManager ();
   /**
    Armazena "*pObject" no buffer enderecado para o processo
     "processID". O buffer so' e' enviado atraves de "SendMessage".
@@ -62,25 +62,31 @@ public:
     acordo com o objeto a ser enviado.
    Ex.: Passar todas as TTasks na frente.
   */
-  int SendTaskVrt( OOPTask *pObject /*, int processID */);
+	int     SendTaskVrt (OOPTask * pObject /* , int processID */ );
 
   /**
    Recebe uma mensagem qualquer que tenha chegado. Se nao houver
    nenhuma mensagem, retorna 0.
    */
-  int ReceiveMessages();
-  int ReceiveBlocking() { return( ReceiveMessages() ); }
+	int     ReceiveMessages ();
+	int     ReceiveBlocking ()
+	{
+		return (ReceiveMessages ());
+	}
 
   /**Envia todas as mensagens de todos os buffers.*/
-  int SendMessages();
+	int     SendMessages ();
 
-  char *ClassName()   { return( "TFileComManager::" ); }
+	char   *ClassName ()
+	{
+		return ("TFileComManager::");
+	}
 
-  int SendTask( OOPTask *pTask );
-private:
+	int     SendTask (OOPTask * pTask);
+      private:
 
   /**Prefixo para a montagem dos nomes dos arquivos.*/
-  char f_prefix[FILE_NAME_SIZE];
+	char    f_prefix[FILE_NAME_SIZE];
   /**
    Prefixo relativo a este processo. E' necessario manter uma
     string para o prefixo e outra para o prefixo deste processo
@@ -88,22 +94,14 @@ private:
     evitando assim que cada buffer precise armazenar toda a
     string.
   */
-  char f_my_prefix[FILE_NAME_SIZE];
+	char    f_my_prefix[FILE_NAME_SIZE];
 
   /**1 buffer para cada processo do grupo.*/
-  OOPSendStorageFile **f_buffer;
-  
+	OOPSendStorageFile **f_buffer;
+
 };
 
 
 
 
-#endif //_COM_FILEHH_
-
-
-
-
-
-
-
-
+#endif // _COM_FILEHH_

@@ -3,47 +3,59 @@
 #include "TTaskComm.h"
 
 
-int TTaskComm::Unpack( OOPReceiveStorage *buf )
+int TTaskComm::Unpack (OOPReceiveStorage * buf)
 {
-  OOPSaveable::Unpack(buf);
-  OOPTask::Unpack(buf);
-  return 0;
-}
-int TTaskComm::Pack(OOPSendStorage *buf)
-{
-  int i;
-  //If any fObjPtr is not NULL issue and error message.
-  for(i=0; i<fDataDepend.NElements(); i++) 
-    if(fDataDepend.Dep(i).ObjPtr()){
-      cerr << "Inconsistent Task communication !"
-	   << " File:" << __FILE__ 
-	   << " Line:" << __LINE__ << endl;
-      exit(-1);
-  }
-  OOPSaveable::Pack(buf);
-  OOPTask::Pack(buf);
-  return 0;
+	OOPSaveable::Unpack (buf);
+	OOPTask::Unpack (buf);
+	return 0;
 }
 
-OOPMReturnType TTaskComm::Execute(){
-    int i;
-	for(i=0;i<fDataDepend.NElements();i++){
-        if (fDataDepend.Dep(i).State() == EWriteAccess){
-	        //dat->IncrementVersion();
-	        //DM->GetObjPtr(i->fDataId)->IncrementVersion();
-			cout << "TTaskComm object id ";
-			fDataDepend.Dep(i).ObjPtr()->Id().Print(cout);
-			cout << "TTaskComm::Execute the previous version is " << endl;
-			fDataDepend.Dep(i).ObjPtr()->Version().Print(cout);
-	        OOPDataVersion ver = fDataDepend.Dep(i).ObjPtr()->Version();
-			ver.Increment();
-			fDataDepend.Dep(i).ObjPtr()->SetVersion(ver,this->Id());
-		cout << "TTaskComm::Execute the new version is " << endl;
-		fDataDepend.Dep(i).ObjPtr()->Version().Print(cout);
-	    }
-	    
-	}
-    TaskFinished();
-    return ESuccess; // execute the task, verifying that
+int TTaskComm::Pack (OOPSendStorage * buf)
+{
+	int i;
+	// If any fObjPtr is not NULL issue and error message.
+	for (i = 0; i < fDataDepend.NElements (); i++)
+		if (fDataDepend.Dep (i).ObjPtr ()) {
+			cerr << "Inconsistent Task communication !"
+				<< " File:" << __FILE__
+				<< " Line:" << __LINE__ << endl;
+			exit (-1);
+		}
+	OOPSaveable::Pack (buf);
+	OOPTask::Pack (buf);
+	return 0;
 }
-TTaskComm::TTaskComm(int ProcId) : OOPTask(ProcId){}
+
+OOPMReturnType TTaskComm::Execute ()
+{
+	int i;
+	for (i = 0; i < fDataDepend.NElements (); i++) {
+		if (fDataDepend.Dep (i).State () == EWriteAccess) {
+			// dat->IncrementVersion();
+			// DM->GetObjPtr(i->fDataId)->IncrementVersion();
+			cout << "TTaskComm object id ";
+			fDataDepend.Dep (i).ObjPtr ()->Id ().Print (cout);
+			cout << "TTaskComm::Execute the previous version is "
+				<< endl;
+			fDataDepend.Dep (i).ObjPtr ()->Version ().
+				Print (cout);
+			OOPDataVersion ver =
+				fDataDepend.Dep (i).ObjPtr ()->Version ();
+			ver.Increment ();
+			fDataDepend.Dep (i).ObjPtr ()->SetVersion (ver,
+								   this->
+								   Id ());
+			cout << "TTaskComm::Execute the new version is " <<
+				endl;
+			fDataDepend.Dep (i).ObjPtr ()->Version ().
+				Print (cout);
+		}
+
+	}
+	TaskFinished ();
+	return ESuccess;	// execute the task, verifying that
+}
+
+TTaskComm::TTaskComm (int ProcId):OOPTask (ProcId)
+{
+}

@@ -4,217 +4,240 @@
 #include <iostream>
 #include "TParVector.h"
 
-void TParAnalysis::Print(ostream &out){
+void TParAnalysis::Print (ostream & out)
+{
 	out << "Print ParAnalysis" << endl;
 }
 
-void TParAnalysis::SetupEnvironment(){
-	
-  TPartitionRelation *table = TPartitionRelation::CreateRandom(fNumPartitions);
-  //  int ProcId = DM->GetProcID();
-	
-  // message #1.2 to table:TPartitionRelation
-  // TPartitionRelation * table = ;
+void TParAnalysis::SetupEnvironment ()
+{
 
-  int npartitions = table->GetNPartitions();
+	TPartitionRelation *table =
+		TPartitionRelation::CreateRandom (fNumPartitions);
+	// int ProcId = DM->GetProcID();
+
+	// message #1.2 to table:TPartitionRelation
+	// TPartitionRelation * table = ;
+
+	int npartitions = table->GetNPartitions ();
 
 
-  int ip;
-  // message #1.3 to rhs:TParVector
-  vector<TParVector *> RhsVec(npartitions);
-  fRhsId.resize(npartitions);
-  for(ip=0; ip<npartitions; ip++) RhsVec[ip] = new TParVector();
+	int ip;
+	// message #1.3 to rhs:TParVector
+	vector < TParVector * >RhsVec (npartitions);
+	fRhsId.resize (npartitions);
+	for (ip = 0; ip < npartitions; ip++)
+		RhsVec[ip] = new TParVector ();
 
-  // message #1.4 to state:TParVector
-  vector<TParVector *> StateVec(npartitions);
-  fStateId.resize(npartitions);
-  for(ip=0; ip<npartitions; ip++) StateVec[ip] = new TParVector();
+	// message #1.4 to state:TParVector
+	vector < TParVector * >StateVec (npartitions);
+	fStateId.resize (npartitions);
+	for (ip = 0; ip < npartitions; ip++)
+		StateVec[ip] = new TParVector ();
 
-  // message #1.5 to mesh:TParMesh
-  vector<TParMesh *> MeshVec(npartitions);
-  fMeshId.resize(npartitions);
-  for(ip=0; ip<npartitions; ip++) MeshVec[ip] = new TParMesh(); 
+	// message #1.5 to mesh:TParMesh
+	vector < TParMesh * >MeshVec (npartitions);
+	fMeshId.resize (npartitions);
+	for (ip = 0; ip < npartitions; ip++)
+		MeshVec[ip] = new TParMesh ();
 
-  int i;
-  // message #1.7 to ver:OOPDataVersion
-  for (i = 0; i < npartitions; i++) {
-    // message #1.8.1 to DM:OOPDataManager
-    fRhsId[i] = DM->SubmitObject(RhsVec[i], 1);
+	int i;
+	// message #1.7 to ver:OOPDataVersion
+	for (i = 0; i < npartitions; i++) {
+		// message #1.8.1 to DM:OOPDataManager
+		fRhsId[i] = DM->SubmitObject (RhsVec[i], 1);
 
-    // message #1.8.3 to DM:OOPDataManager
-    fStateId[i] = DM->SubmitObject(StateVec[i], 1);
+		// message #1.8.3 to DM:OOPDataManager
+		fStateId[i] = DM->SubmitObject (StateVec[i], 1);
 
-    // message #1.8.5 to DM:OOPDataManager
-    fMeshId[i] = DM->SubmitObject(MeshVec[i], 1);
-    table->SetMeshId(i,fMeshId[i]);
-  }
-  // message #1.6 to ver:OOPDataVersion
-  OOPDataVersion ver;
-  int level = 0;
-  int version = 0;
-  ver.SetLevelVersion(level, version);
-  OOPMDataState st = EReadAccess;
-  fRelationTable = DM->SubmitObject(table, 1); 
+		// message #1.8.5 to DM:OOPDataManager
+		fMeshId[i] = DM->SubmitObject (MeshVec[i], 1);
+		table->SetMeshId (i, fMeshId[i]);
+	}
+	// message #1.6 to ver:OOPDataVersion
+	OOPDataVersion ver;
+	int level = 0;
+	int version = 0;
+	ver.SetLevelVersion (level, version);
+	OOPMDataState st = EReadAccess;
+	fRelationTable = DM->SubmitObject (table, 1);
 
-  fDataDepend.Clear();
+	fDataDepend.Clear ();
 
-  cout << "TParAnalysis dependency on all data relationtable version " << endl;
-  ver.Print(cout);
-  AddDependentData(OOPMDataDepend(fRelationTable,st,ver));
+	cout << "TParAnalysis dependency on all data relationtable version "
+		<< endl;
+	ver.Print (cout);
+	AddDependentData (OOPMDataDepend (fRelationTable, st, ver));
 
-  st = EVersionAccess;
-  for(ip=0; ip<npartitions; ip++) {
-    AddDependentData(OOPMDataDepend(fMeshId[ip],st,ver));
-  }
+	st = EVersionAccess;
+	for (ip = 0; ip < npartitions; ip++) {
+		AddDependentData (OOPMDataDepend (fMeshId[ip], st, ver));
+	}
 
-  for(ip=0; ip<npartitions; ip++) {
-    AddDependentData(OOPMDataDepend(fStateId[ip],st,ver));
-  }
+	for (ip = 0; ip < npartitions; ip++) {
+		AddDependentData (OOPMDataDepend (fStateId[ip], st, ver));
+	}
 
-  for(ip=0; ip<npartitions; ip++) {
-    AddDependentData(OOPMDataDepend(fRhsId[ip],st,ver));
-  }
-  
-  /*
-  OOPObjectId tempid;
-  tempid.SetId(200);
-  AddDependentData(OOPMDataDepend(tempid,st,ver));
-	*/
-  //MetaData dependence still needs to be submitted to the DM
-  //which is performed as follows.
-  //SubmitDependentData();
-  
+	for (ip = 0; ip < npartitions; ip++) {
+		AddDependentData (OOPMDataDepend (fRhsId[ip], st, ver));
+	}
+
+	/* 
+	 * OOPObjectId tempid; tempid.SetId(200);
+	 * AddDependentData(OOPMDataDepend(tempid,st,ver)); */
+	// MetaData dependence still needs to be submitted to the DM
+	// which is performed as follows.
+	// SubmitDependentData();
+
 }
 
-void TParAnalysis::CreateParCompute() {
+void TParAnalysis::CreateParCompute ()
+{
 
-  int ndepend = fDataDepend.NElements();
-  if(ndepend != 3*fNumPartitions+1) {
-	  cout << "TParAnalysis I dont understand\n";
-  }
-  OOPObjectId tableid = fDataDepend.Dep(0).Id();
+	int ndepend = fDataDepend.NElements ();
+	if (ndepend != 3 * fNumPartitions + 1) {
+		cout << "TParAnalysis I dont understand\n";
+	}
+	OOPObjectId tableid = fDataDepend.Dep (0).Id ();
 
-  OOPDataVersion randver;
-  randver.SetLevelVersion(0,10);
-  randver.IncrementLevel(13);
-  randver.SetLevelVersion(1,5);
-  randver.IncrementLevel(25);
-  randver.SetLevelVersion(2,24);
-  OOPDataVersion taskver(randver);
-  taskver.SetLevelVersion(1,-1);
-  fTaskVersion = taskver;
-  // skipping the mesh dependency
-  int count = 0;
-  //Setting the data version
-  //fTaskVersionAccess não estava sendo setado.
-  cout << "TParAnalysis setting the version of rhs and state to " << endl;
-  randver.Print(cout);
-  while(count < 2*fNumPartitions) {
-    fDataDepend.Dep(count+fNumPartitions+1).ObjPtr()->SetVersion(randver,Id());
-    count++;
-  }
+	OOPDataVersion randver;
+	randver.SetLevelVersion (0, 10);
+	randver.IncrementLevel (13);
+	randver.SetLevelVersion (1, 5);
+	randver.IncrementLevel (25);
+	randver.SetLevelVersion (2, 24);
+	OOPDataVersion taskver (randver);
+	taskver.SetLevelVersion (1, -1);
+	fTaskVersion = taskver;
+	// skipping the mesh dependency
+	int count = 0;
+	// Setting the data version
+	// fTaskVersionAccess não estava sendo setado.
+	cout << "TParAnalysis setting the version of rhs and state to " <<
+		endl;
+	randver.Print (cout);
+	while (count < 2 * fNumPartitions) {
+		fDataDepend.Dep (count + fNumPartitions +
+				 1).ObjPtr ()->SetVersion (randver, Id ());
+		count++;
+	}
 
 
-  // message #1.1 to pc:TParCompute
-  TParCompute * pc = new TParCompute(GetProcID(),fNumPartitions);
+	// message #1.1 to pc:TParCompute
+	TParCompute *pc = new TParCompute (GetProcID (), fNumPartitions);
 
-  OOPDataVersion ver;
-  pc->SetMeshId(fMeshId,ver);
-  pc->SetRhsId(fRhsId,taskver);
-  pc->SetStateId(fStateId,taskver);
-  pc->SetPartitionRelationId(tableid,ver);
-  //  OOPMDataState st = EReadAccess;
-  //  pc->AddDependentData(tableid,st,ver);
+	OOPDataVersion ver;
+	pc->SetMeshId (fMeshId, ver);
+	pc->SetRhsId (fRhsId, taskver);
+	pc->SetStateId (fStateId, taskver);
+	pc->SetPartitionRelationId (tableid, ver);
+	// OOPMDataState st = EReadAccess;
+	// pc->AddDependentData(tableid,st,ver);
 
-  //	pc->SetPartitionRelationId(tableId , ver);
-  // message #1.9 to pc:TParCompute
-  pc->Submit();
-  fDataDepend.Clear();
+	// pc->SetPartitionRelationId(tableId , ver);
+	// message #1.9 to pc:TParCompute
+	pc->Submit ();
+	fDataDepend.Clear ();
 
-  count = 0;
-  randver.Increment();
-  cout << "TParAnalysis::CreateParCompute I depend on version for rhs and state" << endl;
-  randver.Print(cout);
+	count = 0;
+	randver.Increment ();
+	cout << "TParAnalysis::CreateParCompute I depend on version for rhs and state" << endl;
+	randver.Print (cout);
 //  while(count < fNumPartitions) {
-	//Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
+	// Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
 //    AddDependentData(OOPMDataDepend(fStateId[count],st,randver));
 //    count++;
 //  }
-  count = 0;
-  while(count < fNumPartitions) {
-	//Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
-    AddDependentData(OOPMDataDepend(fRhsId[count],EVersionAccess,randver));
-    count++;
-  }
-  //SubmitDependentData !!!
-  //SubmitDependentData();
-}
-
-void TParAnalysis::SetAppropriateVersions() {
-  OOPDataVersion ver;
-  //  OOPMDataState st = EReadAccess;
-  int ndep = fDataDepend.NElements();
-  int id = 0;
-  while(id<ndep) {
-    OOPDataVersion solver = fDataDepend.Dep(id).ObjPtr()->Version();
-    AdaptSolutionVersion(solver);
-    cout << "TParAnalysis::SetAppropriateVersion new version is ";
-    solver.Print(cout);
-    fDataDepend.Dep(id).ObjPtr()->SetVersion(solver,Id());
-	ver = solver;
-	id++;
-  }
-  ver.Increment();
-  fDataDepend.Clear();
-  if(ver.GetNLevels() < 2) {
-	  this->SetRecurrence(false);
-  } else {
-	  int count = 0;
-	  while(count < fNumPartitions) {
-		//Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
-		AddDependentData(OOPMDataDepend(fRhsId[count],EVersionAccess,ver));
+	count = 0;
+	while (count < fNumPartitions) {
+		// Na primeira passada por aqui, ObjPtr de *dep está nulo
+		// !!!!
+		AddDependentData (OOPMDataDepend
+				  (fRhsId[count], EVersionAccess, randver));
 		count++;
-	  }
-  }
+	}
+	// SubmitDependentData !!!
+	// SubmitDependentData();
 }
 
-void TParAnalysis::AdaptSolutionVersion(OOPDataVersion &version) {
+void TParAnalysis::SetAppropriateVersions ()
+{
+	OOPDataVersion ver;
+	// OOPMDataState st = EReadAccess;
+	int ndep = fDataDepend.NElements ();
+	int id = 0;
+	while (id < ndep) {
+		OOPDataVersion solver =
+			fDataDepend.Dep (id).ObjPtr ()->Version ();
+		AdaptSolutionVersion (solver);
+		cout << "TParAnalysis::SetAppropriateVersion new version is ";
+		solver.Print (cout);
+		fDataDepend.Dep (id).ObjPtr ()->SetVersion (solver, Id ());
+		ver = solver;
+		id++;
+	}
+	ver.Increment ();
+	fDataDepend.Clear ();
+	if (ver.GetNLevels () < 2) {
+		this->SetRecurrence (false);
+	}
+	else {
+		int count = 0;
+		while (count < fNumPartitions) {
+			// Na primeira passada por aqui, ObjPtr de *dep está
+			// nulo !!!!
+			AddDependentData (OOPMDataDepend
+					  (fRhsId[count], EVersionAccess,
+					   ver));
+			count++;
+		}
+	}
+}
 
-  int depth = fTaskVersion.GetNLevels();
-  int versdepth = version.GetNLevels();
+void TParAnalysis::AdaptSolutionVersion (OOPDataVersion & version)
+{
+
+	int depth = fTaskVersion.GetNLevels ();
+	int versdepth = version.GetNLevels ();
 //  cout << "TParAnalysis::AdaptSolutionVersion before "; version.Print(cout);
-  int d;
-  for(d=versdepth; d<depth; d++) {
-    int taskver = fTaskVersion.GetLevelVersion(d);
-    if(taskver != -1) {
-      version.IncrementLevel(taskver+1);
-      version.SetLevelVersion(d,taskver);
-    } else {
-      version.IncrementLevel(1);
-      version.SetLevelVersion(d,1); 
-    }
-  }
+	int d;
+	for (d = versdepth; d < depth; d++) {
+		int taskver = fTaskVersion.GetLevelVersion (d);
+		if (taskver != -1) {
+			version.IncrementLevel (taskver + 1);
+			version.SetLevelVersion (d, taskver);
+		}
+		else {
+			version.IncrementLevel (1);
+			version.SetLevelVersion (d, 1);
+		}
+	}
 //  cout << "TParAnalysis::AdaptSolutionVersion after "; version.Print(cout);
 }
 
-OOPMReturnType TParAnalysis::Execute() {
+OOPMReturnType TParAnalysis::Execute ()
+{
 
-  if(fRelationTable.IsZero()) {
-	  SetupEnvironment();
-  }else if(fTaskVersion.GetNLevels() <= 1) {
-	  CreateParCompute();
-  }else{
-	  SetAppropriateVersions();
-  }
-  return ESuccess;
+	if (fRelationTable.IsZero ()) {
+		SetupEnvironment ();
+	}
+	else if (fTaskVersion.GetNLevels () <= 1) {
+		CreateParCompute ();
+	}
+	else {
+		SetAppropriateVersions ();
+	}
+	return ESuccess;
 }
 
-TParAnalysis::TParAnalysis(int Procid) : OOPTask(Procid) {
+TParAnalysis::TParAnalysis (int Procid):OOPTask (Procid)
+{
 	fNumPartitions = 0;
 }
-TParAnalysis::TParAnalysis(int Procid, int numpartitions) : OOPTask(Procid) {
+TParAnalysis::TParAnalysis (int Procid, int numpartitions):OOPTask (Procid)
+{
 	fNumPartitions = numpartitions;
-	SetRecurrence();
+	SetRecurrence ();
 }
 
   /**
@@ -223,45 +246,49 @@ TParAnalysis::TParAnalysis(int Procid, int numpartitions) : OOPTask(Procid) {
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TParAnalysis::Pack(OOPSendStorage * buf) {
+int TParAnalysis::Pack (OOPSendStorage * buf)
+{
 
-  OOPTask::Pack(buf);
-  buf->PkInt(&fNumPartitions);
-  fRelationTable.Pack(buf);
-  fTaskVersion.Pack(buf);
-  int ip, np = fRhsId.size();
-  buf->PkInt(&np);
-  for(ip=0; ip<np; ip++) {
-    fRhsId[ip].Pack(buf);
-    fMeshId[ip].Pack(buf);
-    fStateId[ip].Pack(buf);
-  }
-  return 0;
+	OOPTask::Pack (buf);
+	buf->PkInt (&fNumPartitions);
+	fRelationTable.Pack (buf);
+	fTaskVersion.Pack (buf);
+	int ip, np = fRhsId.size ();
+	buf->PkInt (&np);
+	for (ip = 0; ip < np; ip++) {
+		fRhsId[ip].Pack (buf);
+		fMeshId[ip].Pack (buf);
+		fStateId[ip].Pack (buf);
+	}
+	return 0;
 }
+
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TParAnalysis::Unpack( OOPReceiveStorage *buf ) {
-  OOPTask::Unpack(buf);
-  buf->UpkInt(&fNumPartitions);
-  fRelationTable.Unpack(buf);
-  fTaskVersion.Unpack(buf);
-  int ip,np;
-  buf->UpkInt(&np);
-  fRhsId.resize(np);
-  fMeshId.resize(np);
-  fStateId.resize(np);
-  for(ip=0; ip<np; ip++) {
-    fRhsId[ip].Unpack(buf);
-    fMeshId[ip].Unpack(buf);
-    fStateId[ip].Unpack(buf);
-  }
-  return 0;
+int TParAnalysis::Unpack (OOPReceiveStorage * buf)
+{
+	OOPTask::Unpack (buf);
+	buf->UpkInt (&fNumPartitions);
+	fRelationTable.Unpack (buf);
+	fTaskVersion.Unpack (buf);
+	int ip, np;
+	buf->UpkInt (&np);
+	fRhsId.resize (np);
+	fMeshId.resize (np);
+	fStateId.resize (np);
+	for (ip = 0; ip < np; ip++) {
+		fRhsId[ip].Unpack (buf);
+		fMeshId[ip].Unpack (buf);
+		fStateId[ip].Unpack (buf);
+	}
+	return 0;
 }
 
-OOPSaveable *TParAnalysis::Restore( OOPReceiveStorage *buf ) {
-  TParAnalysis *par = new TParAnalysis(0);
-  par->Unpack(buf);
-  return par;
+OOPSaveable *TParAnalysis::Restore (OOPReceiveStorage * buf)
+{
+	TParAnalysis *par = new TParAnalysis (0);
+	par->Unpack (buf);
+	return par;
 }

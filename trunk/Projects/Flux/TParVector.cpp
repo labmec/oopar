@@ -6,31 +6,27 @@ TParVector::TParVector ()
 {
 }
 
-long TParVector::GetClassID (
-	)
+long TParVector::GetClassID ()
 {
 	return fClassId;
 }
 
-int TParVector::Pack (
-	OOPSendStorage * buf)
+int TParVector::Pack (OOPSendStorage * buf)
 {
 
 	buf->PkLong (&fClassId);
 	vector < double >::iterator i = fData.begin ();
 	int aux = fData.size ();
 	buf->PkInt (&aux);
-	while (i != fData.end ())
-	{
+	while (i != fData.end ()) {
 		buf->PkDouble (&(*i), 1);
 	}
-	OOPSaveable::Pack(buf);
+	OOPSaveable::Pack (buf);
 	return 1;
 
 }
 
-int TParVector::Unpack (
-	OOPReceiveStorage * buf)
+int TParVector::Unpack (OOPReceiveStorage * buf)
 {
 	buf->UpkLong (&fClassId);
 
@@ -38,17 +34,15 @@ int TParVector::Unpack (
 	int i = 0;
 	buf->UpkInt (&aux);
 	double val = 0.;
-	for (i = 0; i < aux; i++)
-	{
+	for (i = 0; i < aux; i++) {
 		buf->UpkDouble (&val, 1);
 		fData.push_back (val);
 	}
-	OOPSaveable::Unpack(buf);
+	OOPSaveable::Unpack (buf);
 	return 1;
 }
 
-void TParVector::SetVector (
-	vector < double >data)
+void TParVector::SetVector (vector < double >data)
 {
 #ifndef WIN32
 #warning "Data should be changed to something else"
@@ -56,8 +50,7 @@ void TParVector::SetVector (
 	fData = data;
 }
 
-void TParVector::Resize (
-	int size)
+void TParVector::Resize (int size)
 {
 	fData.resize (size);
 }

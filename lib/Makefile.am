@@ -31,8 +31,8 @@ liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/OOPDataLogger.o \
 	../Sources/oopmpistorage.o \
 	../Sources/oopwaittask.o \
-	../NeoPZ/Save/pzfilebuffer.o \
-	../NeoPZ/Save/pzsave.o
+	../Save/pzfilebuffer.o \
+	../Save/pzsave.o
 else
 liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/ooptaskmanager.o \
@@ -53,8 +53,8 @@ liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/oopaccessinfo.o \
     ../Sources/ooppardefs.o \
 	../Sources/oopwaittask.o \
-	../NeoPZ/Save/pzfilebuffer.o \
-	../NeoPZ/Save/pzsave.o
+	../Save/pzfilebuffer.o \
+	../Save/pzsave.o
 
 endif
 ## --| OOPar |------------------------------------------------------------------

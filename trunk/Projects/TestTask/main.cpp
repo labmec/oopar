@@ -28,9 +28,9 @@ ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
 
 using namespace std;
-class OOPCommunicationManager;
-class OOPDataManager;
-class OOPTaskManager;
+//class OOPCommunicationManager;
+//class OOPDataManager;
+//class OOPTaskManager;
 
 OOPCommunicationManager *CM;
 OOPDataManager *DM;

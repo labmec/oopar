@@ -23,27 +23,23 @@ TSmallTask::~TSmallTask()
 }
 
 
-OOPSaveable* TSmallTask::Restore(OOPStorageBuffer* buf)
+TPZSaveable* TSmallTask::Restore(TPZStream & buf, void * context)
 {
   TSmallTask *loc = new TSmallTask(-1);
-  loc->Unpack(buf);
+  loc->Read(buf,context);
   return loc;
 }
 
-int TSmallTask::Pack(OOPStorageBuffer* buf)
+void TSmallTask::Write(TPZStream & buf, int withclassid)
 {
-    return OOPTask::Pack(buf);
+    OOPTask::Write(buf,withclassid);
 }
 
-int TSmallTask::Unpack(OOPStorageBuffer* buf)
+void TSmallTask::Read(TPZStream & buf, void * context)
 {
-    return OOPTask::Unpack(buf);
+    OOPTask::Read(buf,context);
 }
 
-long TSmallTask::GetClassID()
-{
-    return TSMALLTASKID;
-}
 
 OOPMReturnType TSmallTask::Execute()
 {

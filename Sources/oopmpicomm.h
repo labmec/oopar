@@ -93,7 +93,8 @@ class   OOPMPICommManager:public OOPCommunicationManager
   /** Communication argument */
 	char  **f_argv;
 	bool fReceiveThreadExists;
-	pthread_t fThreadId;
+	pthread_t fReceiveThread;
+	  
 };
-extern pthread_t receivethread;
+
 #endif

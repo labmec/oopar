@@ -29,7 +29,7 @@ ofstream DataQueueLog("dataqueuelog.log");
 
 int GLogMsgCounter;
 int numproc;
-pthread_t receivethread;
+
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
 vector < OOPTaskManager * >TMList (numproc);

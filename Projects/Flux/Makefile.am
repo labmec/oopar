@@ -25,6 +25,7 @@ if OOPMPI
 main_LDADD = $(top_srcdir)/lib/liboopar.a \
 		-L$(top_srcdir)/lib/ \
 		-loopar \
+		-lpthread \
 		$(MPILIBDIR) \
 		$(MPILIB)
 else

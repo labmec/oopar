@@ -72,7 +72,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
    */
 	char   *ClassName ()
 	{
-		return ("TMpiComManager::");
+		return ("OOPMpiCommManager::");
 	}
       protected:
 	/**

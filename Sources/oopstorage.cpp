@@ -48,9 +48,10 @@ OOPSaveable *OOPReceiveStorage::Restore ()
 {
 	long class_id = 0; 
 	UpkLong (&class_id);
+#ifdef VERBOSE
 	cout << "PID" << getpid() << " Restorig object of class Id " << class_id << endl;
 	cout.flush();
-
+#endif
 	if (!class_id) {
 		cout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore\n";
 		cout.flush();

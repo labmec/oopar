@@ -27,8 +27,10 @@ long OOPSaveable::GetClassID ()
 /*** Pack ***/
 int OOPSaveable::Pack (OOPSendStorage * buf)
 {
+#ifdef VERBOSE
 	cout << "PID" << getpid() << " Packing class ID " << GetClassID() << endl;
 	cout.flush();
+#endif
 	long class_id = GetClassID ();
 	buf->PkLong (&class_id);
 	return 1;

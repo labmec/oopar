@@ -21,27 +21,29 @@ OOPMReturnType TTaskComm::Execute ()
 		if (fDataDepend.Dep (i).State () == EWriteAccess) {
 			// dat->IncrementVersion();
 			// DM->GetObjPtr(i->fDataId)->IncrementVersion();
+#ifdef VERBOSE
 			cout << "TTaskComm object id ";
-			TaskLog << "TTaskComm object id " << fDataDepend.Dep (i).ObjPtr ()->Id ();
 			fDataDepend.Dep (i).ObjPtr ()->Id ().Print (cout);
-			cout << "TTaskComm::Execute the previous version is "
-				<< endl;
+			cout << "TTaskComm::Execute the previous version is " << endl;
+			fDataDepend.Dep (i).ObjPtr ()->Version ().Print (cout);
+#endif
+			TaskLog << "TTaskComm object id " << fDataDepend.Dep (i).ObjPtr ()->Id ();
 			TaskLog << "TTaskComm::Execute the previous version is "
 				<< fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
-			fDataDepend.Dep (i).ObjPtr ()->Version ().
-				Print (cout);
 			OOPDataVersion ver =
 				fDataDepend.Dep (i).ObjPtr ()->Version ();
 			ver.Increment ();
 			fDataDepend.Dep (i).ObjPtr ()->SetVersion (ver,
 								   this->
 								   Id ());
+#ifdef VERBOSE
 			cout << "TTaskComm::Execute the new version is " <<
 				endl;
-			TaskLog << "TTaskComm::Execute the new version is " <<
-				fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
 			fDataDepend.Dep (i).ObjPtr ()->Version ().
 				Print (cout);
+#endif
+			TaskLog << "TTaskComm::Execute the new version is " <<
+				fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
 		}
 	}
 	TaskFinished ();

@@ -170,11 +170,15 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
 	TaskManLog << "Calling Submit on OOPTaskManager ";
+#ifdef VERBOSE
 	cout << "Tryng to lock mutex on Submit PID " << getpid() << endl;
 	cout.flush();
+#endif
 	pthread_mutex_lock(&fExecuteMutex);
+#ifdef VERBOSE
 	cout << "Mutex locked Submit PID " << getpid() << endl;
 	cout.flush();
+#endif
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
 	if(dmt) {
 		// lock
@@ -182,15 +186,20 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 		TaskManLog << "Task Submitted is a daemon\n";
 		// signal the service thread
 		// unlock
+#ifdef VERBOSE
 		cout << "Signalling on SubmiteDaemon()\n";
 		cout.flush();
+#endif
 		pthread_cond_signal(&fExecuteCondition);
+#ifdef VERBOSE
 		cout << "Mutex unlocking SubmiteDaemon PID " << getpid() << endl;
 		cout.flush();
+#endif
 		pthread_mutex_unlock(&fExecuteMutex);
+#ifdef VERBOSE
 		cout << "Mutex unlocked SubmiteDaemon PID " << getpid() << endl;
 		cout.flush();
-		
+#endif		
 		return OOPObjectId();
 	}
 	OOPObjectId id = task->Id();
@@ -203,14 +212,20 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	fSubmittedList.push_back (task);
 	// signal to service thread
 	// mutex unlock
+#ifdef VERBOSE
 	cout << "Signalling on Submit()\n";
 	cout.flush();
+#endif
 	pthread_cond_signal(&fExecuteCondition);
+#ifdef VERBOSE
 	cout << "Mutex unlocking Submit PID " << getpid() << endl;
 	cout.flush();
+#endif
 	pthread_mutex_unlock(&fExecuteMutex);
+#ifdef VERBOSE
 	cout << "Mutex unlocked Submit PID " << getpid() << endl;
 	cout.flush();
+#endif
 	return id;
 }
 OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)

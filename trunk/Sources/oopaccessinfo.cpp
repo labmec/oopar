@@ -68,7 +68,10 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 {
 	ac = fList.end ();
 	if (!object.CanGrantAccess ())
+	{
+		DataLog << "VerifyAccessRequests object returned CanGrantAccess false\n";
 		return false;
+	}
 	list < OOPAccessInfo >::iterator i;
 	if (!HasReadAccessGranted () && !HasWriteAccessGranted ()) {
 		i = fList.begin ();

@@ -27,7 +27,7 @@ ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
 
 int GLogMsgCounter;
-const int numproc = 2;
+const int numproc = 6;
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
 vector < OOPTaskManager * >TMList (numproc);
@@ -65,7 +65,7 @@ int multimain ()
 	
 	
 	
-	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);
+	TParAnalysis *partask = new TParAnalysis (5, 2, numproc);
 	TM->Submit (partask);
 	int nsteps=500;
 	int k=0;

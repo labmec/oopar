@@ -143,7 +143,7 @@ void OOPMetaData::VerifyAccessRequests ()
 			}
 			DataLog << "Grant access for Obj " << fObjId << " to " << ac->fTaskId << " with depend " << depend << endl;
 			DataLog.flush();
-			LogDM->GrantAccessLog(ac->fProcessor,fObjId,ac->fState,ac->fVersion,ac->fProcessor,ac->fTaskId);
+			LogDM->GrantAccessLog(DM->GetProcID(),fObjId,ac->fState,ac->fVersion,ac->fProcessor,ac->fTaskId);
 			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
 		}
 		else {
@@ -190,7 +190,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 	GLogMsgCounter++;
 	fAccessList.ReleaseAccess (taskid, depend);
 	if (depend.State () == EVersionAccess) {
-		LogDM->LogReleaseAccess(fProc,fObjId,depend.State(), fProcVersionAccess, fTaskVersion);
+		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProcVersionAccess, fTaskVersion);
 		this->fProcVersionAccess = -1;
 		this->fTaskVersion.Zero ();
 		// remove this processor from the list of suspended read
@@ -211,7 +211,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 			while (i != fSuspendAccessProcessors.end ()) {
 				if (*i != DM->GetProcID ()) {
 					OOPObjectId auxId;
-					LogDM->LogReleaseAccess(fProc,fObjId,depend.State(), *i, auxId);
+					LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), *i, auxId);
 					DataLog << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
 					TransferDataLog << ":suspend read access " << fObjId << " to processor "<< *i << endl;
 					TransferDataLog.flush();
@@ -227,7 +227,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		fSuspendAccessProcessors.clear();
 	}
 	else if (depend.State () == EWriteAccess) {
-		LogDM->LogReleaseAccess(fProc,fObjId,depend.State(), fProc, fTaskWrite);
+		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, fTaskWrite);
 		fTaskWrite.Zero ();
 		// grant read access to the owning processor
 		DataLog << "granting read access for obj " << fObjId << " to processor " << fProc << endl;
@@ -254,7 +254,7 @@ void OOPMetaData::CheckTransitionState ()
 		fAccessList.RevokeAccessAndCancel ();
 		if (!fAccessList.HasExecutingTasks ()) {
 			DataLog << "Deleting object " << fObjId << endl;
-			LogDM->LogGeneric(fProc, fObjId, "Deleting Object");
+			LogDM->LogGeneric(DM->GetProcID(), fObjId, "Deleting Object");
 			DataLog.flush();
 			DM->DeleteObject (fObjId);
 			return;
@@ -361,7 +361,7 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
 	GLogMsgCounter++;
 	DataLog << "SubmitAccessRequest task " << taskId << " depend " << depend << " proc " << processor << endl;
 	DataLog.flush();
-	LogDM->SubmitAccessRequestLog(processor,Id(),ENoMessage,depend.State(),depend.Version(),processor,taskId);
+	LogDM->SubmitAccessRequestLog(DM->GetProcID(),Id(),ENoMessage,depend.State(),depend.Version(),processor,taskId);
 	fAccessList.AddAccessRequest (taskId, depend, processor);
 	if (!IamOwner ()) {
 		VerifyAccessRequests();
@@ -617,7 +617,7 @@ void OOPMetaData::DeleteObject ()
 	
 	this->fToDelete = 1;
 	DataLog << "deleting object " << fObjId << endl;
-	LogDM->LogGeneric(fProc, fObjId, "deleting object");
+	LogDM->LogGeneric(DM->GetProcID(), fObjId, "deleting object");
 	DataLog.flush();
 	if (IamOwner()) {
 		list<int>::iterator i = fReadAccessProcessors.begin();
@@ -649,7 +649,7 @@ void OOPMetaData::RequestDelete ()
 {
 	DataLog << GLogMsgCounter << endl;
 	DataLog << "Calling RequestDelete";
-	LogDM->LogGeneric(fProc,fObjId,"Calling RequestDelete");
+	LogDM->LogGeneric(DM->GetProcID(),fObjId,"Calling RequestDelete");
 	DataLog.flush();
 	GLogMsgCounter++;
 	
@@ -865,7 +865,7 @@ void OOPMetaData::SetVersion (const OOPDataVersion & ver,
 	
 	GLogMsgCounter++;
 	if (fTaskWrite == taskid || fTaskVersion == taskid) {
-		LogDM->LogSetVersion(fProc,fObjId,fVersion,ver);
+		LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver);
 		fVersion = ver;
 		DataLog << "Setting Version for Obj " << this->fObjId << " to version "
 			<< ver << "\n";

@@ -65,8 +65,9 @@ long OOPTask::ExecTime ()
 }
 OOPObjectId OOPTask::Submit ()
 {
-	fTaskId = TM->Submit (this);
-	return fTaskId;
+	OOPObjectId val = TM->Submit(this);
+//	fTaskId = TM->Submit (this);
+	return val;
 }
 OOPDaemonTask::OOPDaemonTask (int Procid):OOPTask (Procid)
 {

@@ -161,7 +161,7 @@ char * OOPDataLogger::GetStateName(OOPMDataState state){
 	switch (state )
 	{
 		case  ENoAccess:
-			return "ENoAccesst";
+			return "ENoAccess";
 			break;
 		case  EReadAccess:
 			return "EReadAccess";

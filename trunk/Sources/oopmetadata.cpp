@@ -237,6 +237,11 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		DataLog.flush();
 		fReadAccessProcessors.push_back (fProc);
 	}
+	else if(depend.State () == EReadAccess) {
+		OOPDataVersion locver(depend.Version());
+		OOPObjectId locid(taskid);
+		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, locid, State(), locver);
+	}
 	if(fToDelete) {
 		CheckTransitionState ();
 	} else {
@@ -695,7 +700,9 @@ void OOPMetaData::CancelReadAccess ()
 	}
 	// send suspend messages to all processors and revoke the access
 	// granted
-	fAccessList.RevokeAccess (*this);
+	
+// GUSTAVO, Talvez tirar isto basta!!!
+//	fAccessList.RevokeAccess (*this);
 	if (!fAccessList.HasExecutingTasks ()) {
 		i = fReadAccessProcessors.begin ();
 		while (i != fReadAccessProcessors.end ()) {
@@ -820,7 +827,7 @@ void OOPMetaData::IncrementVersion (const OOPObjectId &taskid)
 		fVersion = ver;
 		DataLog << "Incrementing Version for Obj " << this->fObjId << " to version "
 			<< ver << "\n";
-		++fVersion;
+//		++fVersion;
 	}
 	else {
 		DataLog << "OOPMetaData::IncrementVersion not executed for Obj "<< fObjId << "\n";

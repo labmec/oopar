@@ -90,7 +90,7 @@ public:
 	OOPTask (const OOPTask & task);
 	virtual ~ OOPTask ()
 	{
-		fDataDepend.ReleaseAccessRequests(Id());
+//		fDataDepend.ReleaseAccessRequests(Id());
 	}
 	/**
 	 * Returns the Id of current object

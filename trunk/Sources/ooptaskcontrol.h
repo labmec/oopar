@@ -4,13 +4,19 @@
 class   OOPTask;
 #include "oopmdatadepend.h"
 /**
- * class which encapsulates a task object and data dependency structure
- * The main idea is to separate the data dependency structure from the task
- * As such the task is free to manipulate its internal dependency structure
+ * class which encapsulates a task object and data dependency structure.
+ * The main idea is to separate the data dependency structure from the task.
+ * As such the task is free to manipulate its internal dependency structure.
  */
 class   OOPTaskControl
 {
+	/**
+	 * Pointer to the task object the taskcontrol reffers to.
+	 */
 	OOPTask *fTask;
+	/**
+	 * List of dependency for the current object.
+	 */
 	OOPMDataDependList fDepend;
       public:
   /**

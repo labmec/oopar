@@ -102,7 +102,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	DataLog << "Calling VerifyAccessRequests\n";
 	GLogMsgCounter++;
 	DataLog.flush();
-	
+	//Isso ta errado
 	OOPObjectId taskid;
 	while (fAccessList.HasIncompatibleTask (fVersion, taskid)) {
 		DataLog << "OOPMetaData::Verify.. task canceled " << taskid << endl;
@@ -845,8 +845,16 @@ void OOPMetaData::TraceMessage (char *message)
 void OOPMetaData::Print (ostream & out)
 {
 	out << "Obj Id " << fObjId.ShortPrint(out);
-	out << "TData structure" << endl;
+	out << "OOPData structure" << endl;
 	out << "fAccessList size " << fAccessList.NElements () << endl;
+	out.flush ();
+}
+void OOPMetaData::PrintLog (ostream & out)
+{
+	out << "Obj Id " << fObjId.ShortPrint(out);
+	out << "OOPData structure" << endl;
+	out << "fAccessList size " << fAccessList.NElements () << endl;
+	fAccessList.Print(out);
 	out.flush ();
 }
 

@@ -124,6 +124,7 @@ void OOPDataVersion::SetLevelCardinality (int level, int depth)
 	     for (i = 0; i < fVersion.size (); i++)
 	     {
 		     if (GetLevelVersion (i) != -1) {
+				 if(i>=version.fVersion.size()) return true;
 			     if (GetLevelVersion (i) <
 				 version.GetLevelVersion (i)) {
 				     cout << "OOPDataVersion::AmICompatible returned false\n";

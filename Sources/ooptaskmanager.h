@@ -35,6 +35,13 @@ class   OOPObjectId;
 class   OOPTaskManager
 {
       public:
+	/**
+	 * Print TM task queues
+	 */
+	void PrintTaskQueues(char * msg, ostream & out);
+	/**
+	 * Print TaskManager data structure
+	 */	  
 	void    Print (ostream & out);
   /**
    * Checks for the existence for obselete tasks on the task manager list
@@ -179,7 +186,7 @@ class   OOPTaskManager
   /**
    * List of tasks which can't be executed yet
    */
-	        deque < OOPTaskControl * >fTaskList;
+   deque < OOPTaskControl * >fTaskList;
 
 
   /**
@@ -275,5 +282,7 @@ class   OOPTMTask:public OOPDaemonTask
 
 extern OOPTaskManager *TM;
 extern ofstream TaskManLog;
+extern ofstream TaskQueueLog;
+extern ofstream DataQueueLog;
 extern int GLogMsgCounter;
 #endif

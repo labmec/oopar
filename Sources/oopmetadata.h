@@ -113,6 +113,8 @@ class   OOPMetaData:public OOPSaveable
 
 
       public:
+		  
+	void PrintLog (ostream & out = cout);
 	void    Print (ostream & out = cout);
 	/**
 	 * SetVersion is allowed if the task has read and/or version access

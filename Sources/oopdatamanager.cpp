@@ -379,11 +379,9 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 		}
 	}
 	else {
-		DataManLog << "OOPDataManager::GetUpdate fDepend.Id() not found in this prcessor:";
+		DataManLog << "OOPDataManager::GetUpdate fDepend.Id() found in this prcessor:";
 		id.Print(DataManLog);
-		OOPObjectId taskid;
-		
-		(*i)->SubmitAccessRequest (taskid, task->fDepend,
+		(*i)->SubmitAccessRequest (task->Id(), task->fDepend,
 					   task->fProcOrigin);
 	}
 }
@@ -411,6 +409,15 @@ OOPMetaData *OOPDataManager::Data (OOPObjectId ObjId)
 	return 0;
 }
 
+void OOPDataManager::PrintDataQueues(char * msg, ostream & out){
+	out << "Printing Data Queues on processor :" << fProcessor << msg << endl;
+	deque < OOPMetaData * >::iterator i;
+	OOPAccessInfoList auxlist;
+	for(i=fObjects.begin();i!=fObjects.end();i++){
+		(*i)->PrintLog(out);
+	}
+	
+}
 
 
 OOPDMOwnerTask::OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc):OOPDaemonTask
@@ -436,7 +443,6 @@ OOPDMRequestTask::OOPDMRequestTask (int proc,
 fDepend (depend)
 {
 	fProcOrigin = DM->GetProcID ();
-	// fObjId = 0;
 }
 
 OOPDMRequestTask::

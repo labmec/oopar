@@ -88,8 +88,10 @@ void OOPMetaData::VerifyAccessRequests ()
 		DataLog.flush();
 		TM->CancelTask (taskid);
 	}
-	if (fTrans != ENoTransition)
+	if (fTrans != ENoTransition && fTrans != ECancelReadTransition) {
+		DataLog << "Verify leaving because fTrans = " << fTrans << endl;
 		return;
+	}
 /*
 	How do we know the state of the object??
 	If any executing task is accessing the object for write or version access
@@ -121,6 +123,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	    && !fAccessList.HasReadAccessGranted()
 		&& !fAccessList.HasExecutingOrReadGrantedTasks()/*fTaskWrite.IsZeroOOP()*/) 
 	{
+		DataLog << "Revoked write access to task "<< fTaskWrite << endl;
 		fAccessList.RevokeWriteAccess(*this);
 		fTaskWrite = OOPObjectId();
 		fReadAccessProcessors.push_back(DM->GetProcID());
@@ -137,6 +140,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	else if (DM->GetProcID () == fProc
 		 && fAccessList.HasWriteAccessRequests (fVersion)
 		 && fTrans == ENoTransition) {
+		DataLog << "Performing CancelReadAccess\n";
 		CancelReadAccess ();
 		// we should invoke a procedure to revoke all read access
 		// requests
@@ -850,7 +854,7 @@ void OOPMetaData::IncrementVersion (const OOPObjectId &taskid)
 		LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver, State(),taskid);
 		DataLog << "Incrementing Version for Obj " << this->fObjId << " to version "
 			<< ver << "\n";
-//		++fVersion;
+		++fVersion;
 	}
 	else {
 		DataLog << "OOPMetaData::IncrementVersion not executed for Obj "<< fObjId << "\n";

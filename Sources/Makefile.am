@@ -17,7 +17,7 @@ oopar_HEADERS = $(wildcard *.h)
 
 noinst_LIBRARIES = liboopar.a
 
-SUBDIRS = 
+
 
 #AM_CONDITIONAL(MPI, test "$enable_mpi" = yes)
 if OOPMPI
@@ -57,3 +57,6 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 endif
 
 ## --| OOPar |------------------------------------------------------------------
+AM_CXXFLAGS = @USING_MPI@ @MPIINCLUDE@ -DDEBUG
+INCLUDES = -I$(top_srcdir)/Common -I$(top_srcdir)/Save -I$(top_srcdir)/Util
+

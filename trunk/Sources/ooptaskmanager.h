@@ -153,12 +153,22 @@ private:
   /**
    * List of time consuming tasks
    */
-  deque < OOPTask * >fTimeConsuming;
+  deque < OOPTaskControl>fTimeConsuming;
 	
   /**
    * List of instantaneous tasks.
    */
-  deque < OOPTask * >fDaemon;
+  deque < OOPTaskControl>fDaemon;
+
+  /**
+   * List of tasks which can be readily executed
+   */
+  deque< OOPTaskControl> fExecutable;
+
+  /**
+   * List of tasks recently submitted
+   */
+  deque <OOPTask *> fSubmittedList;
 };
 
 /**

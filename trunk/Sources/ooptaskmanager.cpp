@@ -140,6 +140,7 @@ void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPOb
 
 OOPObjectId OOPTaskManager::Submit(OOPTask *task) {
 	
+  fSubmittedList.push_back(task);
   if(task->ExecTime() == 0) {
     if(task->GetProcID() == fProc) {
       OOPMReturnType r = task->Execute();

@@ -115,19 +115,17 @@ class   OOPAccessInfo
 			&& fProcessor == other.fProcessor);
 	}
 
-	void    Print (ostream & out = cout)
+void    Print (ostream & out = cout)
 	{
 		out << "Is Accessing ? " << (bool) fIsAccessing << endl;
 		out << "Is Granted ? " << fIsGranted << endl;
 		out << "Data State " << fState << endl;
 		out << "Processor " << fProcessor << endl;
-		out << "TaskId " << endl;
-		fTaskId.Print (out);
-		out << "Version" << endl;
-		fVersion.Print (out);
+		out << "TaskId " << fTaskId << endl;
+		out << "Version" << fVersion << endl;
 	}
 
-	bool    CanExecute (const OOPMetaData & object) const;
+bool    CanExecute (const OOPMetaData & object) const;
 
 };
 

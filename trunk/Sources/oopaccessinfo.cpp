@@ -404,7 +404,6 @@ void OOPAccessInfoList::ResendGrantedAccessRequests(OOPObjectId &id, int owningp
 }
 void OOPAccessInfoList::Print(ostream & out) {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
-
 	while(i != fList.end()) {
 		i->Print(out);
 		i++;

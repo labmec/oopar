@@ -28,12 +28,12 @@ class   OOPObjectId
 	 * Packs itself in a buffer so it can be sent through the network.
 	 * @param buf Buffer which is sent through the net.
 	 */
-	void     Write (TPZStream  & buf);
+	void     Write (TPZStream  & buf, int withclassid = 0);
 	/**
 	 * Unpacks itself from a buffer so it can be received through the network.
 	 * @param buf Buffer which is received through the net.
 	 */
-	void    Read (TPZStream  & buf);
+	void    Read (TPZStream  & buf, void * context = NULL);
 	/**
 	 * Assign zero to ObjectId data structure
 	 */

@@ -7,32 +7,16 @@ TParVector::TParVector ()
 }
 void TParVector::Write (TPZStream & buf, int withclassid)
 {
-	TPZSaveable::Write(buf);
-	vector < double >::iterator i = fData.begin ();
-	int aux = fData.size ();
-	buf.Write (&aux);
-	for (i=fData.begin(); i != fData.end ();i++) {
-		buf.Write (&(*i), 1);
-	}
+	TPZSaveable::Write(buf,withclassid);
+  WriteObjects(buf,fData);
 }
 void TParVector::Read (TPZStream & buf, void * context)
 {
-	TPZSaveable::Read(buf);
-	int aux = 0;
-	int i = 0;
-	buf.Read (&aux);
-        fData.resize(aux);
-	double val = 0.;
-	for (i = 0; i < aux; i++) {
-		buf.Read (&val, 1);
-		fData[i] = val;
-	}
+	TPZSaveable::Read(buf,context);
+  ReadObjects(buf,fData);
 }
 void TParVector::SetVector (vector < double >data)
 {
-#ifndef WIN32
-#warning "Data should be changed to something else"
-#endif
 	fData = data;
 }
 void TParVector::Resize (int size)

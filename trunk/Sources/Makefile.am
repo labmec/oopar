@@ -9,7 +9,7 @@
 DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@
 #Acredito que aqui tb precisamos de um include de mpi
--include $(top_srcdir)/@OOP_MK@
+-include $(top_builddir)/@OOP_MK@
 
 oopardir = $(prefix)/Sources $(prefix)/NeoPZ/Save
 
@@ -57,6 +57,4 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 endif
 
 ## --| OOPar |------------------------------------------------------------------
-AM_CXXFLAGS = @USING_MPI@ @MPIINCLUDE@ -DDEBUG
-INCLUDES = -I$(top_srcdir)/Common -I$(top_srcdir)/Save -I$(top_srcdir)/Util
 

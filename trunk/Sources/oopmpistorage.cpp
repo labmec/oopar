@@ -19,12 +19,13 @@
 //
 
 // $Author: phil $
-// $Id: oopmpistorage.cpp,v 1.26 2004-11-07 19:23:31 phil Exp $
-// $Revision: 1.26 $
+// $Id: oopmpistorage.cpp,v 1.27 2005-01-28 17:49:05 phil Exp $
+// $Revision: 1.27 $
 
 
 
 #include "oopmpistorage.h"
+#include "oopcommmanager.h"
 #include "mpi.h"
 #include <iostream>
 #include <sys/types.h>
@@ -55,7 +56,7 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, int mpitype)
 }
 int OOPMPIStorageBuffer::Send (int target)
 {
-#ifdef DEBUG
+#ifdef DEBUGALL
 	cout << "PID" << getpid() << " Called MPI_Send ret = \n";
 	cout.flush();
 #endif
@@ -63,7 +64,7 @@ int OOPMPIStorageBuffer::Send (int target)
 	int tag = 0;
 	ret = MPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);
-#ifdef DEBUG
+#ifdef DEBUGALL
 	switch(ret){
 		case MPI_SUCCESS:
 			cout <<" - No error; MPI routine completed successfully\n";
@@ -188,8 +189,8 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 	f_isreceiving = 0;
 	f_recv_position = 0;
 	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
-#ifdef DEBUG
-        cout << __PRETTY_FUNCTION__ << " Restored object with classid " << obj->ClassId() << endl;
+#ifdef DEBUGALL
+        cout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId() << endl;
 #endif
 	//MPI_Request_free(&f_request);
 	return obj;
@@ -210,7 +211,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 	cout.flush();*/
 #endif
 	//MPI_Wait(&f_request,&status);
-	sleep(1);
+//	sleep(1);
 	return 1;
 	/*
 	MPI_Status status;

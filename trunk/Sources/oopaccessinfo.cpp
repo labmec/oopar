@@ -15,8 +15,8 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		return false;
 	switch (this->fState) {
 	case EReadAccess:
-          cout << __PRETTY_FUNCTION__ << "version access " << object.HasVersionAccessTask () << " has write access " <<
-            object.HasWriteAccess (fTaskId) << " has read access " << object.HasReadAccess () << endl;
+//          cout << __PRETTY_FUNCTION__ << "version access " << object.HasVersionAccessTask () << " has write access " <<
+//            object.HasWriteAccess (fTaskId) << " has read access " << object.HasReadAccess () << endl;
 		if (object.HasVersionAccessTask ())
 			return false;
 		if (object.HasWriteAccess (fTaskId))
@@ -93,7 +93,7 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 			if (!(i->fIsGranted) && i->fState == EReadAccess) {
 				/*if (HasReadAccessGranted ())
 					return false;*/
-                                cout << __PRETTY_FUNCTION__ << __LINE__ << " Can execute returned "<< i->CanExecute(object) << endl;
+//      cout << __PRETTY_FUNCTION__ << __LINE__ << " Can execute returned "<< i->CanExecute(object) << endl;
 				if (i->CanExecute (object)) {
 					ac = i;
 					return true;
@@ -154,7 +154,14 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while (i != fList.end ()) {
 		// can't cancel executing tasks
-		if (!(i->fVersion).AmICompatible (version)
+    bool AmICompatibleResult = true;
+    if(!i->fIsAccessing) AmICompatibleResult = (i->fVersion).AmICompatible (version);
+    if(!AmICompatibleResult) 
+    {
+      DataLog << "False AmICompatible from " << __PRETTY_FUNCTION__ << 
+        " IsAccessing returns " << i->fIsAccessing << std::endl;
+    }
+		if (!AmICompatibleResult
 		    && !i->fIsAccessing) {
 			if (i->fTaskId.IsZeroOOP ()) {
 				// This is a different processor requesting

@@ -6,7 +6,7 @@
 //class   OOPStorageBuffer;
 class   OOPDataVersion;
 using namespace std;
-void OOPDataVersion::Write (TPZStream & buf)
+void OOPDataVersion::Write (TPZStream & buf, int)
 {
 	int aux = fVersion.size ();
 	buf.Write (&aux);
@@ -20,7 +20,7 @@ void OOPDataVersion::Write (TPZStream & buf)
 		buf.Write (&*ivl);
 	
 }
-void OOPDataVersion::Read (TPZStream & buf)
+void OOPDataVersion::Read (TPZStream & buf, void * context)
 {
 	int aux = 0, size = 0;
 	buf.Read (&size);

@@ -19,13 +19,13 @@
 
 
 
-ofstream TaskLog("tasklog.log");
-ofstream DataLog("datalog.log");
-ofstream DataManLog("datamanlog.log");
-ofstream TransferDataLog("transferdatalog.log");
-ofstream TaskQueueLog("taskqueue.log");
-ofstream TaskManLog("taskmanlog.log");
-ofstream DataQueueLog("dataqueuelog.log");
+ofstream TaskLog;
+ofstream DataLog;
+ofstream DataManLog;
+ofstream TransferDataLog;
+ofstream TaskQueueLog;
+ofstream TaskManLog;
+ofstream DataQueueLog;
 
 using namespace std;
 //class OOPCommunicationManager;
@@ -43,7 +43,22 @@ int main (int argc, char **argv)
 	char filename[256];
 	sprintf(filename,"datalogger%d", CM->GetProcID());
 	OOPDataLogger * LogDM = new OOPDataLogger(filename);
-    ::LogDM = LogDM;
+  ::LogDM = LogDM;
+  sprintf(filename,"tasklog.log%d", CM->GetProcID());
+  TaskLog.open(filename);
+  sprintf(filename,"datalog.log%d", CM->GetProcID());
+  DataLog.open(filename);
+  sprintf(filename,"datamanlog.log%d", CM->GetProcID());
+  DataManLog.open(filename);
+  sprintf(filename,"transferdata.log%d", CM->GetProcID());
+  TransferDataLog.open(filename);
+  sprintf(filename,"taskqueue.log%d", CM->GetProcID());
+  TaskQueueLog.open(filename);
+  sprintf(filename,"taskmanlog.log%d", CM->GetProcID());
+  TaskManLog.open(filename);
+  sprintf(filename,"dataqueuelog.log%d", CM->GetProcID());
+  DataQueueLog.open(filename);
+
 	TM = new OOPTaskManager (CM->GetProcID ());
 	DM = new OOPDataManager (CM->GetProcID ());
 
@@ -80,10 +95,20 @@ int main (int argc, char **argv)
 				IdA, EWriteAccess, ver));
 		wt->AddDependentData(OOPMDataDepend(
 				IdB, EWriteAccess, ver));
+    cout << "Wait Task " << wt->Submit()  << endl;
 		cout << "Calling Wait Task\n";
 		wt->Wait();
 		wt->Finish();
-		
+		cout << "Wait task finished\n";
+    int iproc;
+    for(iproc=1; iproc<CM->NumProcessors(); iproc++)
+    {
+      OOPTerminationTask *task = new OOPTerminationTask(iproc);
+      task->Submit();
+    }
+    sleep(1);
+    OOPTerminationTask *task = new OOPTerminationTask(0);
+    task->Submit();
 	}
 
 	

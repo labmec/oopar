@@ -63,13 +63,13 @@ OOPMReturnType OOPWaitTask::Execute()
  */
 void OOPWaitTask::Finish()
 {
-  cout << "Entering finish\n";
+//  cout << "Entering finish\n";
   pthread_mutex_lock(&fExecMutex);
-  cout << "Acquired lock \n";
-  TaskManLog << "Wait task signaling ExecCond " << endl;
+//  cout << "Acquired lock \n";
+//  TaskManLog << "Wait task signaling ExecCond " << endl;
   pthread_cond_signal(&fExecCond);
   pthread_mutex_unlock(&fExecMutex);
-  cout << "Signaled the ExecCond and unlocked the ExecMutex\n";
+//  cout << "Signaled the ExecCond and unlocked the ExecMutex\n";
 //  sleep(20);
 }
 

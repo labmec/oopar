@@ -132,7 +132,11 @@ void OOPTask::Read (TPZStream & buf, void * context)
 TPZSaveable *OOPTask::GetDepObjPtr(int idepend)
 {
 	int numdep = fDataDepend.NElements();
-	if(idepend < 0 || idepend >= numdep) return 0;
+	if(idepend < 0 || idepend >= numdep) 
+ {
+   cout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " << idepend << " " << numdep << endl;
+   return 0;
+ }
 	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
 	return dep.ObjPtr()->Ptr();
 }
@@ -156,9 +160,17 @@ void OOPTask::IncrementWriteDependentData()
 	
 	for(i=0;i<numdep;i++){
 		if(fDataDepend.Dep(i).State()==EWriteAccess){
-			fDataDepend.Dep(i).ObjPtr()->IncrementVersion(Id());
-			cout << "Automatically Incrementing Write Dependent Data Versions\n";
-			cout.flush();
+      OOPMetaData *meta = fDataDepend.Dep(i).ObjPtr();
+			if(meta)
+      {
+        meta->IncrementVersion(Id());
+			  cout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id() << "\n";
+			  cout.flush();
+      }
+      else
+      {
+        cout << __PRETTY_FUNCTION__ << " meta is NULL!!!\n";
+      }
 		}
 	}
 }

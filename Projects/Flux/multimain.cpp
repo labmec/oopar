@@ -22,8 +22,9 @@ ofstream TaskLog("tasklog.log");
 ofstream DataLog("datalog.log");
 ofstream DataManLog("datamanlog.log");
 ofstream TransferDataLog("transferdatalog.log");
-
+ofstream TaskQueueLog("taskqueue.log");
 ofstream TaskManLog("taskmanlog.log");
+ofstream DataQueueLog("dataqueuelog.log");
 
 int GLogMsgCounter;
 
@@ -70,11 +71,13 @@ int multimain ()
 	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);
 	TM->Submit (partask);
 
-
-	while (NumTasks ()) {
+	int nsteps=500;
+	int k=0;
+	while (NumTasks () && k<nsteps) {
 		for (iproc = 0; iproc < numproc; iproc++) {
 			Load (iproc);
 			TM->Execute ();
+			k++;
 		}
 	}
 
@@ -84,6 +87,8 @@ int multimain ()
 	DataManLog.close();
 	TaskManLog.close();
 	TransferDataLog.close();
+	TaskQueueLog.close();
+	DataQueueLog.close();
 	return 0;
 	
 

@@ -66,7 +66,7 @@ class   TParCompute : public OOPTask
     /**
      * Within the Execute Method we should be able to get the data pointer
      */
-	        TPartitionRelation * InitializePartitionRelationPointer ();
+	        void InitializePartitionRelationPointer ();
       public:
     /**
      * Set the version of the state and rhs upon which the created tasks will depend

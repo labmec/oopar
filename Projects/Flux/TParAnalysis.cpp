@@ -115,7 +115,7 @@ void TParAnalysis::CreateParCompute ()
 	TParCompute *pc = new TParCompute (fNumProcessors-1-GetProcID(), fNumPartitions);
 	//TParCompute *pc = new TParCompute (GetProcID(), fNumPartitions);
 	OOPDataVersion ver;
-	
+	pc->AddDependentData(OOPMDataDepend(tableid,EReadAccess,ver));
 	pc->SetMeshId (fMeshId, ver);
 	pc->SetRhsId (fRhsId, taskver);
 	pc->SetStateId (fStateId, taskver);
@@ -172,6 +172,7 @@ void TParAnalysis::SetAppropriateVersions ()
 	fDataDepend.Clear ();
 	if (ver.GetNLevels () < 2) {
 		this->SetRecurrence (false);
+		cout << "TParAnalysis esta saindo!";
 	}
 	else {
 		int count = 0;
@@ -222,8 +223,7 @@ TParAnalysis::TParAnalysis (int Procid):OOPTask (Procid)
 	fNumPartitions = 0;
 	fNumProcessors = -1;
 }
-TParAnalysis::TParAnalysis (int Procid, int numpartitions, int numproc):OOPTask (Procid)
-{
+TParAnalysis::TParAnalysis (int Procid, int numpartitions, int numproc):OOPTask (Procid) {
 	fNumPartitions = numpartitions;
 	fNumProcessors = numproc;
 	SetRecurrence ();

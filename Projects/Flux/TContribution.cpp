@@ -47,8 +47,12 @@ void TContribution::InitializeRandom ()
 	int rs = rand ();
 	fNContributions = rs % 5;
 	fLocalIndices.resize (fNContributions);
+	fFrom.resize(fNContributions);
+	fTo.resize(fNContributions);
 	int ic;
 	for (ic = 0; ic < fNContributions; ic++) {
+		fFrom[ic] = rand()%7;
+		fTo[ic] = rand()%6;
 		fLocalIndices[ic].resize (rand () % 20);
 		int nl = fLocalIndices[ic].size ();
 		int ind;

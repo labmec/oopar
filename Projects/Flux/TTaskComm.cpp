@@ -2,24 +2,15 @@
 #include "oopdatamanager.h"
 #include "TTaskComm.h"
 #include "TParCompute.h"
+#include "fluxdefs.h"
 int TTaskComm::Unpack (OOPReceiveStorage * buf)
 {
-	OOPSaveable::Unpack (buf);
 	OOPTask::Unpack (buf);
 	return 0;
 }
 int TTaskComm::Pack (OOPSendStorage * buf)
 {
-	int i;
-	// If any fObjPtr is not NULL issue and error message.
-	for (i = 0; i < fDataDepend.NElements (); i++)
-		if (fDataDepend.Dep (i).ObjPtr ()) {
-			cerr << "Inconsistent Task communication !"
-				<< " File:" << __FILE__
-				<< " Line:" << __LINE__ << endl;
-			exit (-1);
-		}
-	OOPSaveable::Pack (buf);
+//	OOPSaveable::Pack (buf);
 	OOPTask::Pack (buf);
 	return 0;
 }
@@ -58,4 +49,9 @@ OOPMReturnType TTaskComm::Execute ()
 }
 TTaskComm::TTaskComm (int ProcId):OOPTask (ProcId)
 {
+}
+OOPSaveable *TTaskComm::Restore (OOPReceiveStorage * buf) {
+	TTaskComm *loc = new TTaskComm(0);
+	loc->Unpack(buf);
+	return loc;
 }

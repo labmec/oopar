@@ -22,7 +22,6 @@ ofstream TransferDataLog("transferdatalog.log");
 ofstream TaskQueueLog("taskqueue.log");
 ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
-ofstream VeriLog("verilog.log");
 int GLogMsgCounter;
 const int numproc = 2;
 vector < OOPCommunicationManager * >CMList (numproc);
@@ -63,7 +62,6 @@ int multimain ()
 	TM->Submit (partask);
 	int nsteps=500;
 	int k=0;
-
 	while (NumTasks () && k<nsteps) {
 		for (iproc = 0; iproc < numproc; iproc++) {
 			Load (iproc);
@@ -71,7 +69,6 @@ int multimain ()
 			k++;
 		}
 	}
-	VeriLog.close();
 	TaskLog.close();
 	DataLog.close();
 	DataManLog.close();
@@ -80,7 +77,6 @@ int multimain ()
 	TaskQueueLog.close();
 	DataQueueLog.close();
 	return 0;
-	
 }
 int mpimain (int argc, char *argv[])
 {

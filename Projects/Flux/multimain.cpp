@@ -16,6 +16,7 @@ vector<OOPDataManager *> DMList(numproc);
 vector<OOPTaskManager *> TMList(numproc);
 
 int NumTasks();
+
 void Load(int iproc);
 
 int multimain() {
@@ -25,9 +26,9 @@ int multimain() {
 	#ifndef MPI
     CMList[iproc] = new OOPFileComManager("filecom",numproc,iproc);
 	#else
-	char * argv[1];
-	CMList[iproc] = new OOPMPICommManager(numproc,&argv[0]);
-  	CM->Initialize( argv[0], 0 );
+	char * argv = new char;
+	CMList[iproc] = new OOPMPICommManager(numproc,&argv);
+  	CMList[iproc]->Initialize( argv, 0 );
 	#endif
     TMList[iproc] = new OOPTaskManager(CMList[iproc]->GetProcID());
     DMList[iproc] = new OOPDataManager(CMList[iproc]->GetProcID());

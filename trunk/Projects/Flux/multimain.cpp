@@ -114,15 +114,16 @@ int mpimain (int argc, char **argv)
 	//pthread_join(testethread_1,0);
 	
 	//int numproc = argc;
+	
 	CM = new OOPMPICommManager (argc, argv);
 	CM->Initialize((char*)argv, argc);
 	TM = new OOPTaskManager (CM->GetProcID ());
 	DM = new OOPDataManager (CM->GetProcID ());
-	
+
 	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
 //	Load (0);
-
+	numproc = 2;//atoi(argv[argc-1]);
 	TParAnalysis *partask = new TParAnalysis (0, numproc, numproc);
 	TM->Submit (partask);
 	TM->Execute();

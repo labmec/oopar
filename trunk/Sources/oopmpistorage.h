@@ -1,4 +1,3 @@
-
 //
 // Autor:   Fabio Amaral Castro,  RA: 991722
 //
@@ -18,15 +17,9 @@
 //
 // Versao:  01 / 03
 //
-
 #ifndef _STR_MPIHH_
 #define _STR_MPIHH_
-
-
-
-
 #include "oopstorage.h"
-
 /** 
  * Non abstract class, which implements the send buffer
  * using MPI (Message Passing Interface) library for 
@@ -140,10 +133,8 @@ class   OOPMPISendStorage:public OOPSendStorage
 	int     f_position;
   /** Id of process for which message shall be sent */
 	int     f_target_tid;
-
 };
 typedef OOPMPISendStorage *POOPMPISendStorage;
-
 /** 
  * Non abstract class, which implements the receive
  * buffer using MPI (Message Passing Interface) library 
@@ -239,8 +230,6 @@ class   OOPMPIReceiveStorage:public OOPReceiveStorage
 	{
 		return ("TReceiveStorageMpi::");
 	}
-
 };
 typedef OOPMPIReceiveStorage *POOPMPIReceiveStorage;
-
 #endif

@@ -16,28 +16,18 @@
 //
 // Versao:  09 / 08 / 95.
 //
-
-
-
 #ifndef _STR_FILEHH_
 #define _STR_FILEHH_
-
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "oopstorage.h"
 #include "oopstorage.h"
-
 #define FILE_NAME_SIZE  16
-
-
-
 /*********************/
 class   OOPSendStorageFile:public OOPSendStorage
 {
       public:
-
 	// 'prefix' = prefixo a ser usado na geracao dos nomes dos
 	// arquivos que serao usados como buffers.
 	// 
@@ -45,7 +35,6 @@ class   OOPSendStorageFile:public OOPSendStorage
 	// 
 	OOPSendStorageFile (char *prefix, int my_id);
 	       ~OOPSendStorageFile ();
-
 	// Metodos para EMPACOTAR os dados a serem enviados.
 	// p : Ponteiro para o buffer que contem os dados a serem
 	// empacotados.
@@ -61,31 +50,24 @@ class   OOPSendStorageFile:public OOPSendStorage
 	int     PkFloat (float *p, int n = 1);
 	int     PkDouble (double *p, int n = 1);
 	int     PkStr (char *str);
-
 	// Retorna != 0 se houver escrito algo no arquivo em que esta
 	// ligado. Neste caso, finaliza o arquivo, retorna seu nome
 	// em 'file_to_send' e procura outro arquivo para se ligar.
 	// Obs.: Nao esquecer de acrescentar um '0' no final do arquivo!
 	// 
 	int     HasSomeThingToSend (char *file_to_send);
-
 	int     Open ();
 	int     Close ();
 	void    FileName (char *);
-
 	char   *ClassName ()
 	{
 		return ("TSendStorageFile::");
 	}
-
-
       private:
-
 	// Procura por um novo arquivo a ser usado como buffer.
 	// Se nao encontrar retorna 0.
 	// 
 	int     FindNewBuffer ();
-
 	int     f_myID;
 	char    f_wrote;
 	char   *f_prefix;	// Prefixo dos arquivos que podem ser usados
@@ -94,14 +76,8 @@ class   OOPSendStorageFile:public OOPSendStorage
 	// (XX)
 	// onde: arquivo_ligado = prefixo + XX.
 	FILE   *f_file;
-
 };
 typedef OOPSendStorageFile *PTSendStorageFile;
-
-
-
-
-
 /**
  * Same attributions as its base class.
  * Works with File Communication
@@ -109,17 +85,12 @@ typedef OOPSendStorageFile *PTSendStorageFile;
 class   OOPReceiveStorageFile:public OOPReceiveStorage
 {
       public:
-
 	OOPReceiveStorageFile (char *fname);
-
-
 	       ~OOPReceiveStorageFile ();
-
 	int     GetSender ()
 	{
 		return f_sender;
 	}
-
 	int     UpkByte (char *p, int n = 1);
 	int     UpkInt (int *p, int n = 1);
 	int     UpkShort (short *p, int n = 1);
@@ -130,19 +101,14 @@ class   OOPReceiveStorageFile:public OOPReceiveStorage
 	int     UpkFloat (float *p, int n = 1);
 	int     UpkDouble (double *p, int n = 1);
 	int     UpkStr (char *str);
-
 	virtual char *ClassName ()
 	{
 		return ("TReceiveStorageFile::");
 	}
-
-
       private:
-
 	char    f_file_name[FILE_NAME_SIZE];
 	int     f_sender;
 	FILE   *f_file;
-
 };
 typedef OOPReceiveStorageFile *PTReceiveStorageFile;
 #endif // _STR_FILEHH_

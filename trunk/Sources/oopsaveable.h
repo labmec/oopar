@@ -1,4 +1,3 @@
-
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
 //
@@ -11,12 +10,8 @@
 //
 // Versao:  02 / 04 / 96.
 //
-
-
 #ifndef _SAVEABLEHH_
 #define _SAVEABLEHH_
-
-
 #include <stdio.h>
 #include <string>
 #include <iostream>
@@ -24,9 +19,7 @@
 #include "oopstorage.h"
 #include "cmdefs.h"
 class   OOPDataVersion;
-
 using namespace std;
-
 /**
  * Base class for any class subjected to parallelization.
  * Implements basic functionalities for a parallel environment such as Packing and Unpacking.
@@ -36,26 +29,22 @@ using namespace std;
 class   OOPSaveable
 {
       public:
-
   /**
    * Simple Constructor 
    */
 	OOPSaveable ()
 	{
 	}
-
   /**
    * Simple Desctructor 
    */
 	virtual ~ OOPSaveable ()
 	{
 	}
-
   /**
    * Returns a Class ID identifier
    */
 	virtual long GetClassID () = 0;
-
   /**
    * Packs the object in on the buffer so it can be transmitted through the network.
    * The Pack function  packs the object's class_id while function Unpack() doesn't,

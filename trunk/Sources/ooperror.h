@@ -14,16 +14,11 @@
 //
 // Versao:  27 / 05 / 95.
 //
-
-
 #ifndef _ERRORHH_
 #define _ERRORHH_
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-
 /**
  * It handle error messages, Each class derived from TError can have its own error log files
  * or it can make use of the methods G... Such methods will reffer to a unique global file.
@@ -41,13 +36,11 @@ class   OOPError
 		*f_local = '\0';
 		f_lstate = f_to_global = 1;
 	}
-
   /**
    * Selects the file where the messages will be written
    * In case file == NULL sends messages to stderr
    * @param file File name
    */
-
 	void    SetErrorFile (char *file)
 	{
 		strcpy (f_local, file);
@@ -56,7 +49,6 @@ static void    GSetErrorFile (char *gfile)
 	{
 		strcpy (f_global, gfile);
 	}
-
 	char   *GetErrorFile ()
 	{
 		return (f_local);
@@ -65,8 +57,6 @@ static void    GSetErrorFile (char *gfile)
 	{
 		return (f_global);
 	}
-
-
   /**
    * Redirects the calls to the global file
    */
@@ -74,8 +64,6 @@ static void    GSetErrorFile (char *gfile)
 	{
 		f_to_global = v;
 	}
-
-
   /**
    * Erases or initializes the error file
    */
@@ -84,7 +72,6 @@ static void    GSetErrorFile (char *gfile)
    * Prints error message and terminates the execution
    */
 	void    Error (int exit_status, char *m1, char *m2 = "");
-
   /**
    * Prints an error message but does not terminates the execution
    * @param m1 Holds one of the following %s, %d or %f according to m2
@@ -108,8 +95,6 @@ static void    GSetErrorFile (char *gfile)
 	{
 		return ("");
 	}
-
-
       private:
   /**
    * Clear error log file and state.
@@ -120,7 +105,6 @@ static void    GSetErrorFile (char *gfile)
 	void    IDebug (char *fname, int state, char *m1, char *m2);
 	void    IDebug (char *fname, int state, char *m1, int m2);
 	void    IDebug (char *fname, int state, char *m1, float m2);
-
   /**
    * Holds global file name
    */
@@ -138,8 +122,4 @@ static void    GSetErrorFile (char *gfile)
    */
 	int     f_to_global;
 };
-
-
-
-
 #endif // _ERRORHH_

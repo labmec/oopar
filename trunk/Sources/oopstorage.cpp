@@ -1,4 +1,3 @@
-
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
 //
@@ -25,34 +24,20 @@
 //
 // Versao:  27 / 05 / 95.
 //
-
-
 #include "oopstorage.h"
 //#include "oopsaveable.h"
 #include "cmdefs.h"
 class   OOPSaveable;
-
-
-
 /************************ TSendStorage ************************/
-
-
-
 /************************ TReceiveStorage ************************/
-
 //TVoidPtrMap TReceiveStorage::gFuncTree(0);
 //void * TReceiveStorage::gFuncTree(long class_id);
 map < long, void *>OOPReceiveStorage::gFuncTree;
-
 /******************/
 /*** Destructor ***/
-
 OOPReceiveStorage::~OOPReceiveStorage ()
 {
 }
-
-
-
 /***************/
 /*** Restore ***/
 OOPSaveable *OOPReceiveStorage::Restore ()
@@ -70,15 +55,11 @@ OOPSaveable *OOPReceiveStorage::Restore ()
 		sprintf (str, "%d", (int) class_id);
 		Error (1, "Restore <class_id %s not recognized>\n", str);
 	}
-
 	TRestFunction f;
 	// void *c = i;//gFuncTree.contents(i);
 	f = (TRestFunction) gFuncTree[class_id];	// i;//c;
-
 	return f (this);
 }
-
-
 void OOPReceiveStorage::AddClassRestore (long classid, TRestFunction f)
 {
 	gFuncTree[classid] = (void *) f;

@@ -1,7 +1,5 @@
-
 #include "ooptaskcontrol.h"
 #include "ooptask.h"
-
 OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 {
 	if (task) {
@@ -9,10 +7,7 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 		fDepend.ClearPointers ();
 	}
 }
-
 OOPTaskControl::~OOPTaskControl ()
 {
-
 	delete  fTask;
-
 }

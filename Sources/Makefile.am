@@ -8,7 +8,7 @@
 
 DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@
-
+#Acredito que aqui tb precisamos de um include de mpi
 -include $(top_srcdir)/@OOP_MK@
 
 oopardir = $(prefix)/Sources

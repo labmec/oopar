@@ -10,15 +10,15 @@
 void OOPTask::SetRecurrence(bool recurrence){
     fIsRecurrent = recurrence;
 }
-int OOPTask::IsRecurrent(){}
+int OOPTask::IsRecurrent(){
+	return fIsRecurrent;
+}
 
 class OOPSendStorage;
 class OOPReceiveStorage;
 class OOPObjectId;
 class OOPDataVersion;
 class OOPDaemonTask;
-//class OOPMReturnType;
-//class OOPMDataState;
 class OOPMDataDepend;
 class OOPSaveable;
 

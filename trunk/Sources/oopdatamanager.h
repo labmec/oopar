@@ -202,6 +202,16 @@ private:
 	 * @param id Identifies the object being tracked.
 	 */
 	void SetCurrentLocation(long Processor, OOPObjectId & id);
+public:
+
+    /**
+     * Returns the Data Version object of the Meta data identified by Id.
+     * Necessary for inquiring the current version of the MetaData object.
+     * @param Id Identifies the object to be inquired 
+     */
+    OOPDataVersion GetDataVersion(OOPObjectId & Id);
+
+private:
 
 };
 

@@ -30,6 +30,7 @@ private:
 	 */
 	bool fIsExecuting;
 public:
+	void IncrementWriteDependentData();
 	/**
 	 * Returns true if task is currently being executed
 	 * @author : Gustavo Longhin
@@ -90,7 +91,7 @@ public:
 	OOPTask (const OOPTask & task);
 	virtual ~ OOPTask ()
 	{
-//		fDataDepend.ReleaseAccessRequests(Id());
+		//fDataDepend.ReleaseAccessRequests(Id());
 	}
 	/**
 	 * Returns the Id of current object
@@ -172,8 +173,8 @@ public:
 	* Defines the necessary interface for task communication along the network.
 	* @param * buf Buffer for data manipulation.
 	*/
-	virtual void Read (TPZStream & buf, void * context = 0);
-	virtual void Write (TPZStream & buf, int withclassid=0);
+	virtual void Read (TPZStream & buf, void * context);
+	virtual void Write (TPZStream & buf, int withclassid);
 // Apenas para DEBUG.
 //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
 //  virtual void Print() { Debug( "  TSaveable::Print." ); }
@@ -251,11 +252,11 @@ class   OOPDaemonTask:public OOPTask
 	{
 		return TDAEMONTASK_ID;
 	}
-	virtual void Write(TPZStream & buf, int withclassid = 0){
-		OOPTask::Write(buf);
+	virtual void Write(TPZStream & buf, int withclassid){
+		OOPTask::Write(buf, withclassid);
 	}
-	virtual void Read(TPZStream & buf, void * context = 0){
-		OOPTask::Read(buf);
+	virtual void Read(TPZStream & buf, void * context){
+		OOPTask::Read(buf, context);
 	}
 	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 };

@@ -6,6 +6,7 @@
 #endif
 #include "ooptask.h"
 #include <list>
+#include <set>
 class   OOPDataVersion;
 class   OOPSaveable;
 class   OOPTaskControl;
@@ -152,10 +153,14 @@ private:
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
-	
+	pthread_mutex_t fSubmittedMutex;
 	pthread_mutex_t fExecuteMutex;
 	pthread_cond_t fExecuteCondition;
+	pthread_cond_t fExecuteTaskCondition;
+
 #endif
+	static void * TriggerTask(void * data);
+
   /**
    * Generate a unique id number
    */
@@ -189,6 +194,8 @@ private:
    * List of tasks which can be readily executed
    */
 	        list < OOPTaskControl * >fExecutable;
+			map <OOPObjectId,  OOPTaskControl * >fExecuting;
+			
 	/**
    * List of daemon tasks which can be readily executed
    */

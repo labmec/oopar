@@ -93,10 +93,16 @@ bool OOPObjectId::operator < (int val) const
 		return true;
 	return false;
 }
-bool OOPObjectId::operator < (OOPObjectId id) const
+bool OOPObjectId::operator < (const OOPObjectId & id) const
 {
-	if ((fId < id.GetId()) & (fProcId < id.GetProcId()))
+	if(fProcId < id.GetProcId()){
 		return true;
+	}
+	if(fProcId == id.GetProcId()){
+		if(fId < id.GetId()){
+			return true;
+		}
+	}
 	return false;
 }
 OOPObjectId & OOPObjectId::operator= (const OOPObjectId & obj)

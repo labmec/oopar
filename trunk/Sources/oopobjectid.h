@@ -96,7 +96,7 @@ class   OOPObjectId
 	 */
 	bool    operator >= (int val) const;
 	bool    operator < (int val) const;
-	bool    operator < (OOPObjectId id) const;
+	bool    operator < (const OOPObjectId & id) const;
 	
     /**
      * Used for testing purposes 

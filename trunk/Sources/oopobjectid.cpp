@@ -6,7 +6,7 @@ class   OOPSendStorage;
 class   OOPReceiveStorage;
 //class OOPObjectId;
 
-
+ 
 OOPObjectId::OOPObjectId ()
 {
 	fProcId = 0;
@@ -63,7 +63,8 @@ int OOPObjectId::main ()
 	deque < OOPObjectId * >::iterator fd;
 
 	fd = find (TestDeQue.begin (), TestDeQue.end (), pt2);
-	i = TestDeQue.end ();
+	
+i = TestDeQue.end ();
 	delete *i;
 	return 0;
 }

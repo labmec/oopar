@@ -170,7 +170,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	}
 }
 
-OOPObjectId OOPMetaData::Id () const 
+OOPObjectId OOPMetaData::Id () const
 {
 	return fObjId;
 }

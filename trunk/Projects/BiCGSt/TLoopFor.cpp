@@ -70,7 +70,6 @@ void TLoopFor::SubmitPartOne(){
        bicgforone->AddDependentData(OOPMDataDepend(fId_normb,EReadAccess,normb_ver));
        bicgforone->AddDependentData(OOPMDataDepend(fId_max_iter, EReadAccess, max_iter_Version));
        bicgforone->AddDependentData(OOPMDataDepend(f_lId_p[i], EWriteAccess, p_Version));
-       bicgforone->AddDependentData(OOPMDataDepend(f_lId_r[i], EReadAccess, r_Version));
        bicgforone->AddDependentData(OOPMDataDepend(fId_beta, EWriteAccess, beta_ver));
        bicgforone->AddDependentData(OOPMDataDepend(fId_rho_2, EReadAccess, rho_2_ver));
        bicgforone->AddDependentData(OOPMDataDepend(fId_alpha, EReadAccess, alpha_Version));

@@ -11,10 +11,10 @@ int TTaskComm::Unpack( OOPReceiveStorage *buf )
 }
 int TTaskComm::Pack(OOPSendStorage *buf)
 {
-  deque<OOPMDataDepend>::iterator i;
+  int i;
   //If any fObjPtr is not NULL issue and error message.
-  for(i=fDataDepend.begin();i!=fDataDepend.end();i++) 
-    if(i->ObjPtr()){
+  for(i=0; i<fDataDepend.NElements(); i++) 
+    if(fDataDepend.Dep(i).ObjPtr()){
       cerr << "Inconsistent Task communication !"
 	   << " File:" << __FILE__ 
 	   << " Line:" << __LINE__ << endl;
@@ -34,12 +34,12 @@ int TTaskComm::DerivedFrom(char *classname){
 }
 
 OOPMReturnType TTaskComm::Execute(){
-    deque<OOPMDataDepend>::iterator i;
-	for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
-        if (i->fNeed == EWriteAccess){
+    int i;
+	for(i=0;i<fDataDepend.NElements();i++){
+        if (fDataDepend.Dep(i).State() == EWriteAccess){
 	        //dat->IncrementVersion();
 	        //DM->GetObjPtr(i->fDataId)->IncrementVersion();
-	        DM->IncrementVersion(i->fDataId);
+	        fDataDepend.Dep(i).ObjPtr()->IncrementVersion();
 	    }
 	    
 	}

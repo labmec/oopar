@@ -131,6 +131,17 @@ public:
    */
   int CanExecute();
 
+  void operator=(const OOPMDataDependList &copy) {
+	  fDependList = copy.fDependList;
+  }
+
+  /**
+   * Access method while functionality is not fully implemented
+   */
+  OOPMDataDepend &Dep(int i) {
+	  return fDependList[i];
+  }
+
 };
 
 #endif

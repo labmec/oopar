@@ -200,7 +200,9 @@ int OOPDataManager::SubmitAccessRequest(const OOPObjectId & TaskId, const OOPMDa
 	
 	deque<OOPMetaData *>::iterator i;
 	bool found=false;
+#ifndef WIN32
 #warning "Wrong logical  sequence in OOPDataManager::SubmitAccessRequest"
+#endif
 	if (fProcessor == ProcId) {
 		for(i=fObjects.begin();i!=fObjects.end();i++){
 			//OOPMetaData * dat = (OOPMetaData *)(*i);

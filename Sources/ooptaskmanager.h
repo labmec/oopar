@@ -2,7 +2,9 @@
 #ifndef TTASKMANAGER
 #define TTASKMANAGER
 
+#ifndef WIN32
 #include <pthread.h>
+#endif
 
 #include "ooptask.h"
 #include <deque>
@@ -12,6 +14,7 @@ class OOPDataVersion;
 //class OOPMReturnType;
 //class OOPMDataState;
 class OOPSaveable;
+class OOPTaskControl;
 using namespace std;
 
 class   OOPObjectId;
@@ -43,18 +46,15 @@ public:
    */
   static void main ();
 
-  /**     * Notifies the task that a required access was granted on the data.
+  /**
+     * Notifies the task that a required access was granted on the data.
    * @param TaskId Id of the task to which the access was granted.
-   * @param DataId Id of the which granted the access to the Task.
-   * @param st State of the access granted.
-   * @param Version Version on the granted access data.
+   * @param depend dependency structure including objectid, state and version.
    * @param objptr Pointer to data object.
    */
   void    NotifyAccessGranted (const OOPObjectId & TaskId,
-			       const OOPObjectId & DataId,
-			       OOPMDataState st,
-			       const OOPDataVersion & Version,
-			       OOPMetaData * objptr);
+			       const OOPMDataDepend & depend,
+				   OOPMetaData * objptr);
   /**
    * Constructor passing processor id as parameter.
    * @param proc Processor where the TM is created.
@@ -86,7 +86,7 @@ public:
    * @param Id Id of the task having its priority changed.
    * @param newpriority New priority assigned to the task.
    */
-  int     ChangePriority (OOPObjectId Id,
+  int     ChangePriority (OOPObjectId &Id,
 			  int newpriority);
 
   /**
@@ -94,11 +94,6 @@ public:
    * @param taskid Id of task which will be canceled.
    */
   int     CancelTask (OOPObjectId taskid);
-  /**
-   * Notifies that dependent objects that taskid had been canceled
-   * @param taskid Id of the canceled task.
-   */
-  void    NotifyCancel (OOPObjectId taskid);
 
   /**
    * Returns 1 if task does exist on the current TM
@@ -106,13 +101,23 @@ public:
    */
   int     ExistsTask (OOPObjectId taskid);	// returns 1 if the task
   // exists
-  /** 
-   * Returns the number of the processor
-   * on which this task is being executed
-   * Returns -1 if the task doesn't exist.
-   * @param taskid Id of the task.
+
+  /**
+   * Transfer the tasks which are in the fSubmittedList to the
+   * fTaskList, registering their dependencies
    */
-  int     TaskProcessor (OOPObjectId taskid);	// 
+  void TransferSubmittedTasks();
+
+  /**
+   * Transfer the finished tasks to the tasklist if they are recurrent
+   * else delete the finished tasks
+   */
+  void TransferFinishedTasks();
+
+  /**
+   * Indicate to the TaskManager that a given task can execute
+   */
+  void TransfertoExecutable(OOPObjectId &taskid);
   /**
    * Very important method for the whole OOPar environment.
    * Starts all task which has their data access requests granted from the DM.
@@ -120,10 +125,12 @@ public:
    */
   void    Execute ();
 private:
+#ifndef WIN32
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
   pthread_mutex_t fActOnTaskList;
+#endif
   /**
    * Generate a unique id number
    */

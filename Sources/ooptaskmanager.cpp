@@ -2,6 +2,7 @@
 #include "ooptaskmanager.h"
 #include "oopcommmanager.h"
 #include "oopdatamanager.h"
+#include "ooptaskcontrol.h"
 //#include "tmultidata.h"
 //#include "tmultitask.h"
 
@@ -104,34 +105,38 @@ OOPTaskManager::OOPTaskManager(int proc){
 
 OOPTaskManager::~OOPTaskManager() {
   deque<OOPTask *>::iterator i;
-  for(i = fTimeConsuming.begin(); i!=fTimeConsuming.end(); i++)
+  for(i = fSubmittedList.begin(); i!=fSubmittedList.end(); i++)
     delete *i;
-  for(i = fDaemon.begin(); i!=fDaemon.end(); i++) delete *i;
-  fTimeConsuming.clear();
-  fDaemon.clear();
+  deque<OOPTaskControl *>::iterator itc;
+  for(itc = fExecutable.begin(); itc!=fExecutable.end(); itc++) delete *itc;
+  for(itc = fFinished.begin(); itc!=fFinished.end(); itc++) delete *itc;
+  for(itc = fTaskList.begin(); itc!=fTaskList.end(); itc++) delete *itc;
 }
 
 //Passar o ID do task e do dado.
-void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPObjectId & DataId, OOPMDataState st,
-					 const OOPDataVersion &Version, OOPMetaData * objptr)
+void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPMDataDepend & depend
+										 , OOPMetaData * objptr)
 {
-  deque<OOPTask*>::iterator i;
+  deque<OOPTaskControl*>::iterator i;
   bool found = false;
-  for(i=fTimeConsuming.begin();i!=fTimeConsuming.end();i++){
-    OOPTask * t = (OOPTask*) (*i);
-    if(t->Id() == TaskId){
+  for(i=fTaskList.begin();i!=fTaskList.end();i++){
+    OOPTaskControl * tc = (*i);
+    if(tc->Task()->Id() == TaskId){
       found = true;
-      OOPMDataDepend dep(DataId, st, Version);
-      t->GrantAccess( dep, objptr);
+      tc->Depend().GrantAccess( depend, objptr);
 #ifdef DEBUG
       cout << "Access Granted to taskId";
       TaskId.Print(cout);
       cout << " on data ";
-      DataId.Print(cout);
+      depend.Id().Print(cout);
 #endif
-      //Notify someone else ?
-    }
+	  if(tc->Depend().CanExecute()) {
+		  TransfertoExecutable(tc->Task()->Id());
+	  }
+	  break;
+	}
   }
+
   if (!found) {
     cerr << "Task not found on current TM: File:" << __FILE__ << " Line:" << __LINE__ << endl;
   }
@@ -139,43 +144,21 @@ void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPOb
 
 
 OOPObjectId OOPTaskManager::Submit(OOPTask *task) {
-	
-  fSubmittedList.push_back(task);
-  if(task->ExecTime() == 0) {
-    if(task->GetProcID() == fProc) {
-      OOPMReturnType r = task->Execute();
-      if(r == EContinue) {
-	fDaemon.push_back(task);//append(task);
-      } else {
-	delete task;
-      }
-    }
-    //return 0;
-  }
-	
-  //Check whether all the data dependency is already set,
-  //if not, issue an error message !
-	
-	
+		
   OOPObjectId id;
   id = GenerateId();
   task->SetTaskId(id);
-	
-
-  if(task->GetProcID() == fProc) {
-    fTimeConsuming.push_back(task);
-  }
-
+  fSubmittedList.push_back(task);
   return id;
 }
 
 
 int OOPTaskManager::NumberOfTasks() {
-  return fTimeConsuming.size();
+  return fExecutable.size()+fFinished.size()+fSubmittedList.size()+fTaskList.size();
 }
 
 
-int OOPTaskManager::ChangePriority(OOPObjectId taskid, int newpriority) {
+int OOPTaskManager::ChangePriority(OOPObjectId &taskid, int newpriority) {
   //if(!ExistsTask(taskid)) return 0;
   //int proc = fTaskExist[taskid];
   //	int proc = taskid.GetProcId();
@@ -188,232 +171,53 @@ int OOPTaskManager::ChangePriority(OOPObjectId taskid, int newpriority) {
 }
 
 int OOPTaskManager::CancelTask(OOPObjectId taskid){
-  //if(!ExistsTask(taskid)) return 0;
-  //int proc = fTaskExist[taskid]; //How to get that information ?
-  OOPTask * task;
-  task = FindTask(taskid);
-  //	int proc = task->GetProcID();
-  deque<OOPTask * >::iterator i;//, iprev, atual;
-  i = fTimeConsuming.begin();
-  //	iprev = 0, atual = 0;
+  deque<OOPTaskControl * >::iterator i;//, iprev, atual;
 	
-  for(i=fTimeConsuming.begin();i!=fTimeConsuming.end();i++){
-    OOPTask * t =  *i;
-    if (t->Id() == taskid){
+  for(i=fTaskList.begin();i!=fTaskList.end();i++){
+    OOPTaskControl * tc =  *i;
+    if (tc->Task()->Id() == taskid){
       cout << "Task erased" << endl;
-      delete *i;
-      fTimeConsuming.erase(i);
+      delete tc;
+      fTaskList.erase(i);
       //returns 1 if task was canceled
       return 1;
     }
   }
-			
   return 0;
 }
 	
-void OOPTaskManager::NotifyCancel(OOPObjectId taskid){
-  /*if(!ExistsTask(taskid)) return;
-    int proc = fTaskExist[taskid];
-    if(proc == fProc) return;*/
-  OOPTask * task = FindTask(taskid);
-  int proc = task->GetProcID();
-  if(proc == fProc) return;
-  /*deque<OOPTask *>::iterator i;	
-    i = fTimeConsuming.begin();
-    for(i;i!=fTimeConsuming.end();i++) {
-    //OOPTask *t =  fTimeConsuming(i);
-		
-    fTimeConsuming.next(i);
-    if(t->HasTaskDependence(taskid)) {
-    CancelTask(t->Id());
-    i = fTimeConsuming.first();
-    }
-    }*/
-}
-
-
-/*int TTaskManager::ExistsTask(OOPObjectId taskid){
-//return (fTaskExist.contains(taskid));
-}*/
-/*
-  int TTaskManager::TryTask(OOPObjectId TaskId){
-  //Phil
-  //if(!ExistsTask(TaskId) || fTaskExist[TaskId] != fProc) return 0;
-  deque<OOPTask *>::iterator i;
-  OOPTask *t = 0;
-  for(i=fTimeConsuming.begin();i!=fTimeConsuming.end();i++){
-  t =  (*i);
-  if(!t){
-  //O que fazer ?
-  }
-  }
-  Pix iprev = 0,atual = 0,inext = 0;
-  atual = fTimeConsuming.first();
-  OOPTask *t = 0;
-  while(atual) {
-  t =  fTimeConsuming(atual);
-  inext = atual;
-  fTimeConsuming.next(inext);
-  if(!t) {
-  if(iprev) 	fTimeConsuming.del_after(iprev);
-  else 		fTimeConsuming.remove_front();
-  return 0;
-  }
-  if(t->Id() == TaskId) {
-  return TryTask(iprev,atual);
-  }
-
-  // PERIGO, pode ser que inext nao pertence mais a fila!
-  atual = inext;
-  }
-  return 0;
-  }
-*/
-/*int TTaskManager::TryTask(Pix iprev, Pix atual) {
-
-OOPTask *t =  fTimeConsuming(atual);
-if(!t) {
-if(iprev) 	fTimeConsuming.del_after(iprev);
-else 		fTimeConsuming.remove_front();
-return 0;
-}
-TTMMessageTask *cm = 0;
-if(t->CanExecute()) {
-OOPMReturnType res = t->Execute();
-cm = 0;
-if(res == ESuccess) {
-if(iprev)	fTimeConsuming.del_after(iprev);
-else		fTimeConsuming.remove_front();
-cm = new TTMMessageTask(-1);
-cm->fTaskId = t->Id();
-cm->fMessageOrigin = fProc;
-cm->fMessageDestination = -1;
-cm->fProcDestination = -1;
-cm->fProcOrigin = fProc;
-cm->fMessage = ETaskAborted;
-cm->fTask = 0;
-fTaskExist.del(t->Id());
-delete t;
-}
-switch(res) {
-case ESuccess :
-cm->fMessage = ETaskFinished;
-break;
-case EFail :
-CancelTask(t->Id());
-break;
-case EContinue :
-break;
-}
-if(cm) {
-//			fMessageList.append(cm);
-CM->SendTask(cm);
-delete cm;
-}
-return 1;
-}
-return 0;
-}
-*/
-/*
-  void TTaskManager::AddTaskDependence(long dependent, long execfirst){
-  if(!ExistsTask(execfirst) || !ExistsTask(dependent)) return;
-  int proc = fTaskExist[dependent];
-  if(proc == fProc) {
-  OOPTask *t = FindTask(dependent);
-  if(!t) return;
-  t->ExecAfter(execfirst);
-  return;
-  }
-  TTMMessageTask *cm;
-  cm = new TTMMessageTask(proc);
-  cm->fTaskId = dependent;
-  cm->fMessageOrigin = fProc;
-  cm->fMessageDestination = proc;
-  cm->fProcDestination = proc;
-  cm->fProcOrigin = fProc;
-  cm->fMessage = EAddDependence;
-  cm->fTaskDependence = execfirst;
-  cm->fTask = 0;
-  CM->SendTask(cm);
-  delete cm; 
-  //	fMessageList.append(cm);
-  }
-*/
-
 void OOPTaskManager::CleanUpTasks(){
+#ifndef WIN32
 #warning "CleanUpTasks is empty"
+#endif
 }
 void OOPTaskManager::Execute(){
-  CM->ReceiveMessages();
-  deque<OOPTask *>::iterator i;
-  i=fTimeConsuming.begin();
+//  CM->ReceiveMessages();
+  TransferSubmittedTasks();
+  deque<OOPTaskControl *>::iterator i;
   cout << "TTaskManager.Execute Queued task ids proc = " << fProc << "\n";
   cout << "Entering task list loop" << endl;
   bool continua = true;
-  while(continua){
-    for(i=fTimeConsuming.begin();i!=fTimeConsuming.end();i++){//while(!fTimeConsuming.empty()){//=fTimeConsuming.begin();i!=fTimeConsuming.end();i++){
-      OOPTask *t =  (*i);
-      if (t->CanExecute()){
-	cout << "Executing task on processor " << fProc << endl;
-	t->Execute();
-	cout << (*i) << ":";
-	OOPObjectId id;
-	id = t->Id();
-	id.Print(cout);
-	//t->ReleaseAccessRequests();
-	//Apagar tarefas apenas com a condição das condições de acesso aos dados.
-	//fTimeConsuming.erase(i);
-	//delete (*i);
-      }
-      TM->Print(cout);
-      //      DM->CheckAccessRequests();
-
-      //	i++;
-      //	if(i==fTimeConsuming.end()) i=fTimeConsuming.begin();
-    }
-    TM->CleanUpTasks();
-    if(fTimeConsuming.empty()){
-      continua=false;
-    }
+  while(fExecutable.size()) {
+	  while(fExecutable.size()){
+		i=fExecutable.begin();
+		cout << "Executing task on processor " << fProc << endl;
+		(*i)->Task()->Execute();
+		cout << (*i)->Task() << ":";
+		OOPObjectId id;
+		id = (*i)->Task()->Id();
+		(*i)->Depend().ReleaseAccessRequests((*i)->Task()->Id());
+		id.Print(cout);
+		fFinished.push_back(*i);
+		fExecutable.erase(i);
+	  }
+	  cout << endl;
+	  TransferFinishedTasks();
   }
-  cout << endl;
 
-
-  CM->SendMessages();
+//  CM->SendMessages();
 	
 }
-/*
-  void TTaskManager::ExecDaemon(){
-  //Pix iprev = 0, i = 0, inext = 0;
-  deque<OOPTask *>::iterator iprev, i, inext;
-  i = fDaemon.begin();
-  while(i!=fDaemon.end()) {
-  inext = i;
-  inext ++;//fDaemon.next(inext);
-  OOPTask *t =  fDaemon(i);
-  if(t) {
-  OOPMReturnType res = t->Execute();
-  switch(res) {
-  case ESuccess :
-  case EFail :
-  if(iprev!=fDaemon.end()) fDaemon.del_after(iprev);
-  else fDaemon.remove_front();
-  delete t;
-  break;
-  case EContinue :
-  iprev = i;
-  break;
-  }
-  } else {
-  if(iprev) fDaemon.del_after(iprev);
-  else fDaemon.remove_front();
-  }
-  i = inext;
-  }
-  }
-*/
-
 
 OOPObjectId OOPTaskManager::GenerateId(){		// Generate a unique id number
   fLastCreated++;
@@ -424,9 +228,9 @@ OOPObjectId OOPTaskManager::GenerateId(){		// Generate a unique id number
 
 
 OOPTask *OOPTaskManager::FindTask(OOPObjectId taskid){	// find the task with the given id
-  deque<OOPTask * >::iterator i;
-  for(i=fTimeConsuming.begin(); i!=fTimeConsuming.end(); i++){
-    OOPTask *t = (OOPTask*) (*i);
+  deque<OOPTaskControl * >::iterator i;
+  for(i=fTaskList.begin(); i!=fTaskList.end(); i++){
+    OOPTask *t = (*i)->Task();
     if (t->Id() == taskid) return t;
   }
   return 0;
@@ -445,15 +249,78 @@ void OOPTaskManager::Print(ostream & out){
   out << "Id of Last Created Task \t" << fLastCreated << endl;
   out << "Maximum number of tasks available \t" << fMaxId << endl;
   out << "Queued Daemon tasks ---------\t" << endl;
-  out << "Number of Daemon tasks \t" << fDaemon.size() << endl;
-  deque<OOPTask *>::iterator i;
-  for(i=fDaemon.begin();i!=fDaemon.end();i++){
-    (*i)->Print(out);
-  }
   out << "Queued Time Consuming tasks ---------" << endl;
-  out << "Number of Time Consuming tasks \t" << fTimeConsuming.size() << endl;
-  for(i=fTimeConsuming.begin();i!=fTimeConsuming.end();i++){
-    (*i)->Print(out);
+  out << "Number of Time Consuming tasks \t" << fTaskList.size() << endl;
+  deque<OOPTaskControl *>::iterator i;
+  for(i=fTaskList.begin();i!=fTaskList.end();i++){
+    (*i)->Task()->Print(out);
+  }
+}
+
+void OOPTaskManager::TransferSubmittedTasks() {
+	deque<OOPTask *>::iterator sub;
+	while(fSubmittedList.begin() != fSubmittedList.end()) {
+		sub = fSubmittedList.begin();
+		if((*sub)->GetProcID() != fProc) {
+			CM->SendTask(*sub);
+			fSubmittedList.erase(sub);
+		} else {
+			OOPTaskControl *tc = new OOPTaskControl(*sub);
+			fSubmittedList.erase(sub);
+			fTaskList.push_back(tc);
+			if(tc->Depend().SubmitDependencyList(tc->Task()->Id())) {
+				// their is no incompatibility between versions
+			} else {
+				// there is an incompatibility of versions
+				CancelTask(tc->Task()->Id());
+			}
+		}
+	}
+}
+
+void OOPTaskManager::TransferFinishedTasks() {
+	deque<OOPTaskControl *>::iterator sub;
+	while(fFinished.size()) {
+		sub = fFinished.begin();
+		if((*sub)->Task()->GetProcID() != fProc) {
+			CM->SendTask((*sub)->Task());
+			(*sub)->ZeroTask();
+			delete (*sub);
+			fFinished.erase(sub);
+		} else if((*sub)->Task()->IsRecurrent()) {
+			(*sub)->Depend() = (*sub)->Task()->GetDependencyList();
+			fTaskList.push_back(*sub);
+
+			if((*sub)->Depend().SubmitDependencyList((*sub)->Task()->Id())) {
+				// their is no incompatibility between versions
+			} else {
+				// there is an incompatibility of versions
+				CancelTask((*sub)->Task()->Id());
+			}
+			fFinished.erase(sub);
+		} else {
+			delete (*sub);
+			fFinished.erase(sub);
+		}
+	}
+}
+
+void OOPTaskManager::TransfertoExecutable(OOPObjectId &taskid){
+
+  deque<OOPTaskControl*>::iterator i;
+  for(i=fTaskList.begin();i!=fTaskList.end();i++){
+    OOPTaskControl * tc = (*i);
+    if(tc->Task()->Id() == taskid){
+		tc->Task()->SetDependencyList(tc->Depend());
+		OOPDaemonTask *dmt = dynamic_cast<OOPDaemonTask *> (tc->Task());
+		if(dmt) {
+			fExecutable.push_front(tc);
+		} else {
+			fExecutable.push_back(tc);
+		}
+		fTaskList.erase(i);
+		break;
+	}
   }
 }
 

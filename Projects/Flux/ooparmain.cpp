@@ -34,8 +34,8 @@ int main(int argc, char *argv[]){
 	OOPReceiveStorage::AddClassRestore(TTASKCOMM_ID,
 										TTaskComm::Restore);
 
-	CM = new OOPFileComManager();
-	CM->Initialize( argv[0], 0 );
+	CM = new OOPFileComManager("test",1,0);
+//	CM->Initialize( argv[0], 0 );
 	TM = new OOPTaskManager(CM->GetProcID());
 	DM = new OOPDataManager(CM->GetProcID());
 

@@ -47,7 +47,8 @@ void OOPMetaData::VerifyAccessRequests(){
 				//Avisar ao TM para validar o acesso ao dado requrido
 				OOPDataVersion ver = i->fVersion;
 				OOPObjectId objData = Id();
-				TM->NotifyAccessGranted(objid, objData, i->fState, ver, this);
+				OOPMDataDepend depend(Id(),i->fState,ver);
+				TM->NotifyAccessGranted(objid, depend, this);
 				switch (i->fState)
 				{
 					case  EWriteAccess:
@@ -86,7 +87,9 @@ void OOPMetaData::VerifyAccessRequests(){
 OOPObjectId OOPMetaData::Id() const { return fObjId;}
 bool OOPMetaData::CanExecute(const OOPDataVersion & version, OOPMDataState access){
 
+#ifndef WIN32
 #warning "OOPMetaData::CanExecute BADLY IMPLEMENTED METHOD"
+#endif
   // THIS METHOD IS OBSOLETE ANYWAY
   //	if(fTaskWrite) return false;
   //cout << "Inside CanExecute method -----------------------------------------------" << endl;
@@ -161,7 +164,8 @@ void OOPMetaData::SubmitAccessRequest(const OOPObjectId &taskId,const OOPDataVer
     //take appropriate actions
     //Pegar ponteiro para o objeto TTask no TM e avisar ao tal Task que este
     //dado está pronto para ser usado.
-    TM->NotifyAccessGranted(taskId, fObjId, access, version, this);
+	  OOPMDataDepend depend(fObjId,access,version);
+    TM->NotifyAccessGranted(taskId, depend, this);
 
   }
   if(fProc != proc){
@@ -215,7 +219,9 @@ void OOPMetaData::TransferObject(int ProcId) {
   //Check if versions are compatible, when such things happen
   //(version <= fVersion && fProc != DM->GetProcID())
   //    RequestTransferObject(ProcId, TaskId, AccessRequest, version);
+#ifndef WIN32
 #warning "OOPMetaData::TransferObject is not implemented"
+#endif
 }
 
 
@@ -433,7 +439,12 @@ void OOPMetaData::TransferOwnerShip(OOPObjectId & TaskId, int ProcId, OOPMDataSt
 int OOPMetaData::HasReadAccess(long Procid) {
   if (!fTaskWrite.IsZero()) return 0;
   vector<long>::iterator i;
+#ifdef WIN32
+  i = fAccessProcessors.begin();
+  while(i != fAccessProcessors.end() && *i != Procid) i++;
+#else
   i=find(fAccessProcessors.begin(), fAccessProcessors.end(), Procid);
+#endif
   if(i==fAccessProcessors.end()){
     return 0;
   }else{

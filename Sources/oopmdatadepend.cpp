@@ -1,16 +1,19 @@
 
 #include "oopmdatadepend.h"
 #include "oopdatamanager.h"
+#include "ooptaskmanager.h"
 
 OOPMDataDepend::OOPMDataDepend(const OOPObjectId &id, OOPMDataState st, const OOPDataVersion &ver) {
   fDataId = id;
   fNeed = st;
   fVersion = ver;
+  fObjPtr = 0;
 }
 OOPMDataDepend::OOPMDataDepend(const ::OOPMDataDepend &dd) {
   fDataId = dd.fDataId;
   fNeed = dd.fNeed;
   fVersion = dd.fVersion;
+  fObjPtr = dd.fObjPtr;
 }
 OOPMetaData * OOPMDataDepend::ObjPtr(){
   return fObjPtr;
@@ -35,6 +38,10 @@ void OOPMDataDepend::Print(ostream & out) const {
 
 int OOPMDataDependList::SubmitDependencyList(OOPObjectId &taskid) {
 
+	if(fDependList.size() ==0) {
+		TM->TransfertoExecutable(taskid);
+		return 1;
+	}
   deque<OOPMDataDepend>::iterator i;
   for(i=fDependList.begin();i!=fDependList.end();i++){
     if(!DM->SubmitAccessRequest(taskid, *i)) {
@@ -45,8 +52,19 @@ int OOPMDataDependList::SubmitDependencyList(OOPObjectId &taskid) {
       return 0;
     }
   }
+
   return 1;
 }
+
+void OOPMDataDependList::ReleaseAccessRequests(OOPObjectId &taskid) {
+
+  deque<OOPMDataDepend>::iterator i;
+  for(i=fDependList.begin();i!=fDependList.end();i++){
+	DM->ReleaseAccessRequest(taskid,*i);
+  }
+}
+
+
 
 void OOPMDataDependList::Print(ostream &out) {
   out << "OOPMDataDependList printout\n";

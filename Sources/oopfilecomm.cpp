@@ -51,9 +51,9 @@ OOPFileComManager::OOPFileComManager( char *prefix, int num_proc,
 
   // Cria novos buffers.
   f_buffer = new( PTSendStorageFile[f_num_proc] );
-  if ( f_buffer == NULL )
+  if ( f_buffer == NULL ) {
 //    Err.Error( 1, "Constructor <can't alloc buffers>\n" );
-
+  }
   // Inicializa os novos buffers.
   for ( int i = 0; i < f_num_proc; i++ )
     {

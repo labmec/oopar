@@ -11,7 +11,6 @@ class OOPDataLogger {//: public OOPSaveable {
 public:    
 	void GrantAccessLog(int proc, 
 						const OOPObjectId & objId,
-						OOPMDMOwnerMessageType mtype,
 						OOPMDataState mstate,
 						const OOPDataVersion & version,
 						int procorig);
@@ -20,7 +19,7 @@ public:
 								OOPMDMOwnerMessageType mtype,
 								OOPMDataState mstate,
 								const OOPDataVersion & version,
-								int procorig);
+								int procorig, const OOPObjectId & taskId);
     /**
      * Simple constructor 
      */
@@ -46,7 +45,7 @@ public:
 	 * @since 16/09/2003
 	 * @author longhin
  	 */
-	void GrantAccessLog(OOPDMOwnerTask *town);
+	void SendGrantAccessLog(OOPDMOwnerTask *town, int processor);
 
     /**
      * @param town OwnerTask to be 

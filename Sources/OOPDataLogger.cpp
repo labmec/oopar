@@ -12,29 +12,28 @@ OOPDataLogger::OOPDataLogger(ofstream & out){
 }
 OOPDataLogger::OOPDataLogger(char * logfilename){
 	fLogger.open(logfilename);
-	LogDM=this;
+	
 } 
 OOPDataLogger::~OOPDataLogger(){
 	fLogger.flush();
 	fLogger.close();
 }
 
-void OOPDataLogger::GrantAccessLog(OOPDMOwnerTask *town){
+void OOPDataLogger::SendGrantAccessLog(OOPDMOwnerTask *town, int processor){
 	town->LogMe(fLogger);
-	fLogger << "\tsent\n";
+	fLogger << endl;
 	fLogger.flush();
 }
 void OOPDataLogger::GrantAccessLog(int proc, 
 									const OOPObjectId & objId,
-									OOPMDMOwnerMessageType mtype,
 									OOPMDataState mstate,
 									const OOPDataVersion & version,
 									int procorig){
 	//town->LogMe(fLogger);
 	fLogger << proc << "\t";
-	fLogger << "Granting\t";
-	fLogger << "regarding obj " << objId << "\t";
-	fLogger << "type ";
+	fLogger << "Id " << objId << "\t";
+	fLogger << "Granting ";
+	//fLogger << "type ";
 	/*
 	ENoMessage,
 	ECancelReadAccess,
@@ -47,7 +46,7 @@ void OOPDataLogger::GrantAccessLog(int proc,
 	EGrantVersionAccess,
 	ENotifyDeleteObject,
 	
-	*/
+	
 	
 	switch (mtype)
 	{
@@ -86,7 +85,7 @@ void OOPDataLogger::GrantAccessLog(int proc,
 			break;
 	}
 	fLogger << "State ";
-	/*
+	
 	ENoAccess,
 	EReadAccess,
 	EWriteAccess,
@@ -117,17 +116,16 @@ void OOPDataLogger::GrantAccessLog(int proc,
 
 void OOPDataLogger::SendOwnTask(OOPDMOwnerTask *town){
 	town->LogMe(fLogger);
-    fLogger << "\tsent\n";
-	fLogger.flush(); 
+	fLogger << endl;
+	fLogger.flush();
 }
 void OOPDataLogger::ReceiveOwnTask(OOPDMOwnerTask *town){
-	town->LogMe(fLogger);
-	fLogger << "\treceived\n";
+	town->LogMeReceived(fLogger);
+	fLogger << endl;
 	fLogger.flush();
 }
 void OOPDataLogger::SendReqTask(OOPDMRequestTask *req){
 	req->LogMe(fLogger);
-    fLogger << "\tsent\n";
 	fLogger.flush();
 }
 void OOPDataLogger::SubmitAccessRequestLog(int proc, 
@@ -135,11 +133,10 @@ void OOPDataLogger::SubmitAccessRequestLog(int proc,
 									OOPMDMOwnerMessageType mtype,
 									OOPMDataState mstate,
 									const OOPDataVersion & version,
-									int procorig){
+									int procorig, const OOPObjectId & taskId){
 	fLogger << proc << "\t";
-	fLogger << "Submitting\t";
-	fLogger << "regarding obj " << objId << "\t";
-	fLogger << "type ";
+	fLogger << "Id " << objId;
+	fLogger << "\tSubmitting ";
 	/*
 	ENoMessage,
 	ECancelReadAccess,
@@ -152,7 +149,7 @@ void OOPDataLogger::SubmitAccessRequestLog(int proc,
 	EGrantVersionAccess,
 	ENotifyDeleteObject,
 	
-	*/
+	
 	
 	switch (mtype)
 	{
@@ -191,7 +188,7 @@ void OOPDataLogger::SubmitAccessRequestLog(int proc,
 			break;
 	}
 	fLogger << "State ";
-	/*
+	
 	ENoAccess,
 	EReadAccess,
 	EWriteAccess,
@@ -215,7 +212,7 @@ void OOPDataLogger::SubmitAccessRequestLog(int proc,
 	}
 	
 	fLogger << "Version " << version << "\t";
-	fLogger << "ProcOrigin " << procorig;
+	fLogger << "To task " << taskId;
 	fLogger << "\n";
 	fLogger.flush();
 }

@@ -37,35 +37,35 @@ void OOPDataManager::main(){
 	tid=TM->Submit(&mytask);
 	for(i=0;i<40;i++){
 		id[i] = DM->SubmitObject(&dat[i], 0);
-		cout << "Data Id set to :" ;
-		id[i].Print(cout);
-		cout.flush();
+		DataManLog << "Data Id set to :" ;
+		id[i].Print(DataManLog);
+		DataManLog.flush();
 	}
 	
-	tid.Print(cout);
+	tid.Print(DataManLog);
 	
 	for(i=0;i<40;i++){		
 		DM->SubmitAccessRequest(tid, id[i], ver, st, 0);
 	}
 	
-	cout << "Deleting Object " << endl;
-	id[20].Print(cout);
+	DataManLog << "Deleting Object " << endl;
+	id[20].Print(DataManLog);
 	DM->DeleteObject(id[20]);
 	DM->DeleteObject(id[20]);
 	
-	if(DM->FindObject(id[20])) cout << "Object found" << endl;
+	if(DM->FindObject(id[20])) DataManLog << "Object found" << endl;
 		
 	OOPSaveable * ptr = (TMultiData *) DM->GetObjPtr(id[30]);
 	int proc;
 	proc = DM->GetProcID();
 	
 	TDataVersion ver2 = dat[10].Version();
-	ver2.Print(cout);
+	ver2.Print(DataManLog);
 	for(i=0;i<30;i++){
 		DM->IncrementVersion(id[10]);
 	}
 	
-	cout << DM->HasAccess(id[10], tid, st, ver) << endl; 
+	DataManLog << DM->HasAccess(id[10], tid, st, ver) << endl; 
 	
 	TMultiData dat_m;
 	OOPObjectId id_m;
@@ -73,16 +73,16 @@ void OOPDataManager::main(){
 	id_m.SetId(20);
 
 		
-	cout << DM->HasAccess(id_m, tid, st, ver) << endl; 
+	DataManLog << DM->HasAccess(id_m, tid, st, ver) << endl; 
 	
 	TMultiTask tm_a(0);
 	TMultiData md_a ;
 	
 	OOPObjectId id_da, id_ta;
 	id_da = DM->SubmitObject(&md_a,0);
-	id_da.Print(cout);
+	id_da.Print(DataManLog);
 	id_ta = TM->Submit(&tm_a);
-	id_ta.Print(cout);
+	id_ta.Print(DataManLog);
 	
 	TDataVersion versao;
 	versao.SetLevelVersion(0,5);
@@ -95,10 +95,10 @@ void OOPDataManager::main(){
 	DM->Data(id_da)->IncrementVersionLevel(12);
 	versao = DM->Data(id_da)->Version();
 	
-	versao.Print(cout);
+	versao.Print(DataManLog);
 	DM->Data(id_da)->IncrementVersionLevel(25);
 	versao = DM->Data(id_da)->Version();
-	versao.Print(cout);
+	versao.Print(DataManLog);
 	i=0;
 	while(i<60){
 		DM->IncrementVersion(id_da);
@@ -112,16 +112,16 @@ void OOPDataManager::main(){
 	DM->Data(id_da)->IncrementVersionLevel(12);
 
 	versao = DM->Data(id_da)->Version();
-	versao.Print(cout);
+	versao.Print(DataManLog);
 	DM->Data(id_da)->DecreaseVersionLevel();
 	versao = DM->Data(id_da)->Version();
-	versao.Print(cout);
+	versao.Print(DataManLog);
 	DM->Data(id_da)->DecreaseVersionLevel();
 	versao = DM->Data(id_da)->Version();
-	versao.Print(cout);
+	versao.Print(DataManLog);
 	DM->Data(id_da)->DecreaseVersionLevel();
 	versao = DM->Data(id_da)->Version();
-	versao.Print(cout);
+	versao.Print(DataManLog);
 	
 }
 */
@@ -198,14 +198,14 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 				return 0;
 			(*i)->SubmitAccessRequest (TaskId, depend,
 						   GetProcID ());
-			// cout << "Access request submitted" << endl;
-			// (*i)->Print(cout);
+			// DataManLog << "Access request submitted" << endl;
+			// (*i)->Print(DataManLog);
 			break;
 		}
 	}
 	if (!found) {
 		if (depend.Id ().GetProcId () == fProcessor) {
-			cout << "SubmitAccessRequest for deleted object, returning 0\n";
+			DataManLog << "SubmitAccessRequest for deleted object, returning 0\n";
 			return 0;
 		}
 		else {
@@ -216,9 +216,9 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 			fObjects.push_back (dat);	// [id] = dat;
 			dat->SubmitAccessRequest (TaskId, depend,
 						  GetProcID ());
-			// cout << "Some appropriate action should be
+			// DataManLog << "Some appropriate action should be
 			// taken\n";
-			// cout << "Create a metadata object on the fly\n";
+			// DataManLog << "Create a metadata object on the fly\n";
 			return 1;
 		}
 	}
@@ -254,7 +254,7 @@ OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 	 * TDMOwnerTask ms(ENotifyCreateObject,-1); //ms.fTaskId = //0;
 	 * ms.fTrace = trace;//Erico ms.fProcDestination = -1; ms.fProcOrigin 
 	 * = fProcessor; ms.fObjId = id; CM->SendTask(&ms); */
-	// cout << "Object submitted." << endl;
+	// DataManLog << "Object submitted." << endl;
 	return id;
 }
 
@@ -330,8 +330,8 @@ void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 
 	OOPMetaData *dat = Data (task->fObjId);
 	if (!dat) {
-		cout << "TDataManager:GetUpdate called with invalid ojbid:";
-		task->fObjId.Print (cout);
+		DataManLog << "TDataManager:GetUpdate called with invalid ojbid:";
+		task->fObjId.Print (DataManLog);
 		exit (-1);
 		return;
 	}
@@ -354,7 +354,7 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 	}
 	if (i == fObjects.end ()) {
 		if (id.GetProcId () == this->GetProcID ()) {
-			cout << "OOPDataManager send a delete object message to the original processor\n";
+			DataManLog << "OOPDataManager send a delete object message to the original processor\n";
 		}
 		else {
 			OOPDMRequestTask *ntask =

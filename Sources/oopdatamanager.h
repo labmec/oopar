@@ -314,4 +314,5 @@ class   OOPCurrentLocation
 
 
 extern OOPDataManager *DM;
+extern ofstream DataManLog;
 #endif

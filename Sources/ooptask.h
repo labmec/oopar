@@ -28,7 +28,13 @@ class   OOPMDataDependList;
  */
 class   OOPTask:public OOPSaveable
 {
-      public:
+public:
+	/**
+	 * Prints log information on a log file
+	 * @since 16/08/2003
+	 * @author Gustavo C Longhin
+	 */
+	void PrintLog(ostream & out = cout, char * message = "empty log message");
 	/**
 	 * Returns the reference to the OOPMDataDependList object.
 	 * @since 04/07/2003

@@ -347,6 +347,10 @@ class   OOPMetaData:public OOPSaveable
 	  */
 	bool    CanGrantAccess () const;
 };
+/**
+ *log file for MetaData objects
+ */
+extern ofstream DataLog;
 
 /*
 inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {

@@ -62,21 +62,21 @@ void OOPTaskManager::main ()
 	 * task_3->AddDependentData(Mesh_id[3], st, ver);
 	 * 
 	 * task_0->Submit(); task_1->Submit(); task_2->Submit();
-	 * task_3->Submit(); TM->Print(cout);
+	 * task_3->Submit(); TM->Print(TaskManLog);
 	 * 
 	 * 
 	 * 
 	 * // OOPMDataState st = EWriteAccess; // OOPDataVersion ver;
 	 * 
-	 * //ver.SetLevelVersion(0,1); // ver.Print(cout); //
+	 * //ver.SetLevelVersion(0,1); // ver.Print(TaskManLog); //
 	 * task->AddDependentData(data_id, st, ver); //
-	 * ver.SetLevelVersion(0,1); // ver.Print(cout); //
+	 * ver.SetLevelVersion(0,1); // ver.Print(TaskManLog); //
 	 * task_2->AddDependentData(data_id, st, ver);
 	 * 
 	 * // task->Submit(); // task_2->Submit();
 	 * 
-	 * //DM->CheckAccessRequests(); // task->Print(cout); //
-	 * task_2->Print(cout);
+	 * //DM->CheckAccessRequests(); // task->Print(TaskManLog); //
+	 * task_2->Print(TaskManLog);
 	 * 
 	 * TM->Execute(); */
 }
@@ -116,15 +116,15 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 			found = true;
 			tc->Depend ().GrantAccess (depend, objptr);
 #ifdef DEBUG
-			cout << "Access Granted to taskId";
-			TaskId.Print (cout);
-			cout << " on data ";
-			depend.Id ().Print (cout);
+			TaskManLog << "Access Granted to taskId";
+			TaskId.Print (TaskManLog);
+			TaskManLog << " on data ";
+			depend.Id ().Print (TaskManLog);
 #endif
 			if (tc->Depend ().CanExecute ()) {
 				TransfertoExecutable (tc->Task ()->Id ());
-				cout << "OOPTaskManager task is executable ";
-				TaskId.Print (cout);
+				TaskManLog << "OOPTaskManager task is executable ";
+				TaskId.Print (TaskManLog);
 
 			}
 			break;
@@ -152,10 +152,10 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 			found = true;
 			tc->Depend ().RevokeAccess (depend);
 #ifdef DEBUG
-			cout << "Access Revoked to taskId";
-			TaskId.Print (cout);
-			cout << " on data ";
-			depend.Id ().Print (cout);
+			TaskManLog << "Access Revoked to taskId";
+			TaskId.Print (TaskManLog);
+			TaskManLog << " on data ";
+			depend.Id ().Print (TaskManLog);
 #endif
 			break;
 		}
@@ -225,9 +225,9 @@ int OOPTaskManager::CancelTask (OOPObjectId taskid)
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = *i;
 		if (tc->Task ()->Id () == taskid) {
-			cout << "Task erased" << endl;
-			cout << "Task ID ";
-			tc->Task ()->Id ().Print (cout);
+			TaskManLog << "Task erased" << endl;
+			TaskManLog << "Task ID ";
+			tc->Task ()->Id ().Print (TaskManLog);
 			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
 							     Id ());
 			delete tc;
@@ -249,15 +249,15 @@ void OOPTaskManager::Execute ()
 	CM->ReceiveMessages ();
 	TransferSubmittedTasks ();
 	deque < OOPTaskControl * >::iterator i;
-	// cout << "TTaskManager.Execute Queued task ids proc = " << fProc << 
+	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
-	// cout << "Entering task list loop" << endl;
+	// TaskManLog << "Entering task list loop" << endl;
 
 	while (fExecutable.size ()) {
 		while (fExecutable.size ()) {
 			i = fExecutable.begin ();
 			(*i)->Task ()->Execute ();
-//              cout << (*i)->Task() << ":";
+//              TaskManLog << (*i)->Task() << ":";
 			OOPObjectId id;
 			id = (*i)->Task ()->Id ();
 			(*i)->Depend ().SetExecuting ((*i)->Task ()->Id (),
@@ -265,10 +265,10 @@ void OOPTaskManager::Execute ()
 			(*i)->Depend ().ReleaseAccessRequests ((*i)->Task ()->
 							       Id ());
 #ifdef DEBUG
-			// cout << "Executing task on processor " << fProc << 
+			// TaskManLog << "Executing task on processor " << fProc << 
 			// endl;
-			// id.Print(cout);
-			// cout.flush();
+			// id.Print(TaskManLog);
+			// TaskManLog.flush();
 #endif
 			fFinished.push_back (*i);
 			fExecutable.erase (i);

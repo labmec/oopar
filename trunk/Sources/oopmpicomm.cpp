@@ -56,9 +56,10 @@ int OOPMPICommManager::Initialize (char *process_name, int num_of_process)
 {
 	// cout << "process_name:" << argv <<endl;;
 	f_num_proc = num_of_process;
+	int local_num_procs=num_of_process;
 	MPI_Init (&f_argc, &f_argv);
 	//MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
-	MPI_Comm_size (MPI_COMM_WORLD, &num_of_process);
+	MPI_Comm_size (MPI_COMM_WORLD, &local_num_procs);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
 	f_buffer = new (POOPMPISendStorage[f_num_proc]);
 	if (f_buffer == NULL) {

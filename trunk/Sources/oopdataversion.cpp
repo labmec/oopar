@@ -233,6 +233,13 @@ bool OOPDataVersion::operator > (const OOPDataVersion & version)
 	     }
      }
 
+ostream &OOPDataVersion::ShortPrint(ostream & out) const {
+	int nl = GetNLevels(), i;
+	for(i=0; i<nl; i++) out << GetLevelVersion(i) << '/' <<
+		GetLevelCardinality(i) << ':';
+	return out;
+}
+
 OOPDataVersion & OOPDataVersion::operator= (const OOPDataVersion & version)
 {
 	fVersion = version.GetLevelVersion ();

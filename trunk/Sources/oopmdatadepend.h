@@ -17,6 +17,8 @@ class   OOPMDataDepend
 {
       public:
 	void    Print (ostream & out = cout) const;
+	ostream &ShortPrint (ostream & out = cout) const;
+
   /**
    * Operator overloaded
    */
@@ -199,5 +201,9 @@ class   OOPMDataDependList
 	int     Unpack (OOPReceiveStorage * buf);
 
 };
+
+inline ostream &operator<<(ostream &out, const OOPMDataDepend &obj) {
+	return obj.ShortPrint(out);
+}
 
 #endif

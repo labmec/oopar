@@ -118,7 +118,11 @@ class   OOPObjectId
     /**
      * Prints TObjectId data 
      */
-	void    Print (ostream & out) const;
+	void    Print (ostream & out = cout) const;
+    /**
+     * Prints TObjectId data 
+     */
+	ostream & ShortPrint (ostream & out = cout) const;
       private:
 
     /**
@@ -131,4 +135,8 @@ class   OOPObjectId
      */
 	int     fProcId;
 };
+
+inline ostream &operator<<(ostream &out, const OOPObjectId &obj) {
+	return obj.ShortPrint(out);
+}
 #endif // TOBJECTID_H

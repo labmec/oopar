@@ -1,6 +1,7 @@
 #include "TParCompute.h"
 #include "TLocalCompute.h"
 #include "oopdatamanager.h"
+class OOPStorageBuffer;
 OOPMReturnType TParCompute::Execute ()
 {
 	// submit subtasks to the Task Manager
@@ -79,7 +80,7 @@ void TParCompute::SetMeshId (vector < OOPObjectId > &Id,
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TParCompute::Pack (OOPSendStorage * buf)
+int TParCompute::Pack (OOPStorageBuffer * buf)
 {
 	PrintLog(TaskLog, "Packing TParCompute object");
 	OOPTask::Pack (buf);
@@ -109,7 +110,7 @@ int TParCompute::Pack (OOPSendStorage * buf)
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TParCompute::Unpack (OOPReceiveStorage * buf)
+int TParCompute::Unpack (OOPStorageBuffer * buf)
 {
 	PrintLog(TaskLog, "Unpacking TParCompute object");
 	OOPTask::Unpack (buf);
@@ -141,7 +142,7 @@ int TParCompute::Unpack (OOPReceiveStorage * buf)
 	
 	return 0;
 }
-OOPSaveable *TParCompute::Restore (OOPReceiveStorage * buf)
+OOPSaveable *TParCompute::Restore (OOPStorageBuffer * buf)
 {
 	TParCompute *par = new TParCompute (0,0);
 	par->Unpack (buf);

@@ -24,13 +24,13 @@ int     mpimain (int argc, char *argv[]);
 
 int main (int argc, char **argv)
 {
-	OOPReceiveStorage::AddClassRestore (TPARCOMPUTE_ID,
+	OOPStorageBuffer::AddClassRestore (TPARCOMPUTE_ID,
 					    TParCompute::Restore);
-	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
+	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
-	OOPReceiveStorage::AddClassRestore (TLOCALCOMPUTE_ID,
+	OOPStorageBuffer::AddClassRestore (TLOCALCOMPUTE_ID,
 					    TLocalCompute::Restore);
-	OOPReceiveStorage::AddClassRestore (TTASKCOMM_ID, TTaskComm::Restore);
+	OOPStorageBuffer::AddClassRestore (TTASKCOMM_ID, TTaskComm::Restore);
 	
 	// return multimain();
 #ifdef MPI

@@ -3,12 +3,13 @@
 #include "TTaskComm.h"
 #include "TParCompute.h"
 #include "fluxdefs.h"
-int TTaskComm::Unpack (OOPReceiveStorage * buf)
+class OOPStorageBuffer;
+int TTaskComm::Unpack (OOPStorageBuffer * buf)
 {
 	OOPTask::Unpack (buf);
 	return 0;
 }
-int TTaskComm::Pack (OOPSendStorage * buf)
+int TTaskComm::Pack (OOPStorageBuffer * buf)
 {
 //	OOPSaveable::Pack (buf);
 	OOPTask::Pack (buf);
@@ -52,7 +53,7 @@ OOPMReturnType TTaskComm::Execute ()
 TTaskComm::TTaskComm (int ProcId):OOPTask (ProcId)
 {
 }
-OOPSaveable *TTaskComm::Restore (OOPReceiveStorage * buf) {
+OOPSaveable *TTaskComm::Restore (OOPStorageBuffer * buf) {
 	TTaskComm *loc = new TTaskComm(0);
 	loc->Unpack(buf);
 	return loc;

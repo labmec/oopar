@@ -3,6 +3,7 @@
 #include <iostream>
 #include "TParVector.h" 
 #include "ooptaskmanager.h"
+class OOPStorageBuffer;
 //ofstream TaskLog("tasklog.log");
 void TParAnalysis::Print (ostream & out)
 {
@@ -226,7 +227,7 @@ void TParAnalysis::AdaptSolutionVersion (OOPDataVersion & version)
 }
 OOPMReturnType TParAnalysis::Execute ()
 {
-	if (fRelationTable.IsZero ()) {
+	if (fRelationTable.IsZeroOOP ()) {
 		SetupEnvironment ();
 	}
 	else if (fTaskVersion.GetNLevels () <= 1) {
@@ -253,7 +254,7 @@ TParAnalysis::TParAnalysis (int Procid, int numpartitions, int numproc):OOPTask 
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TParAnalysis::Pack (OOPSendStorage * buf)
+int TParAnalysis::Pack (OOPStorageBuffer * buf)
 {
 	OOPTask::Pack (buf);
 	buf->PkInt (&fNumPartitions);
@@ -273,7 +274,7 @@ int TParAnalysis::Pack (OOPSendStorage * buf)
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TParAnalysis::Unpack (OOPReceiveStorage * buf)
+int TParAnalysis::Unpack (OOPStorageBuffer * buf)
 {
 	OOPTask::Unpack (buf);
 	buf->UpkInt (&fNumPartitions);
@@ -292,7 +293,7 @@ int TParAnalysis::Unpack (OOPReceiveStorage * buf)
 	}
 	return 0;
 }
-OOPSaveable *TParAnalysis::Restore (OOPReceiveStorage * buf)
+OOPSaveable *TParAnalysis::Restore (OOPStorageBuffer * buf)
 {
 	TParAnalysis *par = new TParAnalysis (0);
 	par->Unpack (buf);

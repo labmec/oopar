@@ -15,10 +15,11 @@ void TLocalCompute::InitializePartitionRelationPointer ()
 void TLocalCompute::ComputeLocalFluxes ()
 {
 	OOPMetaData *ptr = fDataDepend.Dep (3).ObjPtr ();
-	PrintLog(TaskLog, "TLocalCompute contributes to object id\n");
-	ptr->Id ().Print (TaskLog);
-	cout << "TLocalCompute contributes to object id ";
-	ptr->Id ().Print (cout);
+	PrintLog(TaskLog, "TLocalCompute contributes to object id ");
+	ptr->Id ().ShortPrint (TaskLog);
+	TaskLog << endl;
+	cout << "TLocalCompute contributes to object id " << ptr->Id();
+//	ptr->Id ().Print (cout);
 	OOPDataVersion ver = ptr->Version ();
 	// int nlevel = ver.GetNLevels();
 	int ncontr = fPartRelationPtr->IncomingContribution (fPartition);
@@ -36,11 +37,9 @@ void TLocalCompute::ComputeLocalFluxes ()
 	ver.Print (TaskLog);
 	cout << "After increment ";
 	cout << "TLocalCompute number of contributions " << ncontr <<
-		" new version " << endl;
-	ver.Print (cout);
+		" new version " << ver << endl;
+//	ver.Print (cout);
 	ptr->SetVersion (ver, Id ());
-	
-
 }
 
 void TLocalCompute::SetRhsIds (vector < OOPObjectId > &rhsids,
@@ -69,15 +68,16 @@ void TLocalCompute::TransmitFLuxes ()
 		TTaskComm *task = new TTaskComm (GetProcID ());
 		OOPMDataDepend depend (fRhsIds[i], EWriteAccess, rhsver);
 		PrintLog(TaskLog,"TLocalCompute::TransmitFluxes targets ");
-		fRhsIds[i].Print (TaskLog);
+		fRhsIds[i].ShortPrint (TaskLog);
 		cout << "TLocalCompute::TransmitFluxes targets ";
 		fRhsIds[i].Print (cout);
-		TaskLog << " and depends on version " << endl;
+		TaskLog << " and depends on version " << rhsver <<  endl;
 		cout << " and depends on version " << endl;
 		rhsver.Print (cout);
-		rhsver.Print (TaskLog);
+//		rhsver.Print (TaskLog);
 		task->AddDependentData (depend);
 		task->Submit ();
+		TaskLog << "Id of TTaskComm is " << task->Id() << endl;
 	}
 }
 void TLocalCompute::ComputeFrontierFluxes ()

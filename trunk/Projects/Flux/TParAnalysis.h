@@ -3,12 +3,18 @@
 #ifndef TPARANALYSIS_H
 #define TPARANALYSIS_H
 
+#include "TParCompute.h"
+#include "TParRhs.h"
+#include "TParState.h"
+#include "TParMesh.h"
+#include "oopdatamanager.h"
+
 /**
  * Implements the functionalities of the Analysis classes incorporating parallelization optimization. 
  */
 class TParAnalysis {
 public:
 
-    void ComputeFlux();
+    void ComputeFlux(TPartitionRelation * table);
 };
 #endif //TPARANALYSIS_H

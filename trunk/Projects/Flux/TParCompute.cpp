@@ -43,7 +43,6 @@ void TParCompute::CreateFluxesTasks(  ){
 //        Tasks[i]->AddDependentData(fRhsIds[i], st_w, ver);
 //        fTasksId.push_back(Tasks[i]->Submit());
 //    }
-//    delete [] Tasks;
 }
 
 OOPObjectId TParCompute::GetPartitionRelationId(){
@@ -63,6 +62,13 @@ OOPObjectId &TParCompute::GetStateId(int pos){
 }
 TParCompute::TParCompute(int procid): OOPTask(procid) {}
 
+void TParCompute::SetStateId(OOPObjectId & Id){
+    //Check if Id was already inserted
+    fStateIds.push_back(Id);
+}
+void TParCompute::SetRhsId(OOPObjectId & Id){
+    fRhsIds.push_back(Id);
+}
 void TParCompute::SetStateId(vector<OOPObjectId> & Id){
     //Check if Id was already inserted
     fStateIds = Id;
@@ -79,4 +85,3 @@ void TParCompute::InitializePartitionRelationPointer() {
 	OOPSaveable *objptr = fDataDepend[0].ObjPtr();
 	fPartRelationPtr = dynamic_cast<TPartitionRelation *> (objptr);
 }
-

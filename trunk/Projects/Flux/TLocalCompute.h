@@ -3,7 +3,7 @@
 #ifndef TLOCALCOMPUTE_H
 #define TLOCALCOMPUTE_H
 #include "ooptask.h"
-class OOPMReturnType;
+
 class TLocalCompute : public OOPTask {
 public:    
 

@@ -6,6 +6,9 @@
 class TParState : public OOPSaveable {
 public:    
 
-    TParState(int ProcId, int Trace);
+    TParState();
+	long GetClassID();
+	long fClassId;
+
 };
 #endif //TPARSTATE_H

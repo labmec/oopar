@@ -19,8 +19,8 @@
 //
 
 // $Author: phil $
-// $Id: oopmpistorage.cpp,v 1.11 2003-10-12 15:44:22 phil Exp $
-// $Revision: 1.11 $
+// $Id: oopmpistorage.cpp,v 1.12 2003-10-12 16:03:18 phil Exp $
+// $Revision: 1.12 $
 
 
 #include "oopstorage.h"
@@ -169,6 +169,14 @@ OOPSaveable *OOPMPIReceiveStorage::Restore () {
 
 int OOPMPIReceiveStorage::ReceiveBlocking ()
 {
+	Receive();
+	if(TestReceive()) {
+		return 1;
+	}
+	MPI_Status status;
+	MPI_Wait(&f_request,&status);
+	return 1;
+	/*
 	MPI_Status status;
 	// recebe primeiros 10^6 bytes
 	cout << "MPI_Recv returned " << 
@@ -177,6 +185,7 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 	// desempacota dimensao do pacote completo
 	cout << "Returning 1\n";
 	cout.flush();
+	*/
 	return 1;
 }
   // Metodos para DESEMPACOTAR dados do buffer.

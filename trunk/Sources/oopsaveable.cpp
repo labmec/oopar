@@ -36,7 +36,7 @@ OOPSaveable::Pack(OOPSendStorage * buf)
 {
   long class_id = GetClassID();
   buf->PkLong( &class_id );
-  buf->PkLong( &fDMId);
+  fDMId.Pack(buf);
   return 1;
 }
 
@@ -46,63 +46,30 @@ OOPSaveable::Pack(OOPSendStorage * buf)
 int 
 OOPSaveable::Unpack( OOPReceiveStorage *buf ) 
 {
-  return buf->UpkLong(&fDMId);
+  return fDMId.Unpack(buf);
 }
 
 
 /*********************/
 /*** Set Global ID ***/
-long
-OOPSaveable::SetGlobalId(long id)
+void
+OOPSaveable::SetGlobalId(const OOPObjectId &id)
 {
-  return( fDMId = id );
+  fDMId = id;
 }
 
 
 /*****************/
 /*** Global ID ***/
-long
+OOPObjectId
 OOPSaveable::GlobalId()
 {
   return fDMId;
 }
 
-
-/********************/
-/*** Derived From ***/
-int 
-OOPSaveable::DerivedFrom(long id) 
-{
-  return (id == (long) (CID_TSAVEABLE));
+int OOPSaveable::DerivedFrom(char * classname){
+	#warning "Not implemented OOPSaveable::DerivedFrom(char *)";
 }
-
-
-/********************/
-/*** Derived From ***/
-int 
-OOPSaveable::DerivedFrom(char *classname) 
-{
-  return (!strcmp(OOPSaveable::ClassName(),classname));
+int OOPSaveable::DerivedFrom(long class_id){
+	#warning "Not implemented OOPSaveable::DerivedFrom(long)";
 }
-
-
-/***************/
-/*** Version ***/
-OOPDataVersion 
-OOPSaveable::Version() 
-{
-  return -1L;
-}
-
-
-/*************************/
-/*** Increment Version ***/
-void
-OOPSaveable::IncrementVersion()
-{
-  printf( "OOPSaveable::IncrementVersion <not implemented>.\n" );
-  exit(-1);
-  //return 0;
-}
-
-

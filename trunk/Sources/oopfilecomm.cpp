@@ -16,14 +16,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include "ooptaskmanager.h"
 #include "oopsaveable.h"
 #include "oopfilecomm.h"
 #include "ooperror.h"
 #include "ooppartask.h"
 #include <errno.h>
-class OOPFileComManager;
 
 using namespace std;
 
@@ -198,8 +197,9 @@ OOPFileComManager::ReceiveMessages()
   if ( (recv = fopen( rcv_file, "r" )) == NULL )
     {
       // Como o arquivo de recepcao nao existe, Cria-o.
-      if ( (recv = fopen( rcv_file, "w" )) == NULL ){}
+      if ( (recv = fopen( rcv_file, "w" )) == NULL ){
 //	Err.Error( 1, "ReceiveMessages <error open receive file>\n" );
+      }
       else
 	{
 	  fclose( recv );
@@ -230,9 +230,11 @@ OOPFileComManager::ReceiveMessages()
 		//Restore para o corrente objeto não está definido
 		//Era alguma coisa global ?
 		//Não sei.
-	  OOPSaveable *new_object = 0;//Restore(&msg);
-	  if ( new_object == NULL )
+	  OOPSaveable *new_object = 0;
+	  new_object = msg.Restore();
+	  if ( new_object == NULL ) {
 	    //Err.Error( 1, "ReceiveMessages <Erro em Restore() do objeto>.\n" );
+	  }
 
 	  TM->Submit((OOPTask *) new_object);
 
@@ -243,8 +245,9 @@ OOPFileComManager::ReceiveMessages()
 
   // Fecha e ZERA o arquivo de recepcao de dados.
   fclose( recv );
-  if ( ( recv = fopen( rcv_file, "w" )) == NULL )
+  if ( ( recv = fopen( rcv_file, "w" )) == NULL ) {
     //Err.Error( 1, "ReceiveMessages <error truncating receive file>\n" );
+  }
   fclose( recv );
 
   return( leu_msg );
@@ -275,8 +278,9 @@ OOPFileComManager::SendMessages()
 	  FILE *dest;
 	  char dst_file[FILE_NAME_SIZE];
 	  sprintf( dst_file, "%s.%1d00", f_prefix, i );
-	  if ( (dest = fopen( dst_file, "a" )) == NULL )
+	  if ( (dest = fopen( dst_file, "a" )) == NULL ) {
 	    //Err.Error( 1, "SendMessages <error open dest file>\n" );
+	  }
 	  fprintf( dest, "%s\n", file_to_send );
 	  fclose( dest );
 	}
@@ -288,27 +292,3 @@ OOPFileComManager::SendMessages()
 
 
 /************************** Private *************************/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

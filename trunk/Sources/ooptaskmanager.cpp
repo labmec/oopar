@@ -227,68 +227,7 @@ int OOPTaskManager::CancelTask(OOPObjectId taskid){
 void OOPTaskManager::CleanUpTasks(){
 #ifndef WIN32
 #warning "CleanUpTasks is empty"
-#warning "Actuating on the TaskLists, multithreading sychronization required"
-#warning "CleanUpTasks must always delete tasks only from the fFinished List ????"
 #endif
-	//lock over the mutex for the fTaskList object.
-	deque <OOPTaskControl *>::iterator i = fTaskList.begin();
-	while(i!=fTaskList.end()){
-		if(!(*i)->Depend().AmIConsistent()){
-			//Inconsistency detected on the fTaskList deque.
-			cerr << "Task which was never executed contains inconsistent data depency\n";
-			cerr << "Task deletion request will be submitted\n";
-			TM->CancelTask((*i)->Task()->Id());
-		}
-		i++;
-			
-	}
-	//unlock over mutex.
-	//lock over mutex for the fExecutable object;
-	deque< OOPTaskControl *>::iterator j = fExecutable.begin();
-	while(j!=fExecutable.end()){
-		if(!(*j)->Depend().AmIConsistent()){
-			//Inconsistency detected on the fExecutable deque.
-			cerr << "Inconsistent task dependency on fExecutable task list.\n";
-			cerr << "Task deletion request will be submitted\n";
-			cerr << "File " << __FILE__ << ": Line " << __LINE__ << endl;
-			TM->CancelTask((*j)->Task()->Id());
-		}
-		j++;
-			
-	}
-	//unlock mutex
-	//lock over mutex for the fFinished object
-	deque <OOPTaskControl *>::iterator k = fFinished.begin();
-	while(k!=fFinished.end()){
-		if(!(*k)->Depend().AmIConsistent()){
-			//Inconsistency detected on the fFinished deque.
-			cout << "Inconsistent task dependency on fFinished task list.\n";
-			cout << "Task deletion request will be submitted\n";
-			cout << "File " << __FILE__ << ": Line " << __LINE__ << endl;
-			TM->CancelTask((*k)->Task()->Id());
-		}
-		k++;
-			
-	}
-	//unlock mutex
-	//lock over mutex for the fSubmittedList object
-	deque <OOPTask *>::iterator l = fSubmittedList.begin();
-	while(l!=fSubmittedList.end()){
-		if(!(*l)->Depend().AmIConsistent()){
-			//Inconsistency detected on the fFinished deque.
-			cerr << "Inconsistent task dependency on fSubmittedList task list.\n";
-			cerr << "Propably some mal functioning\n";
-			cerr << "Task deletion request will be submitted\n";
-			cerr << "File " << __FILE__ << ": Line " << __LINE__ << endl;
-			TM->CancelTask((*l)->Id());
-		}
-		l++;
-			
-	}
-	//unlock mutex.
-
-  
-	
 }
 void OOPTaskManager::Execute(){
   CM->ReceiveMessages();

@@ -39,6 +39,17 @@ public:
    * returns the state corresponding to the dependency
    */
   const OOPMDataState &State() const { return fNeed;}
+
+  /**
+   * method which will serialize the object
+   */
+  void Pack(OOPSendStorage *buf);
+
+  /**
+   * method to reconstruct the object
+   */
+  int Unpack(OOPReceiveStorage *buf);
+
 private:
   /**
    * Id of the data needed to execute the task
@@ -161,15 +172,14 @@ public:
   }
   
   /**
-   * Indicates if the dependecy list is still consistent.
-   * Consistency is based on the existence of non compatible version requirements
-   * If on the dependency list, there exist a incompatible version request, false
-   * will be returned.
-   * @return Returns true if dependency list is still consistent. Returns false otherwise.
-   * @since 04/07/2003
-   * @author Gustavo C Longhin
+   * method which will serialize the object
    */
-  bool AmIConsistent();
+  void Pack(OOPSendStorage *buf);
+
+  /**
+   * method to reconstruct the object
+   */
+  int Unpack(OOPReceiveStorage *buf);
 
 };
 

@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
-#include "oopdataversion.h"
+#include "oopobjectid.h"
 #include "oopstorage.h"
 #include "cmdefs.h"
 class OOPDataVersion;
@@ -40,7 +40,7 @@ public:
   /**
    * Simple Constructor 
    */
-  OOPSaveable()  { fDMId = 0; }
+  OOPSaveable()  {}
 
   /**
    * Simple Desctructor 
@@ -69,47 +69,27 @@ public:
    * Sets an ID to the class
    * @param id to be set
    */
-  virtual long SetGlobalId(long id);
+  void SetGlobalId(const OOPObjectId &id);
 
   /**
    * Returns the class id of the object within the DM
    */
-  virtual long GlobalId();
-
-  /**
-   * Returns  true if the object belongs to a class which is derived
-   * from a class with id classid
-   * @param Classid Identifies the base class queried.
-   */
-  virtual int DerivedFrom(long Classid);
-
-  /**
-   * Returns  true if the object belongs to a class which is derived
-   * from a class with name classname.
-   * @param classname Identifies the base class queried.
-   */
-  virtual int DerivedFrom(char *classname);
-  /**
-   * Returns class version
-   */
-  virtual OOPDataVersion Version();
-
-  /**
-   * Returns 0 if all right. Returns 1 if no version implemented.
-   */
-  virtual void IncrementVersion();
-
-  /**
-   * Returns class name
-   */
-  virtual char *ClassName() { return( "TSaveable::" ); }
+  OOPObjectId GlobalId();
   
+  int virtual DerivedFrom(char * classname);
+
+
+	virtual int DerivedFrom(long class_id);
+
+
+
+
 
 protected:
   /**
    * ID of the Data Manager
    */
-  long	fDMId;
+  OOPObjectId fDMId;
 
 };
 #endif //_SAVEABLEHH_

@@ -1,5 +1,6 @@
 #include "oopsaveable.h"
 #include "oopsaveable.h"
+#include "oopobjectid.h"
 
 class OOPStorage: public OOPSaveable
 
@@ -12,7 +13,7 @@ class OOPStorage: public OOPSaveable
 virtual long SetGlobalId(long id);
 virtual long ClassId(); // a unique id for each class
 virtual char *ClassName(); // returns the name of the
-virtual long GlobalId(); // returns the class id of the 
+virtual OOPObjectId GlobalId(); // returns the class id of the 
                          // object within the DM
 virtual long SizeToStore(); //amount of storage needed  to 
                             //  store the object

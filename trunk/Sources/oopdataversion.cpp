@@ -66,7 +66,6 @@ void OOPDataVersion::GetData (vector < int >&card, vector < int >&version)
 
 void OOPDataVersion::main ()
 {
-  stringstream sout;
 	int i = 0;
 	OOPDataVersion version (4);
 	version.Print ();
@@ -81,24 +80,24 @@ void OOPDataVersion::main ()
 	v.IncrementLevel (17);
 	// v.IncrementLevel(3);
 	if (v.AmICompatible (version)) {
-		sout << " Versions compatible " << endl;
+    stringstream sout;
+		sout << " Versions compatible ";
     LOG4CXX_DEBUG (logger,sout.str());
-    sout.clear();
 	}
 	else {
-		sout << "Versions are not compatible" << endl;
+    stringstream sout;
+		sout << "Versions are not compatible";
     LOG4CXX_DEBUG (logger,sout.str());
-    sout.clear();
 	}
 	if (version.AmICompatible (v)) {
-		sout << " Versions compatible " << endl;
+    stringstream sout;
+		sout << " Versions compatible ";
     LOG4CXX_DEBUG (logger,sout.str());
-    sout.clear();
 	}
 	else {
-		sout << "Versions are not compatible" << endl;
+    stringstream sout;
+		sout << "Versions are not compatible";
     LOG4CXX_DEBUG (logger,sout.str());
-    sout.clear();
 	}
 	while (version.GetNLevels () != 1) {
 		version.Increment ();
@@ -274,7 +273,7 @@ void OOPDataVersion::Increment ()
 	    fLevelCardinality[fVersion.size () - 1]) {
     stringstream sout;
 		sout << "Inconsistent data version incrementation" <<
-			__FILE__ << __LINE__ << endl;
+			__FILE__ << __LINE__;
     LOG4CXX_ERROR(logger,sout.str());
 		return;
 	}
@@ -303,7 +302,7 @@ void OOPDataVersion::Increment ()
 		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__
 			     << " Accessing level out of range" << endl;
 		     sout << "Maximum:" << GetNLevels () -
-			     1 << " Trying:" << level << endl;
+			     1 << " Trying:" << level;
          LOG4CXX_ERROR(logger,sout.str());
 		     // exit(-1);
 		     return -1;
@@ -316,7 +315,7 @@ void OOPDataVersion::Increment ()
 	     {
          stringstream sout;
 		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__ << " Accessing level out of range" << endl;
-		     sout << "Maximum:" << GetNLevels () - 1 << " Trying:" << level << endl;
+		     sout << "Maximum:" << GetNLevels () - 1 << " Trying:" << level;
 		     LOG4CXX_ERROR(logger,sout.str());
          // exit (-1);
 		     return -1;

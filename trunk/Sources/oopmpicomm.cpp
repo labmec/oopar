@@ -41,8 +41,7 @@ extern OOPTaskManager *TM;
 pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 
 OOPMPICommManager::OOPMPICommManager(){
-  LOG4CXX_WARN(OOPMPICommManagerlogger, "Empty Constructor should never be called!");
-#endif
+  LOG4CXX_WARN(logger, "Empty Constructor should never be called!");
 }
 OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 {
@@ -75,8 +74,7 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
   stringstream sout;
-	sout << "MPIComm Initialize f_myself " << f_myself << " f_num_proc " << f_num_proc << endl;
-        cout.flush();
+	sout << "MPIComm Initialize f_myself " << f_myself << " f_num_proc " << f_num_proc;
   LOG4CXX_INFO(logger,sout.str());
 	if (f_myself == 0)
 		return f_num_proc;
@@ -89,11 +87,12 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	//pthread_mutex_lock(&fCommunicate);
 //#warning "Nao tem necessidade do mutex neste ponto"
 #ifdef DEBUGALL
-  stringstream sout;
-  sout <<  __PRETTY_FUNCTION__ << " Sending task " << pTask->ClassId() << 
-         " to proc " << pTask->GetProcID () << endl;
-  LOG4CXX_DEBUG(logger,sout.str());
-  sout.clear();
+  {
+    stringstream sout;
+    sout <<  __PRETTY_FUNCTION__ << " Sending task " << pTask->ClassId() << 
+           " to proc " << pTask->GetProcID ();
+    LOG4CXX_DEBUG(logger,sout.str());
+  }
 #endif
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
 						// ser executada
@@ -113,21 +112,27 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	}
 	//Attention here
 #ifdef DEBUGALL
-	sout << __PRETTY_FUNCTION__ <<" Packing the task in a buffer\n";
-  LOG4CXX_DEBUG(logger,sout.str());
-  sout.clear();
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ <<" Packing the task in a buffer";
+    LOG4CXX_DEBUG(logger,sout.str());
+  }
 #endif
 	pTask->Write (f_buffer, 1);
 #ifdef DEBUGALL
-	sout <<  __PRETTY_FUNCTION__ << " Sending the buffer\n";
-  LOG4CXX_DEBUG(logger,sout.str());
-  sout.clear();
+  {
+    stringstream sout;
+    sout <<  __PRETTY_FUNCTION__ << " Sending the buffer";
+    LOG4CXX_DEBUG(logger,sout.str());
+  }
 #endif
 	f_buffer.Send(process_id);
 #ifdef DEBUGALL
-	sout <<  __PRETTY_FUNCTION__ << " Message Sent\n";
-  LOG4CXX_DEBUG(logger,sout.str());
-  sout.clear();
+  {
+    stringstream sout;
+    sout <<  __PRETTY_FUNCTION__ << " Message Sent";
+    LOG4CXX_DEBUG(logger,sout.str());
+  }
 #endif
 	delete pTask;
 	//pthread_mutex_unlock(&fCommunicate);
@@ -149,10 +154,11 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	//OOPMPICommManager *CM=(OOPMPICommManager *)(t);
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
 #ifdef DEBUG
-  stringstream sout;
-	sout << __PRETTY_FUNCTION__ << "ReceiveMsgBlocking \n";
-  LOG4CXX_DEBUG(logger,sout.str());
-  sout.clear();
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << "ReceiveMsgBlocking ";
+    LOG4CXX_DEBUG(logger,sout.str());
+  }
 #endif
 	while (1){
 		
@@ -165,9 +171,11 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	 		LocalCM->Finish("ReceiveBlocking <receive error>");
 		}
 #ifdef DEBUG
-    sout << __PRETTY_FUNCTION__ << "Calling ProcessMessage\n";
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << "Calling ProcessMessage";
     LOG4CXX_DEBUG(logger,sout.str());
-    sout.clear();
+  }
 #endif
 		LocalCM->ProcessMessage (msg);
 	}
@@ -201,11 +209,10 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 
 int OOPMPICommManager::ReceiveBlocking ()
 {
-  stringstream sout;
   if(!CM->GetProcID()){
-    sout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID() <<   "\n";
-    LOG4CXX_DEBUG(logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID();
+    LOG4CXX_DEBUG(logger,sout.str());
   }
 	
 	f_buffer.ReceiveBlocking();
@@ -219,9 +226,9 @@ int OOPMPICommManager::ReceiveBlocking ()
 //  sleep(1);
 #endif
   if(!CM->GetProcID()){
-    sout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID() <<   "\n";
-    LOG4CXX_DEBUG(logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID();
+    LOG4CXX_DEBUG(logger,sout.str());
   }
 
 	return 1;
@@ -229,7 +236,6 @@ int OOPMPICommManager::ReceiveBlocking ()
 int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 {
 	TPZSaveable *obj = msg.Restore ();
-#warning "Restore( &msg ); not implemented on OOPMPICommManager"
 	if (obj == NULL) {
 		Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
 	}
@@ -239,9 +245,9 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 	if(task) {
 		task->Submit();
 	} else {
-		sout << "OOPMPICommManager::ProcessMessage received an object which is not a task\n";
-    LOG4CXX_DEBUG(logger,sout);
-    sout.clear();
+    std::stringstream sout;
+		sout << "OOPMPICommManager::ProcessMessage received an object which is not a task";
+    LOG4CXX_DEBUG(logger,sout.str());
 		delete obj;
 	}
 	return 1;

@@ -22,7 +22,6 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
 
 class OOPStorageBuffer;
-extern ofstream TaskManLog;
 
 OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
 {
@@ -63,8 +62,8 @@ OOPMReturnType OOPWaitTask::Execute()
   //sleep(10);
   pthread_cond_wait(&fExecCond, &fExecMutex);
   stringstream sout;
-  /*TaskManLog*/ sout << "Wait task is leaving execute id " << Id() << endl;
-  LOG4CXX_WARN(logger,sout);
+  sout << "Wait task is leaving execute id " << Id();
+  LOG4CXX_WARN(logger,sout.str());
   return ESuccess;
 }
 
@@ -73,14 +72,9 @@ OOPMReturnType OOPWaitTask::Execute()
  */
 void OOPWaitTask::Finish()
 {
-//  cout << "Entering finish\n";
   pthread_mutex_lock(&fExecMutex);
-//  cout << "Acquired lock \n";
-//  TaskManLog << "Wait task signaling ExecCond " << endl;
   pthread_cond_signal(&fExecCond);
   pthread_mutex_unlock(&fExecMutex);
-//  cout << "Signaled the ExecCond and unlocked the ExecMutex\n";
-//  sleep(20);
 }
 
 

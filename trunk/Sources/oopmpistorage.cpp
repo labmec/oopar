@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: cesar $
-// $Id: oopmpistorage.cpp,v 1.28 2005-02-18 20:30:00 cesar Exp $
-// $Revision: 1.28 $
+// $Author: phil $
+// $Id: oopmpistorage.cpp,v 1.29 2005-03-03 19:10:19 phil Exp $
+// $Revision: 1.29 $
 
 
 
@@ -68,10 +68,11 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, int mpitype)
 int OOPMPIStorageBuffer::Send (int target)
 {
 #ifdef DEBUGALL
-  stringstream sout;
-  sout << "PID" << getpid() << " Called MPI_Send ret = \n";
-  LOG4CXX_DEBUG(logger,sout.str()):
-  sout.clear();
+  {
+    stringstream sout;
+    sout << "PID" << getpid() << " Called MPI_Send ret = ";
+    LOG4CXX_DEBUG(logger,sout.str()):
+  }
 #endif
 	int ret;
 	int tag = 0;
@@ -80,37 +81,36 @@ int OOPMPIStorageBuffer::Send (int target)
 #ifdef DEBUGALL
 	switch(ret){
 		case MPI_SUCCESS:
-      sout <<" - No error; MPI routine completed successfully\n";
-      LOG4CXX_DEBUG(logger,sout.str()):
-      sout.clear();
+      stringstream sout;
+      sout <<" - No error; MPI routine completed successfully";
+      LOG4CXX_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_COMM:
-      sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).\n";
-      LOG4CXX_DEBUG(logger,sout.str()):
-      sout.clear();
+      stringstream sout;
+      sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).";
+      LOG4CXX_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_COUNT:
-      sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid\n";
-      LOG4CXX_DEBUG(logger,sout.str()):
-      sout.clear();
+      stringstream sout;
+      sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid";
+      LOG4CXX_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_TYPE:
-      sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).\n";      
-      LOG4CXX_DEBUG(logger,sout.str()):
-      sout.clear();
+      stringstream sout;
+      sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).";      
+      LOG4CXX_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_TAG:
+      stringstream sout;
       sout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
             << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
             << "be MPI_ANY_TAG .  The largest tag value is available through the\n"
-            << "the attribute MPI_TAG_UB .\n";
-      LOG4CXX_DEBUG(logger,sout.str()):
-      sout.clear();
+            << "the attribute MPI_TAG_UB .";
+      LOG4CXX_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_RANK:
-      sout << "-  Invalid  source  or  destination rank.\n";
-      LOG4CXX_DEBUG(logger,sout.str()):
-      sout.clear();
+      sout << "-  Invalid  source  or  destination rank.";
+      LOG4CXX_ERROR(logger,sout.str()):
 			break;
 	}
 	cout.flush();
@@ -215,7 +215,7 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
 #ifdef DEBUGALL
   stringstream sout;
-  sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId() << endl;
+  sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId();
   LOG4CXX_DEBUG(logger,sout.str()):
 #endif
 	//MPI_Request_free(&f_request);

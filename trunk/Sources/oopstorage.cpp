@@ -59,18 +59,19 @@ OOPStorageBuffer::~OOPStorageBuffer ()
 /*** Restore ***/
 OOPSaveable *OOPStorageBuffer::Restore ()
 {
-  stringstream sout;
 	long class_id = 0; 
 	UpkLong (&class_id);
 #ifdef DEBUG
-	sout << "PID" << getpid() << " Restorig object of class Id " << class_id << endl;
-  LOG4CXX_DEBUG (logger,sout);
-  sout.clear();
+  {
+    stringstream sout;
+    sout << "PID" << getpid() << " Restorig object of class Id " << class_id;
+    LOG4CXX_DEBUG (logger,sout.str());
+  }
 #endif
 	if (!class_id) {
-    sout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore";
+    LOG4CXX_DEBUG (logger,sout.str());
 		return (0);
 	}
 	map < long, TRestFunction >::iterator i;

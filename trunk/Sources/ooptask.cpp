@@ -67,10 +67,7 @@ void OOPTask::AddDependentData (const OOPMDataDepend & depend)
 	fDataDepend.AppendDependency (depend);
 }
 void OOPTask::PrintLog(std::ostream & out, char * message){
-//	out << GLogMsgCounter << endl;
-	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message << ":" << GLogMsgCounter << endl;
-	GLogMsgCounter++;
-	out.flush();
+	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message ;
 }
 long OOPTask::ExecTime ()
 {
@@ -180,16 +177,16 @@ void OOPTask::IncrementWriteDependentData()
 	for(i=0;i<numdep;i++){
 		if(fDataDepend.Dep(i).State()==EWriteAccess){
       OOPMetaData *meta = fDataDepend.Dep(i).ObjPtr();
-      stringstream sout;
 			if(meta)
       {
         meta->IncrementVersion(Id());
+        stringstream sout;
         sout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id() << "\n";
         LOG4CXX_INFO(logger, sout.str());
-        sout.clear();
       }
       else
       {
+        stringstream sout;
         sout << __PRETTY_FUNCTION__ << " meta is NULL!!!\n";
         LOG4CXX_WARN(logger, sout.str());
       }

@@ -5,7 +5,6 @@
 using namespace std;
 class OOPDMOwnerTask;
 OOPDataLogger * LogDM = 0;
-int GLogMsgCounter = 0;
 
 void OOPDataLogger::GenerateHeader(){
 	fLogger << "ProcId\t"
@@ -40,7 +39,7 @@ void OOPDataLogger::LogReleaseAccess(int proc, OOPObjectId & Id, OOPMDataState s
 			break;
 		case  EReadAccess:
 			fLogger << "EReadAccess ";
-			fLogger << "From processor " << targetproc << endl;
+			fLogger << "From task " << taskId << " processor " << targetproc << endl;
 			break;
 		case  EWriteAccess:
 			fLogger << "EWriteAccess ";

@@ -18,11 +18,10 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPAccessInfo"));
 
 bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 {
-  stringstream sout;
   if (fIsGranted || fIsAccessing) {
+    stringstream sout;
     sout << "OOPAccessInfo::CanExecute should not be called for an object which is being accessed\n";
     LOG4CXX_WARN(logger, sout.str());
-    sout.clear();
     return false;
   }
 	// if the version is not right, don't even consider granting access
@@ -59,9 +58,11 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		return true;
 		break;
 	default:
-    sout << "OOPAccessInfo::CanExecute inconsistent\n";
-    LOG4CXX_WARN(logger, sout.str());
-    sout.clear();
+    {
+      stringstream sout;
+      sout << "OOPAccessInfo::CanExecute inconsistent\n";
+      LOG4CXX_WARN(logger, sout.str());
+    }
 		break;
 	}
 	return false;
@@ -89,10 +90,10 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
   stringstream sout;
 	ac = fList.end ();
 	if (!object.CanGrantAccess ())
-	{  
+	{
+    stringstream sout;  
     sout <<  __PRETTY_FUNCTION__ << "VerifyAccessRequests object returned CanGrantAccess false\n";
     LOG4CXX_WARN (logger, sout.str());
-    sout.clear();
     return false;
 	}
 	list < OOPAccessInfo >::iterator i;
@@ -182,13 +183,7 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
       stringstream sout;
       sout << "False AmICompatible from " << __PRETTY_FUNCTION__ 
            << " IsAccessing returns " << i->fIsAccessing << std::endl;
-#ifdef LOG4CXX      
       LOG4CXX_WARN(logger, sout.str());
-      sout.clear();
-#else
-      DataLog << sout;
-#endif
-      
     }
 		if (!AmICompatibleResult
 		    && !i->fIsAccessing) {
@@ -274,7 +269,6 @@ void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
     stringstream sout;
     sout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend <<endl;
     LOG4CXX_INFO(logger, sout.str());
-    sout.clear();
 		Print(cout);
 		cout.flush();
 	}

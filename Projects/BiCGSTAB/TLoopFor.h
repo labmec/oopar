@@ -82,6 +82,17 @@ private:
 	vector <OOPObjectId> f_lId_rtilde;
 	vector <OOPObjectId> f_lId_r;
 
-  
+  /**
+   * Submits the distributed dot prodocuct involving Id1 and Id2.
+   */
+  void SubmitDistDotProduct(vector<OOPObjectId> & Id1, vector<OOPObjectId> &Id2);
+  /**
+   * Submits the task which implements the if.
+   */
+  void SubmitIf();
+  /**
+   * Submits the second if on the loop
+   */
+  void SumbmitSecondIf();
 };
 #endif //TLOOPFOR_H

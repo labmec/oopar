@@ -4,11 +4,23 @@
 
 void TLoopFor::SubmitIf(){
  //if(rho_1==0) tol = Norm(r)/normb
+ int i, nproc;
  OOPDataVersion version = fId_rho_1.Version();
  version.DecreaseLevel();
  version.Increment();
+
+ OOPDataVersion tolVersion = fId_tol.Version();
+ tolVersion.IncrementLevel();
  
- 
+ TIfConditional * ifcond = new TIfConditional(0);
+ ifcond->AddDependentData(OOPMDataDepend(fId_rho_1, ERead, version));
+ ifcond->AddDependentData(OOPMDataDepend(fId_tol, EWrite, tolVersion));
+ ifcond->AddDependentData(OOPMDataDepend(fId_normr, ERead, tolVersion));
+ ifcond->AddDependentData(OOPMDataDepend(fId_normb, ERead, tolVersion));
+ ifcond->Submit();
+ /**
+  * fId_tol will be incremented anyway -->n+1
+  */
 }
 
 OOPMReturnType TLoopFor::Execute ()
@@ -20,12 +32,38 @@ OOPMReturnType TLoopFor::Execute ()
   SubmitDistDotProduct(f_lId_rtilde, f_lId_r);
 
   /**
-   * Submit the if conditional
+   * Submit the if conditional.
+   * fId_tol incremented.
    */
   SubmitIf();
-  
+
+  /**
+   *
+   */
+  SumbmitSecondIf();
    
 	return ESuccess;
+}
+void TLoopFor::SumbmitSecondIf(){
+  OOPDataVersion version;
+  version = fId_max_iter.Version();
+  TSecondIf * sec = new TSecondIf(0);
+  sec->AddDependentData(OOPMDataDepend(fId_max_iter, EVersion, version));
+  sec->AddDependentData(OOPMDataDepend(fId_beta, EVersion, version));
+  sec->AddDependentData(OOPMDataDepend(fId_rho_1, EVersion, version));
+  sec->AddDependentData(OOPMDataDepend(fId_rho_2, EVersion, version));
+  sec->AddDependentData(OOPMDataDepend(fId_alpha, EVersion, version));
+  sec->AddDependentData(OOPMDataDepend(fId_omega, EVersion, version));
+
+  //dentro de um for para todos os processadores
+  int i, nproc;
+  nproc = CM->NumProcessors();
+  for(i=0;i<nproc;i++){
+    sec->AddDependentData(OOPMDataDepend(f_lId_p[i], EVersion, version));
+    sec->AddDependentData(OOPMDataDepend(f_lId_r[i], EVersion, version));
+    sec->AddDependentData(OOPMDataDepend(f_lId_v[i], EVersion, version));
+  }
+  sec->Submit();
 }
 void TLoopFor::SubmitDistDotProduct(vector<OOPObjectId> & Id1, vector<OOPObjectId> &Id2)
 {
@@ -44,9 +82,9 @@ void TLoopFor::SubmitDistDotProduct(vector<OOPObjectId> & Id1, vector<OOPObjectI
   for(i=0;i<nproc;i++){
     dotprod = new TDotProduct(i);
     dotprod->AddDependentData(OOPMDataDepend(fId_rho_1, EWrite, version));
-    OOPDataVesion = rtildeVersion = f_lId_rtilde[i].Version();
+    OOPDataVesion rtildeVersion = f_lId_rtilde[i].Version();
     dotprod->AddDependentData(OOPMDataDepend(f_lId_rtilde[i],ERead,rtildeVersion));
-    OOPDataVesion = rVersion = f_lId_r[i].Version();
+    OOPDataVesion rVersion = f_lId_r[i].Version();
     dotprod->AddDependentData(OOPMDataDepend(f_lId_r[i],ERead,rVersion));
     dotprod->Submit();
   }

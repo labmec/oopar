@@ -12,7 +12,7 @@ OOPMReturnType TBiCGStab::Execute ()
 #warning "Calling submit objects which is not implemented yet, data classes"
 #warning "still need to be defined"
  	SubmitObjects();
-    SetupTaskData();
+  SetupTaskData();
 	return ESuccess;	// execute the task, verifying that
 }
 long TBiCGStab::ExecTime ()

@@ -131,51 +131,7 @@ int OOPTask::Pack(OOPSendStorage *buf)
   buf->PkInt(&fProc);	// Processor where the task should be executed
   //buf->PkLong(&fTaskId);
   buf->PkInt(&fPriority);
-  // Id assigned to the task after having been submitted
-  //int numdep = fDataDepend.length();
-	
-#ifndef WIN32
-#warning "Still to be verified all the packing and unpacking on OOPTask classes"
-#endif
-  //  deque<OOPMDataDepend>::iterator i;
-  //If any fObjPtr is not NULL issue and error message.
-//  for(i=fDataDepend.begin();i!=fDataDepend.end();i++)
-//    if(i->ObjPtr()){
-//      cerr << "Inconsistent Task communication !"
-//	   << " File:" << __FILE__
-//	   << " Line:" << __LINE__ << endl;
-//      exit(-1);
-//    }
-  OOPSaveable::Pack(buf);
-  //ObjectId packing and unpacking
-  fTaskId.Pack(buf);
-
-  buf->PkInt(&fProc);	// Processor where the task should be executed
-  //buf->PkLong(&fTaskId);
-  buf->PkInt(&fPriority);
-  // Id assigned to the task after having been submitted
-  //int numdep = fDataDepend.length();
-//  int numdep = fDataDepend.size();
-//  buf->PkInt(&numdep);
-
-//  for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
-    //Packing OOPObjectId data information
-//    i->fDataId.Pack(buf);
-    //Finished OOPObjectId
-
-//    int st = i->fNeed;
-//    buf->PkInt(&st);
-
-    //packing stl vectors for OOPDataVersion
-//    i->fVersion.Pack(buf);
-    //finished packing stl vectors for
-
-    //Still missing packing fObjPtr
-
-    //deque<OOPMDataDepend>::iterator qq = find(fDataDepend.begin(),fDataDepend.end(),d);
-    //fDataDepend.next(i);
-//  }
-
+  fDataDepend.Pack(buf);
   return 0;
 
   
@@ -183,19 +139,14 @@ int OOPTask::Pack(OOPSendStorage *buf)
 
 int OOPTask::Unpack( OOPReceiveStorage *buf )
 {
-#ifndef WIN32
-#warning "OOPTask::Unpack should be implemented"
-#endif
   OOPSaveable::Unpack(buf);
-  //OOPObjectId unpacking
-
   fTaskId.Unpack(buf);
 	
   //Finished OOPObjectId unpacking
 
   buf->UpkInt(&fProc);
-  //buf->UpkLong(&fTaskId);
   buf->UpkInt(&fPriority);
+  fDataDepend.Unpack(buf);
   return 0;
 }
 

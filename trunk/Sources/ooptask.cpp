@@ -135,7 +135,7 @@ int OOPTask::Pack(OOPSendStorage *buf)
   //int numdep = fDataDepend.length();
 	
 #ifndef WIN32
-#warning "Something else?"
+#warning "Still to be verified all the packing and unpacking on OOPTask classes"
 #endif
   //  deque<OOPMDataDepend>::iterator i;
   //If any fObjPtr is not NULL issue and error message.

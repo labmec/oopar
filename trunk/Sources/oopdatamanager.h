@@ -164,7 +164,7 @@ public:
      * Necessary for inquiring the current version of the MetaData object.
      * @param Id Identifies the object to be inquired 
      */
-    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
+//    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
 
 private:
 

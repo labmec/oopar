@@ -137,6 +137,11 @@ public:
 	 * @param depend dependency type requested.
 	 */
 	void SubmitAccessRequest(const OOPObjectId &taskId, const OOPMDataDepend &depend);
+
+	/**
+	 * Signals the object that the task is going into execution or not
+	 */
+	void SetExecute(const OOPObjectId &taskId, const OOPMDataDepend &depend, bool condition);
 	
      /**
       * Returns pointer to the TSaveable object

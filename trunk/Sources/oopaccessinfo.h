@@ -170,6 +170,11 @@ bool HasVersionAccessRequests(const OOPDataVersion &object) const;
  * Deletes the corresponding access request record from the list
  */
 	void ReleaseAccess(const OOPObjectId &taskid,const OOPMDataDepend &depend);
+
+/**
+ * Flags if the task is going into/out-of execution
+ */
+void SetExecute(const OOPObjectId &taskid, const OOPMDataDepend &depend, bool condition);
 };
 
 #endif

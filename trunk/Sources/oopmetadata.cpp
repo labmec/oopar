@@ -80,6 +80,9 @@ void OOPMetaData::SubmitAccessRequest(const OOPObjectId &taskId, const OOPMDataD
 	VerifyAccessRequests();
 }
 
+void OOPMetaData::SetExecute(const OOPObjectId &taskId, const OOPMDataDepend &depend, bool condition) {
+	fAccessList.SetExecute(taskId,depend,condition);
+}
 
 
 

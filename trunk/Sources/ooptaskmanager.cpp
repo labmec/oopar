@@ -276,6 +276,7 @@ void OOPTaskManager::Execute(){
 //		cout << (*i)->Task() << ":";
 		OOPObjectId id;
 		id = (*i)->Task()->Id();
+		(*i)->Depend().SetExecuting((*i)->Task()->Id(),false);
  		(*i)->Depend().ReleaseAccessRequests((*i)->Task()->Id());
 #ifdef DEBUG		  
 		//		cout << "Executing task on processor " << fProc << endl;
@@ -389,6 +390,7 @@ void OOPTaskManager::TransfertoExecutable(const OOPObjectId &taskid){
     OOPTaskControl * tc = (*i);
     if(tc->Task()->Id() == taskid){
 		tc->Task()->SetDependencyList(tc->Depend());
+		tc->Depend().SetExecuting(taskid,true);
 		OOPDaemonTask *dmt = dynamic_cast<OOPDaemonTask *> (tc->Task());
 		if(dmt) {
 			fExecutable.push_front(tc);

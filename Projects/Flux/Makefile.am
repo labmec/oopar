@@ -17,7 +17,9 @@ bin_PROGRAMS = main
 main_SOURCES = TTaskComm.cpp TLocalCompute.cpp TContribution.cpp TParAnalysis.cpp TParCompute.cpp \
 	TParMesh.cpp TParRhs.cpp TParState.cpp TPartitionRelation.cpp ooparmain.cpp
 
-main_LDADD = $(top_srcdir)/lib/liboopar.a /home/pos/longhin/Projetos/NeoPZ/lib/libpz.a
+main_LDADD = $(top_srcdir)/lib/liboopar.a \
+		-L$(top_srcdir)/lib/ \
+		-loopar
 #@MPIDIR@/lib/libmpi.a
 
 ## --| OOPar |------------------------------------------------------------------

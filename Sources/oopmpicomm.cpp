@@ -78,8 +78,8 @@ int OOPMPICommManager::Initialize(char *process_name, int num_of_process)
   if(f_myself==0) return f_num_proc;
   else return 0;
 }
-  
-int OOPMPICommManager::SendTaskVrt(OOPTask *pTask)
+
+int OOPMPICommManager::SendTask(OOPTask *pTask)
 {
   int process_id = pTask->GetProcID(); //processo onde ptask deve ser executada
   // Se "process_id" nao for valido.

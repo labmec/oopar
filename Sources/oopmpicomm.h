@@ -80,7 +80,7 @@ class OOPMPICommManager : public OOPCommunicationManager {
    * a SendStorage Buffer.
    * @param *pTask Pointer to TTask object to be packed.
    */
-  int SendTaskVrt(OOPTask *pTask);
+  int SendTask(OOPTask *pTask);
   /** Array of send buffers */
   OOPMPISendStorage **f_buffer;
   /** Communication argument */

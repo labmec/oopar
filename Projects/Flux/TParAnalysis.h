@@ -11,6 +11,7 @@
 #include "oopdatamanager.h"
 #include "ooptask.h"
 #include "oopdataversion.h"
+#include "fluxdefs.h"
 
 /**
  * Implements the functionalities of the Analysis classes incorporating
@@ -20,18 +21,17 @@
  */
 class TParAnalysis : public OOPTask{
 public:
-	/**
-	 * Deletes dependent Object
-	 */
-	void DeleteObjects();
+
 	TParAnalysis(int Procid);
     TParAnalysis(int Procid, int numpartitions);
-	~TParAnalysis();
     /**
      * Initializes and submit all necessary data and tasks to the Data and Task managers. 
      */
     void SetupEnvironment();
 
+  virtual long GetClassID() {
+    return TPARANAYSIS_ID;
+  }
     /**
      * Sets the version of the mesh, state and rhs to random values and creates the parcompute task
      */
@@ -51,6 +51,20 @@ public:
 
     void Print(ostream &out = cout);
 
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+  virtual int Pack(OOPSendStorage * buf);
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+  virtual int Unpack( OOPReceiveStorage *buf );
+
+  static OOPSaveable *Restore(OOPReceiveStorage *buf);
 
 
 private:

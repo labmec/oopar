@@ -15,7 +15,7 @@ CLEANFILES     = @OOP_CLEANFILES@
 bin_PROGRAMS = main
 
 main_SOURCES = TTaskComm.cpp TLocalCompute.cpp TContribution.cpp TParAnalysis.cpp TParCompute.cpp \
-	TParMesh.cpp TParRhs.cpp TParState.cpp TPartitionRelation.cpp ooparmain.cpp
+	TParMesh.cpp TParRhs.cpp TParState.cpp TPartitionRelation.cpp ooparmain.cpp multimain.cpp
 
 main_LDADD = $(top_srcdir)/lib/liboopar.a \
 		-L$(top_srcdir)/lib/ \

@@ -3,9 +3,6 @@
 #include "TParAnalysis.h"
 #include <iostream>
 
-TParAnalysis::~TParAnalysis(){
-	//DeleteObjects();
-}
 void TParAnalysis::Print(ostream &out){
 	out << "Print ParAnalysis" << endl;
 }
@@ -120,7 +117,7 @@ void TParAnalysis::CreateParCompute() {
   pc->SetRhsId(fRhsId,taskver);
   pc->SetStateId(fStateId,taskver);
   pc->SetPartitionRelationId(tableid,ver);
-  OOPMDataState st = EReadAccess;
+  //  OOPMDataState st = EReadAccess;
   //  pc->AddDependentData(tableid,st,ver);
 
   //	pc->SetPartitionRelationId(tableId , ver);
@@ -164,7 +161,6 @@ void TParAnalysis::SetAppropriateVersions() {
   ver.Increment();
   fDataDepend.Clear();
   if(ver.GetNLevels() < 2) {
-	  DeleteObjects();
 	  this->SetRecurrence(false);
   } else {
 	  int count = 0;
@@ -192,7 +188,6 @@ void TParAnalysis::AdaptSolutionVersion(OOPDataVersion &version) {
       version.SetLevelVersion(d,1); 
     }
   }
-  
 //  cout << "TParAnalysis::AdaptSolutionVersion after "; version.Print(cout);
 }
 
@@ -216,11 +211,46 @@ TParAnalysis::TParAnalysis(int Procid, int numpartitions) : OOPTask(Procid) {
 	SetRecurrence();
 }
 
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+int TParAnalysis::Pack(OOPSendStorage * buf) {
 
-void TParAnalysis::DeleteObjects(){
-	//Deletting all fMeshIds.
-	int i=0;
-	for(i=0;i<fNumPartitions;i++){
-		DM->RequestDeleteObject(fMeshId[i]);
-	}
+  OOPTask::Pack(buf);
+  buf->PkInt(&fNumPartitions);
+  fRelationTable.Pack(buf);
+  fTaskVersion.Pack(buf);
+  int ip;
+  for(ip=0; ip<fNumPartitions; ip++) {
+    fRhsId[ip].Pack(buf);
+    fMeshId[ip].Pack(buf);
+    fStateId[ip].Pack(buf);
+  }
+  return 0;
+}
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+int TParAnalysis::Unpack( OOPReceiveStorage *buf ) {
+  OOPTask::Unpack(buf);
+  buf->UpkInt(&fNumPartitions);
+  fRelationTable.Unpack(buf);
+  fTaskVersion.Unpack(buf);
+  int ip;
+  for(ip=0; ip<fNumPartitions; ip++) {
+    fRhsId[ip].Unpack(buf);
+    fMeshId[ip].Unpack(buf);
+    fStateId[ip].Unpack(buf);
+  }
+  return 0;
+}
+
+OOPSaveable *TParAnalysis::Restore( OOPReceiveStorage *buf ) {
+  TParAnalysis *par = new TParAnalysis(0);
+  par->Unpack(buf);
+  return par;
 }

@@ -274,5 +274,5 @@ class   OOPTMTask:public OOPDaemonTask
   };*/
 
 extern OOPTaskManager *TM;
-
+extern ofstream TaskManLog;
 #endif

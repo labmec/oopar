@@ -63,6 +63,10 @@ void OOPTask::AddDependentData (const OOPMDataDepend & depend)
 	fDataDepend.AppendDependency (depend);
 }
 
+void OOPTask::PrintLog(ostream & out, char * message){
+	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message << endl;
+	out.flush();
+}
 
 
 

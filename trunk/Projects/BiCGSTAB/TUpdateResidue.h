@@ -24,7 +24,7 @@ public:
 	 */
 	virtual long GetClassID ()
 	{
-		return TDISTNORM_ID;
+		return TUPDATERESIDUE_ID;
 	}
 };
 #endif //TUPDATERESIDUE_H

@@ -45,9 +45,9 @@ BiCGSTAB(/*const */Operator &A, DataVector &x, DataVector &b,
       p = r;
     else {
       //beta(0) = (rho_1(0)/rho_2(0)) * (alpha(0)/omega(0));
-      beta = (rho_1/rho_2) * (alpha/omega);
+      beta = (rho_1/rho_2) * (alpha/omega); //TComputeBeta
       //p = r + beta(0) * (p - omega(0) * v);
-      p *= beta;
+      p *= beta; //p.Add(beta,1)
       p.Add(1., r);
       p.Add(- beta * omega, v);
     }

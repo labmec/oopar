@@ -50,7 +50,9 @@ int TParVector::Unpack (
 void TParVector::SetVector (
 	vector < double >data)
 {
+#ifndef WIN32
 #warning "Data should be changed to something else"
+#endif
 	fData = data;
 }
 

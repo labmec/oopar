@@ -450,12 +450,15 @@ void OOPTaskManager::Execute ()
 		cerr << "Fail to create service thread\n";
 		cerr << "Going out\n";
 		cerr.flush();
-	}
+	} 
 	cout << "Created succesfuly\n";
 	cout.flush();
 		
-	pthread_join(fexecute_thread,NULL);
+	//pthread_join(fexecute_thread,NULL);
 #endif
+}
+void OOPTaskManager::Wait(){
+	pthread_join(fexecute_thread,NULL);
 }
 void OOPTaskManager::SetKeepGoing(bool go){
 	fKeepGoing = go;

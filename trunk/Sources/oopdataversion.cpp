@@ -139,18 +139,18 @@ bool OOPDataVersion::AmICompatible (const OOPDataVersion & version) const
 	// return true;
 	if (GetNLevels () != version.GetNLevels ())
 	{
-		cerr << "Inconsistent version comparisson" << endl;
-		cerr << "Possibly an Error! File:" << __FILE__ << " Line:" <<
-			__LINE__;
-		return false;
+		cerr << "Inconsistent version comparisson\n";
+		cerr << "Different number of levels on OOPDataVersion objects\n";
+		cerr << "File:" << __FILE__ << " Line:" << __LINE__ << endl;
+		//return false;
 	}
 	unsigned int i = 0;
 	for (i = 0; i < fVersion.size (); i++)
 	{
 		// Returns false if my version is older than the one
 		// requested.
-		//cout << "Local Version " << GetLevelVersion (i) << endl;
-		//cout << "Checked Version " << version.GetLevelVersion (i) << endl;
+		// cout << "Local Version " << GetLevelVersion (i) << endl;
+		// cout << "Checked Version " << version.GetLevelVersion (i) << endl;
 		if (version.GetLevelCardinality (i) != -1){
 			if (GetLevelVersion (i) > version.GetLevelVersion (i)){
 				return false;

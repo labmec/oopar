@@ -63,8 +63,8 @@ void OOPDataLogger::LogSetVersion(int proc, OOPObjectId & Id, OOPDataVersion & o
 	fLogger << proc << "\tId " << Id << "\tSetting old version "
 						<< oldver << " To new version " << newver
 						<< "\t" << GetStateName(state)
-						<< "\t\t" << TaskId
-						<< "\t\t" << "No Comment\n";						
+						<< "\t\ttask " << TaskId << endl;
+	fLogger.flush();						
 }
 //OK
 

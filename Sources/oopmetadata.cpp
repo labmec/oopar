@@ -38,6 +38,7 @@ void OOPMetaData::VerifyAccessRequests(){
 		/*if ((i->fVersion == fVersion) &&
 		  (i->fState == State())){
 		  if (i->fProc == fProc)*/
+		// CanExecute is badly implemented. Therefore this method will not work well either
 		if(CanExecute(i->fVersion, i->fState)){
 			OOPObjectId objid;
 			objid=i->fTaskId;
@@ -57,6 +58,7 @@ void OOPMetaData::VerifyAccessRequests(){
 			}else if(i->fState==EVersionAccess){
 				//Do something
 				fTaskVersionAccess = objid;
+				cout << "Some code is missing";
 			}
 		}
 	}
@@ -65,6 +67,7 @@ void OOPMetaData::VerifyAccessRequests(){
 OOPObjectId OOPMetaData::Id() const { return fObjId;}
 bool OOPMetaData::CanExecute(OOPDataVersion & version, OOPMDataState access){
 	
+#warning "OOPMetaData::CanExecute BADLY IMPLEMENTED METHOD"
   // THIS METHOD IS OBSOLETE ANYWAY
   //	if(fTaskWrite) return false;
   //cout << "Inside CanExecute method -----------------------------------------------" << endl;
@@ -108,10 +111,12 @@ void OOPMetaData::ReleaseAccess(OOPObjectId &id, OOPMDataState st, OOPDataVersio
     i++;
   }
   if(st == EWriteAccess && id == fTaskWrite) fTaskWrite.Zero();
+  if(st == EVersionAccess && id == fTaskVersionAccess) fTaskVersionAccess.Zero();
   if(!bobj) cerr << "Release request missmatch! File:" << __FILE__ << " Line:" << __LINE__ << endl;
   if(!bstate) cerr << "State missmatch! File:" << __FILE__ << " Line:" << __LINE__ << endl;
   if(!bversion) cerr << "Version missmatch! File:" << __FILE__ << " Line:" << __LINE__ << endl;
-	
+// A task has given up its access request. Check whether another task can be granted access
+  VerifyAccessRequests();
 }
 
 OOPMDataState OOPMetaData::State(){

@@ -196,6 +196,8 @@ public:
 
 	/**
 	* Revoke access to an object
+	* It just sets some data structures to 0
+	* Doesnt seem to do what it needs to
 	*/
 	void RevokeAccess(OOPObjectId &id, OOPMDataState st);	
 

@@ -329,12 +329,6 @@ public:
 	bool    CanGrantAccess () const;
 };
 template class TPZRestoreClass<OOPMetaData,OOPMETADATA_ID>;
-/**
- *log file for MetaData objects
- */
-extern ofstream DataLog;
-extern ofstream TransferDataLog;
-extern int GLogMsgCounter;
 /*
 inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {
 	fObjPtr = ObPtr;

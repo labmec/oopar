@@ -38,81 +38,20 @@ using namespace log4cxx;
 using namespace log4cxx::helpers;
 
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskManager"));
+static LoggerPtr tasklogger(Logger::getLogger("OOPAR.OOPTaskManager.task"));
 
 void OOPTaskManager::main ()
 {
-	/* 
-	 * OOPObjectId Rhs_id[4], State_id[4], Mesh_id[4], task_id;
-	 * TMultiTask * task_0 = new TMultiTask(0); TMultiTask * task_1 = new 
-	 * TMultiTask(0); TMultiTask * task_2 = new TMultiTask(0); TMultiTask 
-	 * * task_3 = new TMultiTask(0);
-	 * 
-	 * TMultiData * Rhs = new TMultiData[4]; TMultiData * State = new
-	 * TMultiData[4]; TMultiData * Mesh = new TMultiData[4];
-	 * 
-	 * int i=0; int ntask = 4;
-	 * 
-	 * for(i=0;i<ntask;i++){ Rhs_id[i] = DM->SubmitObject(&Rhs[i], 0);
-	 * State_id[i] = DM->SubmitObject(&State[i], 0); Mesh_id[i] =
-	 * DM->SubmitObject(&Mesh[i], 0); }
-	 * 
-	 * 
-	 * 
-	 * OOPMDataState st = EWriteAccess; OOPDataVersion ver;
-	 * ver.SetLevelVersion(0,-1);
-	 * 
-	 * task_0->RhsId = Rhs_id[0];
-	 * 
-	 * task_1->RhsId = Rhs_id[1]; task_2->RhsId = Rhs_id[2];
-	 * task_3->RhsId = Rhs_id[3];
-	 * 
-	 * task_0->AddDependentData(Rhs_id[0], st, ver);
-	 * task_1->AddDependentData(Rhs_id[1], st, ver);
-	 * task_2->AddDependentData(Rhs_id[2], st, ver);
-	 * task_3->AddDependentData(Rhs_id[3], st, ver);
-	 * 
-	 * st = EReadAccess; ver.SetLevelVersion(0,-1);
-	 * 
-	 * task_0->AddDependentData(State_id[0], st, ver);
-	 * task_1->AddDependentData(State_id[1], st, ver);
-	 * task_2->AddDependentData(State_id[2], st, ver);
-	 * task_3->AddDependentData(State_id[3], st, ver);
-	 * 
-	 * task_0->AddDependentData(Mesh_id[0], st, ver);
-	 * task_1->AddDependentData(Mesh_id[1], st, ver);
-	 * task_2->AddDependentData(Mesh_id[2], st, ver);
-	 * task_3->AddDependentData(Mesh_id[3], st, ver);
-	 * 
-	 * task_0->Submit(); task_1->Submit(); task_2->Submit();
-	 * task_3->Submit(); TM->Print(TaskManLog);
-	 * 
-	 * 
-	 * 
-	 * // OOPMDataState st = EWriteAccess; // OOPDataVersion ver;
-	 * 
-	 * //ver.SetLevelVersion(0,1); // ver.Print(TaskManLog); //
-	 * task->AddDependentData(data_id, st, ver); //
-	 * ver.SetLevelVersion(0,1); // ver.Print(TaskManLog); //
-	 * task_2->AddDependentData(data_id, st, ver);
-	 * 
-	 * // task->Submit(); // task_2->Submit();
-	 * 
-	 * //DM->CheckAccessRequests(); // task->Print(TaskManLog); //
-	 * task_2->Print(TaskManLog);
-	 * 
-	 * TM->Execute(); */
 }
 void OOPTaskManager::TransferExecutingTasks(){
-
-  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_DEBUG (logger,sout.str());
   }
 	list < OOPTaskControl * >::iterator sub;
-	int listsize = fExecuting.size();
+//	int listsize = fExecuting.size();
 	sub = fExecuting.begin();
 	OOPTaskControl * auxtc=0;
 	while (sub != fExecuting.end()){
@@ -124,18 +63,17 @@ void OOPTaskManager::TransferExecutingTasks(){
       isfinished = auxtc->TaskFinished();
     } else
     {
+      stringstream sout;
       sout << __FUNCTION__ << " I dont understand \n";
-      LOG4CXX_DEBUG (logger,sout);
-      sout.clear();
+      LOG4CXX_DEBUG (logger,sout.str());
     }
   
 //		pthread_mutex_unlock(&fExecutingMutex);
 		if (isfinished){
       auxtc->Join();
-      /*TaskManLog*/ sout << __PRETTY_FUNCTION__ << "Task finished " << auxtc->Task()->Id() << " classid " << auxtc->Task()->ClassId() << endl;
-      LOG4CXX_DEBUG (logger,sout);
-      sout.clear();
-      //TaskManLog.flush();
+      stringstream sout;
+      sout << __PRETTY_FUNCTION__ << "Task finished " << auxtc->Task()->Id() << " classid " << auxtc->Task()->ClassId();
+      LOG4CXX_DEBUG (logger,sout.str());
 			OOPObjectId id;
 			id = auxtc->Task ()->Id ();
 			auxtc->Depend ().SetExecuting (id, false);
@@ -180,12 +118,11 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	CM->ReceiveMessages ();
 	lTM->TransferSubmittedTasks ();
 	list < OOPTaskControl * >::iterator i;
-	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
-	// "\n";
-  /*TaskManLog*/ sout << "Entering task list loop" << endl;
-  LOG4CXX_DEBUG (logger,sout);
-  sout.clear();
-	//PrintTaskQueues("Antes", TaskQueueLog);
+  {
+    std::stringstream sout;
+    sout << "Entering task list loop";
+    LOG4CXX_DEBUG (logger,sout.str());
+  }
 	lTM->fKeepGoing=true;
 	lTM->ExecuteDaemons();
 	while (lTM->fKeepGoing) {
@@ -197,10 +134,11 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			lTM->fExecutable.erase(i);
 			lTM->fExecuting.push_back(tc);
 			tc->Task()->SetExecuting(true);
-      /*TaskManLog*/ sout << "Entering taskcontrol execute for task " << tc->Task()->Id() << " classid " << tc->Task()->ClassId() << endl;
-      LOG4CXX_DEBUG (logger,sout);
-      sout.clear();
-//       TaskManLog.flush();
+      {
+        stringstream sout;
+        sout << "Entering taskcontrol execute for task " << tc->Task()->Id() << " classid " << tc->Task()->ClassId();
+        LOG4CXX_DEBUG (tasklogger,sout.str());
+      }
       tc->Execute();
 			lTM->TransferExecutingTasks();
 			DM->SubmitAllObjects();
@@ -239,7 +177,6 @@ void * OOPTaskManager::ExecuteMT(void * data){
       }
 		}
 	}
-	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
 	
 	return NULL;
@@ -274,15 +211,12 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 					  const OOPMDataDepend & depend,
 					  OOPMetaData * objptr)
 {
-  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_ERROR (logger,sout.str());
   }
-	TaskManLog << GLogMsgCounter << endl;
-	GLogMsgCounter++;
 	list < OOPTaskControl * >::iterator i;
 	bool found = false;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
@@ -290,44 +224,41 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 		if (tc->Task ()->Id () == TaskId) {
 			found = true;
 			tc->Depend ().GrantAccess (depend, objptr);
-#ifdef DEBUG
-			/*TaskManLog*/ sout << "Access Granted to taskId " << TaskId  << " classid " << tc->Task()->ClassId();
-//			TaskId.Print (TaskManLog);
-			/*TaskManLog*/ sout << " on data " << depend.Id() << endl;
-      LOG4CXX_DEBUG (logger,sout);
-      sout.clear();
-//			depend.Id ().Print (TaskManLog);
-#endif
+      {
+        stringstream sout;
+        sout << "Access Granted to taskId " << TaskId  << " classid " << tc->Task()->ClassId();
+        sout << " on data " << depend.Id();
+        LOG4CXX_DEBUG (tasklogger,sout.str());
+      }
 			if (tc->Depend ().CanExecute ()) {
 				TransfertoExecutable (tc->Task ()->Id ());
-				/*TaskManLog*/ sout << "OOPTaskManager task is executable " << TaskId << " classid " << tc->Task()->ClassId() << endl;
-        LOG4CXX_DEBUG (logger,sout);
-        sout.clear();
-//				TaskId.Print (TaskManLog);
+        {
+          stringstream sout;
+          sout << "OOPTaskManager task is executable " << TaskId << " classid " << tc->Task()->ClassId();
+          LOG4CXX_DEBUG (tasklogger,sout.str());
+        }
 			}
 			break;
 		}
 	}
 	if (!found) {
+    stringstream sout;
 		sout << "Task not found on current TM: File:" << __FILE__ <<
 			" Line:" << __LINE__ << endl;
-		sout << "Task \n";
+		sout << " Task ";
 		TaskId.Print (sout);
-    LOG4CXX_DEBUG (logger,sout);
+    LOG4CXX_ERROR (tasklogger,sout.str());
 	}
 }
 void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 				   const OOPMDataDepend & depend)
 {
-  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_ERROR (logger,sout.str());
   }
-	TaskManLog << GLogMsgCounter << endl;
-	GLogMsgCounter++;
 	list < OOPTaskControl * >::iterator i;
 	bool found = false;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
@@ -335,71 +266,68 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 		if (tc->Task ()->Id () == TaskId) {
 			found = true;
 			tc->Depend ().RevokeAccess (depend);
-#ifdef DEBUG
-			/*TaskManLog*/ sout << "Access Revoked to taskId " << TaskId << " classid " << tc->Task()->ClassId();
-//			TaskId.Print (TaskManLog);
-			/*TaskManLog*/ sout << " on data " << depend.Id() << endl;
-      LOG4CXX_DEBUG (logger,sout);
-      sout.clear();
-//			depend.Id ().Print (TaskManLog);
-#endif
+      stringstream sout;
+			sout << "Access Revoked to taskId " << TaskId << " classid " << tc->Task()->ClassId();
+			sout << " on data " << depend.Id();
+      LOG4CXX_DEBUG (logger,sout.str());
 			break;
 		}
 	}
 	if (!found) {
+    stringstream sout;
 		sout << "OOPTaskManager::RevokeAccess Task not found on current TM: File:" << __FILE__ << " Line:" << __LINE__ << endl;
-		sout << "Task \n";
+		sout << "Task ";
 		TaskId.Print (sout);
-    LOG4CXX_DEBUG (logger,sout);
+    LOG4CXX_DEBUG (logger,sout.str());
 	}
 }
 void OOPTaskManager::SubmitDaemon (OOPDaemonTask * task) {
-  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_DEBUG (logger,sout.str());
   }
   if(task->GetProcID() != this->fProc) 
   {
-    /*TaskManLog*/ sout << __PRETTY_FUNCTION__ << " Sending a daemon task to proc " << task->GetProcID() << " classid " << task->ClassId() << endl;;
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Sending a daemon task to proc " << task->GetProcID() << " classid " << task->ClassId();
     CM->SendTask(task);
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    LOG4CXX_DEBUG (logger,sout.str());
   }
   else
   {
-	/*TaskManLog*/ sout << __PRETTY_FUNCTION__ << " Submitting a daemon task " << " classid " << task->ClassId() << endl;
-    LOG4CXX_DEBUG (logger,sout);
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Submitting a daemon task " << " classid " << task->ClassId();
+    LOG4CXX_DEBUG (logger,sout.str());
     fDaemon.push_back(task);
   }
 }
 OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 {
-  stringstream sout;
-	TaskManLog << GLogMsgCounter << endl;
-	GLogMsgCounter++;
-	/*TaskManLog*/ sout << "Calling Submit on OOPTaskManager ";
-  //TaskManLog.flush();
-  LOG4CXX_DEBUG (logger,sout);
-  sout.clear();
+  {
+    stringstream sout;
+    sout << "Calling Submit on OOPTaskManager ";
+    LOG4CXX_DEBUG (logger,sout.str());
+  }
+
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
         OOPObjectId id;
 	if(dmt) {
-    /*TaskManLog*/ sout << "Task Submitted is a daemon\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << "Task Submitted is a daemon";
+    LOG4CXX_DEBUG (logger,sout.str());
 	} else 
-        {
-          id = task->Id();
-          if(id.IsZeroOOP()) id = GenerateId ();
-          task->SetTaskId (id);
-        }
-	/*TaskManLog*/ sout << __PRETTY_FUNCTION__ << " Task with id " << task->Id() << " submitted for processor" << task->GetProcID() << " classid " << task->ClassId() << endl;
-	//TaskManLog.flush();
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+  {
+    id = task->Id();
+    if(id.IsZeroOOP()) id = GenerateId ();
+    task->SetTaskId (id);
+  }
+  { 
+    stringstream sout;     
+    sout << __PRETTY_FUNCTION__ << " Task with id " << task->Id() << " submitted for processor" << task->GetProcID() << " classid " << task->ClassId();
+    LOG4CXX_DEBUG (tasklogger,sout.str());
+  }
 #ifdef DEBUG
       OOPWaitTask *wait = dynamic_cast<OOPWaitTask *> (task);
   if(!wait && !dmt && !CM->GetProcID())
@@ -457,9 +385,8 @@ int OOPTaskManager::NumberOfTasks ()
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_DEBUG (logger,sout.str());
   }
 	pthread_mutex_lock(&fSubmittedMutex);
 //	pthread_mutex_lock(&fFinishedMutex);
@@ -474,9 +401,8 @@ bool OOPTaskManager::HasWorkTodo ()
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_DEBUG (logger,sout.str());
   }
 	pthread_mutex_lock(&fSubmittedMutex);
 //	pthread_mutex_lock(&fFinishedMutex);
@@ -493,9 +419,8 @@ int OOPTaskManager::ChangePriority (OOPObjectId & taskid, int newpriority)
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_DEBUG (logger,sout.str());
   }
 	OOPTask *t = FindTask (taskid);
 	if (t) {
@@ -506,27 +431,21 @@ int OOPTaskManager::ChangePriority (OOPObjectId & taskid, int newpriority)
 }
 int OOPTaskManager::CancelTask (OOPObjectId taskid)
 {
-  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_ERROR (logger,sout.str());
   }
   
-	/*TaskManLog*/ sout << GLogMsgCounter << endl;
-  LOG4CXX_DEBUG (logger,sout);
-  sout.clear();
-	GLogMsgCounter++;
 	list < OOPTaskControl * >::iterator i;	// , iprev, atual;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = *i;
 		if (tc->Task ()->Id () == taskid) {
-      /*TaskManLog*/sout << "Task erased ";
-      /*TaskManLog*/sout << "Task ID " << tc->Task()->Id() << " classid " << tc->Task()->ClassId() << endl;
-      LOG4CXX_DEBUG (logger,sout);
-      sout.clear();
-//			tc->Task ()->Id ().Print (TaskManLog);
+      stringstream sout;
+      sout << "Task erased ";
+      sout << "Task ID " << tc->Task()->Id() << " classid " << tc->Task()->ClassId();
+      LOG4CXX_DEBUG (logger,sout.str());
 			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
 							     Id ());
 			delete tc;
@@ -541,9 +460,8 @@ void OOPTaskManager::ExecuteDaemons() {
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_DEBUG (logger,sout.str());
   }
 	list < OOPDaemonTask * >::iterator i;
 	while(fDaemon.size()) {
@@ -567,10 +485,6 @@ void OOPTaskManager::Execute ()
 	CM->ReceiveMessages ();
 	TransferSubmittedTasks ();
 	list < OOPTaskControl * >::iterator i;
-	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
-	// "\n";
-	// TaskManLog << "Entering task list loop" << endl;
-	//PrintTaskQueues("Antes", TaskQueueLog);
 	fKeepGoing=true;
 	ExecuteDaemons();
 	while (fKeepGoing) {
@@ -580,11 +494,9 @@ void OOPTaskManager::Execute ()
 		ExecuteDaemons();
 		while (fExecutable.size ()) {
 			//pthread_mutex_unlock(&fExecuteMutex);
-			//DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
 			i = fExecutable.begin ();
 			OOPTaskControl *tc = (*i);
 			tc->Task ()->Execute ();
-//              TaskManLog << (*i)->Task() << ":";
 			OOPObjectId id;
 			id = tc->Task ()->Id ();
 			tc->Depend ().SetExecuting (tc->Task ()->Id (),
@@ -593,12 +505,6 @@ void OOPTaskManager::Execute ()
 							       Id ());
 			DM->SubmitAllObjects();
 
-#ifdef DEBUG
-			// TaskManLog << "Executing task on processor " << fProc << 
-			// endl;
-			// id.Print(TaskManLog);
-			// TaskManLog.flush();
-#endif
 			fFinished.push_back (tc);
 			fExecutable.erase (i);
 		}
@@ -619,28 +525,32 @@ void OOPTaskManager::Execute ()
 			if(MPICM) MPICM->ReceiveBlocking();
 			#endif
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
-			sout << "Leaving blocking receive PID " << getpid() << endl;
-      LOG4CXX_DEBUG (logger,sout);
-      sout.clear();
+      stringstream sout;
+			sout << "Leaving blocking receive PID " << getpid();
+      LOG4CXX_DEBUG (logger,sout.str());
 			DM->SubmitAllObjects();
 		}
 //		pthread_mutex_unlock(&fExecuteMutex)
 	}
-	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
 #else
 //	pthread_t execute_thread;
-	sout << "Creating service thread\n";
-  LOG4CXX_DEBUG (logger,sout);
-  sout.clear();
+  {
+    stringstream sout;
+	  sout << "Creating service thread";
+    LOG4CXX_DEBUG (logger,sout.str());
+  }
 	if(pthread_create(&fExecuteThread, NULL, ExecuteMT, this)){
+    stringstream sout;
     sout << "Fail to create service thread\n";
-    sout << "Going out\n";
-    LOG4CXX_ERROR (logger,sout);
-    sout.clear();
+    sout << "Going out";
+    LOG4CXX_ERROR (logger,sout.str());
 	} 
-	sout << "Created succesfuly\n";
-  LOG4CXX_DEBUG (logger,sout);
+ {
+   stringstream sout;
+   sout << "Created succesfuly";
+   LOG4CXX_DEBUG (logger,sout.str());
+ }
 #endif
 }
 void OOPTaskManager::Wait(){
@@ -712,6 +622,10 @@ void OOPTaskManager::TransferSubmittedTasks ()
 		//OOPTask * aux = (*sub);
                	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(aux);
 		if (aux->GetProcID () != fProc) {
+      stringstream sout;
+      sout << __PRETTY_FUNCTION__ << "Transferring task " << aux->Id() << " from " << fProc <<
+           " to proc " <<  aux->GetProcID();
+      LOG4CXX_DEBUG(tasklogger,sout.str())
 			CM->SendTask (aux);
 		}
                 else if(dmt)
@@ -750,9 +664,8 @@ void OOPTaskManager::TransferFinishedTasks ()
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_DEBUG (logger,sout.str());
   }
 	list < OOPTaskControl * >::iterator sub;
 	int listsize = fFinished.size();
@@ -765,11 +678,29 @@ void OOPTaskManager::TransferFinishedTasks ()
 		fFinished.erase(sub);
 	}
 	while (auxtc){
-		if (auxtc->Task ()->GetProcID () != fProc) {
+   {
+     stringstream sout;
+     sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " <<
+         auxtc->Task()->ClassId() << " finished";
+     LOG4CXX_DEBUG(tasklogger,sout.str());
+   }
+		if (auxtc->Task ()->IsRecurrent () && auxtc->Task ()->GetProcID () != fProc) {
+      {
+        stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " <<
+            auxtc->Task()->ClassId() << " transferred from " << fProc << " to " << auxtc->Task ()->GetProcID();
+        LOG4CXX_DEBUG(tasklogger,sout.str());
+      }
 			CM->SendTask (auxtc->Task ());
 			auxtc->ZeroTask ();
 			delete auxtc;
 		}else if(auxtc->Task ()->IsRecurrent ()) {
+      {
+        stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " <<
+            auxtc->Task()->ClassId() << " resubmitted";
+        LOG4CXX_DEBUG(tasklogger,sout.str());
+      }
 			auxtc->Depend () =
 				auxtc->Task ()->GetDependencyList ();
 			auxtc->Depend ().ClearPointers ();
@@ -795,8 +726,7 @@ void OOPTaskManager::TransferFinishedTasks ()
 			auxtc = (*sub);
 			fFinished.erase (sub);
 		}
-//		pthread_mutex_unlock(&fFinishedMutex);
-		
+// pthread_mutex_unlock(&fFinishedMutex);
 	}
 }
 void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
@@ -804,9 +734,8 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    LOG4CXX_DEBUG (logger,sout);
-    sout.clear();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOG4CXX_DEBUG (logger,sout.str());
   }
 	list < OOPTaskControl * >::iterator i;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
@@ -817,7 +746,7 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 			OOPDaemonTask *dmt =
 				dynamic_cast < OOPDaemonTask * >(tc->Task ());
 			if (dmt) {
-        LOG4CXX_DEBUG (logger,"TM::TransfertoExecutable inconsistent datastructure\nThere is daemontask in the fTaskList\n");
+        LOG4CXX_ERROR (logger,"TM::TransfertoExecutable inconsistent datastructure\nThere is daemontask in the fTaskList\n");
 				SubmitDaemon(dmt);
 				tc->ZeroTask();
 				delete tc;

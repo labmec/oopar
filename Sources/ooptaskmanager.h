@@ -316,9 +316,5 @@ template class TPZRestoreClass<OOPTerminationTask,TTERMINATIONTASK_ID>;
   virtual int DerivedFrom(char *classname); // a class with name classname
   };*/
 
-extern ofstream TaskManLog;
-extern ofstream TaskQueueLog;
-extern ofstream DataQueueLog;
-extern int GLogMsgCounter;
 extern OOPTaskManager *TM;
 #endif

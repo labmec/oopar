@@ -64,8 +64,8 @@ int OOPObjectId::main ()
 		}
 	}
  
-	sout << TestDeQue.size () << endl;
-  LOG4CXX_DEBUG(logger,sout);
+	sout << TestDeQue.size () ;
+  LOG4CXX_DEBUG(logger,sout.str());
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		(*i)->Print ();
 	}

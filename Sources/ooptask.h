@@ -261,5 +261,4 @@ class   OOPDaemonTask:public OOPTask
 	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 };
 template class TPZRestoreClass<OOPDaemonTask, TDAEMONTASK_ID>;
-extern int GLogMsgCounter;
 #endif

@@ -236,7 +236,8 @@ OOPFileComManager::ReceiveMessages()
 	    //Err.Error( 1, "ReceiveMessages <Erro em Restore() do objeto>.\n" );
 	  }
 
-	  TM->Submit((OOPTask *) new_object);
+	  TM->ReSubmit((OOPTask *) new_object);
+	  //TM->Submit((OOPTask *) new_object);
 
 	  msg.UpkByte( &has_more_objects );
 	}

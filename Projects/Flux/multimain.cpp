@@ -28,7 +28,8 @@ ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
 
 int GLogMsgCounter;
-const int numproc = 10;
+int numproc;
+pthread_t receivethread;
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
 vector < OOPTaskManager * >TMList (numproc);
@@ -93,7 +94,8 @@ int multimain ()
 }
 int mpimain (int argc, char *argv[])
 {
-	int     iproc;
+	
+/*	
 	for (iproc = 0; iproc < numproc; iproc++) {
 #ifndef MPI
 		CMList[iproc] =
@@ -107,17 +109,26 @@ int mpimain (int argc, char *argv[])
 		DMList[iproc] =
 			new OOPDataManager (CMList[iproc]->GetProcID ());
 	}
+*/
+	int numproc = argc;
+	CM = new OOPMPICommManager (numproc, argv);
+	CM->Initialize (*(argv), numproc);
+	TM = new OOPTaskManager (CM->GetProcID ());
+	DM = new OOPDataManager (CM->GetProcID ());
+	
 	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
-	Load (0);
-	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);
+//	Load (0);
+
+	TParAnalysis *partask = new TParAnalysis (0, numproc, numproc);
 	TM->Submit (partask);
-	while (NumTasks ()) {
+	TM->Execute();
+	/*while (NumTasks ()) {
 		for (iproc = 0; iproc < numproc; iproc++) {
 			Load (iproc);
 			TM->Execute ();
 		}
-	}
+	}*/
 	return 0;
 }
 int NumTasks ()

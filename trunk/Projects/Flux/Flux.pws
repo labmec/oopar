@@ -1,0 +1,15 @@
+
+[executer]
+RunInTerminal=true
+
+[Project DBase]
+ShowLocals=true
+
+[filelist]
+0=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParCompute.cpp
+
+[filenumbers]
+0=21
+
+[filemarkers]
+0=

@@ -538,6 +538,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 		fVersion = ms.fVersion;
 		fProc = DM->GetProcID();
 		if(!HasReadAccess(fProc)) fReadAccessProcessors.push_back(fProc);
+		this->VerifyAccessRequests();
 		break;
 	}
 	case EGrantVersionAccess: {

@@ -21,7 +21,8 @@
 #include <ooptask.h>
 #include <bicgdefs.h>
 
-/**Implements the first set of instructions from the for loop found in the BiCGStab method. Implements the following tasks:
+/**
+ * Implements the first set of instructions from the for loop found in the BiCGStab method. Implements the following tasks:
     if (rho_1 == 0) {
       tol = Norm(r) / normb;
       return 2;
@@ -36,10 +37,15 @@
       p.Add(1., r);
       p.Add(- beta * omega, v);
     }
-    M.Solve(p, phat);//parei aqui.
-
-  *@author longhin
-  */
+    M.Solve(p, phat);
+    
+ * The M.Solve instruction must be implemented by the class instantiated by the M object.
+ * A fast solution for this is multiple inheritance. If TParMatrix were also descendent from TPZFMatrix the Solve
+ * method will be implemented in the base class.
+ * The inplications of this should checked.
+ *    
+ * @author longhin
+ */
 
 class TBiCGFor_One : public OOPTask  {
 public:

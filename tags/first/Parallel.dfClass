@@ -1,0 +1,58 @@
+package id3ugbrd9j1myfpd9j1ua6x;
+
+/**
+@version 2.0
+@__modelType diagram 
+*/
+class diagram {
+/**
+@__ref <oiref:design#Class#id2kdf5cze5ij70cze7nbna.diagram:oiref><oihard>
+@__modelType reference
+@__fqn <oiref:#Package#ParAnalysis:oiref>
+@__imported 
+*/
+class reference {
+}/**
+@__ref <oiref:design#Class#id4dystcze5ij70cze7a7iw.diagram:oiref><oihard>
+@__modelType reference
+@__fqn <oiref:#Package#ParCompute:oiref>
+@__imported 
+*/
+class reference24 {
+}/**
+@__ref <oiref:design#Class#id4hi0jcze5ij70cze63x7k.diagram:oiref><oihard>
+@__modelType reference
+@__fqn <oiref:#Package#OOPar:oiref>
+@__imported 
+*/
+class reference26 {
+}/**
+@__ref <oiref:design#Class#id16gv1cze5ij70cze65d7i.diagram:oiref><oihard>
+@__modelType reference
+@__fqn <oiref:#Package#Matrix:oiref>
+@__imported 
+*/
+class reference28 {
+}}/**
+This diagram includes the basic classes for the parallelization
+@__tags
+@shapeType ClassDiagram 
+*/
+class __tags {
+}/**
+@__options 
+*/
+class __options {
+}/**
+@__positions <oigroup:<oiref:design#Class#id4hi0jcze5ij70cze63x7k.diagram:oiref>=194,139,200,442,1:oigroup>
+<oigroup:<oiref:design#Class#id2kdf5cze5ij70cze7nbna.diagram:oiref>=12,139,102,69,1:oigroup>
+<oigroup:<oiref:cpp#Class#TPZFYsmpParMatrix:oiref>=30,1247,200,270,1:oigroup>
+<oigroup:<oiref:design#Class#id2kdf5cze5ij70cze7nbna.diagram.link61:oiref>=114,173,194,173:oigroup>
+<oigroup:<oiref:design#Class#id16gv1cze5ij70cze65d7i.diagram:oiref>=418,76,146,361,1:oigroup>
+<oigroup:<oiref:design#Class#id2kdf5cze5ij70cze7nbna.diagram.link:oiref>=80,139,235,72,235,62:oigroup>
+<oigroup:<oiref:design#Class#id4dystcze5ij70cze7a7iw.diagram.link4:oiref>=270,62,270,139:oigroup>
+<oigroup:<oiref:design#Class#id2kdf5cze5ij70cze7nbna.diagram.link5:oiref>=46,139,46,79:oigroup>
+<oigroup:<oiref:design#Class#id4dystcze5ij70cze7a7iw.diagram:oiref>=201,10,104,52,1:oigroup>
+*/
+class __positions {
+}

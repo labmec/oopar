@@ -1,0 +1,43 @@
+package id47cwtdaqomz66daqos04n;
+
+/**
+@version 2.0
+@__modelType diagram 
+*/
+class diagram {
+/**
+@__ref <oiref:cpp#Class#TData:oiref><oihard>
+@__modelType reference
+@__imported 
+*/
+class reference {
+}/**
+@__ref <oiref:cpp#Class#TDataManager:oiref><oihard>
+@__modelType reference
+@__imported 
+*/
+class reference1 {
+}/**
+@__ref <oiref:cpp#Class#TDataVersion:oiref><oihard>
+@__modelType reference
+@__imported 
+*/
+class reference2 {
+}}/**
+
+@__tags
+@shapeType ClassDiagram 
+*/
+class __tags {
+}/**
+@__options 
+*/
+class __options {
+}/**
+@__positions <oigroup:<oiref:cpp#Class#TDataVersion:oiref>=420,10,200,475,1:oigroup>
+<oigroup:<oiref:cpp#Class#TDataManager:oiref>=230,10,165,267,1:oigroup>
+<oigroup:<oiref:cpp#Class#TData:oiref>=10,10,200,605,1:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#TData#fVersion:oiref>=210,234,420,234:oigroup>
+*/
+class __positions {
+}

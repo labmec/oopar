@@ -142,7 +142,7 @@ private:
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
-	pthread_mutex_t fActOnTaskList;
+	
 	pthread_mutex_t fExecuteMutex;
 	pthread_cond_t fExecuteCondition;
 #endif

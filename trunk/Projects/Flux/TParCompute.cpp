@@ -10,10 +10,10 @@ OOPMReturnType TParCompute::Execute(){
     // increment the level of the state and rhs objects with appropriate cardinality
     for(i=0;i<fNPartitions;i++){
       TLocalCompute *ltask = new TLocalCompute(GetProcID(),i);
-      ltask->AddDependentData(fPartRelationId,EReadAccess,fPartRelationVersion);
-      ltask->AddDependentData(fMeshIds[i],EReadAccess,fMeshVersions);
-      ltask->AddDependentData(fStateIds[i],EWriteAccess,fDataVersions);
-      ltask->AddDependentData(fRhsIds[i],EWriteAccess,fDataVersions);
+      ltask->AddDependentData(OOPMDataDepend(fPartRelationId,EReadAccess,fPartRelationVersion));
+      ltask->AddDependentData(OOPMDataDepend(fMeshIds[i],EReadAccess,fMeshVersions));
+      ltask->AddDependentData(OOPMDataDepend(fStateIds[i],EWriteAccess,fDataVersions));
+      ltask->AddDependentData(OOPMDataDepend(fRhsIds[i],EWriteAccess,fDataVersions));
       ltask->SetRhsIds(fRhsIds,fDataVersions);
       ltask->Submit();
     }

@@ -35,7 +35,8 @@ void OOPTask::Print(ostream & out){
 }	
 
 void OOPTask::TaskFinished(){
-  fDataDepend.ReleaseAccessRequests(fTaskId);
+//  fDataDepend.ReleaseAccessRequests(fTaskId);
+// Is taken care of by the task manager
 }
 
 
@@ -120,7 +121,9 @@ OOPSaveable *OOPTask::Restore(OOPReceiveStorage *buf) {
 
 int OOPTask::Pack(OOPSendStorage *buf)
 {
+#ifndef WIN32
 #warning "OOPTask::Pack should be implemented"
+#endif
   OOPSaveable::Pack(buf);
   //ObjectId packing and unpacking
   fTaskId.Pack(buf);
@@ -131,16 +134,18 @@ int OOPTask::Pack(OOPSendStorage *buf)
   // Id assigned to the task after having been submitted
   //int numdep = fDataDepend.length();
 	
+#ifndef WIN32
 #warning "Something else?"
+#endif
   deque<OOPMDataDepend>::iterator i;
   //If any fObjPtr is not NULL issue and error message.
-  for(i=fDataDepend.begin();i!=fDataDepend.end();i++)
-    if(i->ObjPtr()){
-      cerr << "Inconsistent Task communication !"
-	   << " File:" << __FILE__
-	   << " Line:" << __LINE__ << endl;
-      exit(-1);
-    }
+//  for(i=fDataDepend.begin();i!=fDataDepend.end();i++)
+//    if(i->ObjPtr()){
+//      cerr << "Inconsistent Task communication !"
+//	   << " File:" << __FILE__
+//	   << " Line:" << __LINE__ << endl;
+//      exit(-1);
+//    }
   OOPSaveable::Pack(buf);
   //ObjectId packing and unpacking
   fTaskId.Pack(buf);
@@ -150,36 +155,37 @@ int OOPTask::Pack(OOPSendStorage *buf)
   buf->PkInt(&fPriority);
   // Id assigned to the task after having been submitted
   //int numdep = fDataDepend.length();
-  int numdep = fDataDepend.size();
-  buf->PkInt(&numdep);
+//  int numdep = fDataDepend.size();
+//  buf->PkInt(&numdep);
 
-  for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
+//  for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
     //Packing OOPObjectId data information
-    i->fDataId.Pack(buf);
+//    i->fDataId.Pack(buf);
     //Finished OOPObjectId
 
-    int st = i->fNeed;
-    buf->PkInt(&st);
+//    int st = i->fNeed;
+//    buf->PkInt(&st);
 
     //packing stl vectors for OOPDataVersion
-    i->fVersion.Pack(buf);
+//    i->fVersion.Pack(buf);
     //finished packing stl vectors for
 
     //Still missing packing fObjPtr
 
     //deque<OOPMDataDepend>::iterator qq = find(fDataDepend.begin(),fDataDepend.end(),d);
     //fDataDepend.next(i);
-  }
+//  }
 
   return 0;
 
   
-  return 0;
 }
 
 int OOPTask::Unpack( OOPReceiveStorage *buf )
 {
+#ifndef WIN32
 #warning "OOPTask::Unpack should be implemented"
+#endif
   OOPSaveable::Unpack(buf);
   //OOPObjectId unpacking
 

@@ -5,12 +5,12 @@
 #include "oopmetadata.h"
 
 void TLocalCompute::InitializePartitionRelationPointer() {
-  OOPMetaData *objptr = fDataDepend[0].ObjPtr();
+  OOPMetaData *objptr = fDataDepend.Dep(0).ObjPtr();
   fPartRelationPtr = dynamic_cast<TPartitionRelation *> (objptr->Ptr());
 }
 
 void TLocalCompute::ComputeLocalFluxes(){
-  OOPMetaData *ptr = fDataDepend[3].ObjPtr();
+  OOPMetaData *ptr = fDataDepend.Dep(3).ObjPtr();
   OOPDataVersion ver = ptr->Version();
   //  int nlevel = ver.GetNLevels();
   int ncontr = fPartRelationPtr->IncomingContribution(fPartition);
@@ -36,7 +36,8 @@ void TLocalCompute::TransmitFLuxes(TContribution &relation){
     TContribution *cont = &fPartRelationPtr->GetRelation(fPartition,i);
     if(cont->IsEmpty()) continue;
     TTaskComm * task = new TTaskComm(GetProcID());
-    task->AddDependentData(fDataDepend[3].fDataId, EWriteAccess, rhsver);
+	OOPMDataDepend depend(fDataDepend.Dep(3).Id(), EWriteAccess, rhsver);
+    task->AddDependentData(depend);
     task->Submit();
   }
 }

@@ -2,7 +2,7 @@
 //
 // Autor:   Fabio Amaral Castro,  RA: 991722
 //
-// Arquivo: storage_mpi.h
+// Arquivo: str_mpi.h
 //
 // Classe:  TSendStorageMpi,
 //          TReceiveStorageMpi.
@@ -18,81 +18,217 @@
 //
 // Versao:  01 / 03
 //
+
+#ifndef _STR_MPIHH_
+#define _STR_MPIHH_
+
+
+
+#include "storage.h"
 #include "oopstorage.h"
 
-
-class OOPMPISendStorage: public OOPSendStorage
-{
-  char *buffr;     //********pensar em sua dimensao
-  int position;
-public:
-
-  OOPMPISendStorage()  {position=0;}
-  ~OOPMPISendStorage() {}
-
-  // Metodos para EMPACOTAR os dados a serem enviados.
-  //  p : Ponteiro para o buffer que contem os dados a serem empacotados.
-  //  n : Numero de elementos no buffer (default: um unico dado).
-  //
-  int PkByte  ( char    *p, int n);
-  int PkInt   ( int     *p, int n);
-  int PkShort ( short   *p, int n);
-  int PkLong  ( long    *p, int n);
-  int PkUint  ( u_int   *p, int n);
-  int PkUshort( u_short *p, int n);
-  int PkUlong ( u_long  *p, int n);
-  int PkFloat ( float   *p, int n);
-  int PkDouble( double  *p, int n);
+/** 
+ * Non abstract class, which implements the send buffer
+ * using MPI (Message Passing Interface) library for 
+ * communication.
+*/
+class OOPMPISendStorage : public OOPSendStorage {
+ public:
+  /**
+   * Constructor
+   * @param f_target Processor Id for which buffer may be sent
+   */
+  OOPMPISendStorage(int f_target=-1);
+  /**
+   * Packs array of characteres into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkByte  ( char    *p, int n=1 );
+  /**
+   * Packs array of integers into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkInt   ( int     *p, int n=1 );
+  /**
+   * Packs array of short integers into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkShort ( short   *p, int n=1 );
+  /**
+   * Packs array of long integers into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkLong  ( long    *p, int n=1 );
+  /**
+   * Packs array of unsigned integers into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkUint  ( u_int   *p, int n=1 );
+  /**
+   * Packs array of unsigned short integers into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkUshort( u_short *p, int n=1 );
+  /**
+   * Packs array of unsigned long integers into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkUlong ( u_long  *p, int n=1 );
+  /**
+   * Packs array of float reals into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkFloat ( float   *p, int n=1 );
+  /**
+   * Packs array of doubles into send buffer
+   * @param p Pointer to array which has the elements to be packed
+   * @param n Number of elements to be packed
+   */
+  int PkDouble( double  *p, int n=1 );
+  /**
+   * Packs a string into send buffer
+   * @param p Pointer to string to be packed
+   */
   int PkStr   ( char *str );
+  /**
+   * Sends data stored in send buffer and clears it
+   * @param msg_id Id of the message to be sent
+   */
+  int Send( int msg_id) ;
+  //Retorna tamanho da mensagem contida no buffer
+  //Ignora os dois primeiros caracteres do buffer, que é utilizado apenas
+  //para guardar a sua dimensao quando este é enviado. Ou nao?
+  /**
+   * Returns the dimension of the stored message
+   */
+  int Length() {return (f_position - sizeof(int));}
+  /**
+   * Used for error management
+   */
+  char *ClassName()  { return( "TSendStorageMpi::" ); }
+ private:
+  /**
+   * Clears send buffer 
+   */
+  int ResetBuffer();
+  /**
+   * Expands send buffer dimension
+   */
+  void ExpandBuffer(int more_dimension);
+  /** Stores the message to be sent */
+  char *f_buffr;
+  /** Dimension of send buffer */
+  int f_size;
+  /** Length os message to be sent. Must aways
+   * be equal or lower than f_size */
+  int f_position;
+  /** Id of process for which message shall be sent */
+  int f_target_tid;  
 
-  // Envia os dados contidos no buffer e reinicializa-o.
-  int Send( int msg_id, int tid ) ;
-
-  // Usada em TError.
-  char *ClassName()  { return( "OOPMPISendStorage" ); }
-  
 };
+typedef TSendStorageMpi *PTSendStorageMpi;
 
-
-class OOPMPIReceiveStorage:public OOPReceiveStorage
-{
-  char *buffr;
-  int size,position;
-public:
-
-  OOPMPIReceiveStorage()  {size=0,position=0;}
-  virtual ~OOPMPIReceiveStorage() {};
-
-  // Metodos para DESEMPACOTAR dados do buffer.
-  //  p : Ponteiro para o buffer onde os dados serao lidos.
-  //  n : Numero de elementos a serem lidos (default: um unico dado).
-  //
-  int UpkByte  ( char    *p, int n);
-  int UpkInt   ( int     *p, int n);
-  int UpkShort ( short   *p, int n);
-  int UpkLong  ( long    *p, int n);
-  int UpkUint  ( u_int   *p, int n);
-  int UpkUshort( u_short *p, int n);
-  int UpkUlong ( u_long  *p, int n);
-  int UpkFloat ( float   *p, int n);
-  int UpkDouble( double  *p, int n);
+/** 
+ * Non abstract class, which implements the receive
+ * buffer using MPI (Message Passing Interface) library 
+ * for communication.
+*/
+class OOPMPIReceiveStorage : public OOPReceiveStorage {
+ private:
+  /** Buffer which stores received messages */
+  char *f_buffr;
+  /** Dimension of received message */
+  int f_size;
+  /** Receive buffer position to be unpack */
+  int f_position;
+  /** Id of process that sent received message */
+  int f_sender_tid;
+  /** Id of received message */
+  int f_msg_id;
+ public:
+   /**
+   * Unpacks array of characteres from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkByte  ( char    *p, int n=1 );
+  /**
+   * Unpacks array of integers from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkInt   ( int     *p, int n=1 );
+  /**
+   * Unpacks array of short integers from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkShort ( short   *p, int n=1 );
+  /**
+   * Unpacks array of long integers from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkLong  ( long    *p, int n=1 );
+  /**
+   * Unpacks array of unsigned integers from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkUint  ( u_int   *p, int n=1 );
+  /**
+   * Unpacks array of unsigned short integers from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkUshort( u_short *p, int n=1 );
+  /**
+   * Unpacks array of unsigned long integers from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkUlong ( u_long  *p, int n=1 );
+  /**
+   * Unpacks array of float reals from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkFloat ( float   *p, int n=1 );
+  /**
+   * Unpacks array of double reals from received buffer
+   * @param p Pointer to array for which elements must be unpacked
+   * @param n Number of elements to be unpacked
+   */
+  int UpkDouble( double  *p, int n=1 );
+  /**
+   * Unpacks a string from received buffer
+   * @param p Pointer to string to  be unpacked
+   */
   int UpkStr   ( char *str );
-
-  static void AddClassRestore(long classid,TRestFunction f);
-
-  // Recebe os dados para o buffer.
-  int Receive(int msg_id, int tid);
-
-  // Restaura o proximo objeto do buffer.
-  //
-  OOPSaveable *Restore();
-
-  char *ClassName() { return( "OOPMPIReceiveStorage" ); }
-
-
-private:
-
-  static map<long,void*> gFuncTree;
+  /**
+   * Nonblocking receive. If there is a posted message to
+   * be received, receives it and returns 1. Else, retuns 0
+   */
+  int Receive();
+  /**
+   * Blocking receive. Execution stops and awaits until a 
+   * posted message is received
+   */
+  int ReceiveBlocking();
+  /**
+   * Used for error management
+   */
+  char *ClassName() { return( "TReceiveStorageMpi::" ); }
 
 };
+typedef TReceiveStorageMpi *PTReceiveStorageMpi;
 
+#endif

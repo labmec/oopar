@@ -119,13 +119,12 @@ void OOPDataManager::main(){
 OOPDataManager::~OOPDataManager ()
 {
 	map< OOPObjectId,  OOPMetaData * >::iterator i=fObjects.begin ();
-      while(i!=fObjects.end()){
-            i = fObjects.begin ();
+	for(;i!=fObjects.end();i++){
             OOPSaveable *dead = (*i).second->Ptr();
             delete dead;
-            delete (*i).second;
-            fObjects.erase(i);
-      }
+			delete (i->second);
+		  	fObjects.erase(i);
+	}
 	fObjects.clear ();
 	DataManLog << "Terminating DM\n";
 	DataManLog.flush();
@@ -177,7 +176,7 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 				new OOPMetaData (0, depend.Id (),
 						 depend.Id ().GetProcId ());
 			dat->SetTrace (true);	// Erico
-			fObjects.insert(make_pair(depend.Id(), dat));	// [id] = dat;
+			fObjects[depend.Id()]= dat;	// [id] = dat;
 			dat->SubmitAccessRequest (TaskId, depend,
 						  GetProcID ());
 			return 1;
@@ -200,11 +199,8 @@ OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 	OOPObjectId id = DM->GenerateId ();
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor);
 	dat->SetTrace (trace);	// Erico
-	fObjects.insert(make_pair(id, dat));	// [id] = dat;
-	map<OOPObjectId, OOPMetaData *>::iterator i;
-	cout << fObjects.size() << endl;
-	for(i=fObjects.begin();i!=fObjects.end();i++)
-		i->second->Print(cout);
+	fObjects[id] = dat;	// [id] = dat;
+	
 	/* 
 	 * TDMOwnerTask ms(ENotifyCreateObject,-1); //ms.fTaskId = //0;
 	 * ms.fTrace = trace;//Erico ms.fProcDestination = -1; ms.fProcOrigin 

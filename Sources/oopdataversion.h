@@ -64,6 +64,8 @@ class   OOPDataVersion
      * Streams out TDataVersion data structure
 	 */
 	void    Print (ostream & out = cout) const;
+
+	ostream & ShortPrint(ostream &out = cout) const;
 	/**
 	 * Operator overloaded
 	 */
@@ -176,4 +178,9 @@ class   OOPDataVersion
 
 
 };
+
+inline ostream & operator<<(ostream &out, const OOPDataVersion &obj) {
+	return obj.ShortPrint(out);
+}
+
 #endif // TDATAVERSION_H

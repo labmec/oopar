@@ -26,7 +26,7 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		return false;
 		break;
 	case EWriteAccess:
-		if (object.HasVersionAccess ())
+		if (object.HasVersionAccessTask ())
 			return false;
 		if (!object.HasWriteAccessTask ())
 			return true;

@@ -19,10 +19,16 @@ OOPObjectId::OOPObjectId (long ProcId, long Id)
 	fId = Id;
 }
 
-void OOPObjectId::Print (ostream & out = cout) const
+void OOPObjectId::Print (ostream & out) const
 {
 	out << "ObjectId: " << fId << endl;
 	out << "ProcessorId: " << GetProcId () << endl;
+}
+
+ostream &OOPObjectId::ShortPrint (ostream & out) const
+{
+	out << fProcId << ':' << fId;
+	return out;
 }
 
 int OOPObjectId::main ()

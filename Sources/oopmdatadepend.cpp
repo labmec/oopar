@@ -47,6 +47,10 @@ void OOPMDataDepend::Print (ostream & out) const
 	fVersion.Print (out);
 }
 
+ostream &OOPMDataDepend::ShortPrint(ostream &out) const {
+	out << "obj " << fDataId << " acc " << fNeed << " vers " << fVersion;
+	return out;
+}
 void OOPMDataDepend::Pack (OOPSendStorage * buf)
 {
 	fDataId.Pack (buf);

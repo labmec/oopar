@@ -1,0 +1,18 @@
+
+[executer]
+RunInTerminal=true
+
+[Project DBase]
+ShowLocals=true
+
+[filelist]
+0=/home/pos/longhin/Projetos/OOPar/Sources/oopdataversion.cpp
+1=/home/pos/longhin/Projetos/OOPar/Sources/oopsaveable.h
+
+[filenumbers]
+0=349
+1=1
+
+[filemarkers]
+0=
+1=

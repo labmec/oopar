@@ -3,6 +3,9 @@
 #ifndef TCONTRIBUTION_H
 #define TCONTRIBUTION_H
 
+#include "oopobjectid.h"
+#include <vector>
+using namespace std;
 /**
  * Implements the necessary information regarded to contribution from one parti-
  * tion ¨i¨ to a partition ¨j¨.
@@ -12,6 +15,7 @@
  * addressed to partition ¨j¨.
  */
 
+
 class TContribution {
 public:
 
@@ -20,36 +24,43 @@ public:
      * @param Index Identifies each vector to be returned
      * @since 23/05/2003 
      */
-    vector<TMBData> DestinationVecotor(int index);
+    vector<int> &DestinationVector(int index);
+
+    void InitializeRandom();
+
+    TContribution();
+
+    int NContributions() { return fNContributions;}
 
 private:    
 
     /**
-     * Holds the partition index of the origin partition. 
+     * ObjectId of the destination mesh
      */
-    int fFrom;
+    OOPObjectId fDestinationMesh;
 
     /**
-     * Holds the partition index which will receive the contributions. 
+     * Holds the volume indices of the origin partition. 
      */
-    int fTo;
+    vector<int> fFrom;
+
+    /**
+     * Holds the volume indices which will receive the contributions. 
+     */
+    vector<int> fTo;
 
     /**
      * Holds the indexes of local TMBData which will contribute on neighbor par-
      * tition. Each element on the TMBData has its destination indexes on each
      * TMBData of the fDestination
      */
-    vector<int> fLocalIndex;
+    vector<vector<int> > fLocalIndices;
 
     /**
      * Indicates the number of contributions between fFrom and fTo partitions. 
+     * This data could be obtained from the size of the vectors
      */
     int fNContributions;
 
-    /**
-     * Holds TMBData which contains volume indexes from the partition receiving
-     * the contribution. 
-     */
-    vector<TMBData> fDestination;
 };
 #endif //TCONTRIBUTION_H

@@ -42,7 +42,7 @@ public:
     /**
      * Generates the tasks for transmitting the local computation for its neighbor partitions. 
      */
-    void TransmitFLuxes(TContribution &);
+    void TransmitFLuxes();
 
     void ComputeLocalFluxes();
 private:    

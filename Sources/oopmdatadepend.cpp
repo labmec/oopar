@@ -45,6 +45,10 @@ int OOPMDataDependList::SubmitDependencyList(const OOPObjectId &taskid) {
   deque<OOPMDataDepend>::iterator i;
   for(i=fDependList.begin();i!=fDependList.end();i++){
     if(!DM->SubmitAccessRequest(taskid, *i)) {
+      cout << "OOPMDataDependList::SubmitDependencyList failed for task id ";
+      taskid.Print(cout);
+      cout << "With dependency ";
+      (*i).Print(cout);
       deque<OOPMDataDepend>::iterator j;
       for(j=fDependList.begin();j!=i;j++){
 		DM->ReleaseAccessRequest(taskid,*j);
@@ -61,6 +65,14 @@ void OOPMDataDependList::ReleaseAccessRequests(const OOPObjectId &taskid) {
   deque<OOPMDataDepend>::iterator i;
   for(i=fDependList.begin();i!=fDependList.end();i++){
 	DM->ReleaseAccessRequest(taskid,*i);
+  }
+}
+
+void OOPMDataDependList::ClearPointers() {
+
+  deque<OOPMDataDepend>::iterator i;
+  for(i=fDependList.begin();i!=fDependList.end();i++){
+    (*i).SetObjPtr(0);
   }
 }
 

@@ -46,7 +46,7 @@ void OOPMetaData::VerifyAccessRequests(){
 			if (i->fProc == fProc){
 				//Avisar ao TM para validar o acesso ao dado requrido
 				OOPDataVersion ver = i->fVersion;
-				OOPObjectId objData = Id();
+				//				OOPObjectId objData = Id();
 				OOPMDataDepend depend(Id(),i->fState,ver);
 				TM->NotifyAccessGranted(objid, depend, this);
 				switch (i->fState)
@@ -151,10 +151,14 @@ void OOPMetaData::SubmitAccessRequest(const OOPObjectId &taskId,const OOPDataVer
   OOPAccessInfo ac(taskId, access, version, proc);
   fTaskList.push_back(ac);
 #ifdef DEBUG
-  cout << "Access Request submitted on TData" << endl;
-  cout << "Task List size " << fTaskList.size() << endl;
+  cout << "OOPMetaData::AccessRequest submitted on TData Id";
+  Id().Print(cout);
+  cout << "My version "; Version().Print(cout);
+  cout << "Version requested ";version.Print(cout);
+  //  cout << "Task List size " << fTaskList.size() << endl;
 #endif
   if (CanExecute(version, access)){
+    cout << "OOPMetaData access granted\n";
     //take appropriate actions
     //Pegar ponteiro para o objeto TTask no TM e avisar ao tal Task que este
     //dado está pronto para ser usado.
@@ -170,7 +174,7 @@ void OOPMetaData::SubmitAccessRequest(const OOPObjectId &taskId,const OOPDataVer
 		case  EWriteAccess:
 			fTaskWrite = taskId;
 			break;
-		defaults:
+		default:
 			break;
 	}
 

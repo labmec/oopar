@@ -137,7 +137,7 @@ int OOPTask::Pack(OOPSendStorage *buf)
 #ifndef WIN32
 #warning "Something else?"
 #endif
-  deque<OOPMDataDepend>::iterator i;
+  //  deque<OOPMDataDepend>::iterator i;
   //If any fObjPtr is not NULL issue and error message.
 //  for(i=fDataDepend.begin();i!=fDataDepend.end();i++)
 //    if(i->ObjPtr()){

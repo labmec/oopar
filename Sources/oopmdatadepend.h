@@ -76,7 +76,7 @@ public:
    * returns the pointer to the task which is accessing the data
    */
   bool Status() { 
-    cout << "Pointer " << fObjPtr << endl;
+    //    cout << "Pointer " << fObjPtr << endl;
     return fObjPtr != 0;
   }
 
@@ -125,6 +125,11 @@ public:
    * deletes all elements
    */
   void Clear();
+
+  /**
+   * zeroes all the OOPMetaDataPointers
+   */
+  void ClearPointers();
 
   /**
    * @return 1 if all access requests have been granted

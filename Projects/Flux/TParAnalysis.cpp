@@ -57,6 +57,8 @@ void TParAnalysis::SetupEnvironment(){
 
   fDataDepend.Clear();
 
+  cout << "TParAnalysis dependency on all data relationtable version " << endl;
+  ver.Print(cout);
   AddDependentData(OOPMDataDepend(fRelationTable,st,ver));
 
   st = EVersionAccess;
@@ -89,7 +91,7 @@ void TParAnalysis::CreateParCompute() {
   OOPDataVersion randver;
   randver.SetLevelVersion(0,10);
   randver.IncrementLevel(13);
-  randver.SetLevelVersion(1,12);
+  randver.SetLevelVersion(1,5);
   randver.IncrementLevel(25);
   randver.SetLevelVersion(2,24);
   OOPDataVersion taskver(randver);
@@ -99,6 +101,8 @@ void TParAnalysis::CreateParCompute() {
   int count = 0;
   //Setting the data version
   //fTaskVersionAccess não estava sendo setado.
+  cout << "TParAnalysis setting the version of rhs and state to " << endl;
+  randver.Print(cout);
   while(count < 2*fNumPartitions) {
     fDataDepend.Dep(count+fNumPartitions+1).ObjPtr()->SetVersion(randver,Id());
     count++;
@@ -122,16 +126,18 @@ void TParAnalysis::CreateParCompute() {
   fDataDepend.Clear();
 
   count = 0;
-  taskver.Increment();
+  randver.Increment();
+  cout << "TParAnalysis::CreateParCompute I depend on version for rhs and state" << endl;
+  randver.Print(cout);
   while(count < fNumPartitions) {
 	//Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
-    AddDependentData(OOPMDataDepend(fStateId[count],st,taskver));
+    AddDependentData(OOPMDataDepend(fStateId[count],st,randver));
     count++;
   }
   count = 0;
   while(count < fNumPartitions) {
 	//Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
-    AddDependentData(OOPMDataDepend(fRhsId[count],st,taskver));
+    AddDependentData(OOPMDataDepend(fRhsId[count],st,randver));
     count++;
   }
   //SubmitDependentData !!!
@@ -146,6 +152,8 @@ void TParAnalysis::SetAppropriateVersions() {
   while(id<ndep) {
     OOPDataVersion solver = fDataDepend.Dep(id).ObjPtr()->Version();
     AdaptSolutionVersion(solver);
+    cout << "TParAnalysis::SetAppropriateVersion new version is ";
+    solver.Print(cout);
     fDataDepend.Dep(id).ObjPtr()->SetVersion(solver,Id());
 	id++;
   }
@@ -155,6 +163,7 @@ void TParAnalysis::AdaptSolutionVersion(OOPDataVersion &version) {
 
   int depth = fTaskVersion.GetNLevels();
   int versdepth = version.GetNLevels();
+  cout << "TParAnalysis::AdaptSolutionVersion before "; version.Print(cout);
   int d;
   for(d=versdepth; d<depth; d++) {
     int taskver = fTaskVersion.GetLevelVersion(d);
@@ -166,6 +175,7 @@ void TParAnalysis::AdaptSolutionVersion(OOPDataVersion &version) {
       version.SetLevelVersion(d,1); 
     }
   }
+  cout << "TParAnalysis::AdaptSolutionVersion after "; version.Print(cout);
 }
 
 OOPMReturnType TParAnalysis::Execute() {

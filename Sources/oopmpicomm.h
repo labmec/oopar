@@ -18,6 +18,7 @@
 #include "oopcommmanager.h"
 class   OOPMPISendStorage;
 class   OOPMPIReceiveStorage;
+
 /**
    Non abstract class which implements the OOPar Communicator Manager using the MPI (Message Passing Interface) communication libray.
 */
@@ -94,7 +95,6 @@ class   OOPMPICommManager:public OOPCommunicationManager
 	char  **f_argv;
 	bool fReceiveThreadExists;
 	pthread_t fReceiveThread;
-	  
 };
 
 #endif

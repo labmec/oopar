@@ -83,6 +83,7 @@ OOPTaskManager::OOPTaskManager (int proc)
 	fMaxId = fLastCreated + NUMOBJECTS;
 	pthread_cond_init(&fExecuteCondition, NULL);
 	pthread_mutex_init(&fExecuteMutex, NULL);
+	
 }
 OOPTaskManager::~OOPTaskManager ()
 {
@@ -296,7 +297,9 @@ void OOPTaskManager::Execute ()
 	//PrintTaskQueues("Antes", TaskQueueLog);
 	ExecuteDaemons();
 	while (1) {
+		//pthread_mutex_lock(&fExecuteMutex);
 		while (fExecutable.size ()) {
+			//pthread_mutex_unlock(&fExecuteMutex);
 			//DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
 			i = fExecutable.begin ();
 			OOPTaskControl *tc = (*i);
@@ -333,6 +336,7 @@ void OOPTaskManager::Execute ()
 			cout.flush();
 		}
 		pthread_mutex_unlock(&fExecuteMutex);	
+		
 			
 	}
 	//PrintTaskQueues("Depois", TaskQueueLog);

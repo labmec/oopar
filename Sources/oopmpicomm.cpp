@@ -27,6 +27,7 @@ class   OOPMPIReceiveStorage;
 class   OOPMPICommManager;
 using namespace std;
 extern OOPTaskManager *TM;
+pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 
 
 OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
@@ -119,6 +120,7 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 }
 int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
+	pthread_mutex_lock(&fCommunicate);
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
 						// ser executada
 	// Se "process_id" nao for valido.
@@ -165,6 +167,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 		}
 	// Restaura o ID do processador destino na 'task'.
 	pTask->SetProcID (process_id);
+	pthread_mutex_unlock(&fCommunicate);
 	return 1;
 };
 int OOPMPICommManager::ReceiveMessages ()
@@ -196,7 +199,9 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	while (1){
 		
 		OOPMPIReceiveStorage msg;
+		pthread_mutex_lock(&fCommunicate);
 		int ret = msg.ReceiveBlocking ();
+		pthread_mutex_unlock(&fCommunicate);
 		// se houver erro, Kill
 		if (ret <= 0) {
 	#warning "Finish("ReceiveBlocking <receive error>");\n";
@@ -213,7 +218,9 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 int OOPMPICommManager::ReceiveBlocking ()
 {
 	OOPMPIReceiveStorage msg;
+	
 	int ret = msg.ReceiveBlocking ();
+	
 	// se houver erro, Kill
 	if (ret <= 0) {
 #warning "Finish("ReceiveBlocking <receive error>");\n";
@@ -229,6 +236,7 @@ int OOPMPICommManager::SendMessages ()
 	for (int i = 0; i < f_num_proc; i++) {
 		p = f_buffer[i];
 		if (p != NULL && p->Length () > 0) {
+			pthread_mutex_lock(&fCommunicate);
 			p->PkByte (&end_of_message);	// coloca int = 0 no
 							// final da mensagem
 			//alterei aqui
@@ -238,8 +246,9 @@ int OOPMPICommManager::SendMessages ()
 #warning "Finish ("SendMessages <send error>" );"
 				cout << "SendMessages <send error>\n";
 				cout.flush();
-				exit(-1);
+				//exit(-1);
 			}
+			pthread_mutex_unlock(&fCommunicate);
 		}
 	}
 	return (1);

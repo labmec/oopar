@@ -37,6 +37,8 @@ int     NumTasks ();
 
 void    Load (int iproc);
 using namespace std;
+#include <pthread.h>
+//pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 int multimain ()
 {
 

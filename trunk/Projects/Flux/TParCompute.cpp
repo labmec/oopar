@@ -28,11 +28,17 @@ OOPMReturnType TParCompute::Execute ()
 		ltask->SetRecurrence (true);
 		ltask->Submit ();
 	}
+	PrintLog(TaskLog,"TParCompute::Execute\n");
 	cout << "TParCompute::Execute\n";
+	TaskLog << "TParCompute::Execute\n";
 	cout << "Submiting TLocalCompute tasks\n";
+	TaskLog << "Submiting TLocalCompute tasks\n";
 	cout << "fPartVersion " <<	fPartRelationVersion << endl;
+	TaskLog << "fPartVersion " <<	fPartRelationVersion << endl;
 	cout << "Mesh Version "<<	fMeshVersions << endl;
+	TaskLog << "Mesh Version "<<	fMeshVersions << endl;
 	cout << "State and Rhs Version " << fDataVersions << endl;
+	TaskLog << "State and Rhs Version " << fDataVersions << endl;
 	cout.flush ();
 	return ESuccess;
 }
@@ -79,6 +85,7 @@ void TParCompute::SetMeshId (vector < OOPObjectId > &Id,
    */
 int TParCompute::Pack (OOPSendStorage * buf)
 {
+	PrintLog(TaskLog, "Packing TParCompute object");
 
 	OOPTask::Pack (buf);
 	int i;
@@ -108,6 +115,7 @@ int TParCompute::Pack (OOPSendStorage * buf)
    */
 int TParCompute::Unpack (OOPReceiveStorage * buf)
 {
+	PrintLog(TaskLog, "Unpacking TParCompute object");
 	OOPTask::Unpack (buf);
 	int i;
 	int sz;

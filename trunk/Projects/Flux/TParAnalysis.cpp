@@ -4,6 +4,9 @@
 #include <iostream>
 #include "TParVector.h"
 
+
+//ofstream TaskLog("tasklog.log");
+
 void TParAnalysis::Print (ostream & out)
 {
 	out << "Print ParAnalysis" << endl;
@@ -63,10 +66,9 @@ void TParAnalysis::SetupEnvironment ()
 	fRelationTable = DM->SubmitObject (table, 1);
 
 	fDataDepend.Clear ();
-
-	cout << "TParAnalysis dependency on all data relationtable version "
-		<< endl;
-	ver.Print (cout);
+	char * msg = "TParAnalysis dependency on all data relationtable version ";
+	PrintLog(TaskLog, msg);
+	ver.Print (TaskLog);
 	AddDependentData (OOPMDataDepend (fRelationTable, st, ver));
 
 	st = EVersionAccess;
@@ -96,6 +98,7 @@ void TParAnalysis::CreateParCompute ()
 
 	int ndepend = fDataDepend.NElements ();
 	if (ndepend != 3 * fNumPartitions + 1) {
+		PrintLog(TaskLog, "TParAnalysis I dont understand\n");
 		cout << "TParAnalysis I dont understand\n";
 	}
 	OOPObjectId tableid = fDataDepend.Dep (0).Id ();
@@ -113,6 +116,8 @@ void TParAnalysis::CreateParCompute ()
 	int count = 0;
 	// Setting the data version
 	// fTaskVersionAccess não estava sendo setado.
+	PrintLog(TaskLog, "TParAnalysis setting the version of rhs and state to ");
+	randver.Print(TaskLog);
 	cout << "TParAnalysis setting the version of rhs and state to " <<
 		endl;
 	randver.Print (cout);
@@ -141,6 +146,8 @@ void TParAnalysis::CreateParCompute ()
 
 	count = 0;
 	randver.Increment ();
+	PrintLog(TaskLog, "TParAnalysis::CreateParCompute I depend on version for rhs and state");
+	randver.Print(TaskLog);
 	cout << "TParAnalysis::CreateParCompute I depend on version for rhs and state" << endl;
 	randver.Print (cout);
 //  while(count < fNumPartitions) {
@@ -170,6 +177,8 @@ void TParAnalysis::SetAppropriateVersions ()
 		OOPDataVersion solver =
 			fDataDepend.Dep (id).ObjPtr ()->Version ();
 		AdaptSolutionVersion (solver);
+		PrintLog(TaskLog,"TParAnalysis::SetAppropriateVersion new version is ");
+		solver.Print (TaskLog);
 		cout << "TParAnalysis::SetAppropriateVersion new version is ";
 		solver.Print (cout);
 		fDataDepend.Dep (id).ObjPtr ()->SetVersion (solver, Id ());

@@ -43,6 +43,8 @@ OOPFileComManager::OOPFileComManager ()
 OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 {
 	// Inicializa variaveis.
+	Err.GSetErrorFile("error.dat");
+	Err.SetErrorFile("errorlocal.dat");
 	f_num_proc = num_proc % 10;
 	f_myself = myID % f_num_proc;
 	strcpy (f_prefix, prefix);

@@ -396,12 +396,12 @@ OOPMetaData *OOPDataManager::Data (OOPObjectId ObjId)
 
 
 OOPDMOwnerTask::OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc):OOPDaemonTask
-	(proc)
+	(proc),fVersion(), fObjId()
 	/* , fAccessProcessors(0), fBlockingReadProcesses(0) */
 {
-	fVersion = 0;
 	fType = t;
 	fObjPtr = 0;
+	fState = ENoAccess;
 	fProcOrigin = DM->GetProcID ();
 //      fObjId = 0;
 	fTrace = 0;	// Erico
@@ -449,7 +449,7 @@ int OOPDMOwnerTask::Unpack (OOPReceiveStorage * buf)
 	buf->UpkInt (&fTrace);
 	buf->UpkInt (&fProcOrigin);
 	// Não faz sentido !!!
-
+	fObjId.Unpack(buf);
 	return 1;
 }
 

@@ -52,7 +52,7 @@ class   OOPError
 	{
 		strcpy (f_local, file);
 	}
-	void    GSetErrorFile (char *gfile)
+static void    GSetErrorFile (char *gfile)
 	{
 		strcpy (f_global, gfile);
 	}

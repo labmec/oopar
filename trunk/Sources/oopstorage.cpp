@@ -59,9 +59,9 @@ OOPSaveable *OOPReceiveStorage::Restore ()
 {
 	long class_id;
 	UpkLong (&class_id);
-	if (!class_id)
+	if (!class_id) {
 		return (0);
-
+	}
 	map < long, void *>::iterator i;
 	i = gFuncTree.find (class_id);
 	// i = gFuncTree.find(class_id);

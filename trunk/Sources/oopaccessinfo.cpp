@@ -3,7 +3,7 @@
 #include "oopmetadata.h"
 #include "ooptaskmanager.h"
 
-bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const const
+bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 {
 
 	if (fIsGranted || fIsAccessing) {
@@ -153,7 +153,7 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
 /**
  * Indicates whether any access request of type ReadAccess has been granted
  */
-bool OOPAccessInfoList::HasReadAccessGranted () const const
+bool OOPAccessInfoList::HasReadAccessGranted () const
 {
 	list < OOPAccessInfo >::const_iterator i = fList.begin ();
 	while (i != fList.end ()) {
@@ -167,7 +167,7 @@ bool OOPAccessInfoList::HasReadAccessGranted () const const
 /**
  * Indicates whether any access request of type WriteAccess has been granted
  */
-bool OOPAccessInfoList::HasWriteAccessGranted () const const
+bool OOPAccessInfoList::HasWriteAccessGranted () const
 {
 	list < OOPAccessInfo >::const_iterator i = fList.begin ();
 	while (i != fList.end ()) {
@@ -193,7 +193,6 @@ void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 }
 bool OOPAccessInfoList::HasAccessGranted (const OOPObjectId & taskid,
 					  const OOPMDataDepend & depend) const
-	const
 {
 	list < OOPAccessInfo >::const_iterator i = fList.begin ();
 	while (i != fList.end ()) {
@@ -224,7 +223,7 @@ int OOPAccessInfoList::NElements ()
  * Indicates whether write requests are filed with appropriate version
  */
 bool OOPAccessInfoList::
-HasWriteAccessRequests (const OOPDataVersion & version) const const
+HasWriteAccessRequests (const OOPDataVersion & version) const
 {
 
 	if (HasWriteAccessGranted ())
@@ -245,7 +244,7 @@ HasWriteAccessRequests (const OOPDataVersion & version) const const
  * Indicates whether version requests are filed with appropriate version
  */
 bool OOPAccessInfoList::
-HasVersionAccessRequests (const OOPDataVersion & dataversion) const const
+HasVersionAccessRequests (const OOPDataVersion & dataversion) const
 {
 
 	list < OOPAccessInfo >::const_iterator i = fList.begin ();

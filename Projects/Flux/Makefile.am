@@ -13,7 +13,7 @@ CLEANFILES     = @OOP_CLEANFILES@
 
 bin_PROGRAMS = main
 
-main_SOURCES = LocalCompResidual.cpp ParCompResidual.cpp TContribution.cpp TParAnalysis.cpp TParCompute.cpp \
+main_SOURCES = TLocalCompute.cpp TContribution.cpp TParAnalysis.cpp TParCompute.cpp \
 	TParMesh.cpp TParRhs.cpp TParState.cpp TPartitionRelation.cpp
 
 main_LDADD = $(top_srcdir)/lib/liboopar.a @MPIDIR@/lib/libmpi.a

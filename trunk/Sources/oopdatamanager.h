@@ -170,6 +170,7 @@ class   OOPDataManager
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
       public:
+	void LogMeReceived(ostream & out);
 	/**
 	 * Generates logging information
 	 */

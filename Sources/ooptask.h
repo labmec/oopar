@@ -29,6 +29,12 @@ class OOPMDataDependList;
 class OOPTask : public OOPSaveable
 {
 public:
+	/**
+	 * Returns the reference to the OOPMDataDependList object.
+	 * @since 04/07/2003
+	 * @author Gustavo C. Longhin
+	 */
+	OOPMDataDependList &Depend() { return fDataDepend;}
 	
 	void Print(ostream & out=cout);
 	/**

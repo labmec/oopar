@@ -130,3 +130,25 @@ int OOPMDataDependList::CanExecute() {
   }
   return 1;
 }
+
+bool OOPMDataDependList::AmIConsistent() {
+	deque<OOPMDataDepend>::iterator i;
+	OOPObjectId auxId;
+	OOPDataVersion auxVer;
+	
+	for(i=fDependList.begin();i!=fDependList.end();i++){
+		//Run through all elements in this list.
+		//Check with the DataManager the version of each object entry and
+		//According to its dependency issue a warning or error message ?
+		auxId = i->Id();
+		auxVer = i->Version();
+		
+		if(!i->Version().AmICompatible(DM->GetDataVersion(i->Id()))){
+			cerr << "Inconsistent version found\n" ;
+			return false;
+		}
+	}
+	return 1;
+	
+}
+

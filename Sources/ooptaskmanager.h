@@ -130,6 +130,7 @@ private:
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
   pthread_mutex_t fActOnTaskList;
+
 #endif
   /**
    * Generate a unique id number

@@ -35,11 +35,11 @@
 #include "ooperror.h"
 using namespace std;
 class   OOPSaveable;
-class   OOPReceiveStorage;
+class   OOPStorageBuffer;
 typedef unsigned int u_int;
 typedef unsigned short u_short;
 typedef unsigned long u_long;
-typedef OOPSaveable *(*TRestFunction) (OOPReceiveStorage *);
+typedef OOPSaveable *(*TRestFunction) (OOPStorageBuffer *);
 //class map;
 class   OOPSaveable;
 /**
@@ -57,58 +57,7 @@ class   OOPSendStorage:public OOPError
 	virtual ~ OOPSendStorage ()
 	{
 	}
-  /**
-	Methods for packing data to be transmitted.
-	@param p Pointer to the buffer which holds the data to be packed
-	@param n Number of elements on the buffer
-  */
-	virtual int PkByte (char *p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkInt (int *p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkShort (short *p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkLong (long *p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkUint (u_int * p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkUshort (u_short * p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkUlong (u_long * p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkFloat (float *p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkDouble (double *p, int n = 1)
-	{
-		return 0;
-	}
-	virtual int PkStr (char *str)
-	{
-		return 0;
-	}
-  /**
-   * Undocumented
-   */
-	virtual int Send (int msg_id, int tid)
-	{
-		return 0;
-	}
+
   /**
    * Returns class name.
    */
@@ -121,16 +70,16 @@ typedef OOPSendStorage *PTSendStorage;
 /**
  * Base class for for output buffers used on data transmition
  */
-class   OOPReceiveStorage:public OOPError
+class   OOPStorageBuffer:public OOPError
 {
       public:
   /**
    * Simple constructor.
    */
-	OOPReceiveStorage ()
+	OOPStorageBuffer ()
 	{
 	}
-	virtual ~ OOPReceiveStorage ();	// {}
+	virtual ~OOPStorageBuffer ();	// {}
   /**
 	Methods for unpacking data transmitted.
 	@param p Pointer to the buffer which holds the data to be packed
@@ -188,6 +137,70 @@ class   OOPReceiveStorage:public OOPError
    * Restores next object in the buffer
    */
 	OOPSaveable *Restore ();
+
+    /**
+   * 	Methods for packing data to be transmitted.
+   * 	@param p Pointer to the buffer which holds the data to be packed
+   * 	@param n Number of elements on the buffer
+    */
+	virtual int PkByte (char *p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkInt (int *p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkShort (short *p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkLong (long *p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkUint (u_int * p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkUshort (u_short * p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkUlong (u_long * p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkFloat (float *p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkDouble (double *p, int n = 1)
+	{
+		return 0;
+	}
+
+	virtual int PkStr (char *str)
+	{
+		return 0;
+	}
+
+    /**
+     * Undocumented
+     */
+	virtual int Send (int msg_id, int tid)
+	{
+		return 0;
+	}
+
   /**
    * Returns class name
    */
@@ -201,5 +214,5 @@ class   OOPReceiveStorage:public OOPError
    */
 	static  map < long, TRestFunction >gFuncTree;
 };
-typedef OOPReceiveStorage *PTReceiveStorage;
+typedef OOPStorageBuffer *PTReceiveStorage;
 #endif // _STORAGEHH_

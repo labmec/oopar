@@ -10,8 +10,8 @@
 //Includes for testing
 //#include "tmultidata.h"
 //#include "tmultitask.h"
-class   OOPSendStorage;
-class   OOPReceiveStorage;
+class   OOPStorageBuffer;
+class   OOPStorageBuffer;
 class   OOPDataVersion;
 class   OOPMetaData;
 class   OOPDMRequestTask;
@@ -206,41 +206,32 @@ void OOPDataManager::SubmitAllObjects(){
 }
 OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 {
-	// como fazer ?? 
 	OOPObjectId id = DM->GenerateId ();
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor);
 	dat->SetTrace (trace);	// Erico
 	pthread_mutex_lock(&fDataMutex);
 	fSubmittedObjects.push_back(dat);
 	pthread_mutex_unlock(&fDataMutex);
-	//cout << "Aqui " << fSubmittedObjects.size() << endl;
-	
-	/* 
-	 * TDMOwnerTask ms(ENotifyCreateObject,-1); //ms.fTaskId = //0;
-	 * ms.fTrace = trace;//Erico ms.fProcDestination = -1; ms.fProcOrigin 
-	 * = fProcessor; ms.fObjId = id; CM->SendTask(&ms); */
-	// DataManLog << "Object submitted." << endl;
 	return id;
 }
 void OOPDataManager::DeleteObject (OOPObjectId & ObjId)
 {
 	map<OOPObjectId, OOPMetaData * >::iterator i;
-	// OOPMetaData *dat=0;
-      i = fObjects.find(ObjId);
-      if(i!=fObjects.end()){
-     		delete (*i).second;
-     		fObjects.erase (i);
+	i = fObjects.find(ObjId);
+	if(i!=fObjects.end()){
+		delete (*i).second;
+		fObjects.erase (i);
 	}else{
-		// Issue a sever warning message !!!
+		// Issue a server warning message !!!
 		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
 	}
 }
 void OOPDataManager::RequestDeleteObject (OOPObjectId & ObjId)
 {
 	map < OOPObjectId, OOPMetaData * >::iterator i;
-      i=fObjects.find(ObjId);
+    i=fObjects.find(ObjId);
 	if (i != fObjects.end ()) {
-            (*i).second->RequestDelete ();
+		(*i).second->RequestDelete ();
 	}else{
 		// Issue a sever warning message !!!
 		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
@@ -250,13 +241,13 @@ void OOPDataManager::TransferObject (OOPObjectId & ObjId, int ProcId)
 {
 	map < OOPObjectId, OOPMetaData * >::iterator i;
 	OOPMetaData *dat = 0;
-      i=fObjects.find(ObjId);
+    i=fObjects.find(ObjId);
 	if(i != fObjects.end ()) {
 		dat = (*i).second;
-           	dat->TransferObject (ProcId);
+      	dat->TransferObject (ProcId);
 	}else{
             return;
-      }
+    }
 }
 void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 {
@@ -388,7 +379,7 @@ OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
 {
 	fProcOrigin = -1;
 }
-int OOPDMOwnerTask::Unpack (OOPReceiveStorage * buf)
+int OOPDMOwnerTask::Unpack (OOPStorageBuffer * buf)
 {
 	OOPDaemonTask::Unpack (buf);
 	int numitens;
@@ -411,7 +402,7 @@ int OOPDMOwnerTask::Unpack (OOPReceiveStorage * buf)
 		endl;
 	return 1;
 }
-OOPSaveable *OOPDMOwnerTask::Restore (OOPReceiveStorage * buf)
+OOPSaveable *OOPDMOwnerTask::Restore (OOPStorageBuffer * buf)
 {
 	OOPDMOwnerTask *t = new OOPDMOwnerTask (ENoMessage, 0);
 	t->Unpack (buf);
@@ -543,7 +534,7 @@ void OOPDMOwnerTask::LogMeReceived(ostream & out){
 	out << "\tFrom Processor " << fProcOrigin;
 	out.flush();
 }
-int OOPDMOwnerTask::Pack (OOPSendStorage * buf)
+int OOPDMOwnerTask::Pack (OOPStorageBuffer * buf)
 {
 	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<
 		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
@@ -576,7 +567,7 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 	DM->GetUpdate (this);
 	return ESuccess;
 }
-int OOPDMRequestTask::Unpack (OOPReceiveStorage * buf)
+int OOPDMRequestTask::Unpack (OOPStorageBuffer * buf)
 {
 	cout << "Unpacking RequestTask\n";
 	cout.flush();
@@ -585,13 +576,13 @@ int OOPDMRequestTask::Unpack (OOPReceiveStorage * buf)
 	fDepend.Unpack (buf);
 	return 1;
 }
-OOPSaveable *OOPDMRequestTask::Restore (OOPReceiveStorage * buf)
+OOPSaveable *OOPDMRequestTask::Restore (OOPStorageBuffer * buf)
 {
 	OOPDMRequestTask *t = new OOPDMRequestTask ();
 	t->Unpack (buf);
 	return t;
 }
-int OOPDMRequestTask::Pack (OOPSendStorage * buf)
+int OOPDMRequestTask::Pack (OOPStorageBuffer * buf)
 {
 	cout << "Packing RequestTask\n";
 	cout.flush();
@@ -628,4 +619,3 @@ void OOPDMRequestTask::LogMe(ostream & out){
 	out << "\tTo processor " << fProc << "\n";
 	out.flush();
 }
-

@@ -14,8 +14,8 @@ int OOPTask::IsRecurrent ()
 {
 	return fIsRecurrent;
 }
-class OOPSendStorage;
-class OOPReceiveStorage;
+class OOPStorageBuffer;
+class OOPStorageBuffer;
 class OOPObjectId;
 class OOPDataVersion;
 class OOPDaemonTask;
@@ -100,13 +100,13 @@ OOPObjectId OOPTask::Id ()
 {
 	return fTaskId;
 }
-OOPSaveable *OOPTask::Restore (OOPReceiveStorage * buf)
+OOPSaveable *OOPTask::Restore (OOPStorageBuffer * buf)
 {
 	OOPTask *v = new OOPTask (0);
 	v->Unpack (buf);
 	return v;
 }
-int OOPTask::Pack (OOPSendStorage * buf)
+int OOPTask::Pack (OOPStorageBuffer * buf)
 {
 	OOPSaveable::Pack (buf);
 	// ObjectId packing and unpacking
@@ -118,7 +118,7 @@ int OOPTask::Pack (OOPSendStorage * buf)
 	fDataDepend.Pack (buf);
 	return 0;
 }
-int OOPTask::Unpack (OOPReceiveStorage * buf)
+int OOPTask::Unpack (OOPStorageBuffer * buf)
 {
 	OOPSaveable::Unpack (buf);
 	fTaskId.Unpack (buf);
@@ -129,7 +129,7 @@ int OOPTask::Unpack (OOPReceiveStorage * buf)
 	fDataDepend.Unpack (buf);
 	return 0;
 }
-OOPSaveable *OOPDaemonTask::Restore (OOPReceiveStorage * buf)
+OOPSaveable *OOPDaemonTask::Restore (OOPStorageBuffer * buf)
 {
 	OOPDaemonTask *v = new OOPDaemonTask (0);
 	v->Unpack (buf);

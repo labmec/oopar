@@ -206,14 +206,14 @@ class   OOPMetaData:public OOPSaveable
 	 */
 	bool    HasVersionAccessTask () const
 	{
-		return !fTaskVersion.IsZero ();
+		return !fTaskVersion.IsZeroOOP();
 	}
 	/**
 	 * Indicates whether a task has write access to the object
 	 */
 	bool    HasWriteAccessTask () const
 	{
-		return !fTaskWrite.IsZero ();
+		return !fTaskWrite.IsZeroOOP();
 	}
 	/**
 	 * Indicates whether the task has write access to the data

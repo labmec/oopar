@@ -3,12 +3,12 @@
 #include "oopdatamanager.h"
 void ParAddClass ()
 {
-	OOPReceiveStorage::AddClassRestore (TTASK_ID, OOPTask::Restore);
-	OOPReceiveStorage::AddClassRestore (TDAEMONTASK_ID,
+	OOPStorageBuffer::AddClassRestore (TTASK_ID, OOPTask::Restore);
+	OOPStorageBuffer::AddClassRestore (TDAEMONTASK_ID,
 					    OOPDaemonTask::Restore);
-	// OOPReceiveStorage::AddClassRestore(TTMMESSAGETASK_ID,TTMMessageTask::Restore);
-	OOPReceiveStorage::AddClassRestore (TDMREQUESTTASK_ID,
+	// OOPStorageBuffer::AddClassRestore(TTMMESSAGETASK_ID,TTMMessageTask::Restore);
+	OOPStorageBuffer::AddClassRestore (TDMREQUESTTASK_ID,
 					    OOPDMRequestTask::Restore);
-	OOPReceiveStorage::AddClassRestore (TDMOWNERTASK_ID,
+	OOPStorageBuffer::AddClassRestore (TDMOWNERTASK_ID,
 					    OOPDMOwnerTask::Restore);
 }

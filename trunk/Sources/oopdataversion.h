@@ -24,12 +24,12 @@ class   OOPDataVersion
 	 * Packs the object in buffer so it can be sent through the network.
 	 * @param buf Buffer which implements the communication.
 	 */
-	int     Pack (OOPSendStorage * buf);
+	int     Pack (OOPStorageBuffer * buf);
 	/**
 	 * Unpacks the object in buffer so it can be received through the network.
 	 * @param buf Buffer which implements the communication.
 	 */
-	int     Unpack (OOPReceiveStorage * buf);
+	int     Unpack (OOPStorageBuffer * buf);
 	/**
 	 * Returns class names
 	 */

@@ -17,7 +17,6 @@
 #include "oopmpistorage.h"
 #include "oopcommmanager.h"
 class   OOPMPISendStorage;
-class   OOPMPIReceiveStorage;
 
 /**
    Non abstract class which implements the OOPar Communicator Manager using the MPI (Message Passing Interface) communication libray.
@@ -83,7 +82,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * Unpacks the received message
    * @param msg Received message to be unpacked
    */
-	int     ProcessMessage (OOPMPIReceiveStorage & msg);
+	int     ProcessMessage (OOPMPIStorageBuffer & msg);
   /**
    * Function called by TCommunicationManager::
    * SendTask(TTask*). Packs the message to be sent to
@@ -92,10 +91,14 @@ class   OOPMPICommManager:public OOPCommunicationManager
    */
 	int     SendTask (OOPTask * pTask);
   /** Array of send buffers */
-	OOPMPISendStorage f_sendbuffer;
+	//OOPMPISendStorage f_sendbuffer;
   /** Reception object for non blocking receive */
-	OOPMPIReceiveStorage f_receivebuffer;
+	//OOPMPIStorageBuffer f_receivebuffer;
   /** Communication argument */
+  /**
+   * Send and receive buffer are the same
+   */
+    OOPMPIStorageBuffer f_buffer;
 	int     f_argc;
   /** Communication argument */
 	char  **f_argv;

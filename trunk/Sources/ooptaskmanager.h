@@ -7,6 +7,7 @@
 #include "ooptask.h"
 #include <list>
 #include <set>
+class OOPStorageBuffer;
 class   OOPDataVersion;
 class   OOPSaveable;
 class   OOPTaskControl;
@@ -153,13 +154,20 @@ private:
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
-   	pthread_mutex_t fMPIMutex;
+	/**
+	 * Mutual exclusion lock for the fSubmittedList queue
+	 */
 	pthread_mutex_t fSubmittedMutex;
+	/**
+	 * Mutual exclusion lock for the setting changing the IsExecuting state of a
+	 * task.
+	 */
 	pthread_mutex_t fExecutingMutex;
+	/**
+	 * Mutual exclusion lock for accessing the fFinished queue
+	 */
 	pthread_mutex_t fFinishedMutex;
-	pthread_cond_t fMPICond;
-	pthread_cond_t fExecuteCondition;
-	pthread_cond_t fExecuteTaskCondition;
+
 
 #endif
 	static void * TriggerTask(void * data);
@@ -242,10 +250,10 @@ public:
    */
 	OOPMReturnType Execute ();
 	virtual long GetClassID ();
-	int Pack(OOPSendStorage * buf);
-	int Unpack(OOPReceiveStorage * buf);
+	int Pack(OOPStorageBuffer * buf);
+	int Unpack(OOPStorageBuffer * buf);
 	long int ExecTime();
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+	static OOPSaveable *Restore (OOPStorageBuffer * buf);
 };
 
 /*

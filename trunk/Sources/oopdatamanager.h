@@ -14,8 +14,8 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include <pthread.h>
-class   OOPSendStorage;
-class   OOPReceiveStorage;
+class   OOPStorageBuffer;
+class   OOPStorageBuffer;
 class   OOPSaveable;
 using namespace std;
 class   OOPMetaData;
@@ -25,19 +25,22 @@ class   OOPCurrentLocation;
 /**
  * Implements all the data management in the OOPar environment.
  * Acts as daemon in all processors which are part of the parallel environment.
- * Any data involved in the parallelization must be submitted to the environment through the Data Manager.
+ * Any data involved in the parallelization must be submitted to the environment
+ * through the Data Manager.
  */
 class   OOPDataManager
 {
 	friend class OOPMetaData;
-	public:
+public:
 	void PrintDataQueues(char * msg, ostream & out);
-      public:
 	/**
 	 * Used only for testing purposes
 	 */
 	static void main ();
-	       ~OOPDataManager ();
+	/**
+	 * Simple destructor
+	 */
+    ~OOPDataManager ();
 	/**
 	 * Releases the access request from TaskId on dataId and on the specifieds version and accees state
 	 * @param TaskId Identifies the task from which the access shoul be released.
@@ -158,19 +161,23 @@ class   OOPDataManager
 	* Generates a new object ID
 	*/
 	OOPObjectId GenerateId ();
+public:
 	/**
 	* Returns a pointer to the data structure
 	* @param ObjId : Id of object which must have its data structure pointer returned
 	*/
 	OOPMetaData *Data (OOPObjectId ObjId);
-      public:
     /**
      * Returns the Data Version object of the Meta data identified by Id.
      * Necessary for inquiring the current version of the MetaData object.
      * @param Id Identifies the object to be inquired 
      */
 //    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
-      private:
+private:
+	/**
+	* Mutex for accessing the fSubmittedObjects queue.
+	* Prevents simultaneos access to such queue.
+	*/
 	pthread_mutex_t fDataMutex;
 
 };
@@ -222,9 +229,9 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	{
 		return TDMOWNERTASK_ID;
 	}
-	virtual int Unpack (OOPReceiveStorage * buf);
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
-	virtual int Pack (OOPSendStorage * buf);
+	virtual int Unpack (OOPStorageBuffer * buf);
+	static OOPSaveable *Restore (OOPStorageBuffer * buf);
+	virtual int Pack (OOPStorageBuffer * buf);
 	// Apenas para DEBUG.
 	// virtual void Work() { Debug( "\nTSaveable::Work." ); }
 	// virtual void Print() { Debug( " TSaveable::Print." ); }
@@ -255,9 +262,9 @@ class   OOPDMRequestTask:public OOPDaemonTask
 	{
 		return TDMREQUESTTASK_ID;
 	}
-	virtual int Unpack (OOPReceiveStorage * buf);
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
-	virtual int Pack (OOPSendStorage * buf);
+	virtual int Unpack (OOPStorageBuffer * buf);
+	static OOPSaveable *Restore (OOPStorageBuffer * buf);
+	virtual int Pack (OOPStorageBuffer * buf);
 };
 class   OOPCurrentLocation
 {

@@ -2,6 +2,7 @@
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 #include "oopmetadata.h"
+class OOPStorageBuffer;
 OOPMDataDepend::OOPMDataDepend (const OOPObjectId & id, OOPMDataState st,
 				const OOPDataVersion & ver)
 {
@@ -75,7 +76,7 @@ void OOPMDataDepend::LogMe(ostream &out) {
 	out << "Version " << fVersion;
 }
 
-void OOPMDataDepend::Pack (OOPSendStorage * buf)
+void OOPMDataDepend::Pack (OOPStorageBuffer * buf)
 {
 	fDataId.Pack (buf);
 	int need = fNeed;
@@ -88,7 +89,7 @@ void OOPMDataDepend::Pack (OOPSendStorage * buf)
   /**
    * method to reconstruct the object
    */
-int OOPMDataDepend::Unpack (OOPReceiveStorage * buf)
+int OOPMDataDepend::Unpack (OOPStorageBuffer * buf)
 {
 	fDataId.Unpack (buf);
 	int need;
@@ -211,7 +212,7 @@ int OOPMDataDependList::CanExecute ()
 	}
 	return 1;
 }
-void OOPMDataDependList::Pack (OOPSendStorage * buf)
+void OOPMDataDependList::Pack (OOPStorageBuffer * buf)
 {
 	deque < OOPMDataDepend >::iterator i;
 	int nel = fDependList.size ();
@@ -223,7 +224,7 @@ void OOPMDataDependList::Pack (OOPSendStorage * buf)
   /**
    * method to reconstruct the object
    */
-int OOPMDataDependList::Unpack (OOPReceiveStorage * buf)
+int OOPMDataDependList::Unpack (OOPStorageBuffer * buf)
 {
 	int nel;
 	buf->UpkInt (&nel);
@@ -243,4 +244,3 @@ OOPMDataDepend & OOPMDataDependList::Dep (OOPObjectId & Id)	{
 			return *(i);
 	}
 }
-

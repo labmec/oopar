@@ -23,156 +23,52 @@
 #include "pzmanvector.h"
 #include "mpi.h"
 /** 
- * Non abstract class, which implements the send buffer
- * using MPI (Message Passing Interface) library for 
- * communication.
-*/
-class   OOPMPISendStorage:public OOPSendStorage
-{
-      public:
-  /**
-   * Constructor
-   * @param f_target Processor Id for which buffer may be sent
-   */
-	OOPMPISendStorage ();
-  /**
-   * Packs array of characteres into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkByte (char *p, int n = 1);
-  /**
-   * Packs array of integers into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkInt (int *p, int n = 1);
-  /**
-   * Packs array of short integers into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkShort (short *p, int n = 1);
-  /**
-   * Packs array of long integers into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkLong (long *p, int n = 1);
-  /**
-   * Packs array of unsigned integers into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkUint (u_int * p, int n = 1);
-  /**
-   * Packs array of unsigned short integers into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkUshort (u_short * p, int n = 1);
-  /**
-   * Packs array of unsigned long integers into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkUlong (u_long * p, int n = 1);
-  /**
-   * Packs array of float reals into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkFloat (float *p, int n = 1);
-  /**
-   * Packs array of doubles into send buffer
-   * @param p Pointer to array which has the elements to be packed
-   * @param n Number of elements to be packed
-   */
-	int     PkDouble (double *p, int n = 1);
-  /**
-   * Packs a string into send buffer
-   * @param p Pointer to string to be packed
-   */
-	int     PkStr (char *str);
-  /**
-   * Sends data stored in send buffer and clears it
-   * @param msg_id Id of the message to be sent
-   */
-	int     Send (int msg_id);
-	// Retorna tamanho da mensagem contida no buffer
-	// Ignora os dois primeiros caracteres do buffer, que é utilizado
-	// apenas
-	// para guardar a sua dimensao quando este é enviado. Ou nao?
-  /**
-   * Returns the dimension of the stored message
-   */
-	int     Length ()
-	{
-		return (f_position - sizeof (int));
-	}
-  /**
-   * Used for error management
-   */
-	char   *ClassName ()
-	{
-		return ("TSendStorageMpi::");
-	}
-private:
-
-/**
- * Generic method to pach data into an MPI buffer
- */
- int PackGeneric(void *ptr, int n, int mpitype);
-  /**
-   * Clears send buffer 
-   */
-	int     ResetBuffer ();
-  /**
-   * Expands send buffer dimension
-   */
-	void    ExpandBuffer (int more_dimension);
-  /** Stores the message to be sent */
-	TPZManVector<char,50000>   f_buffr;
-  /** Length os message to be sent. Must aways
-   * be equal or lower than number of elements of f_buffr */
-	int     f_position;
-  /** Id of process for which message shall be sent */
-	int     f_target_tid;
-};
-typedef OOPMPISendStorage *POOPMPISendStorage;
-/** 
  * Non abstract class, which implements the receive
  * buffer using MPI (Message Passing Interface) library 
  * for communication.
 */
-class   OOPMPIReceiveStorage:public OOPReceiveStorage
+class   OOPMPIStorageBuffer:public OOPStorageBuffer
 {
 	
 
 private:
   /** Buffer which stores received messages */
-	TPZManVector<char,5000> f_buffr;
+	TPZManVector<char,5000> f_recv_buffr;
+	TPZManVector<char,5000> f_send_buffr;
   /** Dimension of received message */
-	int     f_size;
+	int     f_recv_size;
+	int     f_send_size;
   /** Receive buffer position to be unpack */
-	int     f_position;
+	int     f_recv_position;
+	int     f_send_position;
   /** Id of process that sent received message */
 	int     f_sender_tid;
   /** Tag of received message */
 	int     f_msg_tag;
   /** request object for non-blocking receive operation */
 	MPI_Request  f_request;
+
+    /** Id of process for which message shall be sent */
+	int     f_target_tid;
+
   /** flag indicating whether nonblocking reception is initiated */
     int     f_isreceiving;
 
 public:
-	~OOPMPIReceiveStorage();
+	~OOPMPIStorageBuffer();
 	void FreeRequest();
 	/**
      * Contructor which initializes the buffer
 	 */
-   OOPMPIReceiveStorage() : f_buffr(50000) {
-	   f_size = 0; f_position = 0; f_sender_tid = -1; f_msg_tag = 0; f_isreceiving = 0;
+   OOPMPIStorageBuffer() : f_recv_buffr(50000) {
+       //Receiveing related initialization
+	   f_recv_size = 0; f_recv_position = 0; f_sender_tid = -1; f_msg_tag = 0; f_isreceiving = 0;
+	   f_send_size = 0;
+	   f_send_position = 0;
+	   ResetBuffer();
+       //Sending related initialization
+       //Should this be called ? I dont think so
+       //ResetBuffer ();
    }
   /**
    * Restores next object in the buffer
@@ -251,13 +147,117 @@ public:
    * posted message is received
    */
 	int     ReceiveBlocking ();
+
+    /**
+     * Packs array of characteres into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkByte (char *p, int n = 1);
+
+    /**
+     * Packs array of integers into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkInt (int *p, int n = 1);
+
+    /**
+     * Packs array of short integers into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkShort (short *p, int n = 1);
+
+    /**
+     * Packs array of long integers into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkLong (long *p, int n = 1);
+
+    /**
+     * Packs array of unsigned integers into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkUint (u_int * p, int n = 1);
+
+    /**
+     * Packs array of unsigned short integers into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkUshort (u_short * p, int n = 1);
+
+    /**
+     * Packs array of unsigned long integers into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkUlong (u_long * p, int n = 1);
+
+    /**
+     * Packs array of float reals into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkFloat (float *p, int n = 1);
+
+    /**
+     * Packs array of doubles into send buffer
+     * @param p Pointer to array which has the elements to be packed
+     * @param n Number of elements to be packed
+     */
+	int     PkDouble (double *p, int n = 1);
+
+    /**
+     * Packs a string into send buffer
+     * @param p Pointer to string to be packed
+     */
+	int     PkStr (char *str);
+
+    /**
+     * Sends data stored in send buffer and clears it
+     * @param msg_id Id of the message to be sent
+     */
+	int     Send (int msg_id);
+
+    /**
+     * Returns the dimension of the stored message
+     */
+	int     Length ()
+	{
+		return (f_send_position - sizeof (int));
+	}
+
+private:
+
+    /**
+     * Generic method to pach data into an MPI buffer
+     */
+    int PackGeneric(void *ptr, int n, int mpitype);  
+
+    /**
+       * Clears send buffer 
+       */
+
+public:
+	int     ResetBuffer (int size = 0);  
+private:
+    /**
+       * Expands send buffer dimension
+       */
+	void    ExpandBuffer (int more_dimension);
+
+public:
   /**
    * Used for error management
    */
 	char   *ClassName ()
 	{
-		return ("TReceiveStorageMpi::");
+		return ("OOPMPIStorageBuffer::");
 	}
 };
-typedef OOPMPIReceiveStorage *POOPMPIReceiveStorage;
+typedef OOPMPIStorageBuffer *POOPMPIStorageBuffer;
 #endif

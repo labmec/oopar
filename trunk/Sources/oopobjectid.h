@@ -15,27 +15,30 @@ using namespace std;
 class   OOPObjectId
 {
       public:
+
 	/**
+	 * returns true if the id is zero
+	 * REMARC
+	 * The name changed to IsZeroOOP because of error on the CFDk integration,
+	 * be changed to the correct name as soon as possible.
+	 */
+	int IsZeroOOP() const;
+
+	  /**
 	 * Packs itself in a buffer so it can be sent through the network.
 	 * @param buf Buffer which is sent through the net.
 	 */
-	int     Pack (OOPSendStorage * buf);
+	int     Pack (OOPStorageBuffer * buf);
 	/**
 	 * Unpacks itself from a buffer so it can be received through the network.
 	 * @param buf Buffer which is received through the net.
 	 */
-	int     Unpack (OOPReceiveStorage * buf);
+	int     Unpack (OOPStorageBuffer * buf);
 	/**
 	 * Assign zero to ObjectId data structure
 	 */
 	void    Zero ();
-	/**
-	 * returns true if the id is zero
-	 */
-	bool    IsZero () const
-	{
-		return fId == 0 && fProcId == 0;
-	}
+
     /**
      * Simple construtor 
      */
@@ -120,6 +123,7 @@ class   OOPObjectId
      */
 	int     fProcId;
 };
+
 inline ostream &operator<<(ostream &out, const OOPObjectId &obj) {
 	return obj.ShortPrint(out);
 }

@@ -6,6 +6,7 @@
 #include "oopdataversion.h"
 //#include "oopmetadata.h"
 #include <deque>
+class OOPStorageBuffer;
 using namespace std;
 class   OOPMetaData;
 /**
@@ -49,11 +50,11 @@ class   OOPMDataDepend
   /**
    * method which will serialize the object
    */
-	void    Pack (OOPSendStorage * buf);
+	void    Pack (OOPStorageBuffer * buf);
   /**
    * method to reconstruct the object
    */
-	int     Unpack (OOPReceiveStorage * buf);
+	int     Unpack (OOPStorageBuffer * buf);
       private:
   /**
    * Id of the data needed to execute the task
@@ -169,11 +170,11 @@ class   OOPMDataDependList
   /**
    * method which will serialize the object
    */
-	void    Pack (OOPSendStorage * buf);
+	void    Pack (OOPStorageBuffer * buf);
   /**
    * method to reconstruct the object
    */
-	int     Unpack (OOPReceiveStorage * buf);
+	int     Unpack (OOPStorageBuffer * buf);
 };
 inline ostream &operator<<(ostream &out, const OOPMDataDepend &obj) {
 	return obj.ShortPrint(out);

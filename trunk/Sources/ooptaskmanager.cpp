@@ -5,6 +5,7 @@
 #endif
 #include "oopdatamanager.h"
 #include "ooptaskcontrol.h"
+class OOPStorageBuffer;
 class   OOPTask;
 class   OOPDataVersion;
 class   OOPSaveable;
@@ -193,8 +194,7 @@ OOPTaskManager::OOPTaskManager (int proc)
 	fProc = proc;
 	fLastCreated = 0;//NUMOBJECTS * fProc;
 	fMaxId = fLastCreated + NUMOBJECTS;
-	pthread_cond_init(&fExecuteCondition, NULL);
-	pthread_cond_init(&fExecuteTaskCondition, NULL);
+
 	pthread_mutex_init(&fExecutingMutex, NULL);
 	pthread_mutex_init(&fFinishedMutex, NULL);
 	pthread_mutex_init(&fSubmittedMutex, NULL);
@@ -291,7 +291,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 		return OOPObjectId();
 	}
 	OOPObjectId id = task->Id();
-	if(id.IsZero()) id = GenerateId ();
+	if(id.IsZeroOOP()) id = GenerateId ();
 	task->SetTaskId (id);
 	TaskManLog << "Task with id " << id << " submitted " << endl;
 	TaskManLog.flush();
@@ -659,11 +659,11 @@ long OOPTerminationTask::GetClassID ()
 	return TTERMINATIONTASK_ID;
 }
 
-int OOPTerminationTask::Pack(OOPSendStorage * buf){
+int OOPTerminationTask::Pack(OOPStorageBuffer * buf){
 	OOPTask::Pack(buf);
 	return 0;
 }
-int OOPTerminationTask::Unpack(OOPReceiveStorage * buf){
+int OOPTerminationTask::Unpack(OOPStorageBuffer * buf){
 	OOPTask::Unpack(buf);
 	return 0;
 }
@@ -671,7 +671,7 @@ int OOPTerminationTask::Unpack(OOPReceiveStorage * buf){
 long int OOPTerminationTask::ExecTime(){
 	return -1;
 }
-OOPSaveable *OOPTerminationTask::Restore (OOPReceiveStorage * buf){
+OOPSaveable *OOPTerminationTask::Restore (OOPStorageBuffer * buf){
 	OOPTerminationTask*v = new OOPTerminationTask(0);
 	v->Unpack (buf);
 	return v;

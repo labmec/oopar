@@ -747,5 +747,5 @@ void OOPDataManager::IncrementLevel(OOPObjectId & TaskId, OOPObjectId & Id, int 
 OOPDataVersion OOPDataManager::GetDataVersion(OOPObjectId & Id){
     OOPMetaData * md;
     md = MetaData(Id);
-    return md.Version();
+	return md->Version();
 }

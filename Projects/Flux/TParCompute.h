@@ -8,8 +8,12 @@
 #include <vector>
 using namespace std;
 
+class TLocalCompute;
+
 /**
- * This class will during its execute method initialize the tasks which will compute a flux
+ * Implements the unique task which triggers the parallel flux computations.
+ * Is responsible for assigning partitions and all its necessary data for a independent flux computation to different processors.
+ * Hierarchically, this class are on the highest level on the parallel environment.
  */
 class TParCompute : public OOPTask {
 public:
@@ -81,7 +85,8 @@ public:
      /**
       * During the execution of this method, the flux tasks will be created
       */
-     virtual OOPMReturnType Execute();
+
+     OOPMReturnType Execute();
 private:
 
     /**
@@ -100,6 +105,7 @@ private:
     void InitializeSolutionVersion();
 
 private:
+
 
     /**
      * Holds all Ids from Flux objects in the parallel computation
@@ -135,5 +141,17 @@ private:
      * Holds the version of the solution and data upon which the tasks will depend
      */
      OOPDataVersion fDataVersions;
+
+     /**
+      * Holds the TLocalCompute poiters.
+      * In the case of recurrence tasks this is populated only in the first run.
+      * @since 04/06/2003 
+      */
+     TLocalCompute * fTasks;
+
+     /**
+      * Number of partitions 
+      */
+     int fNPartitions;
 };
 #endif //TPARCOMPUTE_H

@@ -6,9 +6,9 @@ RunInTerminal=true
 ShowLocals=true
 
 [filenumbers]
-0=31
-1=6
-2=24
+0=5
+1=1
+2=53
 3=52
 4=9
 5=9
@@ -39,24 +39,12 @@ ShowLocals=true
 13=
 14=
 
-[filelist]
-0=/home/longhin/Projetos/OOPar/Projects/Flux/TContribution.h
-1=/home/longhin/Projetos/OOPar/Projects/Flux/TContribution.cpp
-2=/home/longhin/Projetos/OOPar/Projects/Flux/TParCompute.h
-3=/home/longhin/Projetos/OOPar/Projects/Flux/TParCompute.cpp
-4=/home/longhin/Projetos/OOPar/Projects/Flux/TParAnalysis.h
-5=/home/longhin/Projetos/OOPar/Projects/Flux/TParMesh.h
-6=/home/longhin/Projetos/OOPar/Projects/Flux/TParMesh.cpp
-7=/home/longhin/Projetos/OOPar/Projects/Flux/TPartitionRelation.cpp
-8=/home/longhin/Projetos/OOPar/Projects/Flux/TPartitionRelation.h
-9=/home/longhin/Projetos/OOPar/Projects/Flux/TParState.h
-10=/home/longhin/Projetos/OOPar/Projects/Flux/TParState.cpp
-11=/home/longhin/Projetos/OOPar/Projects/Flux/TParRhs.h
-12=/home/longhin/Projetos/OOPar/Projects/Flux/TParRhs.cpp
-13=/home/longhin/Projetos/OOPar/Sources/oopsaveable.h
-14=/home/longhin/Projetos/OOPar/Projects/Flux/TParAnalysis.cpp
-
 [File View]
 filter.file.unmatch=*.so *.o *.a *.la
 filter.file.ignore.hidden=0
 filter.dir.ignore.hidden=0
+
+[filelist]
+0=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParAnalysis.cpp
+1=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParAnalysis.h
+2=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParCompute.cpp

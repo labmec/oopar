@@ -4,14 +4,29 @@
 #define TLOCALCOMPUTE_H
 #include "ooptask.h"
 
+/**
+ * Implements the local flux computation on each partition.
+ * Objects of this class are created by TParCompute object which also submits them to the TaskManager.
+ * Each TLocalCompute is a OOPTask dependent on the following objects:
+ * --One State objects with read access.
+ * --One Rhs objects with write access.
+ * --The TPartitionRelation object with read access.
+ * @author Gustavo Camargo Longhin
+ * @version 0.9 
+ */
 class TLocalCompute : public OOPTask {
 public:    
 
     /**
         	* Execute the task, verifying that all needed data acesses are satisfied.
+        	* The TParCompute is OOPTask descendent class and this method provides the access by the TaskManager.
+        	* @since 02/06/2003
         	*/
 	virtual OOPMReturnType Execute ();    
 
+    /**
+     * Simple constructor 
+     */
     TLocalCompute(int ProcId);
 };
 #endif //TLOCALCOMPUTE_H

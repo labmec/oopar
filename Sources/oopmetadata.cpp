@@ -351,11 +351,6 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
 {
 	DataLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-//	if(GLogMsgCounter==132){
-//		int para;
-//		para=0;
-//	}
-	
 	DataLog << "SubmitAccessRequest task " << taskId << " depend " << depend << " proc " << processor << endl;
 	DataLog.flush();
 	fAccessList.AddAccessRequest (taskId, depend, processor);
@@ -425,7 +420,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 	DataLog << "Calling HandleMessage for obj " << fObjId << "\n";
 	DataLog.flush();
 	GLogMsgCounter++;
-	
+	LogDM->ReceiveOwnTask(&ms);
 	switch(ms.fType) {
 	case ESuspendAccess:
 		DataLog << "Suspend access coming from " << ms.fProcOrigin << endl;
@@ -875,5 +870,6 @@ long OOPMetaData::GetClassID ()
 void OOPMetaData::SendAccessRequest (const OOPMDataDepend & depend)
 {
 	OOPDMRequestTask *req = new OOPDMRequestTask (fProc, depend);
+	LogDM->SendReqTask(req);
 	TM->SubmitDaemon (req);
 }

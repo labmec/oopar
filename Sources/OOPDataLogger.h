@@ -6,6 +6,7 @@
 #include "oopdatamanager.h"
 
 class OOPDMOwnerTask;
+class OOPDMRequestTask;
 class OOPDataLogger {//: public OOPSaveable {
 public:    
 
@@ -36,14 +37,24 @@ public:
  	 */
 	void GrantAccessLog(OOPDMOwnerTask *town);
 
-
+    /**
+     * @param town OwnerTask to be 
+     */
     void SendOwnTask(OOPDMOwnerTask *town);
     void ReceiveOwnTask(OOPDMOwnerTask *town);
 
+
+	void SendReqTask(OOPDMRequestTask *req);
+	void ReceiveReqTask(OOPDMRequestTask *req);
+
     void CancelTask(OOPMetaData &data);
-	ostream GetStream();
 
 private:    
+
+    /**
+     * Output stream for the logging generation
+     * @since 18/09/2003 
+     */
     ofstream fLogger;
 };
 extern OOPDataLogger * LogDM;

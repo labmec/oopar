@@ -16,6 +16,7 @@ class   OOPMDataDepend
       public:
 	void    Print (ostream & out = cout) const;
 	ostream &ShortPrint (ostream & out = cout) const;
+	void LogMe(ostream &out);
   /**
    * Operator overloaded
    */

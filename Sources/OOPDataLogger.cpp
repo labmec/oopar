@@ -21,22 +21,27 @@ OOPDataLogger::~OOPDataLogger(){
 
 void OOPDataLogger::GrantAccessLog(OOPDMOwnerTask *town){
 	town->LogMe(fLogger);
-	fLogger << "\n";
+	fLogger << "\tsent\n";
 	fLogger.flush();
-	
 }
 void OOPDataLogger::SendOwnTask(OOPDMOwnerTask *town){
 	town->LogMe(fLogger);
-	fLogger << "\n";
+    fLogger << "\tsent\n";
 	fLogger.flush();
 }
 void OOPDataLogger::ReceiveOwnTask(OOPDMOwnerTask *town){
 	town->LogMe(fLogger);
-	fLogger << "\n";
+	fLogger << "\treceived\n";
 	fLogger.flush();
 }
-
-ostream OOPDataLogger::GetStream(){
-	//return fLogger;
+void OOPDataLogger::SendReqTask(OOPDMRequestTask *req){
+	req->LogMe(fLogger);
+    fLogger << "\tsent\n";
+	fLogger.flush();
+}
+void OOPDataLogger::ReceiveReqTask(OOPDMRequestTask *req){
+	req->LogMe(fLogger);
+	fLogger << "\t\treceived\n";
+	fLogger.flush();
 }
 

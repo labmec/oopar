@@ -76,12 +76,6 @@ public:
    */
   OOPObjectId GlobalId();
   
-  int virtual DerivedFrom(char * classname);
-
-
-	virtual int DerivedFrom(long class_id);
-
-
 
 
 

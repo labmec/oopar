@@ -67,9 +67,3 @@ OOPSaveable::GlobalId()
   return fDMId;
 }
 
-int OOPSaveable::DerivedFrom(char * classname){
-	#warning "Not implemented OOPSaveable::DerivedFrom(char *)";
-}
-int OOPSaveable::DerivedFrom(long class_id){
-	#warning "Not implemented OOPSaveable::DerivedFrom(long)";
-}

@@ -6,39 +6,39 @@ class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 class   OOPDataVersion;
 using namespace std;
-int OOPDataVersion::Write (TPZStream * buf)
+void OOPDataVersion::Write (TPZStream & buf)
 {
 	int aux = fVersion.size ();
-	buf->Write (&aux);
+	buf.Write (&aux);
 	vector < int >::iterator ivl;
 	for (ivl = fVersion.begin (); ivl != fVersion.end (); ivl++)
-		buf->Write (&*ivl);
+		buf.Write (&*ivl);
 	aux = fLevelCardinality.size ();
-	buf->Write (&aux);
+	buf.Write (&aux);
 	for (ivl = fLevelCardinality.begin ();
 	     ivl != fLevelCardinality.end (); ivl++)
-		buf->Write (&*ivl);
-	return 1;
+		buf.Write (&*ivl);
+	
 }
-int OOPDataVersion::Read (TPZStream * buf)
+void OOPDataVersion::Read (TPZStream & buf)
 {
 	int aux = 0, size = 0;
-	buf->Read (&size);
+	buf.Read (&size);
 	fVersion.resize (0);
 	int i;
 	for (i = 0; i < size; i++) {
-		buf->Read (&aux);
+		buf.Read (&aux);
 		fVersion.push_back (aux);
 	}
-	buf->Read (&size);
+	buf.Read (&size);
 	fLevelCardinality.resize (0);
 	for (i = 0; i < size; i++) {
-		buf->Read (&aux);
+		buf.Read (&aux);
 		fLevelCardinality.push_back (aux);
 	}
 	// vector<int>::iterator ivc = aux_vc.begin();
 	/* buf->UpkInt(&aux_vc[0],aux); i->fVersion.SetData(aux_vc,aux_vl); */
-	return 1;
+	
 }
 void OOPDataVersion::SetData (vector < int >&card, vector < int >&version)
 {

@@ -1,6 +1,6 @@
 #include "TPartitionRelation.h"
-#include "oopstorage.h"
-#include "oopfilecomm.h"
+
+#include "oopcommmanager.h"
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 #include <iostream>
@@ -39,7 +39,7 @@ int main (int argc, char **argv)
 	return multimain();
 #endif
 }
-int singlemain ()
+/*int singlemain ()
 {
 	CM = new OOPFileComManager ("test", 1, 0);
 	// CM->Initialize( argv[0], 0 );
@@ -54,3 +54,4 @@ int singlemain ()
 	// cout.flush();
 	return 0;
 }
+*/

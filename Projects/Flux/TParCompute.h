@@ -18,6 +18,7 @@ class   TLocalCompute;
 class   TParCompute : public OOPTask
 {
       public:
+	TParCompute();
   /**
    * Constructor for the task
    * @param procid : processor where the task should execute
@@ -96,7 +97,7 @@ class   TParCompute : public OOPTask
      */
 	void    InitializeSolutionVersion ();
 	  public:
-	virtual long GetClassID ()
+	virtual int  ClassId () const
 	{
 		return TPARCOMPUTE_ID;
 	}
@@ -106,13 +107,13 @@ class   TParCompute : public OOPTask
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual int Write (TPZStream * buf);
+	virtual void Write (TPZStream & buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	virtual int Read (TPZStream * buf);
-	static TPZSaveable *Restore (TPZStream * buf);
+	virtual void Read (TPZStream & buf, void * context = 0);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
       private:
     /**
      * Holds all Ids from Flux objects in the parallel computation
@@ -157,6 +158,7 @@ class   TParCompute : public OOPTask
       */
 	int     fNPartitions;
 };
+template class TPZRestoreClass<TParCompute, TPARCOMPUTE_ID>;
 extern int GLogMsgCounter;
 extern ofstream TaskLog;
 #endif // TPARCOMPUTE_H

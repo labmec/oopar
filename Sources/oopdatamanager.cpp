@@ -376,31 +376,31 @@ OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
 {
 	fProcOrigin = -1;
 }
-int OOPDMOwnerTask::Read (TPZStream * buf)
+void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 {
 	OOPDaemonTask::Read (buf);
 	char type;
-	buf->Read (&type);
+	buf.Read (&type);
 	fType = (OOPMDMOwnerMessageType) type;
 	int access;
-	buf->Read (&access);
+	buf.Read (&access);
 	fState = (OOPMDataState) access;
 //      buf->UpkLong(&fVersion);
 	fVersion.Read (buf);
 	//fObjPtr = buf->Restore ();
 	//Atenção aqui
-	fObjPtr = TPZSaveable::Restore (*buf, 0);
+	fObjPtr = TPZSaveable::Restore (buf, 0);
 	// buf->UpkLong(&fTaskId);
-	buf->Read (&fTrace);
-	buf->Read (&fProcOrigin);
+	buf.Read (&fTrace);
+	buf.Read (&fProcOrigin);
 	// Não faz sentido !!!
 	fObjId.Read(buf);
 	DataLog << "Unpacking Owner task for Obj " << fObjId << " message type " <<
 		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
 		endl;
-	return 1;
+
 }
-TPZSaveable *OOPDMOwnerTask::Restore (TPZStream * buf)
+TPZSaveable *OOPDMOwnerTask::Restore (TPZStream & buf, void * context)
 {
 	OOPDMOwnerTask *t = new OOPDMOwnerTask (ENoMessage, 0);
 	t->Read (buf);
@@ -532,28 +532,28 @@ void OOPDMOwnerTask::LogMeReceived(ostream & out){
 	out << "\tFrom Processor " << fProcOrigin;
 	out.flush();
 }
-int OOPDMOwnerTask::Write (TPZStream* buf)
+void OOPDMOwnerTask::Write (TPZStream& buf)
 {
 	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<
 		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
 		endl;
 	OOPDaemonTask::Write (buf);
 	char type = fType;
-	buf->Write (&type);
+	buf.Write (&type);
 	int access = fState;
-	buf->Write (&access);
+	buf.Write (&access);
 	fVersion.Write (buf);	// buf->PkLong(&fVersion);
 	if (fObjPtr) {
-		fObjPtr->Write (*buf);
+		fObjPtr->Write (buf);
 	}
 	else {
 		int zero = 0;
-		buf->Write (&zero);
+		buf.Write (&zero);
 	}
-	buf->Write (&fTrace);
-	buf->Write (&fProcOrigin);
+	buf.Write (&fTrace);
+	buf.Write (&fProcOrigin);
 	fObjId.Write (buf);	// buf->PkLong(&fObjId);
-	return 1;
+	
 }
 OOPMReturnType OOPDMOwnerTask::Execute ()
 {
@@ -565,29 +565,29 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 	DM->GetUpdate (this);
 	return ESuccess;
 }
-int OOPDMRequestTask::Read(TPZStream * buf)
+void OOPDMRequestTask::Read(TPZStream & buf, void * context)
 {
 	cout << "Unpacking RequestTask\n";
 	cout.flush();
 	OOPDaemonTask::Read(buf);
-	buf->Read (&fProcOrigin);
+	buf.Read (&fProcOrigin);
 	fDepend.Read (buf);
-	return 1;
+
 }
-TPZSaveable *OOPDMRequestTask::Restore (TPZStream* buf)
+TPZSaveable *OOPDMRequestTask::Restore (TPZStream & buf, void * context)
 {
 	OOPDMRequestTask *t = new OOPDMRequestTask ();
 	t->Read (buf);
 	return t;
 }
-int OOPDMRequestTask::Write (TPZStream * buf)
+void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
 {
 	cout << "Packing RequestTask\n";
 	cout.flush();
 	OOPDaemonTask::Write (buf);
-	buf->Write (&fProcOrigin);
+	buf.Write (&fProcOrigin);
 	fDepend.Write (buf);
-	return 1;
+
 }
 
 void OOPDMRequestTask::LogMe(ostream & out){

@@ -84,6 +84,7 @@ public:
 	 * Constructor based on a processor-id
 	 * @param Procid Id of processor where the object is being created
 	 */
+	OOPTask(){}
 	OOPTask (int Procid);
 	OOPTask (const OOPTask & task);
 	virtual ~ OOPTask ()
@@ -160,7 +161,7 @@ public:
 	/**
 	* Returns last created Id.
 	*/
-	virtual long GetClassID ()
+	virtual int ClassId () const
 	{
 		return TTASK_ID;
 	}
@@ -169,13 +170,13 @@ public:
 	* Defines the necessary interface for task communication along the network.
 	* @param * buf Buffer for data manipulation.
 	*/
-	virtual int Read (TPZStream * buf, int nel = 1);
+	virtual void Read (TPZStream & buf, void * context = 0);
 	/**
 	* static function defined for the Restore functionality once TTask objects arrives
 	* on destination processor
 	*/
-	static TPZSaveable *Restore (TPZStream * buf);
-	virtual int Write (TPZStream * buf, int nel = 1);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
+	virtual void Write (TPZStream & buf, int withclassid=0);
 // Apenas para DEBUG.
 //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
 //  virtual void Print() { Debug( "  TSaveable::Print." ); }
@@ -221,23 +222,27 @@ public:
 
       protected:
 };
+
+template class TPZRestoreClass<OOPTask, TTASK_ID>;
 /**
  * Prototype for an instantaneous task
  */
 class   OOPDaemonTask:public OOPTask
 {
       public:
+	OOPDaemonTask(){}
 	OOPDaemonTask (int ProcId);
 	        OOPDaemonTask (const OOPDaemonTask & task):OOPTask (task)
 	{
 	}
 	long    ExecTime ();	// always returns 0
 	int     CanExecute ();	// always returns 1
-	virtual long GetClassID ()
+	virtual int ClassId () const
 	{
 		return TDAEMONTASK_ID;
 	}
-	static TPZSaveable *Restore (TPZStream * buf);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 };
+template class TPZRestoreClass<OOPDaemonTask, TDAEMONTASK_ID>;
 extern int GLogMsgCounter;
 #endif

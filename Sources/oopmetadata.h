@@ -115,7 +115,7 @@ public:
 	/**
 	 * Empty constructor
 	 */
-	        OOPMetaData ();
+	        OOPMetaData (){}
      /**
       * Constructor
       * @param *ObPtr Pointer to object TSaveable
@@ -124,7 +124,10 @@ public:
       */
 	        OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 			     const int proc);
-	virtual long GetClassID ();
+	virtual int ClassId () const
+	{
+		return OOPMETADATA_ID;
+	}
 	/**
 	 * Checks if some task on the task access list is satisfied by the current data state
 	 */
@@ -318,6 +321,7 @@ public:
 	  */
 	bool    CanGrantAccess () const;
 };
+template class TPZRestoreClass<OOPMetaData,OOPMETADATA_ID>;
 /**
  *log file for MetaData objects
  */

@@ -42,13 +42,14 @@ class OOPWaitTask : public OOPTask
 
     void LockExternal();
 public:
+	OOPWaitTask(){}
     OOPWaitTask(int Procid);
 
     ~OOPWaitTask();
 
-    virtual int Write(TPZStream* buf);
-    virtual int Read(TPZStream* buf);
-    virtual long GetClassID();
+    virtual void Write(TPZStream & buf);
+    virtual void Read(TPZStream & buf, void * context = 0);
+    virtual int ClassId() const;
     virtual OOPMReturnType Execute();
     void Finish();
     void Wait();

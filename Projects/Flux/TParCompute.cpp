@@ -52,6 +52,7 @@ void TParCompute::SetPartitionRelationId (OOPObjectId & Id,
 	fPartRelationId = Id;
 	fPartRelationVersion = version;
 }
+TParCompute::TParCompute ():OOPTask(),fNPartitions(0){}
 TParCompute::TParCompute (int procid, int numpartitions):OOPTask (procid),
 fNPartitions (numpartitions)
 {
@@ -81,54 +82,53 @@ void TParCompute::SetMeshId (vector < OOPObjectId > &Id,
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TParCompute::Write (TPZStream * buf)
+void TParCompute::Write (TPZStream & buf)
 {
 	PrintLog(TaskLog, "Packing TParCompute object");
 	OOPTask::Write (buf);
 	int i;
 	int sz = fRhsIds.size();
-	buf->Write(&sz);
+	buf.Write(&sz);
 	for(i=0; i<sz; i++) fRhsIds[i].Write(buf);
 	sz = fStateIds.size();
-	buf->Write(&sz);
+	buf.Write(&sz);
 	for(i=0; i<sz; i++) fStateIds[i].Write(buf);
 	sz = fMeshIds.size();
-	buf->Write(&sz);
+	buf.Write(&sz);
 	for(i=0; i<sz; i++) fMeshIds[i].Write(buf);
 	fPartRelationId.Write(buf);
 	fPartRelationVersion.Write(buf);
 	sz = fTaskIds.size();
-	buf->Write(&sz);
+	buf.Write(&sz);
 	for(i=0; i<sz; i++) fTaskIds[i].Write(buf);
 	fDataVersions.Write(buf);
 	//fDataVersions.Print(cout);
 	fMeshVersions.Write(buf);
 	//fMeshVersions.Print(cout);
-	buf->Write(&fNPartitions);
-	return 0;
+	buf.Write(&fNPartitions);
 }
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TParCompute::Read (TPZStream * buf)
+void TParCompute::Read (TPZStream & buf, void * context)
 {
 	PrintLog(TaskLog, "Unpacking TParCompute object");
 	OOPTask::Read (buf);
 	int i;
 	int sz;
-	buf->Read(&sz);
+	buf.Read(&sz);
 	fRhsIds.resize(sz);
 	for(i=0; i<sz; i++) fRhsIds[i].Read(buf);
-	buf->Read(&sz);
+	buf.Read(&sz);
 	fStateIds.resize(sz);
 	for(i=0; i<sz; i++) fStateIds[i].Read(buf);
-	buf->Read(&sz);
+	buf.Read(&sz);
 	fMeshIds.resize(sz);
 	for(i=0; i<sz; i++) fMeshIds[i].Read(buf);
 	fPartRelationId.Read(buf);
 	fPartRelationVersion.Read(buf);
-	buf->Read(&sz);
+	buf.Read(&sz);
 	fTaskIds.resize(sz);
 	for(i=0; i<sz; i++) fTaskIds[i].Read(buf);
 	fDataVersions.Read(buf);
@@ -139,11 +139,9 @@ int TParCompute::Read (TPZStream * buf)
 #ifdef VERBOSE
 	fMeshVersions.Print(cout);
 #endif
-	buf->Read(&fNPartitions);
-	
-	return 0;
+	buf.Read(&fNPartitions);
 }
-TPZSaveable *TParCompute::Restore (TPZStream * buf)
+TPZSaveable *TParCompute::Restore (TPZStream & buf, void * context)
 {
 	TParCompute *par = new TParCompute (0,0);
 	par->Read (buf);

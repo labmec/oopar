@@ -29,7 +29,7 @@ class   OOPTask;
  * environment.
  * Acts as daemon in all nodes on the environment.
  */
-class   OOPCommunicationManager:public OOPError
+class   OOPCommunicationManager 
 {
       public:
 	/**

@@ -4,16 +4,13 @@
 #include "TParCompute.h"
 #include "fluxdefs.h"
 class TPZStream;
-int TTaskComm::Read (TPZStream * buf)
+void TTaskComm::Read (TPZStream & buf, void * context)
 {
 	OOPTask::Read (buf);
-	return 0;
 }
-int TTaskComm::Write (TPZStream * buf)
+void TTaskComm::Write (TPZStream & buf, int classid)
 {
-//	OOPSaveable::Pack (buf);
 	OOPTask::Write (buf);
-	return 0;
 }
 OOPMReturnType TTaskComm::Execute ()
 {
@@ -50,10 +47,11 @@ OOPMReturnType TTaskComm::Execute ()
 	TaskFinished ();
 	return ESuccess;	// execute the task, verifying that
 }
+TTaskComm::TTaskComm():OOPTask(){}
 TTaskComm::TTaskComm (int ProcId):OOPTask (ProcId)
 {
 }
-TPZSaveable *TTaskComm::Restore (TPZStream * buf) {
+TPZSaveable *TTaskComm::Restore (TPZStream & buf, void * context) {
 	TTaskComm *loc = new TTaskComm(0);
 	loc->Read(buf);
 	return loc;

@@ -82,6 +82,7 @@ int OOPDaemonTask::CanExecute ()
 OOPMReturnType OOPTask::Execute ()
 {
 	cout << "OOPTask::Execute should never be called!\n";
+	cout << "Called from ClassId " << ClassId() << endl;
 	return ESuccess;	// execute the task, verifying that
 }
 int OOPTask::GetProcID ()
@@ -100,36 +101,36 @@ OOPObjectId OOPTask::Id ()
 {
 	return fTaskId;
 }
-TPZSaveable *OOPTask::Restore (TPZStream * buf)
+TPZSaveable *OOPTask::Restore (TPZStream & buf, void * context)
 {
 	OOPTask *v = new OOPTask (0);
 	v->Read (buf);
 	return v;
 }
-int OOPTask::Write (TPZStream * buf, int nel)
+void OOPTask::Write (TPZStream & buf, int withclassid)
 {
-	TPZSaveable::Write (*buf, 1);
+	TPZSaveable::Write (buf);
 	// ObjectId packing and unpacking
 	fTaskId.Write (buf);
-	buf->Write (&fProc);	// Processor where the task should be
+	buf.Write (&fProc);	// Processor where the task should be
 	// executed
-	buf->Write (&fPriority);
-	buf->Write (&fIsRecurrent);
+	buf.Write (&fPriority);
+	buf.Write (&fIsRecurrent);
 	fDataDepend.Write (buf);
-	return 0;
+	
 }
-int OOPTask::Read (TPZStream * buf, int nel)
+void OOPTask::Read (TPZStream & buf, void * context)
 {
-	TPZSaveable::Read(*buf);
+	TPZSaveable::Read(buf);
 	fTaskId.Read (buf);
 	// Finished OOPObjectId unpacking
-	buf->Read (&fProc);
-	buf->Read (&fPriority);
-	buf->Read (&fIsRecurrent);
+	buf.Read (&fProc);
+	buf.Read (&fPriority);
+	buf.Read (&fIsRecurrent);
 	fDataDepend.Read(buf);
-	return 0;
+	
 }
-TPZSaveable *OOPDaemonTask::Restore (TPZStream * buf)
+TPZSaveable *OOPDaemonTask::Restore (TPZStream & buf, void * context)
 {
 	OOPDaemonTask *v = new OOPDaemonTask (0);
 	v->Read (buf);

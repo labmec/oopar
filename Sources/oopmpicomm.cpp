@@ -29,7 +29,9 @@ using namespace std;
 extern OOPTaskManager *TM;
 pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 
-
+OOPMPICommManager::OOPMPICommManager(){
+	cerr << "Empty Constructor should never be called\n";
+}
 OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 {
 	f_myself = -1;
@@ -72,7 +74,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	//pthread_mutex_lock(&fCommunicate);
 //#warning "Nao tem necessidade do mutex neste ponto"
 #ifdef VERBOSE
-	cout << "Sending task " << pTask->GetClassID() << endl;
+	cout << "Sending task " << pTask->ClassId() << endl;
 	cout.flush();
 #endif
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
@@ -89,7 +91,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 		delete pTask;
 		return -1;
 	}
-	pTask->Write (&f_buffer);
+	pTask->Write (f_buffer);
 	f_buffer.Send(process_id);
 #ifdef VERBOSE
 	cout << "Message Sent\n";
@@ -181,8 +183,8 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 	if (obj == NULL) {
 		Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
 	}
-	// Trace( " ClassID do objeto recebido: " );
-	// Trace( obj->GetClassID() << ".\n" );
+	// Trace( " ClassId do objeto recebido: " );
+	// Trace( obj->GetClassId() << ".\n" );
 	OOPTask *task = dynamic_cast<OOPTask *> (obj);
 	if(task) {
 		TM->Submit (task);

@@ -24,12 +24,13 @@
 #include "mpi.h"
 #include "pzfilebuffer.h"
 #include "pzsave.h"
+#include "ooperror.h"
 /** 
  * Non abstract class, which implements the receive
  * buffer using MPI (Message Passing Interface) library 
  * for communication.
 */
-class   OOPMPIStorageBuffer:public TPZStream
+class   OOPMPIStorageBuffer:public OOPError
 {
 	
 

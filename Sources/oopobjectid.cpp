@@ -147,23 +147,23 @@ OOPObjectId::OOPObjectId (const::OOPObjectId & obj)
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 }
-int OOPObjectId::Write (TPZStream * buf)
+void OOPObjectId::Write (TPZStream & buf)
 {
 	int aux = 0;
 	aux = GetId ();
-	buf->Write (&aux);
+	buf.Write (&aux);
 	aux = GetProcId ();
-	buf->Write (&aux);
-	return 1;
+	buf.Write (&aux);
+	
 }
-int OOPObjectId::Read (TPZStream * buf)
+void OOPObjectId::Read (TPZStream & buf)
 {
 	int aux = 0;
-	buf->Read (&aux);
+	buf.Read (&aux);
 	SetId (aux);
-	buf->Read (&aux);
+	buf.Read (&aux);
 	SetProcId (aux);
-	return 1;
+	
 }
 
 int OOPObjectId::IsZeroOOP() const

@@ -3,7 +3,7 @@
 #include "oopcommmanager.h"
 class TPZStream;
 //#include "pzvec.h"
-TPartitionRelation::TPartitionRelation ():TPZSaveable ()
+TPartitionRelation::TPartitionRelation ():TPZSaveable (), fNumPartitions(0)
 {
 }
 int TPartitionRelation::OutgoingContribution (int partition)
@@ -40,6 +40,7 @@ int TPartitionRelation::GetNPartitions ()
 {
 	return fNumPartitions;
 }
+
 TPartitionRelation::TPartitionRelation (int npart)
 {
 	fRelation.resize (npart);
@@ -100,47 +101,45 @@ TContribution & TPartitionRelation::GetRelation (int parfrom, int parto)
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TPartitionRelation::Write (TPZStream * buf) {
-	TPZSaveable::Write(*buf);
-	buf->Write(&fNumPartitions);
+void TPartitionRelation::Write (TPZStream & buf) {
+	TPZSaveable::Write(buf);
+	buf.Write(&fNumPartitions);
 	int i,sz = fRelation.size();
 	for(i=0; i<fNumPartitions;i++) {
 		int iproc = fProcessor[i];
-		buf->Write(&iproc);
+		buf.Write(&iproc);
 	}
-	buf->Write(&sz);
+	buf.Write(&sz);
 	for(i=0; i<sz; i++) {
 		int il,lsz = fRelation[i].size();
-		buf->Write(&lsz);
+		buf.Write(&lsz);
 		for(il=0; il<lsz; il++) fRelation[i][il].Write(buf);
 	}
-	return 0;
 }
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TPartitionRelation::Read (TPZStream * buf) {
-	TPZSaveable::Read(*buf);
-	buf->Read(&fNumPartitions);
+void TPartitionRelation::Read (TPZStream & buf, void * context) {
+	TPZSaveable::Read(buf);
+	buf.Read(&fNumPartitions);
 	int i,sz;
 	fProcessor.resize(fNumPartitions);
 	for(i=0; i<fNumPartitions; i++) {
 		int iproc;
-		buf->Read(&iproc);
+		buf.Read(&iproc);
 		fProcessor[i] = iproc;
 	}
-	buf->Read(&sz);
+	buf.Read(&sz);
 	fRelation.resize(sz);
 	for(i=0; i<sz; i++) {
 		int il,lsz;
-		buf->Read(&lsz);
+		buf.Read(&lsz);
 		fRelation[i].resize(lsz);
 		for(il=0; il<lsz; il++) fRelation[i][il].Read(buf);
 	}
-	return 0;
 }
-TPZSaveable *TPartitionRelation::Restore (TPZStream * buf) {
+TPZSaveable *TPartitionRelation::Restore (TPZStream & buf, void * context) {
 	TPartitionRelation *par = new TPartitionRelation(0);
 	par->Read(buf);
 	return par;

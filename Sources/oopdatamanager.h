@@ -223,20 +223,22 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	* @param t : type of ower task
 	* @param proc : processor which owns the message
 	*/
+	OOPDMOwnerTask (){}
 	OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
 	virtual ~OOPDMOwnerTask();
 	virtual OOPMReturnType Execute ();
-	virtual long GetClassID ()
+	virtual int ClassId () const
 	{
 		return TDMOWNERTASK_ID;
 	}
-	virtual int Read (TPZStream * buf);
-	static TPZSaveable *Restore (TPZStream * buf);
-	virtual int Write (TPZStream * buf);
+	virtual void Read (TPZStream & buf, void * context = 0);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
+	virtual void Write (TPZStream & buf);
 	// Apenas para DEBUG.
 	// virtual void Work() { Debug( "\nTSaveable::Work." ); }
 	// virtual void Print() { Debug( " TSaveable::Print." ); }
 };
+template class TPZRestoreClass<OOPDMOwnerTask,TDMOWNERTASK_ID>;
 /**
  * Implements a request task (Undocumented)
  */
@@ -259,14 +261,15 @@ class   OOPDMRequestTask:public OOPDaemonTask
 	        OOPDMRequestTask (const OOPDMRequestTask & task);
 	        OOPDMRequestTask ();
 	virtual OOPMReturnType Execute ();
-	virtual long GetClassID ()
+	virtual int ClassId () const
 	{
 		return TDMREQUESTTASK_ID;
 	}
-	virtual int Read (TPZStream * buf);
-	static TPZSaveable *Restore (TPZStream * buf);
-	virtual int Write (TPZStream  * buf);
+	virtual void Read (TPZStream & buf, void * context = 0);
+	static TPZSaveable *Restore (TPZStream & buf, void * context=0);
+	virtual void Write (TPZStream  & buf, int withclassid = 0);
 };
+template class TPZRestoreClass<OOPDMRequestTask, TDMREQUESTTASK_ID>;
 class   OOPCurrentLocation
 {
       public:

@@ -226,6 +226,9 @@ private:
  */
 class   OOPTMTask:public OOPDaemonTask
 {
+
+	OOPTMTask();
+	~OOPTMTask();
   /**
    * Simple constructor
    */
@@ -234,6 +237,7 @@ class   OOPTMTask:public OOPDaemonTask
    * Returns execution type
    */
 	OOPMReturnType Execute ();
+
 };
 
 class OOPTerminationTask:public OOPTask
@@ -243,18 +247,23 @@ public:
 	/**
    * Simple constructor
    */
+	OOPTerminationTask(){} 
 	OOPTerminationTask (int ProcId);
 	OOPTerminationTask (const OOPTerminationTask & term);
   /**
    * Returns execution type
    */
 	OOPMReturnType Execute ();
-	virtual long GetClassID ();
-	int Write(TPZStream * buf);
-	int Read(TPZStream* buf);
+	virtual int ClassId () const{
+		return TTERMINATIONTASK_ID;
+	}
+		;
+	void Write(TPZStream & buf);
+	void Read(TPZStream & buf, void * context = 0);
 	long int ExecTime();
-	static TPZSaveable *Restore (TPZStream* buf);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 };
+template class TPZRestoreClass<OOPTerminationTask,TTERMINATIONTASK_ID>;
 
 /*
   enum TTMMessageType {

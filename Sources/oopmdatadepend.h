@@ -15,6 +15,7 @@ class   OOPMetaData;
 class   OOPMDataDepend
 {
       public:
+	~OOPMDataDepend(){}		 
 	void    Print (ostream & out = cout) const;
 	ostream &ShortPrint (ostream & out = cout) const;
 	void LogMe(ostream &out);
@@ -50,11 +51,11 @@ class   OOPMDataDepend
   /**
    * method which will serialize the object
    */
-	void    Write (TPZStream  * buf);
+	void    Write (TPZStream  & buf);
   /**
    * method to reconstruct the object
    */
-	int     Read (TPZStream  * buf);
+	void Read (TPZStream  & buf, void * context = 0);
       private:
   /**
    * Id of the data needed to execute the task
@@ -99,11 +100,13 @@ class   OOPMDataDepend
 		// cout << "Pointer " << fObjPtr << endl;
 		return fObjPtr != 0;
 	}
+	
 };
 class   OOPMDataDependList
 {
 	deque < OOPMDataDepend > fDependList;
-      public:
+public:
+	~OOPMDataDependList(){}		  
   /**
    * this method submits the data dependency to the DataManager
    * @returns 1 if successful 0 if the task should be deleted because of incompatibility
@@ -170,11 +173,11 @@ class   OOPMDataDependList
   /**
    * method which will serialize the object
    */
-	void    Write (TPZStream * buf);
+	void    Write (TPZStream & buf);
   /**
    * method to reconstruct the object
    */
-	int     Read (TPZStream * buf);
+	void     Read (TPZStream & buf, void * context = 0);
 };
 inline ostream &operator<<(ostream &out, const OOPMDataDepend &obj) {
 	return obj.ShortPrint(out);

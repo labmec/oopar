@@ -23,7 +23,8 @@ class   OOPMPISendStorage;
 */
 class   OOPMPICommManager:public OOPCommunicationManager
 {
-      public:
+public:
+	OOPMPICommManager ();
   /**
    * Constructor 
    */

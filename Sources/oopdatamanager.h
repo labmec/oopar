@@ -84,6 +84,7 @@ class   OOPDataManager
 	{
 		return fProcessor;
 	}
+	void SubmitAllObjects();
 	/**
 	* Register the object on the data manager
 	* Submits the pointer to the TSaveable object to the DataManager
@@ -146,9 +147,12 @@ class   OOPDataManager
 	/**
 	* Collections of objects
 	*/
-	//deque < OOPMetaData * >fObjects;
-
     map < OOPObjectId, OOPMetaData *> fObjects;
+	/**
+	 * Recently submtted objects
+	 * Still not available for the TM.
+	 */
+	list <OOPMetaData * > fSubmittedObjects;
 	/**
 	* Generates a new object ID
 	*/

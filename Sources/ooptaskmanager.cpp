@@ -302,6 +302,7 @@ void OOPTaskManager::Execute ()
 {
 	//Qual é o service thread ?
 	// O service thread e a linha de execucao do programa principal
+	DM->SubmitAllObjects();
 	CM->ReceiveMessages ();
 	TransferSubmittedTasks ();
 	list < OOPTaskControl * >::iterator i;
@@ -313,6 +314,7 @@ void OOPTaskManager::Execute ()
 	ExecuteDaemons();
 	while (fKeepGoing) {
 		//pthread_mutex_lock(&fExecuteMutex);
+		DM->SubmitAllObjects();
 		CM->ReceiveMessages();
 		ExecuteDaemons();
 		while (fExecutable.size ()) {
@@ -328,6 +330,8 @@ void OOPTaskManager::Execute ()
 						      false);
 			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
 							       Id ());
+			DM->SubmitAllObjects();
+
 #ifdef DEBUG
 			// TaskManLog << "Executing task on processor " << fProc << 
 			// endl;
@@ -337,6 +341,7 @@ void OOPTaskManager::Execute ()
 			fFinished.push_back (tc);
 			fExecutable.erase (i);
 		}
+		DM->SubmitAllObjects();
 		TransferFinishedTasks ();
 		CM->ReceiveMessages ();
 		TransferSubmittedTasks ();
@@ -353,6 +358,7 @@ void OOPTaskManager::Execute ()
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
 			cout << "Leaving blocking receive PID " << getpid() << endl;
 			cout.flush();
+			DM->SubmitAllObjects();
 		}
 //		pthread_mutex_unlock(&fExecuteMutex);	
 	}

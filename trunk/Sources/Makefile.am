@@ -31,7 +31,8 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	oopstore.cpp \
 	ooptask.cpp \
 	oopmdatadepend.cpp \
-	ooptaskcontrol.cpp
+	ooptaskcontrol.cpp \
+	oopaccessinfo.cpp
 
 
 ## --| OOPar |------------------------------------------------------------------

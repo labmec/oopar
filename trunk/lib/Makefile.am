@@ -29,6 +29,7 @@ liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/oopstore.o \
 	../Sources/ooptask.o \
 	../Sources/oopmdatadepend.o \
-	../Sources/ooptaskcontrol.o
+	../Sources/ooptaskcontrol.o \
+	../Sources/oopaccessinfo.o
 
 ## --| OOPar |------------------------------------------------------------------

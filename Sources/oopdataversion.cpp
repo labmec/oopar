@@ -220,7 +220,7 @@ bool OOPDataVersion::operator > (const OOPDataVersion & version)
 
 }
 
-     void OOPDataVersion::Print (ostream & out) const 
+     void OOPDataVersion::Print (ostream & out) const
      {
 	     out << "Number of levels " << GetNLevels () << endl;
 	     int i = 0;
@@ -293,7 +293,7 @@ void OOPDataVersion::Increment ()
 	}
 }
 
-     vector < int >OOPDataVersion::GetLevelCardinality () const 
+     vector < int >OOPDataVersion::GetLevelCardinality () const
      {
 	     return fLevelCardinality;
      }
@@ -332,7 +332,7 @@ void OOPDataVersion::Increment ()
 	     return fVersion[level];
      }
 
-     int OOPDataVersion::GetNLevels () const 
+     int OOPDataVersion::GetNLevels () const
      {
 	     return fVersion.size ();
      }

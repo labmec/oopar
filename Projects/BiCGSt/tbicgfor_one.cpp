@@ -19,7 +19,16 @@
 #include "bicgdouble.h"
 #include <oopmetadata.h>
 #include <BiCGInt.h>
+#include <TParVector.h>
+#include <tparmatrix.h>
 
+
+OOPSaveable * TBiCGFor_One::Restore(OOPReceiveStorage * buf){
+      #warning "Shouldn't the new object be created on the CM->ProcID() processor ?"
+      TBiCGFor_One * tbfor = new TBiCGFor_One(0);
+      tbfor->Unpack(buf);
+      return tbfor;
+}
 TBiCGFor_One::TBiCGFor_One(int proc) : OOPTask(proc) {
 }
 TBiCGFor_One::~TBiCGFor_One(){
@@ -71,14 +80,14 @@ OOPMReturnType TBiCGFor_One::Execute (){
       double * tol = &btol->value;
       BiCGDouble* bnormr = (BiCGDouble*) fDataDepend.Dep(2).ObjPtr()->Ptr();
       double * normr = &bnormr->value;
-      BiCGDouble* br = (BiCGDouble*) fDataDepend.Dep(3).ObjPtr()->Ptr();
-      double * r = &br->value;
+      TParVector* br = (TParVector *) fDataDepend.Dep(3).ObjPtr()->Ptr();
+
       BiCGDouble* bnormb = (BiCGDouble*) fDataDepend.Dep(4).ObjPtr()->Ptr();
       double * normb = &bnormb->value;
       TBiCGInt * bmax_iter = (TBiCGInt*) fDataDepend.Dep(5).ObjPtr()->Ptr();
       int * max_iter = &bmax_iter->value;
-      BiCGDouble* bp = (BiCGDouble*) fDataDepend.Dep(6).ObjPtr()->Ptr();
-      double * p = &bp->value;
+      TParVector * bp = (TParVector*) fDataDepend.Dep(6).ObjPtr()->Ptr();
+
       BiCGDouble* bbeta = (BiCGDouble*) fDataDepend.Dep(7).ObjPtr()->Ptr();
       double * beta = &bbeta->value;
       BiCGDouble* brho_2 = (BiCGDouble*) fDataDepend.Dep(8).ObjPtr()->Ptr();
@@ -87,10 +96,10 @@ OOPMReturnType TBiCGFor_One::Execute (){
       double * alpha = &balpha->value;
       BiCGDouble* bomega = (BiCGDouble*) fDataDepend.Dep(10).ObjPtr()->Ptr();
       double * omega = &bomega->value;
-      BiCGDouble* bv = (BiCGDouble*) fDataDepend.Dep(11).ObjPtr()->Ptr();
-      double * v = &bv->value;
-      BiCGDouble* bM = (BiCGDouble*) fDataDepend.Dep(12).ObjPtr()->Ptr();
-      double * M = &bM->value;
+      TParVector* bv = (TParVector*) fDataDepend.Dep(11).ObjPtr()->Ptr();
+
+      TParMatrix* bM = (TParMatrix*) fDataDepend.Dep(12).ObjPtr()->Ptr();
+
       BiCGDouble* bphat = (BiCGDouble*) fDataDepend.Dep(0).ObjPtr()->Ptr();
       double * phat = &bphat->value;
 
@@ -109,20 +118,41 @@ OOPMReturnType TBiCGFor_One::Execute (){
       p.Add(- beta * omega, v);
     }
     M.Solve(p, phat);*/
+      int i, nel;
       if((*rho_1)==0){
+            *tol = *normr/(*normb);
             //Submit necessary Norm(r) tasks computation.
             //Update the versions correctly so that the application finishes
-            return 2;
+            return ESuccess;
       }
       if(*max_iter==1){
-            *p=*r;
+            nel = br->NElements();
+            for(i=0;i<nel;i++)
+                  (*bp)[i]=(*br)[i];
       }else{
             *beta=(*rho_1/(*rho_2)) * (*alpha/(*omega));
-            *p *= *beta;
-            *p = *r * 1;
-            *p = (- *beta * *omega) * (*v);
+            for(i=0;i<nel;i++){
+                  (*bp)[i] = (*beta) * (*bp)[i];
+                  (*bp)[i] = (*bp)[i] + (*br)[i];// * 1;
+                  (*bp)[i] = (*bp)[i] + (- *beta * *omega) * (*bv)[i];
+            }
       }
-      #warning "Execute Method not implemented"
-      #warning "Arrays still need to be implemented as arrays"
+
+      //Call M.Solve(p.phat)
+      //Increment Versions
+      //bp
+      OOPDataVersion bpver = fDataDepend.Dep(6).ObjPtr()->Version();
+      ++bpver;
+      fDataDepend.Dep(6).ObjPtr()->SetVersion(bpver, Id());
+      //bbeta
+      OOPDataVersion bbetaver = fDataDepend.Dep(7).ObjPtr()->Version();
+      ++bbetaver;
+      fDataDepend.Dep(7).ObjPtr()->SetVersion(bbetaver, Id());
+      
+      
+      #warning "Execute Method still incomplete"
+      #warning "If rho_1==1 still need to be implemented"
+      #warning "M.Solve(p,phat) still need to be implemented"
+
       return ESuccess;
 }

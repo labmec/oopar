@@ -33,7 +33,8 @@
   */
 
 class TBiCG_One : public OOPTask  {
-public: 
+public:
+      static OOPSaveable * Restore(OOPReceiveStorage * buf);
 	TBiCG_One(int proc);
 	~TBiCG_One();
 	/**

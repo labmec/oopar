@@ -42,7 +42,8 @@
   */
 
 class TBiCGFor_One : public OOPTask  {
-public: 
+public:
+      static OOPSaveable * Restore(OOPReceiveStorage * buf);
 	TBiCGFor_One(int proc);
 	~TBiCGFor_One();
 	long ExecTime ();

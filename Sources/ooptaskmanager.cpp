@@ -394,20 +394,29 @@ void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
 	out << "Print fSubmittedList\n";
 	out << "Number of tasks :" << fSubmittedList.size() << endl;
 	deque < OOPTask * >::iterator i;
-	for(i=fSubmittedList.begin();i!=fSubmittedList.end();i++)
+	for(i=fSubmittedList.begin();i!=fSubmittedList.end();i++){
 		out << (*i)->Id() << endl;
+		(*i)->PrintLog(out);
+	}
 	out << "Print fTaskList\n";
 	out << "Number of tasks :" << fTaskList.size() << endl;
 	deque < OOPTaskControl * >::iterator j;
-	for(j=fTaskList.begin();j!=fTaskList.end();j++)
+	for(j=fTaskList.begin();j!=fTaskList.end();j++){
 		out << (*j)->Task()->Id() << endl;
+		(*j)->Task()->PrintLog(out);
+	}
 	out << "Print fExecutable\n";
 	out << "Number of tasks :" << fExecutable.size() << endl;
-	for(j=fExecutable.begin();j!=fExecutable.end();j++)
+	for(j=fExecutable.begin();j!=fExecutable.end();j++){
 		out << (*j)->Task()->Id() << endl;
+		(*j)->Task()->PrintLog(out);
+	}
 	out << "Print fFinished\n";
 	out << "Number of tasks :" << fFinished.size() << endl;
-	for(j=fFinished.begin();j!=fFinished.end();j++)
+	for(j=fFinished.begin();j!=fFinished.end();j++){
 		out << (*j)->Task()->Id() << endl;
+		(*j)->Task()->PrintLog(out);
+	}
+	out.flush();
 	
 }

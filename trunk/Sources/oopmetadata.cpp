@@ -297,6 +297,8 @@ void OOPMetaData::CheckTransitionState ()
 						OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccessConfirmation,fProc);
 						//alterei aqui!!!
 						town->fObjId=fObjId;
+						town->fObjPtr = this->fObjPtr;
+						town->fVersion = this->fVersion;
 						town->fProcOrigin = DM->GetProcID();
 						TM->Submit(town);
 						delete this->fObjPtr;
@@ -326,6 +328,8 @@ void OOPMetaData::CheckTransitionState ()
 					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccessConfirmation,fProc);
 					//alterei aqui!!!!
 					town->fObjId=fObjId;
+					town->fObjPtr = this->fObjPtr;
+					town->fVersion = this->fVersion;
 					TM->Submit(town);
 				}
 			}
@@ -729,6 +733,9 @@ void OOPMetaData::SuspendReadAccess ()
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccess, *ir);
 			//alterei aqui
 			town->fObjId=fObjId;
+			town->fObjPtr = this->fObjPtr;
+			town->fVersion = this->fVersion;
+			
 
 			TM->Submit(town);
 		}

@@ -16,6 +16,9 @@
  ***************************************************************************/
 
 #include "tbicgfor_one.h"
+#include "bicgdouble.h"
+#include <oopmetadata.h>
+#include <BiCGInt.h>
 
 TBiCGFor_One::TBiCGFor_One(int proc) : OOPTask(proc) {
 }
@@ -26,6 +29,100 @@ long TBiCGFor_One::ExecTime (){
 }
 
 OOPMReturnType TBiCGFor_One::Execute (){
+      /**Implements the first set of instructions from the for loop found in the BiCGStab method. Implements the following tasks:
+    if (rho_1 == 0) {
+      tol = Norm(r) / normb;
+      return 2;
+    }
+    if (i == 1)
+      p = r;
+    else {
+      //beta(0) = (rho_1(0)/rho_2(0)) * (alpha(0)/omega(0));
+      beta = (rho_1/rho_2) * (alpha/omega); //TComputeBeta
+      //p = r + beta(0) * (p - omega(0) * v);
+      p *= beta; //p.Add(beta,1)
+      p.Add(1., r);
+      p.Add(- beta * omega, v);
+    }
+    M.Solve(p, phat);
+
+       bicgforone->AddDependentData(OOPMDataDepend(fId_rho_1,EReadAccess,rho_version));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_tol,EReadAccess,tolVersion));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_normr,EReadAccess,normr_ver));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_r[i],EReadAccess,r_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_normb,EReadAccess,normb_ver));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_max_iter, EReadAccess, max_iter_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_p[i], EWriteAccess, p_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_beta, EWriteAccess, beta_ver));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_rho_2, EReadAccess, rho_2_ver));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_alpha, EReadAccess, alpha_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_omega, EReadAccess, omega_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_v[i], EReadAccess, v_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_M[i], EReadAccess, M_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_phat[i], EReadAccess, phat_Version));
+    
+
+  *@author longhin
+  */
+
+      BiCGDouble* brho_1 = (BiCGDouble*) fDataDepend.Dep(0).ObjPtr()->Ptr();
+      double * rho_1 = &brho_1->value;
+      BiCGDouble* btol = (BiCGDouble*) fDataDepend.Dep(1).ObjPtr()->Ptr();
+      double * tol = &btol->value;
+      BiCGDouble* bnormr = (BiCGDouble*) fDataDepend.Dep(2).ObjPtr()->Ptr();
+      double * normr = &bnormr->value;
+      BiCGDouble* br = (BiCGDouble*) fDataDepend.Dep(3).ObjPtr()->Ptr();
+      double * r = &br->value;
+      BiCGDouble* bnormb = (BiCGDouble*) fDataDepend.Dep(4).ObjPtr()->Ptr();
+      double * normb = &bnormb->value;
+      TBiCGInt * bmax_iter = (TBiCGInt*) fDataDepend.Dep(5).ObjPtr()->Ptr();
+      int * max_iter = &bmax_iter->value;
+      BiCGDouble* bp = (BiCGDouble*) fDataDepend.Dep(6).ObjPtr()->Ptr();
+      double * p = &bp->value;
+      BiCGDouble* bbeta = (BiCGDouble*) fDataDepend.Dep(7).ObjPtr()->Ptr();
+      double * beta = &bbeta->value;
+      BiCGDouble* brho_2 = (BiCGDouble*) fDataDepend.Dep(8).ObjPtr()->Ptr();
+      double * rho_2 = &brho_2->value;
+      BiCGDouble* balpha = (BiCGDouble*) fDataDepend.Dep(9).ObjPtr()->Ptr();
+      double * alpha = &balpha->value;
+      BiCGDouble* bomega = (BiCGDouble*) fDataDepend.Dep(10).ObjPtr()->Ptr();
+      double * omega = &bomega->value;
+      BiCGDouble* bv = (BiCGDouble*) fDataDepend.Dep(11).ObjPtr()->Ptr();
+      double * v = &bv->value;
+      BiCGDouble* bM = (BiCGDouble*) fDataDepend.Dep(12).ObjPtr()->Ptr();
+      double * M = &bM->value;
+      BiCGDouble* bphat = (BiCGDouble*) fDataDepend.Dep(0).ObjPtr()->Ptr();
+      double * phat = &bphat->value;
+
+/*    if (rho_1 == 0) {
+      tol = Norm(r) / normb;
+      return 2;
+    }
+    if (i == 1)
+      p = r;
+    else {
+      //beta(0) = (rho_1(0)/rho_2(0)) * (alpha(0)/omega(0));
+      beta = (rho_1/rho_2) * (alpha/omega); //TComputeBeta
+      //p = r + beta(0) * (p - omega(0) * v);
+      p *= beta; //p.Add(beta,1)
+      p.Add(1., r);
+      p.Add(- beta * omega, v);
+    }
+    M.Solve(p, phat);*/
+      if((*rho_1)==0){
+            //Submit necessary Norm(r) tasks computation.
+            //Update the versions correctly so that the application finishes
+            return 2;
+      }
+      if(*max_iter==1){
+            *p=*r;
+      }else{
+            *beta=(*rho_1/(*rho_2)) * (*alpha/(*omega));
+            *p *= *beta;
+            *p = *r * 1;
+            *p = (- *beta * *omega) * (*v);
+      }
       #warning "Execute Method not implemented"
+      #warning "Arrays still need to be implemented as arrays"
       return ESuccess;
 }

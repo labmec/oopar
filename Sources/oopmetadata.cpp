@@ -71,14 +71,7 @@ void OOPMetaData::VerifyAccessRequests(){
 					GrantReadAccess(i->fTaskId, i->fProc, i->fState, i->fVersion);
 				}
 			}else if(i->fState==EVersionAccess){
-//<<<<<<< oopmetadata.cpp
-				//Do something ?
-
-//=======
 				//Do something
-//				fTaskVersionAccess = objid;
-				cout << "Some code is missing";
-//>>>>>>> 1.4
 			}
 		}
 	}
@@ -90,6 +83,7 @@ bool OOPMetaData::CanExecute(const OOPDataVersion & version, OOPMDataState acces
 #ifndef WIN32
 #warning "OOPMetaData::CanExecute BADLY IMPLEMENTED METHOD"
 #endif
+	
   // THIS METHOD IS OBSOLETE ANYWAY
   //	if(fTaskWrite) return false;
   //cout << "Inside CanExecute method -----------------------------------------------" << endl;
@@ -164,10 +158,27 @@ void OOPMetaData::SubmitAccessRequest(const OOPObjectId &taskId,const OOPDataVer
     //take appropriate actions
     //Pegar ponteiro para o objeto TTask no TM e avisar ao tal Task que este
     //dado está pronto para ser usado.
-	  OOPMDataDepend depend(fObjId,access,version);
+	
+	switch (access )
+	{
+		case  EReadAccess:
+			//do something;
+			break;
+		case  EVersionAccess:
+			fTaskVersionAccess = taskId;
+			break;
+		case  EWriteAccess:
+			fTaskWrite = taskId;
+			break;
+		defaults:
+			break;
+	}
+
+	OOPMDataDepend depend(fObjId,access,version);
     TM->NotifyAccessGranted(taskId, depend, this);
 
   }
+  
   if(fProc != proc){
     if (!HasReadAccess(proc)){
       fAccessProcessors.push_back(proc);

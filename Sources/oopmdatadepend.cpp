@@ -36,7 +36,7 @@ void OOPMDataDepend::Print(ostream & out) const {
   fVersion.Print(out);
 }
 
-int OOPMDataDependList::SubmitDependencyList(OOPObjectId &taskid) {
+int OOPMDataDependList::SubmitDependencyList(const OOPObjectId &taskid) {
 
 	if(fDependList.size() ==0) {
 		TM->TransfertoExecutable(taskid);
@@ -47,7 +47,7 @@ int OOPMDataDependList::SubmitDependencyList(OOPObjectId &taskid) {
     if(!DM->SubmitAccessRequest(taskid, *i)) {
       deque<OOPMDataDepend>::iterator j;
       for(j=fDependList.begin();j!=i;j++){
-	DM->ReleaseAccessRequest(taskid,*j);
+		DM->ReleaseAccessRequest(taskid,*j);
       }
       return 0;
     }
@@ -56,7 +56,7 @@ int OOPMDataDependList::SubmitDependencyList(OOPObjectId &taskid) {
   return 1;
 }
 
-void OOPMDataDependList::ReleaseAccessRequests(OOPObjectId &taskid) {
+void OOPMDataDependList::ReleaseAccessRequests(const OOPObjectId &taskid) {
 
   deque<OOPMDataDepend>::iterator i;
   for(i=fDependList.begin();i!=fDependList.end();i++){

@@ -5,14 +5,18 @@ RunInTerminal=true
 [Project DBase]
 ShowLocals=true
 
-[filelist]
-0=/home/pos/longhin/Projetos/OOPar/Sources/oopdataversion.cpp
-1=/home/pos/longhin/Projetos/OOPar/Sources/oopsaveable.h
-
 [filenumbers]
-0=349
+0=31
 1=1
 
 [filemarkers]
 0=
 1=
+
+[filelist]
+0=/home/longhin/Projetos/OOPar/Sources/ooppardefs.h
+
+[File View]
+filter.file.unmatch=*.so *.o *.a *.la
+filter.file.ignore.hidden=0
+filter.dir.ignore.hidden=0

@@ -2,10 +2,28 @@
 #include "oopmetadata.h"
 #include "ooptaskmanager.h"
 #include "oopdatamanager.h"
+
+#ifdef LOG4CXX
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace std;
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+LoggerPtr loggerOOPAccessInfo(Logger::getLogger("OOPAR.OOPAccessInfo"));
+#endif
+
 bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 {
 	if (fIsGranted || fIsAccessing) {
+#ifdef LOG4CXX
+    LOG4CXX_WARN(loggerOOPAccessInfo, "CanExecute should not be called for an object which is being accessed");
+#else
 		cout << "OOPAccessInfo::CanExecute should not be called for an object which is being accessed\n";
+#endif
 		return false;
 	}
 	// if the version is not right, don't even consider granting access
@@ -42,7 +60,11 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		return true;
 		break;
 	default:
+#ifdef LOG4CXX
+    LOG4CXX_WARN(loggerOOPAccessInfo, "CanExecute inconsistent");
+#else
 		cout << "OOPAccessInfo::CanExecute inconsistent\n";
+#endif
 		break;
 	}
 	return false;
@@ -242,7 +264,15 @@ void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 		i++;
 	}
 	if(i == fList.end()) {
+#ifdef LOG4CXX
+    std::string aux = "InfoList::ReleaseAccess didn't find Task Id = "
+    aux += itoa (taskid);
+    aux += " depend = ";
+    aux += depend;
+    LOG4CXX_WARN(loggerOOPAccessInfo, aux);
+#else
 		cout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend << endl;
+#endif
 		Print(cout);
 		cout.flush();
 	}

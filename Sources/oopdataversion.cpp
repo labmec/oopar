@@ -6,6 +6,22 @@
 //class   OOPStorageBuffer;
 class   OOPDataVersion;
 using namespace std;
+
+
+#ifdef LOG4CXX
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+LoggerPtr OOPDataVersionlogger(Logger::getLogger("OOPAR.OOPDataVersion"));
+#endif
+
+
+
 void OOPDataVersion::Write (TPZStream & buf, int)
 {
 	int aux = fVersion.size ();
@@ -115,6 +131,9 @@ void OOPDataVersion::SetLevelCardinality (int level, int depth)
 				 if(i>=version.fVersion.size()) return true;
 			     if (GetLevelVersion (i) <
 				 version.GetLevelVersion (i)) {
+#ifdef LOG4CXX
+            LOG4CXX_WARN(OOPDataVersionlogger, "AmICompatible returned false");
+#endif
 				     cout << "OOPDataVersion::AmICompatible returned false\n";
 				     cout << "My version ";
 				     Print (cout);
@@ -236,8 +255,12 @@ void OOPDataVersion::DecreaseLevel ()
 void OOPDataVersion::Increment ()
 {
 	if (!fVersion.size ()) {
+#ifdef LOG4CXX
+    LOG4CXX_ERROR(OOPDataVersionlogger, "Something wrong - fVersion.size() = 0");
+#else   
 		cerr << "Algo errado" << endl;
 		cerr << "fVersion.size() = 0" << endl;
+#endif
 		return;
 	}
 	fVersion[fVersion.size () - 1]++;
@@ -249,8 +272,12 @@ void OOPDataVersion::Increment ()
 		return;
 	if (fVersion[fVersion.size () - 1] >
 	    fLevelCardinality[fVersion.size () - 1]) {
+#ifdef LOG4CXX
+    LOG4CXX_ERROR(OOPDataVersionlogger, "Inconsistent data version incrementation");
+#else   
 		cerr << "Inconsistent data version incrementation" <<
 			__FILE__ << __LINE__ << endl;
+#endif
 		return;
 	}
 	if (fVersion[fVersion.size () - 1] ==
@@ -274,10 +301,14 @@ void OOPDataVersion::Increment ()
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
+#ifdef LOG4CXX
+          LOG4CXX_ERROR(OOPDataVersionlogger, "Accessing level out of range");
+#else   
 		     cerr << "FILE: " << __FILE__ << " LINE:" << __LINE__
 			     << " Accessing level out of range" << endl;
 		     cerr << "Maximum:" << GetNLevels () -
 			     1 << " Trying:" << level << endl;
+#endif
 		     // exit(-1);
 		     return -1;
 	     }
@@ -287,10 +318,14 @@ void OOPDataVersion::Increment ()
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
+#ifdef LOG4CXX
+          LOG4CXX_ERROR(OOPDataVersionlogger, "Accessing level out of range");
+#else   
 		     cerr << "FILE: " << __FILE__ << " LINE:" << __LINE__
 			     << " Accessing level out of range" << endl;
 		     cerr << "Maximum:" << GetNLevels () -
 			     1 << " Trying:" << level << endl;
+#endif
 		     // exit (-1);
 		     return -1;
 	     }

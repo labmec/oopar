@@ -10,6 +10,19 @@ class   OOPDMOwnerTask;
 class   OOPSaveable;
 class   OOPObjectId;
 
+
+#ifdef LOG4CXX
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+LoggerPtr OOPMetaDatalogger(Logger::getLogger("OOPAR.OOPMetaData"));
+#endif
+
 /*
 SEQUENCES
   A task wants to access the data, the processor does not own the data
@@ -509,7 +522,11 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 	}
 	case EGrantReadAccess: {
 		if(fObjPtr && ms.fObjPtr) {
+#ifdef LOG4CXX
+      LOG4CXX_ERROR(OOOPMetaDatalogger, "Receives the pointer to the object again!");
+#else    
 			cout << "OOPMetaData receives the pointer to the object again!\n";
+#endif
 			delete ms.fObjPtr;
 			ms.fObjPtr = 0;
 		}
@@ -581,7 +598,11 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 	}
 	case ETransferOwnership: {
 		if(fObjPtr) {
+#ifdef LOG4CXX
+      LOG4CXX_ERROR(OOOPMetaDatalogger, "Receiving transfer ownership with pointer !");
+#else    
 			cout << "OOPMetaData receiving transfer ownership with pointer \n";
+#enfif
 			DataLog << "OOPMetaData receiving transfer ownership with pointer \n";
 		}
 		DataLog << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fProcOrigin << endl;

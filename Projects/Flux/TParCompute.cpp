@@ -97,9 +97,9 @@ int TParCompute::Pack (OOPSendStorage * buf)
 	buf->PkInt(&sz);
 	for(i=0; i<sz; i++) fTaskIds[i].Pack(buf);
 	fDataVersions.Pack(buf);
-	fDataVersions.Print(cout);
+	//fDataVersions.Print(cout);
 	fMeshVersions.Pack(buf);
-	fMeshVersions.Print(cout);
+	//fMeshVersions.Print(cout);
 	buf->PkInt(&fNPartitions);
 	return 0;
 }

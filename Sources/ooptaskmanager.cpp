@@ -293,11 +293,11 @@ void OOPTaskManager::Execute ()
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
 	// TaskManLog << "Entering task list loop" << endl;
-	PrintTaskQueues("Antes", TaskQueueLog);
+	//PrintTaskQueues("Antes", TaskQueueLog);
 	ExecuteDaemons();
 	while (1) {
 		while (fExecutable.size ()) {
-			DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
+			//DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
 			i = fExecutable.begin ();
 			OOPTaskControl *tc = (*i);
 			tc->Task ()->Execute ();
@@ -335,7 +335,7 @@ void OOPTaskManager::Execute ()
 		pthread_mutex_unlock(&fExecuteMutex);	
 			
 	}
-	PrintTaskQueues("Depois", TaskQueueLog);
+	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
 }
 OOPObjectId OOPTaskManager::GenerateId ()

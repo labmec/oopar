@@ -140,9 +140,11 @@ int OOPMPISendStorage::Send (int msg_id)
 {
 	// MPI_Send(&f_position,1,MPI_INT,f_target_tid,msg_id,MPI_COMM_WORLD);
 	int size_position = 0, max_buffr_size = 1000000, ret;
+	int packret=MPI_Send(&f_position,1,MPI_INT,f_target_tid,msg_id,MPI_COMM_WORLD);
 	// empacota extensao no inicio do pacote
-	int packret=MPI_Pack (&f_position, 1, MPI_INT, f_buffr, f_position,
-		  &size_position, MPI_COMM_WORLD);
+	//int * locbuffer = new int[1];
+	//int packret=MPI_Pack (&f_position, 1, MPI_INT, f_buffr, f_position,&size_position, MPI_COMM_WORLD);
+	//int packret=MPI_Pack (locbuffer, 1, MPI_INT, f_buffr, f_position,&size_position, MPI_COMM_WORLD);
 	if(packret==MPI_SUCCESS){
 		cout << "Called MPI_Pack success\n";
 		cout.flush();
@@ -158,7 +160,10 @@ int OOPMPISendStorage::Send (int msg_id)
 		if (f_position < i + max_buffr_size) {
 			block_size = f_position - i;
 		}
+		/*
 		ret = MPI_Send (send_buffr, block_size, MPI_PACKED,
+				f_target_tid, msg_id, MPI_COMM_WORLD);*/
+		ret = MPI_Send (send_buffr, block_size, MPI_INT,
 				f_target_tid, msg_id, MPI_COMM_WORLD);
 		cout << "Called MPI_Send ret = " << ret << "\n";
 		cout.flush();
@@ -188,7 +193,9 @@ int OOPMPISendStorage::Send (int msg_id)
 		cout.flush();
 
 	}
-	if (ret > 0)
+	if (!ret)
+		cout << "Reseting buffer\n";
+		cout.flush();
 		ResetBuffer ();
 	return ret;
 }
@@ -245,11 +252,13 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 	char   *receive_buffer;
 	receive_buffer = new (char[max_buffr_size]);
 	// recebe primeiros 10^6 bytes
-	cout << "MPI_Recv returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED, MPI_ANY_SOURCE,
+	/*cout << "MPI_Recv returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED, MPI_ANY_SOURCE,
 		  MPI_ANY_TAG, MPI_COMM_WORLD, &status) << endl;
 	// desempacota dimensao do pacote completo
 	cout << "MPI_Unpack ret " << MPI_Unpack (receive_buffer, max_buffr_size, &size_position, &f_size,
-		    1, MPI_INT, MPI_COMM_WORLD) << endl;
+		    1, MPI_INT, MPI_COMM_WORLD) << endl;*/
+	cout << "MPI_Recv returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_INT, MPI_ANY_SOURCE,
+		  MPI_ANY_TAG, MPI_COMM_WORLD, &status) << endl;
 	cout.flush();
 	f_buffr = new (char[f_size]);
 	f_sender_tid = status.MPI_SOURCE;
@@ -263,13 +272,18 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 			f_buffr[receive_position] =
 				receive_buffer[receive_position];
 	for (int i = max_buffr_size; i < f_size; i = i + max_buffr_size) {
-		MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED,
-			  f_sender_tid, f_msg_id, MPI_COMM_WORLD, &status);
+		/*cout << "MPI_Recv on loop returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_PACKED,
+			  f_sender_tid, f_msg_id, MPI_COMM_WORLD, &status) << endl;*/
+		cout << "MPI_Recv on loop returned " << MPI_Recv (receive_buffer, max_buffr_size, MPI_INT,
+			  f_sender_tid, f_msg_id, MPI_COMM_WORLD, &status) << endl;
+		cout.flush();
 		for (int j = 0; j < max_buffr_size; j++, receive_position++)
 			if (receive_position < f_size)
 				f_buffr[receive_position] =
 					receive_buffer[receive_position];
 	}
+	cout << "Returning 1\n";
+	cout.flush();
 	return 1;
 }
   // Metodos para DESEMPACOTAR dados do buffer.

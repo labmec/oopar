@@ -23,6 +23,19 @@ class   OOPTask:public OOPSaveable
 {
 public:
 	/**
+	 * Sets the label property
+	 */
+	void SetLabel(char * label){
+		fLabel = label;
+	}
+	void SetLabel(string label){
+		fLabel = label;
+	}
+	string GetLabel(){
+		return fLabel;
+	}
+
+	/**
 	 * Prints log information on a log file
 	 * @since 16/08/2003
 	 * @author Gustavo C Longhin
@@ -177,6 +190,11 @@ public:
      * @since 12/06/2003 
      */
 	int     fIsRecurrent;
+	/**
+	 * Holds a brief description of the task purpose
+	 */
+	string fLabel;
+
       protected:
 };
 /**

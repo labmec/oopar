@@ -143,7 +143,7 @@ void OOPMetaData::VerifyAccessRequests ()
 			}
 			DataLog << "Grant access for Obj " << fObjId << " to " << ac->fTaskId << " with depend " << depend << endl;
 			DataLog.flush();
-			LogDM->GrantAccessLog(DM->GetProcID(),fObjId,ac->fState,ac->fVersion,ac->fProcessor,ac->fTaskId);
+			LogDM->GrantAccessLog(DM->GetProcID(),fObjId,ac->fState,ac->fVersion,ac->fProcessor,ac->fTaskId, State());
 			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
 		}
 		else {
@@ -190,7 +190,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 	GLogMsgCounter++;
 	fAccessList.ReleaseAccess (taskid, depend);
 	if (depend.State () == EVersionAccess) {
-		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProcVersionAccess, fTaskVersion);
+		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProcVersionAccess, fTaskVersion, State(),fVersion);
 		this->fProcVersionAccess = -1;
 		this->fTaskVersion.Zero ();
 		// remove this processor from the list of suspended read
@@ -211,7 +211,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 			while (i != fSuspendAccessProcessors.end ()) {
 				if (*i != DM->GetProcID ()) {
 					OOPObjectId auxId;
-					LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), *i, auxId);
+					LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), *i, auxId, State(), fVersion);
 					DataLog << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
 					TransferDataLog << ":suspend read access " << fObjId << " to processor "<< *i << endl;
 					TransferDataLog.flush();
@@ -227,7 +227,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		fSuspendAccessProcessors.clear();
 	}
 	else if (depend.State () == EWriteAccess) {
-		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, fTaskWrite);
+		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, fTaskWrite, State(), fVersion);
 		fTaskWrite.Zero ();
 		// grant read access to the owning processor
 		DataLog << "granting read access for obj " << fObjId << " to processor " << fProc << endl;
@@ -361,7 +361,7 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
 	GLogMsgCounter++;
 	DataLog << "SubmitAccessRequest task " << taskId << " depend " << depend << " proc " << processor << endl;
 	DataLog.flush();
-	LogDM->SubmitAccessRequestLog(DM->GetProcID(),Id(),ENoMessage,depend.State(),depend.Version(),processor,taskId);
+	LogDM->SubmitAccessRequestLog(DM->GetProcID(),Id(),ENoMessage,depend.State(),State(),depend.Version(),processor,taskId);
 	fAccessList.AddAccessRequest (taskId, depend, processor);
 	if (!IamOwner ()) {
 		VerifyAccessRequests();
@@ -865,7 +865,7 @@ void OOPMetaData::SetVersion (const OOPDataVersion & ver,
 	
 	GLogMsgCounter++;
 	if (fTaskWrite == taskid || fTaskVersion == taskid) {
-		LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver);
+		LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver, State(),taskid);
 		fVersion = ver;
 		DataLog << "Setting Version for Obj " << this->fObjId << " to version "
 			<< ver << "\n";

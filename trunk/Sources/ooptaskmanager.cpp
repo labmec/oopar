@@ -109,7 +109,17 @@ void OOPTaskManager::TransferExecutingTasks(){
 #ifdef MPI
 #define MT
 
-
+void * OOPTaskManager::ReceiveMessages(void * data){
+	OOPTaskManager * lTM = static_cast<OOPTaskManager *> (data);
+	pthread_mutex_lock(&fMPIMutex);
+	OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
+	if(!MPICM) return 0;//MPICM->ReceiveBlocking();
+	while(MPICM){
+		MPICM->Receive();
+		pthread_cond_timedwait();		
+	}
+	
+}
 void * OOPTaskManager::TriggerTask(void * data){
 	OOPTaskControl * tc = static_cast<OOPTaskControl *> (data);
 	OOPTaskManager * lTM = dynamic_cast<OOPTaskManager *> (TM);
@@ -181,12 +191,16 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			cout << "PID" << getpid() << endl;
 			cout.flush();
 			#ifdef MPI
-			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
-			if(MPICM) MPICM->ReceiveBlocking();
+			//OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
+			//if(MPICM) MPICM->ReceiveBlocking();
+			if(!fReceiveThreadCreated)
+				pthread_create(&receivethread, NULL, ReceiveMessages, this);
+			//criar um thread com o recebimento não blocking.
+			//if(MPICM) MPICM->Receive();
 			#endif
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
-			cout << "Leaving blocking receive PID " << getpid() << endl;
-			cout.flush();
+			//cout << "Leaving blocking receive PID " << getpid() << endl;
+			//cout.flush();
 			DM->SubmitAllObjects();
 		}
 //		pthread_mutex_unlock(&fExecuteMutex)
@@ -204,9 +218,11 @@ OOPTaskManager::OOPTaskManager (int proc)
 	fMaxId = fLastCreated + NUMOBJECTS;
 	pthread_cond_init(&fExecuteCondition, NULL);
 	pthread_cond_init(&fExecuteTaskCondition, NULL);
+	pthread_cond_init(&fMPICond, NULL);
 	pthread_mutex_init(&fExecutingMutex, NULL);
 	pthread_mutex_init(&fFinishedMutex, NULL);
 	pthread_mutex_init(&fSubmittedMutex, NULL);
+	pthread_mutex_init(&fMPIMutex, NULL);
 }
 OOPTaskManager::~OOPTaskManager ()
 {

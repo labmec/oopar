@@ -2,61 +2,144 @@
 
 #include "TParAnalysis.h"
 
-void TParAnalysis::ComputeFlux(TPartitionRelation * table){
+void TParAnalysis::SetupEnvironment(){
 	
-	int ProcId = DM->GetProcID();
+  TPartitionRelation *table = TPartitionRelation::CreateRandom(fNumPartitions);
+  //  int ProcId = DM->GetProcID();
 	
-	// message #1.1 to pc:TParCompute
-	TParCompute * pc = new TParCompute(ProcId);
+  // message #1.2 to table:TPartitionRelation
+  // TPartitionRelation * table = ;
 
-	// message #1.2 to table:TPartitionRelation
-	// TPartitionRelation * table = ;
+  int npartitions = table->GetNPartitions();
 
-	int npartitions = table->GetNPartitions();
 
-	// message #1.3 to rhs:TParRhs
-	TParRhs * rhs = new TParRhs[npartitions];
+  int ip;
+  // message #1.3 to rhs:TParRhs
+  vector<TParRhs *> RhsVec(npartitions);
+  vector<OOPObjectId> RhsId(npartitions);
+  for(ip=0; ip<npartitions; ip++) RhsVec[ip] = new TParRhs();
 
-	// message #1.4 to state:TParState
-	TParState * state = new TParState[npartitions];
+  // message #1.4 to state:TParState
+  vector<TParState *> StateVec(npartitions);
+  vector<OOPObjectId> StateId(npartitions);
+  for(ip=0; ip<npartitions; ip++) StateVec[ip] = new TParState();
 
-	// message #1.5 to mesh:TParMesh
-	TParMesh * mesh = new TParMesh[npartitions];
+  // message #1.5 to mesh:TParMesh
+  vector<TParMesh *> MeshVec(npartitions);
+  vector<OOPObjectId> MeshId(npartitions);
+  for(ip=0; ip<npartitions; ip++) MeshVec[ip] = new TParMesh();
 
-	// message #1.6 to ver:OOPDataVersion
-	OOPDataVersion ver;
-	OOPObjectId tableId = DM->SubmitObject(table, 1);
-	pc->SetPartitionRelationId(tableId , ver);
+  int i;
+  // message #1.7 to ver:OOPDataVersion
+  for (i = 0; i < npartitions; i++) {
+    // message #1.8.1 to DM:OOPDataManager
+    RhsId[i] = DM->SubmitObject(RhsVec[i], 1);
 
-	// message #1.7 to ver:OOPDataVersion
-	int level = 0;
-	int version = 0;
-	int i = 0;
-	ver.SetLevelVersion(level, version);
-	OOPMDataState st = EReadAccess;
-	for (i = 0; i < npartitions; i++) {
-		// message #1.8.1 to DM:OOPDataManager
-		OOPObjectId rhsId = DM->SubmitObject(&rhs[i], 1);
+    // message #1.8.3 to DM:OOPDataManager
+    StateId[i] = DM->SubmitObject(StateVec[i], 1);
 
-		// message #1.8.2 to pc:TParCompute
-		pc->SetRhsId(rhsId);
+    // message #1.8.5 to DM:OOPDataManager
+    MeshId[i] = DM->SubmitObject(MeshVec[i], 1);
+    table->SetMeshId(i,MeshId[i]);
+  }
+  // message #1.6 to ver:OOPDataVersion
+  OOPDataVersion ver;
+  int level = 0;
+  int version = 0;
+  ver.SetLevelVersion(level, version);
+  OOPMDataState st = EReadAccess;
+  fRelationTable = DM->SubmitObject(table, 1);
 
-		// message #1.8.3 to DM:OOPDataManager
-		OOPObjectId stateId = DM->SubmitObject(&state[i], 1);
+  ReleaseAccessRequests();
 
-		// message #1.8.4 to pc:TParCompute
-		pc->SetStateId(stateId);
+  AddDependentData(fRelationTable,st,ver);
 
-		// message #1.8.5 to DM:OOPDataManager
-		OOPObjectId meshId = DM->SubmitObject(&mesh[i], 1);
+  st = EVersionAccess;
+  for(ip=0; ip<npartitions; ip++) {
+    AddDependentData(MeshId[ip],st,ver);
+  }
 
-		// message #1.8.6 to pc:TParCompute
-		pc->AddDependentData(stateId, st, ver);
+  for(ip=0; ip<npartitions; ip++) {
+    AddDependentData(StateId[ip],st,ver);
+  }
 
-		// message #1.8.7 to pc:TParCompute
-		pc->AddDependentData(rhsId, st, ver);
-		pc->AddDependentData(meshId, st, ver);
-	}
-	// message #1.9 to pc:TParCompute
-	pc->Submit();
+  for(ip=0; ip<npartitions; ip++) {
+    AddDependentData(RhsId[ip],st,ver);
+  }
+
 }
+
+void TParAnalysis::CreateParCompute() {
+
+  //  int ndepend = GetNDependentData();
+  deque<OOPMDataDepend>::iterator dep;
+  dep = fDataDepend.begin();
+  OOPObjectId tableid = (*dep).fDataId;
+  dep++;
+
+  OOPDataVersion randver;
+  randver.SetLevelVersion(0,10);
+  randver.IncrementLevel(13);
+  randver.SetLevelVersion(1,12);
+  randver.IncrementLevel(25);
+  randver.SetLevelVersion(2,24);
+  OOPDataVersion taskver(randver);
+  taskver.SetLevelVersion(1,-1);
+  fTaskVersion = taskver;
+  // skipping the mesh dependency
+  int count =0;
+  while(count < fNumPartitions) {
+    dep ++;
+    count++;
+  }
+  count = 0;
+  // Setting the data version
+  while(count < 2*fNumPartitions) {
+    (*dep).ObjPtr()->SetVersion(randver,Id());
+    dep ++;
+    count++;
+  }
+
+
+  // message #1.1 to pc:TParCompute
+  TParCompute * pc = new TParCompute(GetProcID(),fNumPartitions);
+
+  OOPDataVersion ver;
+  OOPMDataState st = EReadAccess;
+  pc->AddDependentData(tableid,st,ver);
+  // set mesh dependency
+  count = 0;
+  dep = fDataDepend.begin();
+  while(count < fNumPartitions) {
+    pc->AddDependentData((*dep).ObjPtr()->Id(),st,(*dep).ObjPtr()->Version());
+  }
+  // set the dependency on the state and rhs objects
+  count =0;
+  while(count < 2*fNumPartitions) {
+    pc->AddDependentData((*dep).ObjPtr()->Id(),st,taskver);
+  }
+
+
+  //	pc->SetPartitionRelationId(tableId , ver);
+  // message #1.9 to pc:TParCompute
+  pc->Submit();
+  ReleaseAccessRequests();
+
+  dep = fDataDepend.begin();
+  dep++;
+  count =0;
+  while(count < fNumPartitions) {
+    dep ++;
+    count++;
+  }
+  count = 0;
+  // Setting the data version
+  while(count < 2*fNumPartitions) {
+    OOPDataVersion ver((*dep).ObjPtr()->Version());
+    ver.Increment();
+    AddDependentData((*dep).ObjPtr()->Id(),st,ver);
+    dep ++;
+    count++;
+  }
+}
+

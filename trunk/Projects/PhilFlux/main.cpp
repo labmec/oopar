@@ -1,3 +1,4 @@
+// -*- c++ -*-
 
 #include "../Flux/TPartitionRelation.h"
 #include <iostream>

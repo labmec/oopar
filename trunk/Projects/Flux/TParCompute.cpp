@@ -71,7 +71,8 @@ void TParCompute::CreateFluxesTasks(  ){
     //Para cada Rhs, deve-se ainda estabelecer as depend�cias referentes �comu-
     //nica�o
     for(i=0;i<fPartRelationPtr->GetNPartitions();i++){
-        out = fPartRelationPtr->OutgoingContribution(i);
+      // so para conseguir compilar - Philippe
+        out.resize(fPartRelationPtr->OutgoingContribution(i));
         for(j=0;j<(signed int)out.size();j++){
             version[out[j]].operator++();
             fTasks[i].AddDependentData(fRhsIds[out[j]], st_w, version[out[j]]);
@@ -97,7 +98,7 @@ OOPObjectId &TParCompute::GetRhsId(int pos){
 OOPObjectId &TParCompute::GetStateId(int pos){
     return fStateIds[pos];
 }
-TParCompute::TParCompute(int procid): OOPTask(procid) {
+TParCompute::TParCompute(int procid, int numpartitions): OOPTask(procid) , fNPartitions(numpartitions) {
     fTasks=0;
 }
 

@@ -8,6 +8,8 @@
 #include "TParState.h"
 #include "TParMesh.h"
 #include "oopdatamanager.h"
+#include "ooptask.h"
+#include "oopdataversion.h"
 
 /**
  * Implements the functionalities of the Analysis classes incorporating
@@ -15,12 +17,33 @@
  * This class is not part of the parallel environment, although it make some calls to the Data and Task manager.
  * Its an auxiliar class which triggers the environment.
  */
-class TParAnalysis {
+class TParAnalysis : public OOPTask{
 public:
 
+  TParAnalysis(int Procid, int numpartitions);
     /**
      * Initializes and submit all necessary data and tasks to the Data and Task managers. 
      */
-    void ComputeFlux(TPartitionRelation * table);
+    void SetupEnvironment();
+
+    /**
+     * Sets the version of the mesh, state and rhs to random values and creates the parcompute task
+     */
+    void CreateParCompute();
+
+    /**
+     * Sets the version of the rhs and state appropriate for the TParCompute class to kick in
+     */
+    void SetAppropriateVersions();
+
+
+    virtual OOPMReturnType Execute();
+
+    virtual void Print(ostream &out = cout);
+
+ private:
+    OOPObjectId fRelationTable;
+    int fNumPartitions;
+    OOPDataVersion fTaskVersion;
 };
 #endif //TPARANALYSIS_H

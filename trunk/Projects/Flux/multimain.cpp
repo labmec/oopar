@@ -1,5 +1,6 @@
 // -*- c++ -*-
 #include <iostream>
+//#include <istream>
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 #include "oopfilecomm.h"
@@ -27,14 +28,18 @@ ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
 
 int GLogMsgCounter;
-const int numproc = 6;
+const int numproc = 10;
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
 vector < OOPTaskManager * >TMList (numproc);
 int     NumTasks ();
 void    Load (int iproc);
+using namespace std;
 int multimain ()
 {
+
+	//cout << "Number of processors\n";
+	//cin >> numproc;
 	GLogMsgCounter=0;
 	int     iproc;
 	for (iproc = 0; iproc < numproc; iproc++) {
@@ -65,7 +70,7 @@ int multimain ()
 	
 	
 	
-	TParAnalysis *partask = new TParAnalysis (5, 2, numproc);
+	TParAnalysis *partask = new TParAnalysis (5, numproc, numproc);
 	TM->Submit (partask);
 	int nsteps=500;
 	int k=0;

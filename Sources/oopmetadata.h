@@ -129,6 +129,8 @@ public:
       */
 	        OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 			     const int proc);
+	OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
+			  const int ProcId, const OOPDataVersion ver);				 
 	virtual int ClassId () const
 	{
 		return OOPMETADATA_ID;

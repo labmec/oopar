@@ -97,6 +97,7 @@ public:
 	* @param trace : Indicates if submited object is traceable or not
 	*/
 	OOPObjectId SubmitObject (TPZSaveable * obj, int trace = 0);
+	OOPObjectId SubmitObject (TPZSaveable * obj, int trace, OOPDataVersion & ver);
       private:
 	/**
 	* Deletes the object from the datastructure

@@ -208,6 +208,17 @@ OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace)
 	pthread_mutex_unlock(&fDataMutex);
 	return id;
 }
+OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace, OOPDataVersion & ver)
+{
+	OOPObjectId id = DM->GenerateId ();
+	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor, ver);
+	
+	dat->SetTrace (trace);	// Erico
+	pthread_mutex_lock(&fDataMutex);
+	fSubmittedObjects.push_back(dat);
+	pthread_mutex_unlock(&fDataMutex);
+	return id;
+}
 void OOPDataManager::DeleteObject (OOPObjectId & ObjId)
 {
 	map<OOPObjectId, OOPMetaData * >::iterator i;

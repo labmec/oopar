@@ -23,6 +23,19 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifdef LOG4CXX
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+LoggerPtr OOPMPICommManagerlogger(Logger::getLogger("OOPAR.OOPMPICommManager"));
+#endif
+
+
 class   OOPMPIStorageBuffer;
 class   OOPMPICommManager;
 using namespace std;
@@ -30,7 +43,11 @@ extern OOPTaskManager *TM;
 pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 
 OOPMPICommManager::OOPMPICommManager(){
+#ifdef LOG4CXX
+  LOG4CXX_WARN(OOPMPICommManagerlogger, "Empty Constructor should never be called!");
+#else    
 	cerr << "Empty Constructor should never be called\n";
+#endif
 }
 OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 {
@@ -38,13 +55,21 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 	f_num_proc = 0;
 	fReceiveThreadExists=false;
 	// f_proc = (int *) NULL; 
+#ifdef LOG4CXX
+  LOG4CXX_INFO(OOPMPICommManagerlogger, "Before calling MPI_Init");
+#else   
 	cout << "Before calling MPI_Init\n";
+#endif
 	cout.flush();
 	MPI_Init(&argc,&argv); 
 	Initialize((char*)argv, argc);
 	f_argc = argc;
 	f_argv = argv;
+#ifdef LOG4CXX
+  LOG4CXX_INFO(OOPMPICommManagerlogger, "After calling MPI_Init");
+#else   
 	cout << "After calling MPI_Init\n";
+#endif
 	cout.flush();
 }
 OOPMPICommManager::~OOPMPICommManager ()
@@ -62,8 +87,12 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 {
 	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
+#ifdef LOG4CXX
+  LOG4CXX_INFO(OOPMPICommManagerlogger, "MPIComm Initialize f_myself");
+#else   
 	cout << "MPIComm Initialize f_myself " << f_myself << " f_num_proc " << f_num_proc << endl;
         cout.flush();
+#endif
 	if (f_myself == 0)
 		return f_num_proc;
 	else

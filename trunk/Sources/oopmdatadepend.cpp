@@ -3,6 +3,19 @@
 #include "ooptaskmanager.h"
 #include "oopmetadata.h"
 class OOPStorageBuffer;
+
+#ifdef LOG4CXX
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+LoggerPtr OOPMDataDependlogger(Logger::getLogger("OOPAR.OOPMDataDepend"));
+#endif
+
 OOPMDataDepend::OOPMDataDepend (const OOPObjectId & id, OOPMDataState st,
 				const OOPDataVersion & ver)
 {
@@ -83,7 +96,11 @@ void OOPMDataDepend::Write (TPZStream  & buf)
 	buf.Write (&need);
 	fVersion.Write(buf);
 	if (fObjPtr) {
+#ifdef LOG4CXX
+    LOG4CXX_ERROR(OOPMDataDependlogger, "Pack the object pointer should be zero");
+#else
 		cout << "OOPMDataDepend::Pack the object pointer should be zero\n";
+#endif
 	}
 }
   /**
@@ -108,6 +125,9 @@ int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		if (!DM->SubmitAccessRequest (taskid, *i)) {
+#ifdef LOG4CXX
+      LOG4CXX_ERROR(OOPMDataDependlogger, "SubmitDependencyList failed for task id ");
+#endif
 			cout << "OOPMDataDependList::SubmitDependencyList failed for task id ";
 			taskid.Print (cout);
 			cout << "With dependency ";

@@ -9,7 +9,18 @@ class OOPDMOwnerTask;
 class OOPDMRequestTask;
 class OOPDataLogger {//: public OOPSaveable {
 public:    
-
+	void GrantAccessLog(int proc, 
+						const OOPObjectId & objId,
+						OOPMDMOwnerMessageType mtype,
+						OOPMDataState mstate,
+						const OOPDataVersion & version,
+						int procorig);
+	void SubmitAccessRequestLog(int proc, 
+								const OOPObjectId & objId,
+								OOPMDMOwnerMessageType mtype,
+								OOPMDataState mstate,
+								const OOPDataVersion & version,
+								int procorig);
     /**
      * Simple constructor 
      */

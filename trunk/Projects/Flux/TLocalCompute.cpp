@@ -11,13 +11,20 @@ void TLocalCompute::InitializePartitionRelationPointer ()
 }
 void TLocalCompute::ComputeLocalFluxes ()
 {
-	OOPMetaData *ptr = fDataDepend.Dep (3).ObjPtr ();
+	OOPMetaData *ptr;
+//	ptr = fDataDepend.Dep (2).ObjPtr ();
+	OOPDataVersion ver;
+//	ver = ptr->Version();
+//	ver.Increment();
+//	ptr->SetVersion(ver,Id());
+	
+	ptr = fDataDepend.Dep (3).ObjPtr ();
 	PrintLog(TaskLog, "TLocalCompute contributes to object id ");
 	ptr->Id ().ShortPrint (TaskLog);
 	TaskLog << endl;
 	cout << "TLocalCompute contributes to object id " << ptr->Id();
 //	ptr->Id ().Print (cout);
-	OOPDataVersion ver = ptr->Version ();
+	ver = ptr->Version ();
 	// int nlevel = ver.GetNLevels();
 	int ncontr = fPartRelationPtr->IncomingContribution (fPartition);
 	ver.IncrementLevel (ncontr);
@@ -60,7 +67,8 @@ void TLocalCompute::TransmitFLuxes ()
 			&fPartRelationPtr->GetRelation (fPartition, i);
 		if (cont->IsEmpty ())
 			continue;
-		TTaskComm *task = new TTaskComm (GetProcID ());
+		int procid = fPartRelationPtr->Processor(i);
+		TTaskComm *task = new TTaskComm (procid);
 		OOPMDataDepend depend (fRhsIds[i], EWriteAccess, rhsver);
 		PrintLog(TaskLog,"TLocalCompute::TransmitFluxes targets ");
 		fRhsIds[i].ShortPrint (TaskLog);

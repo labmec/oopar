@@ -2,6 +2,7 @@
 #ifndef TTASKCOMM_H
 #define TTASKCOMM_H
 #include "ooptask.h"
+#include "fluxdefs.h"
 class   OOPReceiveStorage;
 class   OOPSendStorage;
 /**
@@ -27,6 +28,13 @@ class   TTaskComm:public OOPTask
 	* @param * buf Buffer for data manipulation.
 	*/
 	int     Unpack (OOPReceiveStorage * buf);
+  /**
+   * Returns a Class ID identifier
+   */
+	virtual long GetClassID () {
+		return TTASKCOMM_ID;
+	}
+	static OOPSaveable *Restore (OOPReceiveStorage * buf);
 	        TTaskComm (int ProcId);
 };
 #endif // TTASKCOMM_H

@@ -28,6 +28,12 @@ class   TPartitionRelation:public OOPSaveable
      * Returns a vector containing the ID of all the partitions to each the local partitions will contribute to. 
      */
 	int     OutgoingContribution (int partition);
+	/**
+	 * returns the processor associated with the partition
+	 */
+	int Processor(int partition) {
+		return fProcessor[partition];
+	}
 	void    Print (ostream & out);
     /**
      * inform to the relation table the mesh id
@@ -48,6 +54,10 @@ class   TPartitionRelation:public OOPSaveable
 	static OOPSaveable *Restore (OOPReceiveStorage * buf);
       private:
 	int     fNumPartitions;
+	/**
+	 * indicates the processor where each partition resides
+	 */
+	vector<int> fProcessor;
 	        
 	vector < vector < TContribution > >fRelation;
 };

@@ -4,11 +4,13 @@
 OOPMReturnType TParCompute::Execute ()
 {
 	// submit subtasks to the Task Manager
+	this->InitializePartitionRelationPointer();
 	int i;
 	// increment the level of the state and rhs objects with appropriate
 	// cardinality
 	for (i = 0; i < fNPartitions; i++) {
-		TLocalCompute *ltask = new TLocalCompute (GetProcID (), i);
+		int procid = this->fPartRelationPtr->Processor(i);
+		TLocalCompute *ltask = new TLocalCompute (procid, i);
 		ltask->AddDependentData (OOPMDataDepend
 					 (fPartRelationId, EReadAccess,
 					  fPartRelationVersion));
@@ -138,4 +140,10 @@ OOPSaveable *TParCompute::Restore (OOPReceiveStorage * buf)
 	TParCompute *par = new TParCompute (0,0);
 	par->Unpack (buf);
 	return par;
+}
+/**
+ * Within the Execute Method we should be able to get the data pointer
+ */
+void TParCompute::InitializePartitionRelationPointer () {
+	fPartRelationPtr = dynamic_cast<TPartitionRelation *> (this->Depend().Dep(0).ObjPtr()->Ptr());
 }

@@ -6,7 +6,7 @@
 #include "oopdataversion.h"
 //#include "oopmetadata.h"
 #include <deque>
-class OOPStorageBuffer;
+//class OOPStorageBuffer;
 using namespace std;
 class   OOPMetaData;
 /**
@@ -40,6 +40,13 @@ class   OOPMDataDepend
    const   OOPDataVersion & Version () const
    {
      return fVersion;
+   }
+   /**
+   * Increments the version of the datadepend object
+   */
+   void IncrementVersion()
+   {
+     fVersion.Increment();
    }
   /**
    * returns the state corresponding to the dependency

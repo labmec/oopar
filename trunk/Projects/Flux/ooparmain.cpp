@@ -23,6 +23,7 @@ using namespace std;
 void ParAddClass();
 int multimain();
 int singlemain();
+int mpimain(int argc, char *argv[]);
 
 int main(int argc, char *argv[]){
 
@@ -35,7 +36,8 @@ int main(int argc, char *argv[]){
 				     TLocalCompute::Restore);
   OOPReceiveStorage::AddClassRestore(TTASKCOMM_ID,
 				     TTaskComm::Restore);
-  return multimain();
+  //return multimain();
+	return mpimain(argc, argv);
 }
 
 int singlemain() {

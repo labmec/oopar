@@ -26,9 +26,41 @@ int multimain() {
 	#ifndef MPI
     CMList[iproc] = new OOPFileComManager("filecom",numproc,iproc);
 	#else
-	char * argv = new char;
+	char * argv = "main";
 	CMList[iproc] = new OOPMPICommManager(numproc,&argv);
-  	CMList[iproc]->Initialize( argv, 0 );
+  	CMList[iproc]->Initialize( argv, numproc );
+	#endif
+    TMList[iproc] = new OOPTaskManager(CMList[iproc]->GetProcID());
+    DMList[iproc] = new OOPDataManager(CMList[iproc]->GetProcID());
+  }
+  OOPReceiveStorage::AddClassRestore(TPARANAYSIS_ID, TParAnalysis::Restore);
+
+  Load(0);
+  TParAnalysis *partask = new TParAnalysis(1,2);
+  TM->Submit(partask);
+
+
+  while(NumTasks()) {
+    for(iproc=0; iproc<numproc; iproc++) {
+      Load(iproc);
+      TM->Execute();
+    }
+  }
+
+
+  return 0;
+
+}
+int mpimain(int argc, char *argv[])
+{
+
+  int iproc;
+  for(iproc=0; iproc<numproc; iproc++) {
+	#ifndef MPI
+    CMList[iproc] = new OOPFileComManager("filecom",numproc,iproc);
+	#else
+	CMList[iproc] = new OOPMPICommManager(numproc,argv);
+  	CMList[iproc]->Initialize( *(argv), numproc );
 	#endif
     TMList[iproc] = new OOPTaskManager(CMList[iproc]->GetProcID());
     DMList[iproc] = new OOPDataManager(CMList[iproc]->GetProcID());

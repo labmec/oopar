@@ -51,6 +51,7 @@ OOPObjectId TParCompute::GetPartitionRelationId(){
 void TParCompute::SetPartitionRelationId(OOPObjectId & Id, OOPDataVersion &version){
     fPartRelationId = Id;
     fPartRelationVersion = version;
+	
 }
 
 OOPObjectId &TParCompute::GetRhsId(int pos){

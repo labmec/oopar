@@ -1,10 +1,13 @@
 // -*- c++ -*-
 
 #include <iostream>
-
+ 
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 #include "oopfilecomm.h"
+#ifdef MPI
+#include "oopmpicomm.h"
+#endif
 #include "TParAnalysis.h"
 #include "fluxdefs.h"
 const int numproc = 3;
@@ -19,8 +22,13 @@ int multimain() {
 
   int iproc;
   for(iproc=0; iproc<numproc; iproc++) {
+	#ifndef MPI
     CMList[iproc] = new OOPFileComManager("filecom",numproc,iproc);
-  //	CM->Initialize( argv[0], 0 );
+	#else
+	char * argv[1];
+	CMList[iproc] = new OOPMPICommManager(numproc,&argv[0]);
+  	CM->Initialize( argv[0], 0 );
+	#endif
     TMList[iproc] = new OOPTaskManager(CMList[iproc]->GetProcID());
     DMList[iproc] = new OOPDataManager(CMList[iproc]->GetProcID());
   }

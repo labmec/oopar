@@ -136,12 +136,6 @@ private:
 	 */
 	void    Reschedule ();
 
-public:
-
-
-    void ComputeFlux();
-
-private:
 	/**
 	 * Processor where the current object is located
 	 */

@@ -3,7 +3,8 @@
 #ifndef TPARCOMPUTE_H
 #define TPARCOMPUTE_H
 #include "ooptask.h"
-class OOPObjectId;
+#include "Sources/oopobjectid.h"
+
 class TParCompute : public OOPTask {
 public:    
 
@@ -13,6 +14,71 @@ public:
 
     void SetStateId(OOPObjectId & Id p0);
 
-    void SetMeshId(OOPObjectId & Id p0);
+    /**
+     * Retrieves the OOPObjectId from the ¨ith¨ element on the fStateIds vector.
+     * @param pos Index of the enquired partition
+     * @since 03/06/2002 
+     */
+    OOPObjectId GetStateId(int pos);
+
+    /**
+     * Retrieves the OOPObjectId for the ¨ith¨ element on the fRhsIds vector.
+     * @param pos Index of the enquired partition
+     * @since 03/06/2003 
+     */
+    OOPObjectId GetRhsId(int pos);
+
+    /**
+     * Sets the Id of the Partition Relation object
+     * @param Id Id of the TPartitionRelation object
+     * @since 03/06/2003 
+     */
+    void SetPartitionRelationId(OOPObjectId & Id);
+
+    /**
+     * Returns the Id of the TPartitionRelation object.
+     * @since 03/06/2003 
+     */
+    OOPObjectId GetPartitionRelationId();
+private:
+
+    /**
+     * Create tasks responsible for the computation of fluxes on independent partitions.
+     * Partitios are obtained from MeTiS application on the original mesh.
+     * Since the ParCompResidual is a recurrent task, the task creation will actually create the tasks only in its first run, on subsequent runs it will only actuate on the subtasks data dependence. 
+     * @since 03/06/2003
+     */
+    void CreateFluxesTasks(  );
+
+    /**
+     * Initializes the DataVersion object according to amount of contributions
+     * from neighbor partitions
+     * @since 03/06/2003
+     */
+    void InitializeSolutionVersion();
+
+private:
+
+    /**
+     * Holds all Ids from Flux objects in the parallel computation 
+     */
+    vector<OOPObjectId> fRhsIds;
+
+    /**
+     * Holds all Ids from State variables in the parallel computation 
+     */
+    vector<OOPObjectId> fStateIds;
+
+    /**
+     * Holds the Id of the Partition Relation structure.
+     * @since 03/06/2003 
+     */
+    OOPObjectId fPartRelationId;
+
+    /**
+     * Holds the Ids of sub tasks created in the process.
+     * @since 03/06/2003 
+     */
+    vector<OOPObjectId> fTaskIds;
 };
 #endif //TPARCOMPUTE_H

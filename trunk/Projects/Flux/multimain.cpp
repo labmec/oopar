@@ -97,25 +97,6 @@ int multimain ()
 }
 int mpimain (int argc, char **argv)
 {
-	
-/*	
-	for (iproc = 0; iproc < numproc; iproc++) {
-#ifndef MPI
-		CMList[iproc] =
-			new OOPFileComManager ("filecom", numproc, iproc);
-#else
-		CMList[iproc] = new OOPMPICommManager (numproc, argv);
-		CMList[iproc]->Initialize (*(argv), numproc);
-#endif
-		TMList[iproc] =
-			new OOPTaskManager (CMList[iproc]->GetProcID ());
-		DMList[iproc] =
-			new OOPDataManager (CMList[iproc]->GetProcID ());
-	}
-*/
-	//pthread_join(testethread_1,0);
-	
-	//int numproc = argc;
 	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
 	OOPReceiveStorage::AddClassRestore(TPARCOMPUTE_ID,TParCompute::Restore);
@@ -126,7 +107,7 @@ int mpimain (int argc, char **argv)
 	OOPReceiveStorage::AddClassRestore(TDMOWNERTASK_ID,OOPDMOwnerTask::Restore);
 	OOPReceiveStorage::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
 	OOPReceiveStorage::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
-	
+	OOPReceiveStorage::AddClassRestore(TTERMINATIONTASK_ID,OOPTerminationTask::Restore);
 
 	CM = new OOPMPICommManager (argc, argv);
 	CM->Initialize((char*)argv, argc);

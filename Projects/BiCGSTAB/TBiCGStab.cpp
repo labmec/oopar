@@ -60,45 +60,176 @@ void SubmitObjects(){
 void SetupTaskData(){
 	int i=0;
 	int nproc = CM->NumProcessors();
-	OOPDataVersion ver;
 	
-	ver = fId_normb.Version();
-	ver.IncrementLevel(nproc);
+	OOPDataVersion normbver;
+	normbver = fId_normb.Version();
+	normbver.IncrementLevel(nproc);
 	
-	//Sets version of fId_normb object.
-	fId_normb.SetVersion(ver);
+	//Sets version of norm objects.
+	fId_normb.SetVersion(normbver);
+	
 	//Sets version of fId_b object.
-		
+	OOPDataVersion ver;
+	ver.IncrementLevel();	
 	TDistNorm * normb;
 	for(i=0;i<nproc;i++{
 		normb = new TDistNorm(i);
-		ver.SetVersion(1,-1);
 		normb->AddDependentData(OOPMDataDepend(fId_normb, EWrite, ver))
 		normb->AddDependentData(OOPMDataDepend(fId_b[i], ERead, OOPDataVersion()))
 		normb->AddDependentData(OOPMDataDepend(fId_CMatrix, ERead, OOPDataVersion()))
 		normb->Submit();
 	}
-	//fId_normb->Version --> n.1
 	
+	//fId_normb->Version --> n.1
+	normbver.DecreaseLevel();
+	normbver.Increment();
+
 	
 	/**
 	 * Each processor will
 		1 - Set the appropriate version for its written data
 		2 - Trigger the necessary tasks for the computation itself
+	
+		PS:
+			->Verify versions.
 	 */
 	TMultAdd * madd;
+	OOPDataVersion rver;
+	rver = fId_r[0].Version();
 	for(i=0;i<nproc;i++{
 		madd = new TMultAdd(i);
-		madd->AddDependentData(OOPMDataDepend(fId_r[i], EVersion, OOPDataVersion());
-		madd->AddDependentData(OOPMDataDepend(fId_b[i], ERead, OOPDataVersion());
-		madd->AddDependentData(OOPMDataDepend(fId_A[i], ERead, OOPDataVersion());
-		madd->AddDependentData(OOPMDataDepend(fId_x[i], EVersion, OOPDataVersion());
-		madd->AddDependentData(OOPMDataDepend(fId_CMatrix, ERead, OOPDataVersion());
+		madd->AddDependentData(OOPMDataDepend(fId_r[i], EWrite, rver));
+		madd->AddDependentData(OOPMDataDepend(fId_rtilde[i], EWrite, rver));
+		madd->AddDependentData(OOPMDataDepend(fId_b[i], ERead, OOPDataVersion()));
+		madd->AddDependentData(OOPMDataDepend(fId_A[i], ERead, OOPDataVersion()));
+		madd->AddDependentData(OOPMDataDepend(fId_x[i], EVersion, OOPDataVersion()));
+		madd->AddDependentData(OOPMDataDepend(fId_CMatrix, ERead, OOPDataVersion()));
 		madd->Submit();
 	}
 	//fId_r->Version --> n.1
+	rver.Increment();
+	
+	/**
+	 * resid = Norm(r)/normb
+	 */
+	OOPDataVersion normrver;
+	normrver = fId_normr.Version();
+	normrver.IncrementLevel(nproc);
+	fId_normr.SetVersion(normrver);
+	
+	TDistNorm * normr;
+	for(i=0;i<nproc;i++{
+		normr = new TDistNorm(i);
+		ver.SetVersion(1,-1);
+		normr->AddDependentData(OOPMDataDepend(fId_normr, EWrite, ver))
+		normr->AddDependentData(OOPMDataDepend(fId_r[i], ERead, rver))
+		normr->AddDependentData(OOPMDataDepend(fId_CMatrix, ERead, OOPDataVersion()))
+		normr->Submit();
+	}
+	//fId_normr->Version --> n.1
+	normrver.DecreaseLevel();
+	normrver.Increment();
+	
+	/**
+	 * resid = normr/normb
+	 */
+	TUpdateResidue * updresidue = new TUpdateResidue(0);
+	updresidue->AddDependentData(OOPMDataDepend(fId_resid,EWrite,OOPDataVersion()));
+	updresidue->AddDependentData(OOPMDataDepend(fId_normb,ERead,normbver));
+	
+	updresidue->AddDependentData(OOPMDataDepend(fId_normr,ERead,normrver));
+	updresidue->Submit();
 	
 	
+	/** Loop
+	*/
+	OOPDataVersion auxver;
+	
+	auxver = fId_max_iter.Version();
+	auxver.IncrementLevel(-1)
+	fId_max_iter.SetVersion(auxver);
+	
+	auxver = fId_rho_1.Version();
+	auxver.IncrementLevel(-1);
+	fId_rho_1.SetVersion(auxver);
+
+	auxver = fId_rho_1.Version();
+	auxver.IncrementLevel(-1);
+	fId_rho_1.SetVersion(auxver);
+
+	auxver = fId_p.Version();
+	auxver.IncrementLevel(-1);
+	fId_p.SetVersion(auxver);
+	
+	auxver = fId_alpha.Version();
+	auxver.IncrementLevel(-1);
+	fId_alpha.SetVersion(auxver);
+	
+	auxver = fId_omega.Version();
+	auxver.IncrementLevel(-1);
+	fId_omega.SetVersion(auxver);
+	
+	auxver = fId_beta.Version();
+	auxver.IncrementLevel(-1);
+	fId_beta.SetVersion(auxver);
+	
+	auxver = fId_v.Version();
+	auxver.IncrementLevel(-1);
+	fId_v.SetVersion(auxver);
+	
+	auxver = fId_phat.Version();
+	auxver.IncrementLevel(-1);
+	fId_phat.SetVersion(auxver);
+	
+	auxver = fId_s.Version();
+	auxver.IncrementLevel(-1);
+	fId_s.SetVersion(auxver);
+	
+	auxver = fId_x.Version();
+	auxver.IncrementLevel(-1);
+	fId_x.SetVersion(auxver);
+
+	auxver = fId_shat.Version();
+	auxver.IncrementLevel(-1);
+	fId_shat.SetVersion(auxver);
+
+	auxver = fId_t.Version();
+	auxver.IncrementLevel(-1);
+	fId_t.SetVersion(auxver);
+	
+
+	rver.IncrementLevel(-1);
+	fId
+	rtilde
+	normb
+	normr
+	resid
+
+
+	/**
+	max_iter
+	rho_1
+	r
+	rtilde
+	normb
+	p
+	rho_2
+	alpha
+	omega
+	beta
+	v
+	phat
+	s
+	x
+	shat
+	t
+	resid
+	 * Repetion for loop
+	 */
+	TLoopFor * loopfor = new TLoopFor(0);
+	
+	/**
+	 * Add dependency to the following objects
 	fId_rho_1
 	fId_rho_2
 	fId_alpha
@@ -106,4 +237,5 @@ void SetupTaskData(){
 	fId_omega
 	fId_max_iter
 	fId_tol
+	*/
 }

@@ -18,3 +18,7 @@ long TDistNorm::ExecTime ()
 {
 	return -1;
 }
+double TDistNorm::ComputeLocalNorm(){
+#warning "ComputeLocalNorm not implemented"
+	return 0.;
+}

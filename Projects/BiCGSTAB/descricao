@@ -54,12 +54,13 @@ A funcionalidade de um BiCGSTAB será alcançada através da execução de uma série 
 
 
 4 - rtilde = r
-	Pode ser implementada na função acima ? Deve ser implementada na tarefa anterior
+	Pode ser implementada na função acima ? Deve ser implementada na tarefa anterior SERÁ IMPLEMENTADA NA FUNÇÃO ACIMA !!!
 	Submeter uma tarefa por processador com a seguinte dependência.
 	rtilde[i](Write,n)
 	r[i](Read,n+1)
 	CMatrix[i](Read,n)
 	Com o término, a versão de rtilde -> n+1
+
 
 5 - resid = Norm(r) / normb
 	Devemos quebrar a instrução acima conforme:

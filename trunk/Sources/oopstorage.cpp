@@ -27,6 +27,10 @@
 #include "oopstorage.h"
 //#include "oopsaveable.h"
 #include "cmdefs.h"
+#include <iostream>
+       #include <sys/types.h>
+       #include <unistd.h>
+using namespace std;
 class   OOPSaveable;
 /************************ TSendStorage ************************/
 /************************ TReceiveStorage ************************/
@@ -42,9 +46,14 @@ OOPReceiveStorage::~OOPReceiveStorage ()
 /*** Restore ***/
 OOPSaveable *OOPReceiveStorage::Restore ()
 {
-	long class_id;
+	long class_id = 0; 
 	UpkLong (&class_id);
+	cout << "PID" << getpid() << " Restorig object of class Id " << class_id << endl;
+	cout.flush();
+
 	if (!class_id) {
+		cout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore\n";
+		cout.flush();
 		return (0);
 	}
 	map < long, void *>::iterator i;

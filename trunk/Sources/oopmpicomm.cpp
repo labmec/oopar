@@ -102,6 +102,8 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
 	pthread_mutex_lock(&fCommunicate);
 #warning "Nao tem necessidade do mutex neste ponto"
+	cout << "Sending task " << pTask->GetClassID() << endl;
+	cout.flush();
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
 						// ser executada
 	// Se "process_id" nao for valido.
@@ -189,6 +191,32 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	return NULL;
 	
 }
+void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
+	//OOPMPICommManager *CM=(OOPMPICommManager *)(t);
+	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
+	cout << "ReceiveMsgBlocking \n";
+	cout.flush();
+	while (1){
+		
+		OOPMPIReceiveStorage msg;
+		pthread_mutex_lock(&fCommunicate);
+		int ret = msg.ReceiveBlocking();
+		pthread_mutex_unlock(&fCommunicate);
+		// se houver erro, Kill
+		if (ret <= 0) {
+	#warning "Finish("ReceiveBlocking <receive error>");\n";
+			cout << "ReceiveBlocking <receive error\n";
+			cout.flush();
+			exit (-1);
+		}
+		cout << "Calling ProcessMessage\n";
+		cout.flush();
+		LocalCM->ProcessMessage (msg);
+	}
+	return NULL;
+	
+}
+
 int OOPMPICommManager::ReceiveBlocking ()
 {
 	/*

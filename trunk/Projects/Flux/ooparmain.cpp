@@ -30,8 +30,6 @@ int main (int argc, char **argv)
 	OOPReceiveStorage::AddClassRestore (TLOCALCOMPUTE_ID,
 					    TLocalCompute::Restore);
 	OOPReceiveStorage::AddClassRestore (TTASKCOMM_ID, TTaskComm::Restore);
-	OOPDataLogger * LogDM = new OOPDataLogger("datalogger.log");
-    ::LogDM = LogDM;
 	
 	// return multimain();
 #ifdef MPI

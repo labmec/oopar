@@ -159,7 +159,7 @@ private:
   /** Tag of received message */
 	int     f_msg_tag;
   /** request object for non-blocking receive operation */
-	MPI_Request f_request;
+	MPI_Request  f_request;
   /** flag indicating whether nonblocking reception is initiated */
     int     f_isreceiving;
 

@@ -11,6 +11,9 @@
 // Versao:  02 / 04 / 96.
 //
 #include "oopsaveable.h"
+       #include <sys/types.h>
+       #include <unistd.h>
+
 class   OOPSendStorage;
 class   OOPReceiveStorage;
 class   OOPDataVersion;
@@ -24,6 +27,8 @@ long OOPSaveable::GetClassID ()
 /*** Pack ***/
 int OOPSaveable::Pack (OOPSendStorage * buf)
 {
+	cout << "PID" << getpid() << " Packing class ID " << GetClassID() << endl;
+	cout.flush();
 	long class_id = GetClassID ();
 	buf->PkLong (&class_id);
 	return 1;

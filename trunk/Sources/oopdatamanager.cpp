@@ -614,6 +614,8 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 }
 int OOPDMRequestTask::Unpack (OOPReceiveStorage * buf)
 {
+	cout << "Unpacking RequestTask\n";
+	cout.flush();
 	OOPDaemonTask::Unpack (buf);
 	buf->UpkInt (&fProcOrigin);
 	fDepend.Unpack (buf);
@@ -627,6 +629,8 @@ OOPSaveable *OOPDMRequestTask::Restore (OOPReceiveStorage * buf)
 }
 int OOPDMRequestTask::Pack (OOPSendStorage * buf)
 {
+	cout << "Packing RequestTask\n";
+	cout.flush();
 	OOPDaemonTask::Pack (buf);
 	buf->PkInt (&fProcOrigin);
 	fDepend.Pack (buf);

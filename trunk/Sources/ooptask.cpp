@@ -25,7 +25,7 @@ using namespace std;
 void OOPTask::Print (ostream & out)
 {
 	out << "OOPTask Id" << fTaskId << endl;
-//	fTaskId.Print (out);
+	out << fLabel << endl;
 	out << "Priority\t" << fPriority << endl;
 	out << "Processor\t" << fProc << endl;
 	out << "Data Dependence\t" << endl;
@@ -41,10 +41,12 @@ OOPTask::OOPTask (int proc)
 	fProc = proc;
 	fPriority = 0;
 	fIsRecurrent = 0;
+	fLabel="non initialized";
 }
 OOPTask::OOPTask (const OOPTask & task):fProc (task.fProc),
 fTaskId (), fDataDepend (task.fDataDepend),
-fPriority (task.fPriority), fIsRecurrent (task.fIsRecurrent)
+fPriority (task.fPriority), fIsRecurrent (task.fIsRecurrent),
+fLabel(task.fLabel)
 {
 }
 void OOPTask::AddDependentData (const OOPMDataDepend & depend)

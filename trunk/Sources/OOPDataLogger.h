@@ -7,10 +7,27 @@
 
 class OOPDMOwnerTask;
 class OOPDMRequestTask;
+struct LogStructure{
+	int ProcId;
+	OOPObjectId ObjId;
+	string Action;
+	string State;
+	OOPDataVersion Version;
+	OOPObjectId TaskId;
+	int ProcoOrigin;
+	string comment;
+};
+
 class OOPDataLogger {//: public OOPSaveable {
 public:
-	void LogReleaseAccess(int proc, OOPObjectId & Id, OOPMDataState state, int targetproc, OOPObjectId & taskId);
-	void LogSetVersion(int proc, OOPObjectId & Id, OOPDataVersion & oldver, const OOPDataVersion & newver);
+	void LogReleaseAccess(int proc, OOPObjectId & Id,
+							OOPMDataState state, int targetproc,
+							OOPObjectId & taskId,
+							 OOPMDataState currentstate, OOPDataVersion & version);
+	void LogSetVersion(int proc, OOPObjectId & Id, OOPDataVersion & oldver,
+					const OOPDataVersion & newver,
+					OOPMDataState state,
+					const OOPObjectId & TaskId);
 	void LogGeneric(int proc, OOPObjectId & Id, char * msg);	
 	void GrantAccessLog(int proc, 
 						const OOPObjectId & objId,
@@ -22,11 +39,13 @@ public:
 						OOPMDataState mstate,
 						const OOPDataVersion & version,
 						int procorig,
-						OOPObjectId & taskId);
+						OOPObjectId & taskId,
+						OOPMDataState currentstate);
 	void SubmitAccessRequestLog(int proc, 
 								const OOPObjectId & objId,
 								OOPMDMOwnerMessageType mtype,
 								OOPMDataState mstate,
+								OOPMDataState currentstate,
 								const OOPDataVersion & version,
 								int procorig, const OOPObjectId & taskId);
     /**
@@ -34,11 +53,6 @@ public:
      */
     OOPDataLogger();
 
-    /**
-     * Constructor with ofstream object
-     * @param out output object 
-     */
-    OOPDataLogger(ofstream & out);
 
     /**
      * Constructor which takes the filename parameter
@@ -68,13 +82,21 @@ public:
 
     void CancelTask(OOPMetaData &data);
 
-private:    
+private:
+	/**
+ 	 * Generates the header on the logger file
+	 */
+	void GenerateHeader();
+	void PrintLog();
+	char * GetStateName(OOPMDataState state);
 
     /**
      * Output stream for the logging generation
      * @since 18/09/2003 
      */
     ofstream fLogger;
+	LogStructure fLog;
+	
 };
 extern OOPDataLogger * LogDM;
 #endif //OOPDATALOGGER_H

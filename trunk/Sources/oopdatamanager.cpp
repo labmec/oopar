@@ -457,37 +457,6 @@ void OOPDMOwnerTask::LogMe(ostream & out){
 	out << fProc;
 	out << "\tId "<< fObjId;
 	out << "\tSending ";
-	switch (fState )
-	{
-		case  ENoAccess:
-			out << "ENoAccess\t";
-			break;
-		case  EReadAccess:
-			out << "EReadAccess\t";
-			break;
-		case  EWriteAccess:
-			out << "EWriteAccess\t";
-			break;
-		case  EVersionAccess:
-			out << "EVersionAccess\t";
-			break;
-	}
-	
-	out << "Version " << fVersion << "\t";
-	/*
-	ENoMessage,
-	ECancelReadAccess,
-	ECancelReadAccessConfirmation,
-	ESuspendAccess,
-	ESuspendAccessConfirmation,
-	ESuspendSuspendAccess,
-	ETransferOwnership,
-	EGrantReadAccess,
-	EGrantVersionAccess,
-	ENotifyDeleteObject,
-	*/
-	out << "OwnerType ";	
-	
 	switch (fType)
 	{
 		case  ENoMessage:
@@ -524,7 +493,25 @@ void OOPDMOwnerTask::LogMe(ostream & out){
 			out << "Uninitialized fType property\t";
 			break;
 	}
-	out << "To Processor " << fProc;
+	out << "State ";
+	switch (fState )
+	{
+		case  ENoAccess:
+			out << "ENoAccess\t";
+			break;
+		case  EReadAccess:
+			out << "EReadAccess\t";
+			break;
+		case  EWriteAccess:
+			out << "EWriteAccess\t";
+			break;
+		case  EVersionAccess:
+			out << "EVersionAccess\t";
+			break;
+	}
+	
+	out << "Version " << fVersion << "\t";
+	out << "\tTo Processor " << fProc;
 
 	out.flush();
 
@@ -535,37 +522,6 @@ void OOPDMOwnerTask::LogMeReceived(ostream & out){
 	out << fProc;
 	out << "\tId "<< fObjId;
 	out << "\tReceiving ";
-	switch (fState )
-	{
-		case  ENoAccess:
-			out << "ENoAccess\t";
-			break;
-		case  EReadAccess:
-			out << "EReadAccess\t";
-			break;
-		case  EWriteAccess:
-			out << "EWriteAccess\t";
-			break;
-		case  EVersionAccess:
-			out << "EVersionAccess\t";
-			break;
-	}
-	
-	out << "Version " << fVersion << "\t";
-	/*
-	ENoMessage,
-	ECancelReadAccess,
-	ECancelReadAccessConfirmation,
-	ESuspendAccess,
-	ESuspendAccessConfirmation,
-	ESuspendSuspendAccess,
-	ETransferOwnership,
-	EGrantReadAccess,
-	EGrantVersionAccess,
-	ENotifyDeleteObject,
-	*/
-	out << "OwnerType ";	
-	
 	switch (fType)
 	{
 		case  ENoMessage:
@@ -602,7 +558,25 @@ void OOPDMOwnerTask::LogMeReceived(ostream & out){
 			out << "Uninitialized fType property\t";
 			break;
 	}
-	out << "From Processor " << fProcOrigin;
+	out << "State ";
+	switch (fState )
+	{
+		case  ENoAccess:
+			out << "ENoAccess\t";
+			break;
+		case  EReadAccess:
+			out << "EReadAccess\t";
+			break;
+		case  EWriteAccess:
+			out << "EWriteAccess\t";
+			break;
+		case  EVersionAccess:
+			out << "EVersionAccess\t";
+			break;
+	}
+	
+	out << "Version " << fVersion << "\t";
+	out << "\tFrom Processor " << fProcOrigin;
 	out.flush();
 }
 int OOPDMOwnerTask::Pack (OOPSendStorage * buf)
@@ -666,23 +640,23 @@ void OOPDMRequestTask::LogMe(ostream & out){
 	switch (fDepend.State())
 	{
 		case  ENoAccess:
-			out << "ENoAccess\t";
+			out << "ENoAccess To processor " << fProc ;
 			break;
 		case  EReadAccess:
-			out << "EReadAccess\t";
+			out << "EReadAccess To processor " << fProc ;
 			break;
 		case  EWriteAccess:
-			out << "EWriteAccess\t";
+			out << "EWriteAccess To processor " << fProc ;
 			break;
 		case  EVersionAccess:
-			out << "EVersionAccess\t";
+			out << "EVersionAccess To processor " << fProc ;
 			break;
 		defaults:
 			out << "Uninitialized fNeed attribute\t";
 			break;
 	}
 
-	out << "Version " << fDepend.Version();
+	out << "\t\tVersion " << fDepend.Version();
 	out << "\tTo processor " << fProc << "\n";
 	out.flush();
 }

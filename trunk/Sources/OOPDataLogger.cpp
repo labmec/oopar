@@ -4,22 +4,32 @@
 
 using namespace std;
 class OOPDMOwnerTask;
+
+void OOPDataLogger::GenerateHeader(){
+	fLogger << "ProcId\t"
+	<< "ObjectId\t"
+	<< "Action\t"
+	<< "Data State\t"
+	<< "Version\t"
+	<< "Task Id\t"
+	<< "ProcOrigin\t"
+	<< "comment\n";
+}
 OOPDataLogger::OOPDataLogger(){
 	//Initialize ostream pointer
-}
-OOPDataLogger::OOPDataLogger(ofstream & out){
-    //fLogger=out;
+	fLogger.open("datalogger.log");
+	GenerateHeader();
 }
 OOPDataLogger::OOPDataLogger(char * logfilename){
 	fLogger.open(logfilename);
-	
+	GenerateHeader();
 } 
 OOPDataLogger::~OOPDataLogger(){
 	fLogger.flush();
 	fLogger.close();
 }
 
-void OOPDataLogger::LogReleaseAccess(int proc, OOPObjectId & Id, OOPMDataState state, int targetproc, OOPObjectId & taskId){
+void OOPDataLogger::LogReleaseAccess(int proc, OOPObjectId & Id, OOPMDataState state, int targetproc, OOPObjectId & taskId, OOPMDataState currentstate, OOPDataVersion & version){
 	fLogger << proc << "\tId " << Id << "\tReleasing access ";
 	switch (state )
 	{
@@ -27,26 +37,39 @@ void OOPDataLogger::LogReleaseAccess(int proc, OOPObjectId & Id, OOPMDataState s
 			fLogger << "ENoAccess\t";
 			break;
 		case  EReadAccess:
-			fLogger << "EReadAccess\t";
+			fLogger << "EReadAccess ";
 			fLogger << "From processor " << targetproc << endl;
 			break;
 		case  EWriteAccess:
-			fLogger << "EWriteAccess\t";
+			fLogger << "EWriteAccess ";
 			fLogger << "From task " << taskId << endl;
 			break;
 		case  EVersionAccess:
-			fLogger << "EVersionAccess\t";
+			fLogger << "EVersionAccess ";
 			fLogger << "From task " << taskId << endl;
 			break;
-	}
+	}/*
+	fLogger << "\t" << currentstate;
+	fLogger << "\tVersion " << version;
+	fLogger << "\tTaskId " << taskId;
+	fLogger << "\t\tCheck if Action and State are consistent\n";*/
 	
 }
+//OK
 void OOPDataLogger::LogSetVersion(int proc, OOPObjectId & Id, OOPDataVersion & oldver,
-					const OOPDataVersion & newver){
+					const OOPDataVersion & newver,
+					OOPMDataState state,
+					const OOPObjectId & TaskId){
 	fLogger << proc << "\tId " << Id << "\tSetting old version "
-						<< oldver << "\tTo new version " << newver << endl;
+						<< oldver << " To new version " << newver
+						<< "\t" << GetStateName(state)
+						<< "\t\t" << TaskId
+						<< "\t\t" << "No Comment\n";						
 }
+//OK
+
 void OOPDataLogger::LogGeneric(int proc, OOPObjectId & Id, char * msg){
+#warning "Still can be enriched"
 	fLogger << proc;
 	fLogger << "\tId " << Id << "\t";
 	fLogger << msg << endl;
@@ -65,172 +88,29 @@ void OOPDataLogger::GrantAccessLog(int proc,
 	fLogger << proc << "\t";
 	fLogger << "Id " << objId << "\t";
 	fLogger << "Granting ";
-	//fLogger << "type ";
-	/*
-	ENoMessage,
-	ECancelReadAccess,
-	ECancelReadAccessConfirmation,
-	ESuspendAccess,
-	ESuspendAccessConfirmation,
-	ESuspendSuspendAccess,
-	ETransferOwnership,
-	EGrantReadAccess,
-	EGrantVersionAccess,
-	ENotifyDeleteObject,
-	
-	
-	
-	switch (mtype)
-	{
-		case  ENoMessage:
-			fLogger << "ENoMessage\t";
-			break;
-		case  ECancelReadAccess:
-			fLogger << "ECancelReadAccess\t";
-			break;
-		case  ECancelReadAccessConfirmation:
-			fLogger << "ECancelReadAccessConfirmation\t";
-			break;
-		case  ESuspendAccess:
-			fLogger << "ESuspendAccess\t";
-			break;
-		case  ESuspendAccessConfirmation:
-			fLogger << "ESuspendAccessConfirmation\t";
-			break;
-		case  ESuspendSuspendAccess:
-			fLogger << "ESuspendSuspendAccess\t";
-			break;
-		case  ETransferOwnership:
-			fLogger << "ETransferOwnership\t";
-			break;
-		case  EGrantReadAccess:
-			fLogger << "EGrantReadAccess\t";
-			break;
-		case  EGrantVersionAccess:
-			fLogger << "EGrantVersionAccess\t";
-			break;
-		case  ENotifyDeleteObject:
-			fLogger << "ENotifyDeleteObject\t";
-			break;
-		defaults:
-			fLogger << "Uninitialized fType property\t";
-			break;
-	}
-	fLogger << "State ";
-	
-	ENoAccess,
-	EReadAccess,
-	EWriteAccess,
-	EVersionAccess
-
-	*/
-	switch (mstate )
-	{
-		case  ENoAccess:
-			fLogger << "ENoAccess\t";
-			break;
-		case  EReadAccess:
-			fLogger << "EReadAccess\t";
-			break;
-		case  EWriteAccess:
-			fLogger << "EWriteAccess\t";
-			break;
-		case  EVersionAccess:
-			fLogger << "EVersionAccess\t";
-			break;
-	}
-	
+	fLogger << GetStateName(mstate) << "\t";
 	fLogger << "Version " << version << "\t";
+	fLogger << "Unknown\t";
 	fLogger << "ProcOrigin " << procorig;
 	fLogger << "\n";
 	fLogger.flush();
 }
+
+//Falta comment
 void OOPDataLogger::GrantAccessLog(int proc, 
 									const OOPObjectId & objId,
 									OOPMDataState mstate,
 									const OOPDataVersion & version,
 									int procorig,
-									OOPObjectId & taskId){
+									OOPObjectId & taskId,
+									OOPMDataState currentstate){
 	//town->LogMe(fLogger);
 	fLogger << proc << "\t";
 	fLogger << "Id " << objId << "\t";
 	fLogger << "Granting ";
-	//fLogger << "type ";
-	/*
-	ENoMessage,
-	ECancelReadAccess,
-	ECancelReadAccessConfirmation,
-	ESuspendAccess,
-	ESuspendAccessConfirmation,
-	ESuspendSuspendAccess,
-	ETransferOwnership,
-	EGrantReadAccess,
-	EGrantVersionAccess,
-	ENotifyDeleteObject,
-	
-	
-	
-	switch (mtype)
-	{
-		case  ENoMessage:
-			fLogger << "ENoMessage\t";
-			break;
-		case  ECancelReadAccess:
-			fLogger << "ECancelReadAccess\t";
-			break;
-		case  ECancelReadAccessConfirmation:
-			fLogger << "ECancelReadAccessConfirmation\t";
-			break;
-		case  ESuspendAccess:
-			fLogger << "ESuspendAccess\t";
-			break;
-		case  ESuspendAccessConfirmation:
-			fLogger << "ESuspendAccessConfirmation\t";
-			break;
-		case  ESuspendSuspendAccess:
-			fLogger << "ESuspendSuspendAccess\t";
-			break;
-		case  ETransferOwnership:
-			fLogger << "ETransferOwnership\t";
-			break;
-		case  EGrantReadAccess:
-			fLogger << "EGrantReadAccess\t";
-			break;
-		case  EGrantVersionAccess:
-			fLogger << "EGrantVersionAccess\t";
-			break;
-		case  ENotifyDeleteObject:
-			fLogger << "ENotifyDeleteObject\t";
-			break;
-		defaults:
-			fLogger << "Uninitialized fType property\t";
-			break;
-	}
-	fLogger << "State ";
-	
-	ENoAccess,
-	EReadAccess,
-	EWriteAccess,
-	EVersionAccess
-
-	*/
-	switch (mstate )
-	{
-		case  ENoAccess:
-			fLogger << "ENoAccess\t";
-			break;
-		case  EReadAccess:
-			fLogger << "EReadAccess\t";
-			break;
-		case  EWriteAccess:
-			fLogger << "EWriteAccess\t";
-			break;
-		case  EVersionAccess:
-			fLogger << "EVersionAccess\t";
-			break;
-	}
-	
-	fLogger << "Version " << version << "\t";
+	fLogger << GetStateName(mstate) << "\t";										
+	fLogger << GetStateName(currentstate);										
+	fLogger << "\tVersion " << version << "\t";
 	fLogger << "To Task " << taskId << "\t";
 	fLogger << "ProcOrigin " << procorig;
 	fLogger << "\n";
@@ -255,86 +135,15 @@ void OOPDataLogger::SubmitAccessRequestLog(int proc,
 									const OOPObjectId & objId,
 									OOPMDMOwnerMessageType mtype,
 									OOPMDataState mstate,
+									OOPMDataState currentstate,
 									const OOPDataVersion & version,
 									int procorig, const OOPObjectId & taskId){
 	fLogger << proc << "\t";
 	fLogger << "Id " << objId;
 	fLogger << "\tSubmitting ";
-	/*
-	ENoMessage,
-	ECancelReadAccess,
-	ECancelReadAccessConfirmation,
-	ESuspendAccess,
-	ESuspendAccessConfirmation,
-	ESuspendSuspendAccess,
-	ETransferOwnership,
-	EGrantReadAccess,
-	EGrantVersionAccess,
-	ENotifyDeleteObject,
-	
-	
-	
-	switch (mtype)
-	{
-		case  ENoMessage:
-			fLogger << "ENoMessage\t";
-			break;
-		case  ECancelReadAccess:
-			fLogger << "ECancelReadAccess\t";
-			break;
-		case  ECancelReadAccessConfirmation:
-			fLogger << "ECancelReadAccessConfirmation\t";
-			break;
-		case  ESuspendAccess:
-			fLogger << "ESuspendAccess\t";
-			break;
-		case  ESuspendAccessConfirmation:
-			fLogger << "ESuspendAccessConfirmation\t";
-			break;
-		case  ESuspendSuspendAccess:
-			fLogger << "ESuspendSuspendAccess\t";
-			break;
-		case  ETransferOwnership:
-			fLogger << "ETransferOwnership\t";
-			break;
-		case  EGrantReadAccess:
-			fLogger << "EGrantReadAccess\t";
-			break;
-		case  EGrantVersionAccess:
-			fLogger << "EGrantVersionAccess\t";
-			break;
-		case  ENotifyDeleteObject:
-			fLogger << "ENotifyDeleteObject\t";
-			break;
-		defaults:
-			fLogger << "Uninitialized fType property\t";
-			break;
-	}
-	fLogger << "State ";
-	
-	ENoAccess,
-	EReadAccess,
-	EWriteAccess,
-	EVersionAccess
-
-	*/
-	switch (mstate )
-	{
-		case  ENoAccess:
-			fLogger << "ENoAccess\t";
-			break;
-		case  EReadAccess:
-			fLogger << "EReadAccess\t";
-			break;
-		case  EWriteAccess:
-			fLogger << "EWriteAccess\t";
-			break;
-		case  EVersionAccess:
-			fLogger << "EVersionAccess\t";
-			break;
-	}
-	
-	fLogger << "Version " << version << "\t";
+	fLogger << GetStateName(mstate );
+	fLogger << "\t" << GetStateName(currentstate);
+	fLogger << "\tVersion " << version << "\t";
 	fLogger << "To task " << taskId;
 	fLogger << "\n";
 	fLogger.flush();
@@ -346,3 +155,21 @@ void OOPDataLogger::ReceiveReqTask(OOPDMRequestTask *req){
 	fLogger.flush();
 }
 
+char * OOPDataLogger::GetStateName(OOPMDataState state){
+	switch (state )
+	{
+		case  ENoAccess:
+			return "ENoAccesst";
+			break;
+		case  EReadAccess:
+			return "EReadAccess";
+			break;
+		case  EWriteAccess:
+			return "EWriteAccess";
+			break;
+		case  EVersionAccess:
+			return "EVersionAccess";
+			break;
+	}
+	return "Unidentified";
+}

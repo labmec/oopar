@@ -20,8 +20,10 @@ class   TParVector:public OOPSaveable
 	void    Resize (int size);
 
 	void    SetVector (vector < double >data);
+
+static OOPSaveable *Restore(OOPReceiveStorage *buf);
+
       private:
-	long    fClassId;
 
 	        vector < double >fData;
 

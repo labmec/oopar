@@ -26,10 +26,11 @@ OOPMReturnType TParCompute::Execute ()
 		ltask->SetRhsIds (fRhsIds, fDataVersions);
 		ltask->SetRecurrence (true);
 		ltask->Submit ();
+		ltask->PrintLog(TaskLog,"Submitted local task");
 	}
 	PrintLog(TaskLog,"TParCompute::Execute\n");
 	cout << "TParCompute::Execute\n";
-	TaskLog << "TParCompute::Execute\n";
+	TaskLog << "TParCompute::Execute";
 	cout << "Submiting TLocalCompute tasks\n";
 	TaskLog << "Submiting TLocalCompute tasks\n";
 	cout << "fPartVersion " <<	fPartRelationVersion << endl;

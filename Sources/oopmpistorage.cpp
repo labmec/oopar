@@ -18,15 +18,18 @@
 // Versao:  01 / 03.
 //
 
-// $Author: phil $
-// $Id: oopmpistorage.cpp,v 1.12 2003-10-12 16:03:18 phil Exp $
-// $Revision: 1.12 $
+// $Author: longhin $
+// $Id: oopmpistorage.cpp,v 1.13 2003-10-13 23:48:25 longhin Exp $
+// $Revision: 1.13 $
 
 
 #include "oopstorage.h"
 #include "oopmpistorage.h"
 #include "mpi.h"
 #include <iostream>
+#include <sys/types.h>
+      #include <unistd.h>
+
 using namespace std;
 //TSend
 OOPMPISendStorage::OOPMPISendStorage ()
@@ -104,13 +107,12 @@ int OOPMPISendStorage::ResetBuffer ()
 }
 int OOPMPISendStorage::Send (int target)
 {
-
+	cout << "PID" << getpid() << " Called MPI_Send ret = \n";
+	cout.flush();
 	int ret;
 	int tag = 0;
 	ret = MPI_Send (&f_buffr[0], f_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);
-	cout << "Called MPI_Send ret = " << ret << "\n";
-	cout.flush();
 	switch(ret){
 		case MPI_SUCCESS:
 			cout <<" - No error; MPI routine completed successfully\n";
@@ -155,15 +157,23 @@ bool OOPMPIReceiveStorage::TestReceive() {
 	if(!f_isreceiving) return false;
 	MPI_Status status;
 	int test_flag;
-	MPI_Test (&f_request, &test_flag, &status);
+	cout << "Test returned " << MPI_Test (&f_request, &test_flag, &status) << endl;
+	cout << "Flag " << test_flag << endl;
+	
 	return test_flag;
 }
   /**
    * Restores next object in the buffer
    */
 OOPSaveable *OOPMPIReceiveStorage::Restore () {
+	if(!TestReceive()) {
+		cout << "Restore called at the wrong moment\n";
+		cout.flush();
+		return NULL;
+	}
 	f_isreceiving = 0;
 	OOPSaveable *obj = OOPReceiveStorage::Restore();
+	//MPI_Request_free(&f_request);
 	return obj;
 }
 
@@ -172,8 +182,12 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 	Receive();
 	if(TestReceive()) {
 		return 1;
+		
 	}
 	MPI_Status status;
+	cout << "Going to MPI_Wait\n";
+	cout << "PID" << getpid() << endl;
+	cout.flush();
 	MPI_Wait(&f_request,&status);
 	return 1;
 	/*

@@ -58,6 +58,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
 	 * Multithreading blocking receive
 	 */
 	static void * ReceiveMsgBlocking (void *t);
+	static void * ReceiveMsgNonBlocking (void *t);
   /**
    * Retorna 0 se o processo não tiver sido disparado 
    * pelo console. What does it really mean?

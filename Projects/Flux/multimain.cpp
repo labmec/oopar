@@ -116,18 +116,35 @@ int mpimain (int argc, char **argv)
 	//pthread_join(testethread_1,0);
 	
 	//int numproc = argc;
-	
-	CM = new OOPMPICommManager (argc, argv);
-	CM->Initialize((char*)argv, argc);
-	TM = new OOPTaskManager (CM->GetProcID ());
-	DM = new OOPDataManager (CM->GetProcID ());
-
 	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARCOMPUTE_ID,TParCompute::Restore);
+	OOPReceiveStorage::AddClassRestore(TLOCALCOMPUTE_ID,TLocalCompute::Restore);
+	OOPReceiveStorage::AddClassRestore(TTASKCOMM_ID,TTaskComm::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARMESH_ID,TParMesh::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARTITIONRELATION_ID,TPartitionRelation::Restore);
+	OOPReceiveStorage::AddClassRestore(TDMOWNERTASK_ID,OOPDMOwnerTask::Restore);
+	OOPReceiveStorage::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
+	
+
+	CM = new OOPMPICommManager (argc, argv);
+	CM->Initialize((char*)argv, argc);
+	char filename[256];
+	sprintf(filename,"datalogger%d", CM->GetProcID());
+	OOPDataLogger * LogDM = new OOPDataLogger(filename);
+    ::LogDM = LogDM;
+	TM = new OOPTaskManager (CM->GetProcID ());
+	DM = new OOPDataManager (CM->GetProcID ());
+				    
 //	Load (0);
 	numproc = 2;//atoi(argv[argc-1]);
-	TParAnalysis *partask = new TParAnalysis (0, numproc, numproc);
-	TM->Submit (partask);
+	if(!CM->GetProcID()){
+		cout << "Create ParAnalysis on processor " << CM->GetProcID() << endl;
+		cout.flush();
+		TParAnalysis *partask = new TParAnalysis (0, numproc, numproc);
+		TM->Submit (partask);
+	}
 	TM->Execute();
 	/*while (NumTasks ()) {
 		for (iproc = 0; iproc < numproc; iproc++) {

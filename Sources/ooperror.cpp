@@ -11,7 +11,7 @@
 //
 #include <stdio.h>
 #include "ooperror.h"
-char OOPError::f_global[128] = "";
+char OOPError::f_global[128] = "errofile.log";
 /************************ Private ************************/
 /************************/
 /*** Clear Error File ***/

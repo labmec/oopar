@@ -14,7 +14,7 @@ CLEANFILES     = @OOP_CLEANFILES@
 lib_LIBRARIES = liboopar.a
 
 liboopar_a_SOURCES =
-
+if OOPMPI
 liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/ooptaskmanager.o \
 	../Sources/oopdataversion.o \
@@ -30,6 +30,25 @@ liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/ooptask.o \
 	../Sources/oopmdatadepend.o \
 	../Sources/ooptaskcontrol.o \
-	../Sources/oopaccessinfo.o
-
+	../Sources/oopaccessinfo.o \
+	../Sources/oopmpicomm.o \
+	../Sources/oopmpistorage.o 
+else
+liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
+	../Sources/ooptaskmanager.o \
+	../Sources/oopdataversion.o \
+	../Sources/ooperror.o \
+	../Sources/oopfilecomm.o \
+	../Sources/oopfilestorage.o \
+	../Sources/oopmetadata.o \
+	../Sources/oopobjectid.o \
+	../Sources/oopparclass.o \
+	../Sources/oopsaveable.o \
+	../Sources/oopstorage.o \
+	../Sources/oopstore.o \
+	../Sources/ooptask.o \
+	../Sources/oopmdatadepend.o \
+	../Sources/ooptaskcontrol.o \
+	../Sources/oopaccessinfo.o 
+endif
 ## --| OOPar |------------------------------------------------------------------

@@ -3,6 +3,7 @@
 #include "TPartitionRelation.h"
 #include "TTaskComm.h"
 #include "oopmetadata.h"
+class OOPStorageBuffer;
 void TLocalCompute::InitializePartitionRelationPointer ()
 {
 	OOPMetaData *objptr = fDataDepend.Dep (0).ObjPtr ();
@@ -126,7 +127,7 @@ fPartition (partition)
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TLocalCompute::Pack (OOPSendStorage * buf){
+int TLocalCompute::Pack (OOPStorageBuffer * buf){
 	OOPTask::Pack (buf);
 	buf->PkInt(&fPartition);
 	int i,sz = fRhsIds.size();
@@ -139,7 +140,7 @@ int TLocalCompute::Pack (OOPSendStorage * buf){
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TLocalCompute::Unpack (OOPReceiveStorage * buf){
+int TLocalCompute::Unpack (OOPStorageBuffer * buf){
 	OOPTask::Unpack(buf);
 	buf->UpkInt(&fPartition);
 	int i,sz;
@@ -149,7 +150,7 @@ int TLocalCompute::Unpack (OOPReceiveStorage * buf){
 	fRhsVersion.Unpack(buf);
 	return 0;
 }
-OOPSaveable *TLocalCompute::Restore (OOPReceiveStorage * buf) {
+OOPSaveable *TLocalCompute::Restore (OOPStorageBuffer * buf) {
 	TLocalCompute *loc = new TLocalCompute(0,0);
 	loc->Unpack(buf);
 	return loc;

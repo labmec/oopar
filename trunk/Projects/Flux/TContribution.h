@@ -59,12 +59,12 @@ class   TContribution
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	int Pack (OOPSendStorage * buf);
+	int Pack (OOPStorageBuffer * buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	int Unpack (OOPReceiveStorage * buf);
+	int Unpack (OOPStorageBuffer * buf);
       private:
     /**
      * ObjectId of the destination mesh

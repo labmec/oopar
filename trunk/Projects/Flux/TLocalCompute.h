@@ -4,6 +4,7 @@
 #define TLOCALCOMPUTE_H
 #include "ooptask.h"
 #include "fluxdefs.h"
+class OOPStorageBuffer;
 class   TPartitionRelation;
 class   TContribution;
 /**
@@ -50,13 +51,13 @@ class   TLocalCompute:public OOPTask
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual int Pack (OOPSendStorage * buf);
+	virtual int Pack (OOPStorageBuffer * buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	virtual int Unpack (OOPReceiveStorage * buf);
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+	virtual int Unpack (OOPStorageBuffer * buf);
+	static OOPSaveable *Restore (OOPStorageBuffer * buf);
       private:
   /**
    * Partition number to which this object corresponds

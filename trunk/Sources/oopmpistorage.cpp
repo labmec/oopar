@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.23 2004-08-09 18:00:22 longhin Exp $
-// $Revision: 1.23 $
+// $Id: oopmpistorage.cpp,v 1.24 2004-08-09 19:12:13 longhin Exp $
+// $Revision: 1.24 $
 
 
 
@@ -131,9 +131,9 @@ int OOPMPIStorageBuffer::PkInt (int *p, int n)
 {
 	return PackGeneric(p,n,MPI_INT);
 }
-int OOPMPIStorageBuffer::PkByte (char *p, int n)
+int OOPMPIStorageBuffer::PkByte (const char *p, int n)
 {
-	return PackGeneric(p,n,MPI_CHAR);
+	return PackGeneric((char *)p,n,MPI_CHAR);
 }
 using namespace std;
 
@@ -301,7 +301,7 @@ int OOPMPIStorageBuffer::UpkStr (char *p)
  void OOPMPIStorageBuffer::Write(double *p, int size){
 	 PkDouble(p, size);
  }
- void OOPMPIStorageBuffer::Write(char *p, int size){
+ void OOPMPIStorageBuffer::Write(const char *p, int size){
 	 PkByte(p, size);
  }
  void OOPMPIStorageBuffer::Write(string *p, int size){

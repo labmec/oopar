@@ -118,15 +118,15 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 			found = true;
 			tc->Depend ().GrantAccess (depend, objptr);
 #ifdef DEBUG
-			TaskManLog << "Access Granted to taskId";
-			TaskId.Print (TaskManLog);
-			TaskManLog << " on data ";
-			depend.Id ().Print (TaskManLog);
+			TaskManLog << "Access Granted to taskId " << TaskId ;
+//			TaskId.Print (TaskManLog);
+			TaskManLog << " on data " << depend.Id() << endl;
+//			depend.Id ().Print (TaskManLog);
 #endif
 			if (tc->Depend ().CanExecute ()) {
 				TransfertoExecutable (tc->Task ()->Id ());
-				TaskManLog << "OOPTaskManager task is executable ";
-				TaskId.Print (TaskManLog);
+				TaskManLog << "OOPTaskManager task is executable " << TaskId << endl;
+//				TaskId.Print (TaskManLog);
 
 			}
 			break;
@@ -156,10 +156,10 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 			found = true;
 			tc->Depend ().RevokeAccess (depend);
 #ifdef DEBUG
-			TaskManLog << "Access Revoked to taskId";
-			TaskId.Print (TaskManLog);
-			TaskManLog << " on data ";
-			depend.Id ().Print (TaskManLog);
+			TaskManLog << "Access Revoked to taskId " << TaskId;
+//			TaskId.Print (TaskManLog);
+			TaskManLog << " on data " << depend.Id() << endl;
+//			depend.Id ().Print (TaskManLog);
 #endif
 			break;
 		}
@@ -177,13 +177,14 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 {
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-	TaskManLog << "Calling Submit on OOPTaskManager\n";
-	TaskManLog.flush();
+	TaskManLog << "Calling Submit on OOPTaskManager ";
 	OOPObjectId id;
 	// mutex lock 
 	id = GenerateId ();
 	task->SetTaskId (id);
-	id.Print(TaskManLog);
+	TaskManLog << id << endl;
+	TaskManLog.flush();
+//	id.ShortPrint(TaskManLog);
 	fSubmittedList.push_back (task);
 	// mutex unlock
 	return id;
@@ -234,9 +235,9 @@ int OOPTaskManager::CancelTask (OOPObjectId taskid)
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = *i;
 		if (tc->Task ()->Id () == taskid) {
-			TaskManLog << "Task erased" << endl;
-			TaskManLog << "Task ID ";
-			tc->Task ()->Id ().Print (TaskManLog);
+			TaskManLog << "Task erased ";
+			TaskManLog << "Task ID " << tc->Task()->Id() << endl;
+//			tc->Task ()->Id ().Print (TaskManLog);
 			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
 							     Id ());
 			delete tc;

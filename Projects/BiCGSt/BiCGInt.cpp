@@ -15,6 +15,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "BiCGInt.h"
+
 TBiCGInt::TBiCGInt() : OOPSaveable(){}
 
 int TBiCGInt::Pack(OOPSendStorage * buf){

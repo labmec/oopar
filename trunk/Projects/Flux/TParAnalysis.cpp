@@ -75,9 +75,9 @@ void TParAnalysis::SetupEnvironment(){
     AddDependentData(OOPMDataDepend(fRhsId[ip],st,ver));
   }
   
-  /*OOPObjectId tempid;
+  OOPObjectId tempid;
   tempid.SetId(200);
-  AddDependentData(OOPMDataDepend(tempid,st,ver));*/
+  AddDependentData(OOPMDataDepend(tempid,st,ver));
 
   //MetaData dependence still needs to be submitted to the DM
   //which is performed as follows.

@@ -51,7 +51,7 @@ BiCGSTAB(/*const */Operator &A, DataVector &x, DataVector &b,
       p.Add(1., r);
       p.Add(- beta * omega, v);
     }
-    M.Solve(p, phat);
+    M.Solve(p, phat);//parei aqui.
     //v = A * phat;
     A.Multiply(phat, v);
 

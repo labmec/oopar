@@ -22,7 +22,9 @@ void TLocalCompute::ComputeLocalFluxes ()
 	PrintLog(TaskLog, "TLocalCompute contributes to object id ");
 	ptr->Id ().ShortPrint (TaskLog);
 	TaskLog << endl;
+#ifdef VERBOSE		
 	cout << "TLocalCompute contributes to object id " << ptr->Id();
+#endif
 //	ptr->Id ().Print (cout);
 	ver = ptr->Version ();
 	// int nlevel = ver.GetNLevels();
@@ -31,17 +33,21 @@ void TLocalCompute::ComputeLocalFluxes ()
 	TaskLog << "After increment level ";
 	ver.Print(TaskLog);
 	
+#ifdef VERBOSE		
 	cout << "After increment level ";
 	ver.Print (cout);
+#endif
 	++ver;
 	
 	TaskLog << "After increment ";
 	TaskLog << "TLocalCompute number of contributions " << ncontr <<
 		" new version " << endl;
 	ver.Print (TaskLog);
+#ifdef VERBOSE		
 	cout << "After increment ";
 	cout << "TLocalCompute number of contributions " << ncontr <<
 		" new version " << ver << endl;
+#endif
 //	ver.Print (cout);
 	ptr->SetVersion (ver, Id ());
 }
@@ -72,12 +78,14 @@ void TLocalCompute::TransmitFLuxes ()
 		OOPMDataDepend depend (fRhsIds[i], EWriteAccess, rhsver);
 		PrintLog(TaskLog,"TLocalCompute::TransmitFluxes targets ");
 		fRhsIds[i].ShortPrint (TaskLog);
+		TaskLog << " and depends on version " << rhsver <<  endl;
+#ifdef VERBOSE
 		cout << "TLocalCompute::TransmitFluxes targets ";
 		fRhsIds[i].Print (cout);
-		TaskLog << " and depends on version " << rhsver <<  endl;
 		cout << " and depends on version " << endl;
 		rhsver.Print (cout);
-//		rhsver.Print (TaskLog);
+#endif
+		//		rhsver.Print (TaskLog);
 		task->AddDependentData (depend);
 		task->Submit ();
 		TaskLog << "Id of TTaskComm is " << task->Id() << endl;
@@ -89,12 +97,16 @@ void TLocalCompute::ComputeFrontierFluxes ()
 #warning "ComputeFrontierFluxes is empty"
 #endif
 	PrintLog(TaskLog,"Nothing Implemented in ComputeFrontierFluxes\n");
+#ifdef VERBOSE
 	cout << "Nothing Implemented in ComputeFrontierFluxes\n";
 	cout.flush ();
+#endif
 }
 OOPMReturnType TLocalCompute::Execute ()
 {
+#ifdef VERBOSE
 	cout << "Executing TLocalCompute task\n";
+#endif
 	PrintLog(TaskLog,"Executing TLocalCompute task\n");
 	this->InitializePartitionRelationPointer ();
 	// message #1.1 to this:TLocalCompute

@@ -98,9 +98,12 @@ void TParAnalysis::CreateParCompute ()
 	PrintLog(TaskLog, "TParAnalysis setting the version of rhs and state to ");
 	randver.ShortPrint(TaskLog);
 	TaskLog << endl;
+#ifdef VERBOSE
 	cout << "TParAnalysis setting the version of rhs and state to " <<
 		endl;
+
 	randver.ShortPrint (cout);
+#endif
 	/*while (count < fNumPartitions) {
 		int index=count*3+2;
 		fDataDepend.Dep (index).ObjPtr()->SetVersion (randver, Id ());
@@ -133,8 +136,10 @@ void TParAnalysis::CreateParCompute ()
 	PrintLog(TaskLog, "TParAnalysis::CreateParCompute I depend on version for rhs and state");
 	randver.ShortPrint(TaskLog);
 	TaskLog << endl;
+#ifdef VERBOSE
 	cout << "TParAnalysis::CreateParCompute I depend on version for rhs and state" << endl;
 	randver.ShortPrint (cout);
+#endif
 //  while(count < fNumPartitions) {
 	// Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
 //    AddDependentData(OOPMDataDepend(fStateId[count],st,randver));
@@ -164,8 +169,10 @@ void TParAnalysis::SetAppropriateVersions ()
 		PrintLog(TaskLog,"TParAnalysis::SetAppropriateVersion new version is ");
 		solver.ShortPrint (TaskLog);
 		TaskLog << endl;
+#ifdef VERBOSE
 		cout << "TParAnalysis::SetAppropriateVersion new version is ";
 		solver.ShortPrint (cout);
+#endif
 		fDataDepend.Dep (id).ObjPtr ()->SetVersion (solver, Id ());
 		ver = solver;
 		id++;
@@ -174,30 +181,17 @@ void TParAnalysis::SetAppropriateVersions ()
 	fDataDepend.Clear ();
 	if (ver.GetNLevels () < 2) {
 		this->SetRecurrence (false);
-		cout << "TParAnalysis esta saindo com versãofinal!\n";
+#ifdef VERBOSE
+		cout << "TParAnalysis esta saindo\n";
 		ver.ShortPrint(cout);
 		cout.flush();
+#endif
 		//OOPTerminationTask * termtask = new OOPTerminationTask(fProc);
 		int i;
 		for(i=0;i<fNumPartitions;i++){
 			OOPTerminationTask * termtask = new OOPTerminationTask(i);
 			termtask->Submit();
-			//OOPDataVersion termversion = fDataDepend.Dep (0).ObjPtr ()->Version ();
-			//cout << "TermVersion\n";
-			//cout.flush();
-			//termversion.ShortPrint(cout);
-			//cout << endl;
-			//++termversion;
-			//termversion.ShortPrint(cout);
-			//cout << endl;
-			//cout.flush();
-			//cout << fDataDepend.Dep(0).Id() << endl;
-			//cout.flush();
-			//OOPMDataDepend d(fDataDepend.Dep(0).Id(), EWriteAccess, termversion);
-			//termtask->AddDependentData(d);
 		}
-		//termtask->Submit();
-		
 	}
 	else {
 		int count = 0;

@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: phil $
-// $Id: oopmpistorage.cpp,v 1.14 2003-10-14 09:49:55 phil Exp $
-// $Revision: 1.14 $
+// $Author: longhin $
+// $Id: oopmpistorage.cpp,v 1.15 2003-10-17 19:33:51 longhin Exp $
+// $Revision: 1.15 $
 
 
 #include "oopstorage.h"
@@ -107,12 +107,15 @@ int OOPMPISendStorage::ResetBuffer ()
 }
 int OOPMPISendStorage::Send (int target)
 {
+#ifdef VERBOSE
 	cout << "PID" << getpid() << " Called MPI_Send ret = \n";
 	cout.flush();
+#endif
 	int ret;
 	int tag = 0;
 	ret = MPI_Send (&f_buffr[0], f_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);
+#ifdef VERBOSE
 	switch(ret){
 		case MPI_SUCCESS:
 			cout <<" - No error; MPI routine completed successfully\n";
@@ -137,6 +140,7 @@ int OOPMPISendStorage::Send (int target)
 			break;
 	}
 	cout.flush();
+#endif
 	ResetBuffer();
 	return ret;
 }
@@ -156,10 +160,13 @@ int OOPMPIReceiveStorage::Receive ()
 bool OOPMPIReceiveStorage::TestReceive() {
 	if(!f_isreceiving) return false;
 	MPI_Status status;
-	int test_flag;
-	cout << "Test returned " << MPI_Test (&f_request, &test_flag, &status) << endl;
+	int test_flag, ret_test;
+	ret_test=MPI_Test (&f_request, &test_flag, &status);
+#ifdef VERBOSE
+	cout << "Test returned " << ret_test << endl;
 	cout << "Flag " << test_flag << endl;
-	
+	cout.flush();
+#endif	
 	return test_flag;
 }
   /**
@@ -186,9 +193,11 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 		
 	}
 	MPI_Status status;
+#ifdef VERBOSE
 	cout << "Going to MPI_Wait\n";
 	cout << "PID" << getpid() << endl;
 	cout.flush();
+#endif
 	MPI_Wait(&f_request,&status);
 	return 1;
 	/*

@@ -66,8 +66,10 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
 	pthread_mutex_lock(&fCommunicate);
 #warning "Nao tem necessidade do mutex neste ponto"
+#ifdef VERBOSE
 	cout << "Sending task " << pTask->GetClassID() << endl;
 	cout.flush();
+#endif
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
 						// ser executada
 	// Se "process_id" nao for valido.
@@ -84,8 +86,10 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	}
 	pTask->Pack (&f_sendbuffer);
 	f_sendbuffer.Send(process_id);
+#ifdef VERBOSE
 	cout << "Message Sent\n";
 	cout.flush();
+#endif
 	delete pTask;
 	pthread_mutex_unlock(&fCommunicate);
 	return 1;
@@ -120,8 +124,10 @@ int OOPMPICommManager::ReceiveMessages ()
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	//OOPMPICommManager *CM=(OOPMPICommManager *)(t);
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
+#ifdef VERBOSE
 	cout << "ReceiveMsgBlocking \n";
 	cout.flush();
+#endif
 	while (1){
 		
 		OOPMPIReceiveStorage msg;
@@ -132,8 +138,10 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 		if (ret <= 0) {
 	 		LocalCM->Finish("ReceiveBlocking <receive error>");
 		}
+#ifdef VERBOSE
 		cout << "Calling ProcessMessage\n";
 		cout.flush();
+#endif
 		LocalCM->ProcessMessage (msg);
 	}
 	return NULL;
@@ -142,8 +150,10 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 	//OOPMPICommManager *CM=(OOPMPICommManager *)(t);
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
+#ifdef VERBOSE
 	cout << "ReceiveMsgBlocking \n";
 	cout.flush();
+#endif
 	while (1){
 		
 		OOPMPIReceiveStorage msg;
@@ -154,8 +164,10 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 		if (ret <= 0) {
 			LocalCM->Finish("ReceiveBlocking <receive error>");
 		}
+#ifdef VERBOSE
 		cout << "Calling ProcessMessage\n";
 		cout.flush();
+#endif
 		LocalCM->ProcessMessage (msg);
 	}
 	return NULL;

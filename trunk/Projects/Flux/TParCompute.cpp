@@ -29,17 +29,19 @@ OOPMReturnType TParCompute::Execute ()
 		ltask->PrintLog(TaskLog,"Submitted local task");
 	}
 	PrintLog(TaskLog,"TParCompute::Execute\n");
-	cout << "TParCompute::Execute\n";
 	TaskLog << "TParCompute::Execute";
-	cout << "Submiting TLocalCompute tasks\n";
 	TaskLog << "Submiting TLocalCompute tasks\n";
-	cout << "fPartVersion " <<	fPartRelationVersion << endl;
 	TaskLog << "fPartVersion " <<	fPartRelationVersion << endl;
-	cout << "Mesh Version "<<	fMeshVersions << endl;
 	TaskLog << "Mesh Version "<<	fMeshVersions << endl;
-	cout << "State and Rhs Version " << fDataVersions << endl;
 	TaskLog << "State and Rhs Version " << fDataVersions << endl;
+#ifdef VERBOSE
+	cout << "TParCompute::Execute\n";
+	cout << "Submiting TLocalCompute tasks\n";
+	cout << "fPartVersion " <<	fPartRelationVersion << endl;
+	cout << "Mesh Version "<<	fMeshVersions << endl;
+	cout << "State and Rhs Version " << fDataVersions << endl;
 	cout.flush ();
+#endif
 	return ESuccess;
 }
 void TParCompute::SetPartitionRelationId (OOPObjectId & Id,
@@ -128,9 +130,13 @@ int TParCompute::Unpack (OOPReceiveStorage * buf)
 	fTaskIds.resize(sz);
 	for(i=0; i<sz; i++) fTaskIds[i].Unpack(buf);
 	fDataVersions.Unpack(buf);
+#ifdef VERBOSE
 	fDataVersions.Print(cout);
+#endif
 	fMeshVersions.Unpack(buf);
+#ifdef VERBOSE
 	fMeshVersions.Print(cout);
+#endif
 	buf->UpkInt(&fNPartitions);
 	
 	return 0;

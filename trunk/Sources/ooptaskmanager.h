@@ -260,7 +260,7 @@ public:
 		return TTERMINATIONTASK_ID;
 	}
 		;
-	void Write(TPZStream & buf);
+	void Write(TPZStream & buf, int withclassid);
 	void Read(TPZStream & buf, void * context = 0);
 	long int ExecTime();
 	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);

@@ -119,6 +119,11 @@ class   OOPAccessInfoList
 {
 	list < OOPAccessInfo > fList;
       public:
+void
+PostPoneWriteAccessGranted ();
+
+
+		  
 		 
 	  void Print(ostream & out);
 	/**
@@ -165,9 +170,19 @@ class   OOPAccessInfoList
  */
 	bool    HasWriteAccessGranted () const;
 /**
+ * Indicates whether any access request of type VersionAccess has been granted
+ */
+	bool HasVersionAccessGranted () const;
+/**
  * Indicates whether write requests are filed with appropriate version
  */
 	bool    HasWriteAccessRequests (const OOPDataVersion & object) const;
+
+/**
+ * Indicates whether read requests are filed with appropriate version
+ */
+	bool    HasReadAccessRequests (const OOPDataVersion & object) const;
+
 /**
  * Indicates whether version requests are filed with appropriate version
  */
@@ -194,11 +209,11 @@ class   OOPAccessInfoList
  /**
  * Revokes all access requests
  */
-	void    RevokeAccess (const OOPMetaData & obj);
+	void    RevokeWriteAccess (const OOPMetaData & obj);
  /**
   * Returns true if a task is accessing the data
   */
-	bool    HasExecutingTasks ();
+	bool    HasExecutingOrReadGrantedTasks ();
 /**
  * Transfer the access requests to the given processor
  */
@@ -206,8 +221,8 @@ class   OOPAccessInfoList
 /**
  * Resend the granted access requests (because a read access has been 
  * canceled)
- */
 	void ResendGrantedAccessRequests(OOPObjectId &id, int owningproc);
+ */
  
 /**
  * copy operator

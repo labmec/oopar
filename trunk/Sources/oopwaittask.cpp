@@ -22,7 +22,6 @@ OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
   LockExternal();
 }
 
-
 OOPWaitTask::~OOPWaitTask()
 {
 }
@@ -30,14 +29,14 @@ OOPWaitTask::~OOPWaitTask()
 
 void OOPWaitTask::Write(TPZStream & buf, int withclassid)
 {
-  OOPTask::Write(buf);
+  OOPTask::Write(buf, withclassid);
   cout << "OOPWaitTask should never be packed\n";
   
 }
 
 void OOPWaitTask::Read(TPZStream & buf, void * context)
 {
-    OOPTask::Read(buf);
+    OOPTask::Read(buf, context);
 }
 
 int OOPWaitTask::ClassId() const

@@ -21,7 +21,7 @@ class   OOPDataVersion;
 /*** Pack ***/
 int OOPSaveable::Pack (OOPStorageBuffer * buf)
 {
-#ifdef VERBOSE
+#ifdef DEBUG
 	cout << "PID" << getpid() << " Packing class ID " << GetClassID() << endl;
 	cout.flush();
 #endif

@@ -665,12 +665,12 @@ OOPMReturnType OOPTerminationTask::Execute (){
 	return ESuccess;
 }
 
-void OOPTerminationTask::Write(TPZStream & buf){
-	OOPTask::Write(buf);
+void OOPTerminationTask::Write(TPZStream & buf, int withclassid){
+	OOPTask::Write(buf, withclassid);
 
 }
 void OOPTerminationTask::Read(TPZStream & buf, void * context){
-	OOPTask::Read(buf);
+	OOPTask::Read(buf, context);
 
 }
 

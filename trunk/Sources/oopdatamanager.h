@@ -232,9 +232,9 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	{
 		return TDMOWNERTASK_ID;
 	}
-	virtual void Read (TPZStream & buf, void * context = 0);
+	virtual void Read (TPZStream & buf, void * context);
 	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
-	virtual void Write (TPZStream & buf, int withclassid=0);
+	virtual void Write (TPZStream & buf, int withclassid);
 	// Apenas para DEBUG.
 	// virtual void Work() { Debug( "\nTSaveable::Work." ); }
 	// virtual void Print() { Debug( " TSaveable::Print." ); }

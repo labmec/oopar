@@ -116,7 +116,7 @@ void OOPTask::Write (TPZStream & buf, int withclassid)
 }
 void OOPTask::Read (TPZStream & buf, void * context)
 {
-	TPZSaveable::Read(buf);
+	TPZSaveable::Read(buf, context);
 	fTaskId.Read (buf);
 	// Finished OOPObjectId unpacking
 	buf.Read (&fProc);
@@ -124,12 +124,6 @@ void OOPTask::Read (TPZStream & buf, void * context)
 	buf.Read (&fIsRecurrent);
 	fDataDepend.Read(buf);
 	
-}
-TPZSaveable *OOPDaemonTask::Restore (TPZStream & buf, void * context)
-{
-	OOPDaemonTask *v = new OOPDaemonTask (0);
-	v->Read (buf);
-	return v;
 }
 
 	/**
@@ -154,4 +148,17 @@ void OOPTask::IncrementDepObjVersion(int idepend)
 	}
 	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
 	dep.ObjPtr()->IncrementVersion(Id());
+}
+void OOPTask::IncrementWriteDependentData()
+{
+	int numdep = fDataDepend.NElements();
+	int i;
+	
+	for(i=0;i<numdep;i++){
+		if(fDataDepend.Dep(i).State()==EWriteAccess){
+			fDataDepend.Dep(i).ObjPtr()->IncrementVersion(Id());
+			cout << "Automatically Incrementing Write Dependent Data Versions\n";
+			cout.flush();
+		}
+	}
 }

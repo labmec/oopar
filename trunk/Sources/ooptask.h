@@ -188,6 +188,10 @@ public:
      */
 	void    SetRecurrence (bool recurrence = true);
 	
+	int NumDepObj()
+	{
+		return fDataDepend.NElements();
+	}
 	/**
 	 * Return the pointer to the ith object from which this task depends
 	 */

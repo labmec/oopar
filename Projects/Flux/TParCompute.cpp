@@ -85,10 +85,6 @@ void TParCompute::SetMeshId (vector < OOPObjectId > &Id,
 int TParCompute::Pack (OOPSendStorage * buf)
 {
 
-	if (GLogMsgCounter == 68) {
-		int eu;
-		eu=0;
-	}
 	PrintLog(TaskLog, "Packing TParCompute object");
 
 	OOPTask::Pack (buf);
@@ -108,7 +104,9 @@ int TParCompute::Pack (OOPSendStorage * buf)
 	buf->PkInt(&sz);
 	for(i=0; i<sz; i++) fTaskIds[i].Pack(buf);
 	fDataVersions.Pack(buf);
+	fDataVersions.Print(cout);
 	fMeshVersions.Pack(buf);
+	fMeshVersions.Print(cout);
 	buf->PkInt(&fNPartitions);
 	return 0;
 }
@@ -138,7 +136,9 @@ int TParCompute::Unpack (OOPReceiveStorage * buf)
 	fTaskIds.resize(sz);
 	for(i=0; i<sz; i++) fTaskIds[i].Unpack(buf);
 	fDataVersions.Unpack(buf);
+	fDataVersions.Print(cout);
 	fMeshVersions.Unpack(buf);
+	fMeshVersions.Print(cout);
 	buf->UpkInt(&fNPartitions);
 
 	

@@ -227,7 +227,7 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	* @param t : type of ower task
 	* @param proc : processor which owns the message
 	*/
-	        OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
+	OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
 
 	virtual OOPMReturnType Execute ();
 

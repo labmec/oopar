@@ -17,7 +17,7 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		return false;
 	switch (this->fState) {
 	case EReadAccess:
-		if (object.HasVersionAccess ())
+		if (object.HasVersionAccessTask ())
 			return false;
 		if (object.HasWriteAccess (fTaskId))
 			return true;

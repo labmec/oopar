@@ -110,7 +110,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	How do we know the state of the object??
 	If any executing task is accessing the object for write or version access
 	   there is nothing to do (only one task can access the object at a time)
-	Follow the sequence : 
+	Follow the sequence :
 		-> first try to satisfy a version access request, first on this
 		   processor, then on a different processor.
 		-> try to satisfy a write access request on this processor
@@ -135,7 +135,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	    && fTrans == ENoTransition) {
 		SuspendReadAccess ();
 		// we should invoke a procedure to revoke all access requests
-//              this->fProcVersionAccess = fProc;
+//		if(IamOwner() && fReadAccessProcessors.size() == fSuspendAccessProcessors.size()) this->fProcVersionAccess = fProc;
 	}
 	else if (DM->GetProcID () == fProc
 		 && fAccessList.HasWriteAccessRequests (fVersion)
@@ -153,10 +153,13 @@ void OOPMetaData::VerifyAccessRequests ()
 			ac->fIsGranted = 1;
 			OOPMDataDepend depend (this->Id (), ac->fState,
 					       ac->fVersion);
-			if (ac->fState == EWriteAccess)
+			if (ac->fState == EWriteAccess) {
 				fTaskWrite = ac->fTaskId;
-			if (ac->fState == EVersionAccess)
+			}
+			if (ac->fState == EVersionAccess) {
 				fTaskVersion = ac->fTaskId;
+				fProcVersionAccess = ac->fProcessor;
+			}
 			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
 		}
 		else {
@@ -210,11 +213,15 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		list < int >::iterator i = fSuspendAccessProcessors.begin ();
 		while (i != fSuspendAccessProcessors.end ()) {
 			if (*i == DM->GetProcID ()) {
-				fSuspendAccessProcessors.erase (i);
-				break;
+//				fSuspendAccessProcessors.erase (i);
+//				break;
+			} else {
+				OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
+				TM->Submit(town);
 			}
 			i++;
 		}
+		fSuspendAccessProcessors.clear();
 		cout << "OOPMetaData::ReleaseAccess Send messages "
 			" granting read access to the other processors" <<
 			endl;
@@ -239,6 +246,7 @@ void OOPMetaData::CheckTransitionState ()
 	}
 	if (fTrans == ENoTransition)
 		return;
+	fAccessList.RevokeAccess(*this);
 	if (!fAccessList.HasExecutingTasks ()) {
 		if (fTrans == ECancelReadTransition) {
 			list < int >::iterator i =
@@ -274,10 +282,12 @@ void OOPMetaData::CheckTransitionState ()
 								    GetProcID
 								    ());
 				if (!IamOwner ()) {
+					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccessConfirmation,fProc);
+					TM->Submit(town);
 #ifndef WIN32
-#warning "must send cancelsuspendaccessconfirmation"
+#warning "must check cancelsuspendaccessconfirmation"
 #endif
-					cout << "OOPMetaData::CheckTransitionState must send SuspendAccessConfirmation\n";
+					cout << "OOPMetaData::CheckTransitionState is sending SuspendAccessConfirmation\n";
 				}
 			}
 		}
@@ -353,6 +363,7 @@ OOPMetaData::OOPMetaData (OOPSaveable * ObPtr, const OOPObjectId & ObjId,
 	fProcVersionAccess = -1;
 	fTaskVersion.Zero ();
 	fTaskWrite.Zero ();
+	if(IamOwner()) fReadAccessProcessors.push_back(ProcId);
 }
 
 void OOPMetaData::SetId (OOPObjectId & id)
@@ -375,6 +386,28 @@ void OOPMetaData::TransferObject (int ProcId)
 
 void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 {
+	switch(ms.fType) {
+	case ESuspendAccess:
+		fTrans = ESuspendReadTransition;
+		CheckTransitionState();
+		break;
+	case ESuspendAccessConfirmation: {
+	//Receiving a confirmation message from a processor
+		if(!IamOwner() || !HasReadAccess(ms.fProcOrigin)) {
+			cout << "OOPMetaData::HandleMessage SuspendReadAccess at a processor which isnt owner or which for a processor without read access\n";
+			break;
+		}
+		// insert the processor in the list of processors with suspended access
+		list<int>::iterator is = fSuspendAccessProcessors.begin();
+		while(is != fSuspendAccessProcessors.end() && *is != ms.fProcOrigin) is++;
+		if(is != fSuspendAccessProcessors.end()) fSuspendAccessProcessors.push_back(ms.fProcOrigin);
+		CheckTransitionState();
+		break;
+	}
+	default:
+		cout << "OOPMetaData::HandleMessage unhandled message type " << ms.fType << endl;
+		break;
+	}
 }
 
 bool OOPMetaData::HasReadAccess () const
@@ -384,13 +417,15 @@ bool OOPMetaData::HasReadAccess () const
 
 bool OOPMetaData::HasVersionAccess () const
 {
-	if (fProcVersionAccess == DM->GetProcID ())
-		return true;
+	if (fProcVersionAccess == DM->GetProcID ()) return true;
+	if (fProcVersionAccess == -1 && IamOwner()) return true;
 	return false;
 }
 
 bool OOPMetaData::HasReadAccess (const int Procid) const
 {
+	if(fTrans != ENoTransition) return false;
+	if(fSuspendAccessProcessors.size()) return false;
 #ifdef WIN32
 	list < int >::const_iterator i = fReadAccessProcessors.begin ();
 
@@ -491,6 +526,16 @@ void OOPMetaData::SuspendReadAccess ()
 	if (fReadAccessProcessors.size () != fSuspendAccessProcessors.size ()) {
 		fTrans = ESuspendReadTransition;
 	}
+	int nread = fReadAccessProcessors.size();
+	int iproc;
+	list<int>::const_iterator ir = fReadAccessProcessors.begin();
+	while(ir != fReadAccessProcessors.end()) {
+		if(*ir != DM->GetProcID()) {
+			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccess, *ir);
+			TM->Submit(town);
+		}
+		ir++;
+	}
 }
 
 void OOPMetaData::GrantWriteAccess (OOPObjectId & TaskId, OOPMDataState st,
@@ -512,7 +557,17 @@ void OOPMetaData::GrantVersionAccess (OOPObjectId TaskId, int ProcId,
 
 void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 {
-
+	switch(state) {
+	case EVersionAccess: {
+		OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantVersionAccess,processor);
+		TM->Submit(town);
+		fProcVersionAccess = processor;
+		break;
+	}
+	default:
+		cout << "OOPMetaData::GrantAccess unhandled state " << state << endl;
+		break;
+	}
 }
 
 OOPDataVersion OOPMetaData::Version () const

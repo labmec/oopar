@@ -1,4 +1,4 @@
-# Anjuta Version 1.0.1 
+# Anjuta Version 1.0.2 
 Compatibility Level: 1 
 
 <PROJECT_DESCRIPTION_START>
@@ -23,7 +23,7 @@ Compatibility Level: 1
 
 props.file.type=project
 
-anjuta.version=1.0.1
+anjuta.version=1.0.2
 anjuta.compatibility.level=1
 
 project.name=oopar
@@ -58,6 +58,9 @@ preferences.indent.size=4
 preferences.autoformat.style=Custom style
 preferences.autoformat.custom.style= -i8 -sc -bli0 -bl0 -cbi0 -ss -bfda -nbad -npsl -di8 -c8 -fca
 preferences.autoformat.disable=0
+preferences.debugger.command=gdb
+preferences.ui.designer=glade '$(project.name).glade'
+preferences.help.browser=devhelp -s '$(current.file.selection)'
 
 module.include.name=.
 module.include.type=
@@ -91,7 +94,8 @@ module.include.files=\
 	Sources/ooptask.h\
 	Sources/ooptaskmanager.h\
 	Sources/ooptaskcontrol.h\
-	Sources/oopmdatadepend.h
+	Sources/oopmdatadepend.h\
+	Sources/oopwaittask.h
 
 module.source.name=.
 module.source.type=
@@ -125,7 +129,8 @@ module.source.files=\
 	Sources/ooptask.cpp\
 	Sources/ooptaskmanager.cpp\
 	Sources/ooptaskcontrol.cpp\
-	Sources/oopmdatadepend.cpp
+	Sources/oopmdatadepend.cpp\
+	Sources/oopwaittask.cpp
 
 module.pixmap.name=.
 module.pixmap.type=
@@ -144,7 +149,7 @@ module.help.files=
 
 module.doc.name=.
 module.doc.type=
-module.doc.expanded=0
+module.doc.expanded=1
 module.doc.files=\
 	ChangeLog\
 	AUTHORS\
@@ -159,12 +164,14 @@ module.po.files=
 compiler.options.supports=
 compiler.options.include.paths=\
 	.\
-	..
+	..\
+	/compile/longhin/mpich-1.2.5/include/.
 compiler.options.library.paths=
 compiler.options.libraries=
 compiler.options.libraries.selected=
 compiler.options.defines=\
-	HAVE_CONFIG_H
+	HAVE_CONFIG_H\
+	MPI
 compiler.options.warning.buttons=0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
 compiler.options.optimize.buttons=0 0 1 0 
 compiler.options.other.buttons=1 0 

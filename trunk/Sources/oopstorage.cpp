@@ -36,7 +36,7 @@ class   OOPSaveable;
 /************************ TReceiveStorage ************************/
 //TVoidPtrMap TReceiveStorage::gFuncTree(0);
 //void * TReceiveStorage::gFuncTree(long class_id);
-map < long, void *>OOPReceiveStorage::gFuncTree;
+map < long, TRestFunction>OOPReceiveStorage::gFuncTree;
 /******************/
 /*** Destructor ***/
 OOPReceiveStorage::~OOPReceiveStorage ()
@@ -56,7 +56,7 @@ OOPSaveable *OOPReceiveStorage::Restore ()
 		cout.flush();
 		return (0);
 	}
-	map < long, void *>::iterator i;
+	map < long, TRestFunction >::iterator i;
 	i = gFuncTree.find (class_id);
 	// i = gFuncTree.find(class_id);
 	if (i == gFuncTree.end ()) {
@@ -66,10 +66,10 @@ OOPSaveable *OOPReceiveStorage::Restore ()
 	}
 	TRestFunction f;
 	// void *c = i;//gFuncTree.contents(i);
-	f = (TRestFunction) gFuncTree[class_id];	// i;//c;
+	f = gFuncTree[class_id];	// i;//c;
 	return f (this);
 }
 void OOPReceiveStorage::AddClassRestore (long classid, TRestFunction f)
 {
-	gFuncTree[classid] = (void *) f;
+	gFuncTree[classid] = f;
 }

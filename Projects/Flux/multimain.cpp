@@ -22,6 +22,7 @@ ofstream TransferDataLog("transferdatalog.log");
 ofstream TaskQueueLog("taskqueue.log");
 ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
+ofstream VeriLog("verilog.log");
 int GLogMsgCounter;
 const int numproc = 2;
 vector < OOPCommunicationManager * >CMList (numproc);
@@ -60,7 +61,7 @@ int multimain ()
 	Load (0);
 	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);
 	TM->Submit (partask);
-	int nsteps=30;
+	int nsteps=500;
 	int k=0;
 
 	while (NumTasks () && k<nsteps) {
@@ -70,6 +71,7 @@ int multimain ()
 			k++;
 		}
 	}
+	VeriLog.close();
 	TaskLog.close();
 	DataLog.close();
 	DataManLog.close();

@@ -1,7 +1,7 @@
 /***************************************************************************
-                          bicgdouble.cpp  -  description
+                          tbicgfor_one.cpp  -  description
                              -------------------
-    begin                : Wed Feb 11 2004
+    begin                : Mon Feb 16 2004
     copyright            : (C) 2004 by longhin
     email                : longhin@carlsberg.fec.unicamp.br
  ***************************************************************************/
@@ -15,30 +15,17 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "bicgdouble.h"
+#include "tbicgfor_one.h"
 
+TBiCGFor_One::TBiCGFor_One(int proc) : OOPTask(proc) {
+}
+TBiCGFor_One::~TBiCGFor_One(){
+}
+long TBiCGFor_One::ExecTime (){
+      return -1;
+}
 
-BiCGDouble::BiCGDouble() : OOPSaveable() {
-}
-BiCGDouble::~BiCGDouble(){
-}
-int BiCGDouble::Pack (OOPSendStorage * buf)
-{
-  OOPSaveable::Pack(buf);
-  buf->PkDouble(&value);
-	return 1;
-}
-/**************/
-/*** Unpack ***/
-int BiCGDouble::Unpack (OOPReceiveStorage * buf)
-{
-  OOPSaveable::Unpack(buf);
-  double aux;
-  buf->UpkDouble(&aux);
-  value=aux;  
-	return 1;
-}
-long BiCGDouble::GetClassID ()
-{
-	return BICGDOUBLE_ID;
+OOPMReturnType TBiCGFor_One::Execute (){
+      #warning "Execute Method not implemented"
+      return ESuccess;
 }

@@ -159,24 +159,36 @@ void TBiCGStab::SetupTaskData(){
 	 */
 	TMultAdd * madd;
 	OOPDataVersion rver = fDataDepend.Dep(f_lId_r[0]).ObjPtr()->Version();
-	//	OOPDataVersion dumyversion;
+  OOPDataVersion Aver = fDataDepend.Dep(f_lId_A[0]).ObjPtr()->Version();
+  OOPDataVersion Xver = fDataDepend.Dep(f_lId_x[0]).ObjPtr()->Version();
+  //	OOPDataVersion dumyversion;
 	for(i=0;i<nproc;i++){
 		madd = new TMultAdd(i);
-		madd->AddDependentData(OOPMDataDepend(f_lId_r[i], EWriteAccess, rver));
+		madd->AddDependentData(OOPMDataDepend(f_lId_r[i], EVersionAccess, rver));
 		madd->AddDependentData(OOPMDataDepend(f_lId_rtilde[i], EWriteAccess, rver));
 		madd->AddDependentData(OOPMDataDepend(f_lId_b[i], EReadAccess, OOPDataVersion()));
-		madd->AddDependentData(OOPMDataDepend(f_lId_A[i], EReadAccess, OOPDataVersion()));
-		madd->AddDependentData(OOPMDataDepend(f_lId_x[i], EVersionAccess, OOPDataVersion()));
+		madd->AddDependentData(OOPMDataDepend(f_lId_A[i], EWriteAccess, Aver));
+		madd->AddDependentData(OOPMDataDepend(f_lId_x[i], EWriteAccess, Xver));
 		madd->AddDependentData(OOPMDataDepend(f_lId_CMatrix[i], EReadAccess, OOPDataVersion()));
 		madd->Submit();
 	}
-	//fId_r->Version --> n.1
-	rver.Increment();
-	
+	//f_lId_x->Version --> n.1
+  //f_lId_A.Version --> n.1
+  //f_lId_rtilde.Version --> n.1
+  rver.Increment();
+	Aver.Increment();
+  Xver.Increment();
 	/**
 	 * resid = Norm(r)/normb
+   * The first task implements the conditinal on the if
+   * The task is diveded in two subtasks: Compute the Distributed norm on r; and the evaluation for the
+   * conditional and the subsequent update on the residue.
 	 */
-	OOPDataVersion normrver;
+
+   /**
+    * Compute the distributed norm of r
+    */
+  OOPDataVersion normrver;
 	normrver = fDataDepend.Dep(fId_normr).ObjPtr()->Version();
 	normrver.IncrementLevel(nproc);
 	fDataDepend.Dep(fId_normr).ObjPtr()->SetVersion(normrver, Id());
@@ -195,13 +207,26 @@ void TBiCGStab::SetupTaskData(){
 	normrver.Increment();
 	
 	/**
-	 * resid = normr/normb
+	 * if(resid = normr/normb){
+      tol=resid;
+      max_iter=0;
+      return 0;
+   * }
+   * If true is returned the necessary values are updated and the all versions from all variables are
+   * decreased one level and have this level incremented.
+   * Having that version configuration the BiCGStab terminates.
 	 */
-	TUpdateResidue * updresidue = new TUpdateResidue(0);
-	updresidue->AddDependentData(OOPMDataDepend(fId_resid,EWriteAccess,OOPDataVersion()));
-	updresidue->AddDependentData(OOPMDataDepend(fId_normb,EReadAccess,normbver));
-	updresidue->AddDependentData(OOPMDataDepend(fId_normr,EReadAccess,normrver));
-	updresidue->Submit();
+  TBiCG_One * bicg_one = new TBiCG_One(0);
+	OOPDataVersion resid_ver = fDataDepend.Dep(fId_resid).ObjPtr()->Version();
+	OOPDataVersion tol_ver = fDataDepend.Dep(fId_tol).ObjPtr()->Version();
+	OOPDataVersion max_iter_ver = fDataDepend.Dep(fId_max_iter).ObjPtr()->Version();
+    
+	bicg_one->AddDependentData(OOPMDataDepend(fId_resid,EWriteAccess,resid_ver));
+	bicg_one->AddDependentData(OOPMDataDepend(fId_normb,EReadAccess,normbver));
+	bicg_one->AddDependentData(OOPMDataDepend(fId_normr,EReadAccess,normrver));
+  bicg_one->AddDependentData(OOPMDataDepend(fId_tol,EWriteAccess,tol_ver));
+  bicg_one->AddDependentData(OOPMDataDepend(fId_max_iter,EWriteAccess,max_iter_ver));
+	bicg_one->Submit();
 
   /**
    * Loop execution will be started according to normb version.

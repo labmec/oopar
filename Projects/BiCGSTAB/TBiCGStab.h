@@ -3,16 +3,19 @@
 #ifndef TBICGSTAB_H
 #define TBICGSTAB_H
 #include <ooptask.h>
+#include <TLoopFor.h>
+#include <TDistNorm.h>
+#include <TIfConditional.h>
 class OOPMReturnType;
 class TBiCGStab : public OOPTask {
 public:    
 
-    /**
-        	* Returns the estimated execution time.
-        	* returns 0 if the task is instantaneous
-        	* returns > 0 if estimate is known
-        	* return < 0 if no estimate is known
-        	*/
+  /**
+  * Returns the estimated execution time.
+  * returns 0 if the task is instantaneous
+  * returns > 0 if estimate is known
+  * return < 0 if no estimate is known
+  */
 	virtual long ExecTime ();
 
 	/**
@@ -27,6 +30,7 @@ public:
 	{
 		return TDISTNORM_ID;
 	}
+  
 private:
 	/**
 	 * Submits the necessary data objects for the BiCGStab completion
@@ -36,6 +40,11 @@ private:
 	 * Sets up task/data dependency relationship.
 	 */
 	void SetupTaskData();
+  /** This function declares and submits the loop found on the BiCGStab code.
+@since 09-01-2004
+@author Gustavo C. Longhin
+ */
+    void CreateLoop(OOPDataVersion & normbVersion);
 
 	/**
 	 * Global Ids
@@ -54,19 +63,19 @@ private:
 	/**
 	 * Local Ids
 	 */
-	vector <OOPObjectId> fId_A;
-	vector <OOPObjectId> fId_M;
-	vector <OOPObjectId> fId_x;
-	vector <OOPObjectId> fId_b;
-	vector <OOPObjectId> fId_p;
-	vector <OOPObjectId> fId_shat;
-	vector <OOPObjectId> fId_s;
-	vector <OOPObjectId> fId_shat;
-	vector <OOPObjectId> fId_t;
-	vector <OOPObjectId> fId_v;
-	vector <OOPObjectId> fId_CMatrix;
-	vector <OOPObjectId> fId_rtilde;
-	vector <OOPObjectId> fId_r;
+	vector <OOPObjectId> f_lId_A;
+	vector <OOPObjectId> f_lId_M;
+	vector <OOPObjectId> f_lId_x;
+	vector <OOPObjectId> f_lId_b;
+	vector <OOPObjectId> f_lId_p;
+	vector <OOPObjectId> f_lId_shat;
+	vector <OOPObjectId> f_lId_s;
+	vector <OOPObjectId> f_lId_shat;
+	vector <OOPObjectId> f_lId_t;
+	vector <OOPObjectId> f_lId_v;
+	vector <OOPObjectId> f_lId_CMatrix;
+	vector <OOPObjectId> f_lId_rtilde;
+	vector <OOPObjectId> f_lId_r;
 
 
 

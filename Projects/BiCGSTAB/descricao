@@ -15,7 +15,6 @@ Implementação do BiCGSTAB
 		M
 		x
 		b
-
 		p
 		phat
 		s
@@ -23,7 +22,6 @@ Implementação do BiCGSTAB
 		t
 		v
 		CMatrix
-
 		rtilde
 		r
 
@@ -118,7 +116,11 @@ A funcionalidade de um BiCGSTAB será alcançada através da execução de uma série 
 	Ao termino desta tarefa a versão de rho_1 passa para m.n+1
 
 	6.2 - if(rho_1==0) tol = Norm(r)/normb
-	Por motivos de sincronização estabelece-se dependência inclusive com rho_1. Deve ainda verificar se isso é necessário, sendo que as duas tarefas poderiam ser executadas em paralelo. Visto que esta instrução deve ser executada apenas qdo o if é satisfeito, deve-se analisar esta parte com mais rigor.
+	Pode-se submeter uma tarefa com dependência a todos objetos relacionados no IF. A soluçào é obtida incrementando de qualquer maneira a versão do tol. Se a condição for satisfeita atauliza-se o valor e incrementa a versão, caso contrário incrementa-se apenas a versão sem alterar o valor de tol.
+	6.2.1 - Computar Norm(r) numa variável temporária
+	6.2.2 - 
+
+	. Visto que esta instrução deve ser executada apenas qdo o if é satisfeito, deve-se analisar esta parte com mais rigor.
 
 	6.3 - beta = (rho_1/rho_2) * (alpha/omega); (Dentro do else)
 		Dependências

@@ -9,20 +9,26 @@
  */
 OOPMReturnType TBiCGStab::Execute ()
 {
-#warning "Execute not implemented"
-	SubmitObjects();
-	SetupTaskData();
+#warning "Calling submit objects which is not implemented yet, data classes"
+#warning "still need to be defined"
+ 	SubmitObjects();
+    SetupTaskData();
 	return ESuccess;	// execute the task, verifying that
 }
 long TBiCGStab::ExecTime ()
 {
 	return -1;
 }
-void SubmitObjects(){
+void TBiCBStab::SubmitObjects(){
 	//If objects already submitted just go out.
 	if(fObjectsSubmitted) return;
 
-	//Create and submit the following objects on the current processor (#0)
+	/**
+   * Create and submit the following objects on the current processor (#0)
+   * Such variables holds IDs for all necessary data on the application
+   * Data objects are still necessary
+   */
+   /*
 	fId_normb
 	fId_rho_1
 	fId_rho_2
@@ -31,7 +37,7 @@ void SubmitObjects(){
 	fId_omega
 	fId_max_iter
 	fId_tol
-
+  */
 	/**
 	 * Create and submit the following objects on all processors
 	 * Before submitting all necessary versioning must be set, avoiding extra work
@@ -40,25 +46,25 @@ void SubmitObjects(){
 	int i=0;
 	int nproc = CM->NumProcessors();
 	for(i=0;i<nproc,i++){
-		fId_A[i]
-		fId_M[i]
-		fId_x[i]
-		fId_b[i]
-		fId_p[i]
-		fId_shat[i]
-		fId_s[i]
-		fId_shat[i]
-		fId_t[i]
-		fId_v[i]
-		fId_CMatrix[i]
-		fId_rtilde[i]
-		fId_r[i]
+		f_lId_A[i]
+		f_lId_M[i]
+		f_lId_x[i]
+		f_lId_b[i]
+		f_lId_p[i]
+		f_lId_shat[i]
+		f_lId_s[i]
+		f_lId_phat[i]
+		f_lId_t[i]
+		f_lId_v[i]
+		f_lId_CMatrix[i]
+		f_lId_rtilde[i]
+		f_lId_r[i]
 	}
 	fObjectsSubmitted=true;
 	
 }
-void SetupTaskData(){
-	int i=0;
+void TBiCGStab::SetupTaskData(){
+  int i=0;
 	int nproc = CM->NumProcessors();
 	
 	OOPDataVersion normbver;
@@ -75,7 +81,7 @@ void SetupTaskData(){
 	for(i=0;i<nproc;i++{
 		normb = new TDistNorm(i);
 		normb->AddDependentData(OOPMDataDepend(fId_normb, EWrite, ver))
-		normb->AddDependentData(OOPMDataDepend(fId_b[i], ERead, OOPDataVersion()))
+		normb->AddDependentData(OOPMDataDepend(f_lId_b[i], ERead, OOPDataVersion()))
 		normb->AddDependentData(OOPMDataDepend(fId_CMatrix, ERead, OOPDataVersion()))
 		normb->Submit();
 	}
@@ -98,11 +104,11 @@ void SetupTaskData(){
 	rver = fId_r[0].Version();
 	for(i=0;i<nproc;i++{
 		madd = new TMultAdd(i);
-		madd->AddDependentData(OOPMDataDepend(fId_r[i], EWrite, rver));
-		madd->AddDependentData(OOPMDataDepend(fId_rtilde[i], EWrite, rver));
-		madd->AddDependentData(OOPMDataDepend(fId_b[i], ERead, OOPDataVersion()));
-		madd->AddDependentData(OOPMDataDepend(fId_A[i], ERead, OOPDataVersion()));
-		madd->AddDependentData(OOPMDataDepend(fId_x[i], EVersion, OOPDataVersion()));
+		madd->AddDependentData(OOPMDataDepend(f_lId_r[i], EWrite, rver));
+		madd->AddDependentData(OOPMDataDepend(f_lId_rtilde[i], EWrite, rver));
+		madd->AddDependentData(OOPMDataDepend(f_lId_b[i], ERead, OOPDataVersion()));
+		madd->AddDependentData(OOPMDataDepend(f_lId_A[i], ERead, OOPDataVersion()));
+		madd->AddDependentData(OOPMDataDepend(f_lId_x[i], EVersion, OOPDataVersion()));
 		madd->AddDependentData(OOPMDataDepend(fId_CMatrix, ERead, OOPDataVersion()));
 		madd->Submit();
 	}
@@ -122,7 +128,7 @@ void SetupTaskData(){
 		normr = new TDistNorm(i);
 		ver.SetVersion(1,-1);
 		normr->AddDependentData(OOPMDataDepend(fId_normr, EWrite, ver))
-		normr->AddDependentData(OOPMDataDepend(fId_r[i], ERead, rver))
+		normr->AddDependentData(OOPMDataDepend(f_lId_r[i], ERead, rver))
 		normr->AddDependentData(OOPMDataDepend(fId_CMatrix, ERead, OOPDataVersion()))
 		normr->Submit();
 	}
@@ -136,9 +142,16 @@ void SetupTaskData(){
 	TUpdateResidue * updresidue = new TUpdateResidue(0);
 	updresidue->AddDependentData(OOPMDataDepend(fId_resid,EWrite,OOPDataVersion()));
 	updresidue->AddDependentData(OOPMDataDepend(fId_normb,ERead,normbver));
-	
 	updresidue->AddDependentData(OOPMDataDepend(fId_normr,ERead,normrver));
 	updresidue->Submit();
+
+  /**
+   * Loop execution will be started according to normb version.
+   * The loop task is responsible for set all necessary versions on the before
+   * submiting remaining tasks.
+   */
+  CreateLoop(normbver);
+  
 	
 	
 	/**
@@ -159,90 +172,6 @@ void SetupTaskData(){
 		rtilde
 		r
 	*/
-	TLoopFor * loopfor = new TLoopFor(0);
-
-	OOPDataVersion auxver;
-	
-	auxver = fId_max_iter.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_max_iter,EVersion,auxver));
-	
-	auxver = fId_rho_1.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_rho_1,EVersion,auxver));
-	
-
-	auxver = fId_rho_2.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_rho_2,EVersion,auxver));
-	for(i=0;i<nproc;i++){
-		auxver = fId_p[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_p[i],EVersion,auxver));
-	}
-	auxver = fId_alpha.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_alpha,EVersion,auxver));
-	
-	auxver = fId_omega.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_omega,EVersion,auxver));
-	
-	auxver = fId_beta.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_beta,EVersion,auxver));
-	
-	for(i=0;i<nproc;i++){
-		auxver = fId_A[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_A[i],EVersion,auxver));
-	}
-
-	for(i=0;i<nproc;i++){
-		auxver = fId_M[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_M[i],EVersion,auxver));
-	}
-
-	for(i=0;i<nproc;i++){
-		auxver = fId_v[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_v[i],EVersion,auxver));
-	}
-	
-	for(i=0;i<nproc;i++){
-		auxver = fId_phat[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_phat[i],EVersion,auxver));
-	}
-	
-	for(i=0;i<nproc;i++){
-		auxver = fId_s[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_s[i],EVersion,auxver));
-	}
-	
-	for(i=0;i<nproc;i++){
-		auxver = fId_x[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_x[i],EVersion,auxver));
-	}
-	
-	for(i=0;i<nproc;i++){
-		auxver = fId_shat[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_shat[i],EVersion,auxver));
-	}
-	
-	for(i=0;i<nproc;i++){
-		auxver = fId_t[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_t[i],EVersion,auxver));
-	}	
-
-	for(i=0;i<nproc;i++){
-		auxver = fId_rtilde[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_rtilde[i],EVersion,auxver));
-	}
-	
-	for(i=0;i<nproc;i++){
-		auxver = fId_r[i].Version();
-		loopfor->AddDependentData(OOPMDataDepend(fId_r[i],EVersion,auxver));
-	}
-
-	auxver = fId_normb.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_normb,EVersion,auxver));
-
-	auxver = fId_normr.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_normr,EVersion,auxver));
-	
-	auxver = fId_resid.Version();
-	loopfor->AddDependentData(OOPMDataDepend(fId_resid,EVersion,auxver));
 
 
 
@@ -277,4 +206,103 @@ void SetupTaskData(){
 	fId_max_iter
 	fId_tol
 	*/
+}
+/** This function declares and submits the loop found on the BiCGStab code.
+@since 09-01-2004
+@author Gustavo C. Longhin
+ */
+void TBiCGStab::CreateLoop(OOPDataVersion & normbVersion){
+	TLoopFor * loopfor = new TLoopFor(0);
+
+	OOPDataVersion auxver;
+
+	auxver = fId_max_iter.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_max_iter,EVersion,auxver));
+
+	auxver = fId_rho_1.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_rho_1,EVersion,auxver));
+
+
+	auxver = fId_rho_2.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_rho_2,EVersion,auxver));
+
+  auxver = fId_alpha.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_alpha,EVersion,auxver));
+
+	auxver = fId_omega.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_omega,EVersion,auxver));
+
+	auxver = fId_beta.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_beta,EVersion,auxver));
+
+	//auxver = fId_normb.Version();
+  /**
+   * Synchronizes the loop execution with normbVersion parameter.
+   */
+	loopfor->AddDependentData(OOPMDataDepend(fId_normb,EVersion,normbVersion);
+
+	auxver = fId_tol.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_tol,EVersion,auxver));
+
+  auxver = fId_normr.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_normr,EVersion,auxver));
+
+	auxver = fId_resid.Version();
+	loopfor->AddDependentData(OOPMDataDepend(fId_resid,EVersion,auxver));
+
+  for(i=0;i<nproc;i++){
+		auxver = f_lId_p[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_p[i],EVersion,auxver));
+	}
+
+  for(i=0;i<nproc;i++){
+		auxver = f_lId_A[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_A[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_M[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_M[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_v[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_v[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_phat[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_phat[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_s[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_s[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_x[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_x[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_shat[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_shat[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_t[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_t[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_rtilde[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_rtilde[i],EVersion,auxver));
+	}
+
+	for(i=0;i<nproc;i++){
+		auxver = f_lId_r[i].Version();
+		loopfor->AddDependentData(OOPMDataDepend(f_lId_r[i],EVersion,auxver));
+	}
+  loopfor->Submit();
 }

@@ -232,6 +232,24 @@ class   OOPAccessInfoList
   */
 	bool    HasExecutingTasks ();
 
+/**
+ * Transfer the access requests to the given processor
+ */
+	void TransferAccessRequests(OOPObjectId &id, int processor);
+
+/**
+ * Resend the granted access requests (because a read access has been 
+ * canceled)
+ */
+	void ResendGrantedAccessRequests(OOPObjectId &id, int owningproc);
+ 
+/**
+ * copy operator
+ */
+	OOPAccessInfoList &operator=(const OOPAccessInfoList& copy) {
+		fList = copy.fList;
+		return *this;
+	}
 };
 
 #endif

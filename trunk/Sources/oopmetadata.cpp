@@ -295,6 +295,8 @@ void OOPMetaData::CheckTransitionState ()
 					fReadAccessProcessors.erase (i);
 					if (!IamOwner ()) {
 						OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccessConfirmation,fProc);
+						//alterei aqui!!!
+						town->fObjId=fObjId;
 						town->fProcOrigin = DM->GetProcID();
 						TM->Submit(town);
 						delete this->fObjPtr;
@@ -322,6 +324,8 @@ void OOPMetaData::CheckTransitionState ()
 					DataLog << "Sending suspend access confirmation for obj " << fObjId << " to processor " << fProc << endl;
 					DataLog.flush();
 					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccessConfirmation,fProc);
+					//alterei aqui!!!!
+					town->fObjId=fObjId;
 					TM->Submit(town);
 				}
 			}
@@ -429,6 +433,9 @@ void OOPMetaData::TransferObject (int ProcId)
 	TransferDataLog << fObjId;
 
 	OOPDMOwnerTask *town = new OOPDMOwnerTask(ETransferOwnership,ProcId);
+	//alterei aqui
+	town->fObjId=fObjId;
+	
 	TM->Submit(town);
 	fAccessList.TransferAccessRequests(fObjId,ProcId);
 	DataLog << "Transfer object " << fObjId << " to proc " << ProcId << "\n";
@@ -711,6 +718,9 @@ void OOPMetaData::SuspendReadAccess ()
 			DataLog << "Sending suspend read access for obj " << fObjId << " to proc " << *ir << endl;
 			DataLog.flush();
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccess, *ir);
+			//alterei aqui
+			town->fObjId=fObjId;
+
 			TM->Submit(town);
 		}
 		ir++;

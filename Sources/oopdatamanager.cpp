@@ -4,6 +4,7 @@
 #include "ooptaskmanager.h"
 #include "ooppardefs.h"
 #include "oopcommmanager.h"
+#include <map>
 #include <stdlib.h>
 //#include "../gnu/gnudefs.h"
 //Includes for testing
@@ -117,46 +118,35 @@ void OOPDataManager::main(){
 */
 OOPDataManager::~OOPDataManager ()
 {
-	deque < OOPMetaData * >::iterator i;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		OOPSaveable *dead = (*i)->Ptr ();
-		delete  dead;
-		delete *i;
-	}
+	map< OOPObjectId,  OOPMetaData * >::iterator i=fObjects.begin ();
+      while(i!=fObjects.end()){
+            i = fObjects.begin ();
+            OOPSaveable *dead = i->second->Ptr();
+            delete dead;
+            delete i->second;
+            fObjects.erase(i);
+      }
 	fObjects.clear ();
 	DataManLog << "Terminating DM\n";
 	DataManLog.flush();
 }
-bool OOPDataManager::HasObject (OOPObjectId id)
+bool OOPDataManager::HasObject (OOPObjectId & id)
 {
-	// Implement a search on the fObjects vector
-	deque < OOPMetaData * >::iterator i;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		// OOPMetaData * dat = (OOPMetaData *)(*i);
-		if (id == (*i)->Id ())
-			return true;
-	}
-	return false;
+	  map< OOPObjectId, OOPMetaData *>::iterator i;
+	  i=fObjects.find(id);
+      if(i!=fObjects.end())
+            return true;
+            else
+            return false;
 }
-void OOPDataManager::ReleaseAccessRequest (const OOPObjectId & TaskId, const OOPMDataDepend & depend)	// , 
-													// long 
-													// ProcId){
-{
-	deque < OOPMetaData * >::iterator i;
-	bool found = false;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		if (depend.Id () == (*i)->Id ()) {
-			found = true;
-			(*i)->ReleaseAccess (TaskId, depend);
-			break;
-		}
-	}
-	if (!found) {
-		// Erro, alguma coisa errada, dado supostamente deveria estar 
-		// aqui.
-		// Submeter pedido de acesso ao processador que criou o dado.
-		return;
-	}
+void OOPDataManager::ReleaseAccessRequest (const OOPObjectId & TaskId, const OOPMDataDepend & depend){
+      map<OOPObjectId, OOPMetaData *>::iterator it;
+      it=fObjects.find(depend.Id());
+      if(it!=fObjects.end()){
+            it->second->ReleaseAccess(TaskId, depend);
+      }else{
+            cerr << "Object not found\n";
+      }
 }
 int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 					 const OOPMDataDepend & depend,
@@ -164,26 +154,20 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 {
 	DataManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-	deque < OOPMetaData * >::iterator i;
-	bool found = false;
+	map <OOPObjectId, OOPMetaData * >::iterator i;
 #ifndef WIN32
 #warning "Wrong logical  sequence in OOPDataManager::SubmitAccessRequest"
 #endif
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		// OOPMetaData * dat = (OOPMetaData *)(*i);
-		if (depend.Id () == (*i)->Id ()) {
-			found = true;
-			if (!depend.Version ().
-			    AmICompatible ((*i)->Version ()))
-				return 0;
-			(*i)->SubmitAccessRequest (TaskId, depend,
-						   GetProcID ());
-			DataManLog << "Access request submitted" << endl;
-			(*i)->Print(DataManLog);
-			break;
-		}
-	}
-	if (!found) {
+      i=fObjects.find(depend.Id());
+      if(i!=fObjects.end()){
+     		if (!depend.Version ().
+     		    AmICompatible (i->second->Version ()))
+     			return 0;
+     		i->second->SubmitAccessRequest (TaskId, depend,
+     					   GetProcID ());
+     		DataManLog << "Access request submitted" << endl;
+     		i->second->Print(DataManLog);
+	}else{
 		if (depend.Id ().GetProcId () == fProcessor) {
 			DataManLog << "SubmitAccessRequest for deleted object, returning 0\n";
 			return 0;
@@ -193,38 +177,30 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 				new OOPMetaData (0, depend.Id (),
 						 depend.Id ().GetProcId ());
 			dat->SetTrace (true);	// Erico
-			fObjects.push_back (dat);	// [id] = dat;
+			fObjects.insert(make_pair(depend.Id(), dat));	// [id] = dat;
 			dat->SubmitAccessRequest (TaskId, depend,
 						  GetProcID ());
-			// DataManLog << "Some appropriate action should be
-			// taken\n";
-			// DataManLog << "Create a metadata object on the fly\n";
 			return 1;
 		}
 	}
 	return 1;
 }
-OOPDataManager::OOPDataManager (int Procid):fObjects (0)
+OOPDataManager::OOPDataManager (int Procid)
 {
+#warning "fObjects was initialized here, with new map configuration this is not being done !"
 	fProcessor = Procid;
 	fObjId.SetProcId (Procid);
 	fLastCreated = 0;	// NUMOBJECTS * Procid;
 	fMaxId = 1000;	// fLastCreated + NUMOBJECTS;
 	//DM = this;
 }
-/**
- * HELP ....
- */
-//Precisamos conversar !!!
-// Nao sei porque, esta tudo certo
-//.........
 OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 {
 	// como fazer ?? 
 	OOPObjectId id = DM->GenerateId ();
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor);
 	dat->SetTrace (trace);	// Erico
-	fObjects.push_back (dat);	// [id] = dat;
+	fObjects.insert(make_pair(id, dat));	// [id] = dat;
 	/* 
 	 * TDMOwnerTask ms(ENotifyCreateObject,-1); //ms.fTaskId = //0;
 	 * ms.fTrace = trace;//Erico ms.fProcDestination = -1; ms.fProcOrigin 
@@ -234,61 +210,39 @@ OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 }
 void OOPDataManager::DeleteObject (OOPObjectId & ObjId)
 {
-	deque < OOPMetaData * >::iterator i;
+	map<OOPObjectId, OOPMetaData * >::iterator i;
 	// OOPMetaData *dat=0;
-	bool found = false;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		// dat = 0;
-		// dat = (OOPMetaData*) (*i);
-		if ((*i)->Id () == ObjId) {
-			found = true;
-			delete (*i);
-			fObjects.erase (i);
-			break;
-		}
-	}
-	if (!found) {
+      i = fObjects.find(ObjId);
+      if(i!=fObjects.end()){
+     		delete i->second;
+     		fObjects.erase (i);
+	}else{
 		// Issue a sever warning message !!!
 		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
 	}
 }
 void OOPDataManager::RequestDeleteObject (OOPObjectId & ObjId)
 {
-	deque < OOPMetaData * >::iterator i;
-	// OOPMetaData *dat=0;
-	bool found = false;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		// dat = 0;
-		// dat = (OOPMetaData*) (*i);
-		if ((*i)->Id () == ObjId) {
-			found = true;
-			(*i)->RequestDelete ();
-			break;
-		}
-	}
-	if (!found) {
+	map < OOPObjectId, OOPMetaData * >::iterator i;
+      i=fObjects.find(ObjId);
+	if (i != fObjects.end ()) {
+            i->second->RequestDelete ();
+	}else{
 		// Issue a sever warning message !!!
 		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
 	}
 }
 void OOPDataManager::TransferObject (OOPObjectId & ObjId, int ProcId)
 {
-	deque < OOPMetaData * >::iterator i;
+	map < OOPObjectId, OOPMetaData * >::iterator i;
 	OOPMetaData *dat = 0;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		dat = (*i);
-		if (dat->Id () == ObjId)
-			break;
-		dat = 0;
-	}
-	// Something very strange is happening!
-	if (!dat)
-		return;	// issue a sever warning message
-	/**
-		Identificar se o objeto foi criado neste nó, se sim alterar
-		a informação de sua localização
-	 */
-	dat->TransferObject (ProcId);
+      i=fObjects.find(ObjId);
+	if(i != fObjects.end ()) {
+		dat = i->second;
+           	dat->TransferObject (ProcId);
+	}else{
+            return;
+      }
 }
 void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 {
@@ -319,11 +273,8 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 	GLogMsgCounter++;
 	DataManLog << "Calling GetUpdate(OOPDMRequestTask):\n";
 	OOPObjectId id = task->fDepend.Id ();
-	deque < OOPMetaData * >::iterator i;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		if (id == (*i)->Id ())
-			break;
-	}
+	map <OOPObjectId, OOPMetaData * >::iterator i;
+      i=fObjects.find(id);
 	if (i == fObjects.end ()) {
 		if (id.GetProcId () == this->GetProcID ()) {
 			DataManLog << "OOPDataManager::GetUpdate send a delete object message to the original processor\n";
@@ -338,14 +289,14 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 	}
 	else {
 		DataManLog << "OOPDataManager::GetUpdate fDepend.Id() found in this processor:" << id << endl;
-		if(!(*i)->IamOwner()) {
+		if(!i->second->IamOwner()) {
 			OOPDMRequestTask *ntask = new OOPDMRequestTask(*task);
-			ntask->SetProcID((*i)->Proc());
+			ntask->SetProcID(i->second->Proc());
 			TM->SubmitDaemon(ntask);
-		} else if((*i)->IamOwner() && task->fProcOrigin == (*i)->Proc()) {
+		} else if(i->second->IamOwner() && task->fProcOrigin == i->second->Proc()) {
 			cout << "Task request ignored\n";
 		} else {
-			(*i)->SubmitAccessRequest (OOPObjectId(), task->fDepend,
+			i->second->SubmitAccessRequest (OOPObjectId(), task->fDepend,
 					   task->fProcOrigin);
 		}
 	}
@@ -360,20 +311,19 @@ OOPObjectId OOPDataManager::GenerateId ()
 }
 OOPMetaData *OOPDataManager::Data (OOPObjectId ObjId)
 {
-	deque < OOPMetaData * >::iterator i;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) {
-		if ((*i)->Id () == ObjId) {
-			return (*i);
-		}
+	map <OOPObjectId,  OOPMetaData * >::iterator i;
+      i=fObjects.find(ObjId);
+	if(i != fObjects.end ()) {
+		return i->second;
 	}
 	return 0;
 }
 void OOPDataManager::PrintDataQueues(char * msg, ostream & out){
 	out << "Printing Data Queues on processor :" << fProcessor << msg << endl;
-	deque < OOPMetaData * >::iterator i;
+	map <OOPObjectId, OOPMetaData * >::iterator i;
 	OOPAccessInfoList auxlist;
 	for(i=fObjects.begin();i!=fObjects.end();i++){
-		(*i)->PrintLog(out);
+		i->second->PrintLog(out);
 	}
 	
 }

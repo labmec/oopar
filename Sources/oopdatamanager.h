@@ -6,6 +6,7 @@
 #include "ooptask.h"
 #include "oopmetadata.h"
 #include <vector>
+#include <map>
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include "ooppardefs.h"
@@ -124,7 +125,7 @@ class   OOPDataManager
 	/**
 	 * Returns true if object is found on the DM list
 	 */
-	bool    HasObject (OOPObjectId id);
+	bool    HasObject (OOPObjectId & id);
       private:
 	/**
 	* Processor where the processor is located.
@@ -145,7 +146,9 @@ class   OOPDataManager
 	/**
 	* Collections of objects
 	*/
-	deque < OOPMetaData * >fObjects;
+	//deque < OOPMetaData * >fObjects;
+
+    map < OOPObjectId, OOPMetaData *> fObjects;
 	/**
 	* Generates a new object ID
 	*/

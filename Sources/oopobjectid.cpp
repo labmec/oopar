@@ -60,7 +60,7 @@ int OOPObjectId::main ()
 	deque < OOPObjectId * >::iterator fd;
 	fd = find (TestDeQue.begin (), TestDeQue.end (), pt2);
 	
-i = TestDeQue.end ();
+      i = TestDeQue.end ();
 	delete *i;
 	return 0;
 }
@@ -90,6 +90,12 @@ bool OOPObjectId::operator >= (int val) const
 bool OOPObjectId::operator < (int val) const
 {
 	if (fId < val)
+		return true;
+	return false;
+}
+bool OOPObjectId::operator < (OOPObjectId id) const
+{
+	if ((fId < id.GetId()) & (fProcId < id.GetProcId()))
 		return true;
 	return false;
 }

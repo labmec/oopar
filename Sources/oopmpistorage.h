@@ -22,11 +22,14 @@
 #include "oopstorage.h"
 #include "pzmanvector.h"
 #include "mpi.h"
+#include "ooppardefs.h"
 /** 
  * Non abstract class, which implements the send buffer
  * using MPI (Message Passing Interface) library for 
  * communication.
 */
+const int maxbuffsize = (int)OOP_MAX_BUFFER_SIZE;
+
 class   OOPMPISendStorage:public OOPSendStorage
 {
       public:
@@ -132,7 +135,7 @@ private:
    */
 	void    ExpandBuffer (int more_dimension);
   /** Stores the message to be sent */
-	TPZManVector<char,50000>   f_buffr;
+	TPZManVector<char,maxbuffsize>   f_buffr;
   /** Length os message to be sent. Must aways
    * be equal or lower than number of elements of f_buffr */
 	int     f_position;
@@ -151,7 +154,7 @@ class   OOPMPIReceiveStorage:public OOPReceiveStorage
 
 private:
   /** Buffer which stores received messages */
-	TPZManVector<char,5000> f_buffr;
+	TPZManVector<char,maxbuffsize> f_buffr;
   /** Dimension of received message */
 	int     f_size;
   /** Receive buffer position to be unpack */
@@ -171,7 +174,7 @@ public:
 	/**
      * Contructor which initializes the buffer
 	 */
-   OOPMPIReceiveStorage() : f_buffr(50000) {
+   OOPMPIReceiveStorage() : f_buffr(maxbuffsize) {
 	   f_size = 0; f_position = 0; f_sender_tid = -1; f_msg_tag = 0; f_isreceiving = 0;
    }
   /**
@@ -256,7 +259,7 @@ public:
    */
 	char   *ClassName ()
 	{
-		return ("TReceiveStorageMpi::");
+		return ("OOPMPIReceiveStorage::");
 	}
 };
 typedef OOPMPIReceiveStorage *POOPMPIReceiveStorage;

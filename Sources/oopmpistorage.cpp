@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.16 2003-11-05 00:15:16 longhin Exp $
-// $Revision: 1.16 $
+// $Id: oopmpistorage.cpp,v 1.17 2003-11-13 19:24:49 longhin Exp $
+// $Revision: 1.17 $
 
 
 #include "oopstorage.h"
@@ -217,7 +217,6 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 	cout << "Returning 1\n";
 	cout.flush();
 	*/
-	return 1;
 }
   // Metodos para DESEMPACOTAR dados do buffer.
   // p : Ponteiro para o buffer onde os dados serao lidos.

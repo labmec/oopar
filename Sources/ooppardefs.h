@@ -44,7 +44,8 @@ enum OOPMReturnType
 	EFail,
 	EContinue
 };
-//#define NUMOBJECTS  0x100000
+//#definE NUMOBJECTS  0x100000
+#define OOP_MAX_BUFFER_SIZE 5000000
 #define NUMOBJECTS  1000
 #define TTASK_ID 3000
 #define TDAEMONTASK_ID 3001

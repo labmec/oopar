@@ -40,6 +40,7 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 	
 	// f_proc = (int *) NULL; 
 	MPI_Init(&f_argc,&f_argv); 
+//	MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {

@@ -154,7 +154,8 @@ private:
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
 	pthread_mutex_t fSubmittedMutex;
-	pthread_mutex_t fExecuteMutex;
+	pthread_mutex_t fExecutingMutex;
+	pthread_mutex_t fFinishedMutex;
 	pthread_cond_t fExecuteCondition;
 	pthread_cond_t fExecuteTaskCondition;
 

@@ -28,7 +28,7 @@ public:
   /**
    * Constructor 
    */
-	OOPMPICommManager (int argc, char **argv);
+	OOPMPICommManager (int &argc, char **argv);
   /**
    * Simple destructor
    */

@@ -105,12 +105,10 @@ OOPObjectId OOPTask::Id() {
 
 int OOPTask::DerivedFrom(long Classid){
   if(Classid == GetClassID()) return 1;
-  return OOPSaveable::DerivedFrom(Classid);
 }
 
 int OOPTask::DerivedFrom(char *classname){
   if(!strcmp(ClassName(),classname)) return 1;
-  return OOPSaveable::DerivedFrom(classname);
 }
 
 OOPSaveable *OOPTask::Restore(OOPReceiveStorage *buf) {

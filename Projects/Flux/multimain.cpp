@@ -140,6 +140,8 @@ int mpimain (int argc, char **argv)
 			TM->Execute ();
 		}
 	}*/
+	
+	TM->Wait();
 	delete  DM;
 	delete  TM;
 	delete  CM;

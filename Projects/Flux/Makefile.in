@@ -77,6 +77,9 @@ ARFLAGS = @ARFLAGS@
 CC = @CC@
 COMPILATION_MODE = @COMPILATION_MODE@
 CXX = @CXX@
+HAVE_LIB = @HAVE_LIB@
+LIB = @LIB@
+LTLIB = @LTLIB@
 MAKEINFO = @MAKEINFO@
 MODE_OPTIONS = @MODE_OPTIONS@
 MPIDIR = @MPIDIR@
@@ -103,7 +106,7 @@ bin_PROGRAMS = main
 
 main_SOURCES = TTaskComm.cpp TLocalCompute.cpp TContribution.cpp TParAnalysis.cpp TParCompute.cpp 	TParMesh.cpp TParVector.cpp TPartitionRelation.cpp ooparmain.cpp multimain.cpp
 
-@OOPMPI_TRUE@main_LDADD = $(top_srcdir)/lib/liboopar.a 		-L$(top_srcdir)/lib/ 		-loopar 		$(MPILIBDIR) 		$(MPILIB)
+@OOPMPI_TRUE@main_LDADD = $(top_srcdir)/lib/liboopar.a 		-L$(top_srcdir)/lib/ 		-loopar 		-lpthread 		$(MPILIBDIR) 		$(MPILIB)
 @OOPMPI_FALSE@main_LDADD = $(top_srcdir)/lib/liboopar.a 		-L$(top_srcdir)/lib/ 		-loopar
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 

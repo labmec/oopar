@@ -5,7 +5,7 @@
 #include "oopobjectid.h"
 #include <vector>
 class   OOPDataVersion;
-using namespace std;
+using namespace std; 
 /**
  * Implements the necessary information regarded to contribution from one parti-
  * tion ¨i¨ to a partition ¨j¨.

@@ -76,5 +76,5 @@ OOPMReturnType TLocalCompute::Execute(){
 }
 TLocalCompute::TLocalCompute(int ProcId, int partition): OOPTask(ProcId), fPartition(partition) {}
 OOPDataVersion TLocalCompute::GetCommunicationVersion(){
-	return fPartRelationPtr->Version();
+//	return fPartRelationPtr->Version();
 }

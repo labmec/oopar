@@ -119,6 +119,7 @@ void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPMD
 {
   deque<OOPTaskControl*>::iterator i;
   bool found = false;
+
   for(i=fTaskList.begin();i!=fTaskList.end();i++){
     OOPTaskControl * tc = (*i);
     if(tc->Task()->Id() == TaskId){
@@ -146,9 +147,12 @@ void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPMD
 OOPObjectId OOPTaskManager::Submit(OOPTask *task) {
 		
   OOPObjectId id;
+	//mutex lock 
   id = GenerateId();
   task->SetTaskId(id);
+	
   fSubmittedList.push_back(task);
+	//mutex unlock
   return id;
 }
 
@@ -192,12 +196,12 @@ void OOPTaskManager::CleanUpTasks(){
 #endif
 }
 void OOPTaskManager::Execute(){
-//  CM->ReceiveMessages();
+  CM->ReceiveMessages();
   TransferSubmittedTasks();
   deque<OOPTaskControl *>::iterator i;
   cout << "TTaskManager.Execute Queued task ids proc = " << fProc << "\n";
   cout << "Entering task list loop" << endl;
-  bool continua = true;
+
   while(fExecutable.size()) {
 	  while(fExecutable.size()){
 		i=fExecutable.begin();
@@ -213,9 +217,12 @@ void OOPTaskManager::Execute(){
 	  }
 	  cout << endl;
 	  TransferFinishedTasks();
-  }
+	  CM->ReceiveMessages();
+	  TransferSubmittedTasks();
+	  CM->SendMessages();
+	}
 
-//  CM->SendMessages();
+
 	
 }
 
@@ -305,7 +312,7 @@ void OOPTaskManager::TransferFinishedTasks() {
 	}
 }
 
-void OOPTaskManager::TransfertoExecutable(OOPObjectId &taskid){
+void OOPTaskManager::TransfertoExecutable(const OOPObjectId &taskid){
 
   deque<OOPTaskControl*>::iterator i;
   for(i=fTaskList.begin();i!=fTaskList.end();i++){

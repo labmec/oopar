@@ -117,7 +117,7 @@ public:
   /**
    * Indicate to the TaskManager that a given task can execute
    */
-  void TransfertoExecutable(OOPObjectId &taskid);
+  void TransfertoExecutable(const OOPObjectId &taskid);
   /**
    * Very important method for the whole OOPar environment.
    * Starts all task which has their data access requests granted from the DM.

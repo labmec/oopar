@@ -91,7 +91,7 @@ public:
    * this method submits the data dependency to the DataManager
    * @returns 1 if successful 0 if the task should be deleted because of incompatibility
    */
-  int SubmitDependencyList(OOPObjectId &taskid);
+  int SubmitDependencyList(const OOPObjectId &taskid);
 
   /**
    * Prints the list of data dependencies
@@ -101,7 +101,7 @@ public:
   /**
    * This method will release all access requests filed in this container
    */
-  void ReleaseAccessRequests(OOPObjectId &taskid);
+  void ReleaseAccessRequests(const OOPObjectId &taskid);
 
   /**
    * @return the number of elements in the list

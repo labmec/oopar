@@ -54,43 +54,7 @@ OOPMPICommManager::~OOPMPICommManager ()
   // Para inicializar, necessita de variaveis int argc e char **argv.
 int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **arg_v)
 {
-	// cout << "process_name:" << argv <<endl;;
-	//f_num_proc = num_of_process;
-	//int local_num_procs=num_of_process;
-	/*int i;
-	f_argc=5;
-	char ** largv = new char*[5];
-	//char ** largv;
-	
-	vector<string> srgv;
-	srgv[0]
-	largv[0]=(char *)calloc(sizeof(f_argv[0]),1);
-	strcpy(largv[0],f_argv[0]);
-	largv[1]=(char*)calloc(10,1);
-	sprintf(largv[1],"-p4pg\0");
-	pid_t pid = getpid();
-	largv[2] = (char*)calloc(10,1);
-	sprintf(largv[2], "PI%d\0", pid);
-	
-	largv[3]=(char *)calloc(10,1);
-	sprintf(largv[3],"-p4wd\0");
-	largv[4]=(char *)calloc(sizeof("/home/pos/longhin/Projetos/OOPar/Projects/Flux\0"),1);
-	strcpy(largv[4], "/home/pos/longhin/Projetos/OOPar/Projects/Flux\0");
-	
-	
-	for(i=0;i<f_argc;i++){
-		cout << largv[i] << endl;
-	}
-	
-&Argv 0 = /home/ic/facastro/exemplo_comm
-&Argv 1 = -p4pg
-&Argv 2 = /home/pos/longhin/PI3180
-&Argv 3 = -p4wd
-&Argv 4 = /home/ic/facastro*/
-	
-	int i;
 	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
-	//MPI_Comm_size (MPI_COMM_WORLD, &local_num_procs);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
 	
 	if (f_myself == 0)
@@ -108,27 +72,13 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 						// ser executada
 	// Se "process_id" nao for valido.
 	if (process_id >= f_num_proc) {
-#warning "//Finish( "Initialize <Error allocating sending buffers>" );"	// Finish( 
-									// "SendObject 
-									// <process 
-									// ID 
-									// out 
-									// of 
-									// range>" 
-									// );
+		Finish( "SendObject <process ID out of range>");
 		delete pTask;
 		return -1;
 	}
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
-#warning "//Finish( "Initialize <Error allocating sending buffers>" );"	// Finish( 
-									// "SendObject 
-									// <I 
-									// cannot 
-									// send 
-									// to 
-									// myself>" 
-									// );
+		Finish( "SendObject <I cannot send to myself>");
 		delete pTask;
 		return -1;
 	}
@@ -165,6 +115,7 @@ int OOPMPICommManager::ReceiveMessages ()
 		return (ret);
 	ProcessMessage (msg);
 	return 1;*/
+	return 1;
 };
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	//OOPMPICommManager *CM=(OOPMPICommManager *)(t);
@@ -179,10 +130,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 		pthread_mutex_unlock(&fCommunicate);
 		// se houver erro, Kill
 		if (ret <= 0) {
-	#warning "Finish("ReceiveBlocking <receive error>");\n";
-			cout << "ReceiveBlocking <receive error\n";
-			cout.flush();
-			exit (-1);
+	 		LocalCM->Finish("ReceiveBlocking <receive error>");
 		}
 		cout << "Calling ProcessMessage\n";
 		cout.flush();
@@ -204,10 +152,7 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 		pthread_mutex_unlock(&fCommunicate);
 		// se houver erro, Kill
 		if (ret <= 0) {
-	#warning "Finish("ReceiveBlocking <receive error>");\n";
-			cout << "ReceiveBlocking <receive error\n";
-			cout.flush();
-			exit (-1);
+			LocalCM->Finish("ReceiveBlocking <receive error>");
 		}
 		cout << "Calling ProcessMessage\n";
 		cout.flush();
@@ -219,16 +164,6 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 
 int OOPMPICommManager::ReceiveBlocking ()
 {
-	/*
-	OOPMPIReceiveStorage msg;
-	
-	int ret = msg.ReceiveBlocking ();
-	
-	// se houver erro, Kill
-	if (ret <= 0) {
-#warning "Finish("ReceiveBlocking <receive error>");\n";
-	}
-	*/
 	f_receivebuffer.ReceiveBlocking();
 	if(f_receivebuffer.TestReceive()) {
 		ProcessMessage (f_receivebuffer);
@@ -240,15 +175,10 @@ int OOPMPICommManager::ReceiveBlocking ()
 };
 int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
 {
-	// Trace("Recebendo uma mensagem do processador ");
-	// Trace( FindID(msg.GetSender())<<"\n");
 	OOPSaveable *obj = msg.Restore ();
 #warning "Restore( &msg ); not implemented on OOPMPICommManager"
 	if (obj == NULL) {
-#warning "Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );"
-			cout << "ReceiveMessages <Erro em Restore() do objeto>.\n"; 
-			cout.flush();
-			exit (-1);
+		Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
 	}
 	// Trace( " ClassID do objeto recebido: " );
 	// Trace( obj->GetClassID() << ".\n" );
@@ -260,4 +190,9 @@ int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
 		delete obj;
 	}
 	return 1;
+}
+void OOPMPICommManager::Finish(char * msg){
+	cout << msg;
+	cout.flush();
+	MPI_Finalize();
 }

@@ -26,6 +26,11 @@ class   OOPTaskManager
 {
       public:
 	/**
+	 * Sets the KeepGoing flag which will control the TM Execute method
+	 */
+	void SetKeepGoing(bool go);
+
+	/**
 	 * Print TM task queues
 	 */
 	void PrintTaskQueues(char * msg, ostream & out);
@@ -142,6 +147,10 @@ class   OOPTaskManager
    */
 	void    Execute ();
 private:
+	/**
+	 * Indicates if TM must continue its processing
+	 */
+	bool fKeepGoing;
 #ifndef WIN32
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
@@ -210,6 +219,27 @@ class   OOPTMTask:public OOPDaemonTask
    */
 	OOPMReturnType Execute ();
 };
+
+class OOPTerminationTask:public OOPTask
+{
+public:
+	~OOPTerminationTask();
+	/**
+   * Simple constructor
+   */
+	OOPTerminationTask (int ProcId);
+	OOPTerminationTask (const OOPTerminationTask & term);
+  /**
+   * Returns execution type
+   */
+	OOPMReturnType Execute ();
+	virtual long GetClassID ();
+	int Pack(OOPSendStorage * buf);
+	int Unpack(OOPReceiveStorage * buf);
+	long int ExecTime();
+	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+};
+
 /*
   enum TTMMessageType {
   ENoTaskMessage, // indicates that the task message was no initialized
@@ -250,9 +280,10 @@ class   OOPTMTask:public OOPDaemonTask
   //  with id classid
   virtual int DerivedFrom(char *classname); // a class with name classname
   };*/
-extern OOPTaskManager *TM;
+
 extern ofstream TaskManLog;
 extern ofstream TaskQueueLog;
 extern ofstream DataQueueLog;
 extern int GLogMsgCounter;
+extern OOPTaskManager *TM;
 #endif

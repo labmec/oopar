@@ -192,12 +192,21 @@ int OOPDataManager::SubmitAccessRequest(const OOPObjectId & TaskId, const OOPMDa
 		}
 	}
 	if(!found) {
-		cout << "Some appropriate action should be taken\n";
-		cout << "Create a metadata object on the fly\n";
-		return 0;
+	  if(depend.Id().GetProcId() == fProcessor) {
+	    cout << "SubmitAccessRequest for deleted object, returning 0\n";
+	    return 0;
+	  } else {
+	    OOPMetaData * dat = new OOPMetaData(0,depend.Id(), depend.Id().GetProcId());
+	    dat->SetTrace(true);//Erico
+	    fObjects.push_back(dat);//[id] = dat;
+	    dat->SubmitAccessRequest(TaskId,depend);
+	    //		cout << "Some appropriate action should be taken\n";
+	    //		cout << "Create a metadata object on the fly\n";
+	    return 1;
+	  }
 	}
 	return 1;
-			
+	
 }
 
 OOPDataManager::OOPDataManager(int Procid) : fObjects(0) {

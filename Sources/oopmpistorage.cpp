@@ -18,8 +18,8 @@
 //
 // Versao:  01 / 03.
 //
-#include "storage.h"
-#include "str_mpi.h"
+#include "oopstorage.h"
+#include "oopmpistorage.h"
 #include "mpi.h"
 
 
@@ -99,7 +99,9 @@ int OOPMPISendStorage::PkStr(char *p){
 }
 
 void OOPMPISendStorage::ExpandBuffer(int more_dimension){ 
-  if(more_dimension<0) Finish("ExpandBuffer <Cannot accept negative number as an argument>");
+  if(more_dimension<0) {
+	  #warning "Finish("ExpandBuffer <Cannot accept negative number as an argument>");"
+  }
   f_size = f_size + more_dimension;
   const char *prov_buffer = f_buffr;
   f_buffr = new(char[sizeof(int)]);

@@ -163,7 +163,7 @@ void TParAnalysis::AdaptSolutionVersion(OOPDataVersion &version) {
       version.SetLevelVersion(d,taskver);
     } else {
       version.IncrementLevel(1);
-      version.SetLevelVersion(d,1);
+      version.SetLevelVersion(d,1); 
     }
   }
 }

@@ -25,9 +25,6 @@ void TLocalCompute::SetRhsIds(vector<OOPObjectId> &rhsids, OOPDataVersion &rhsve
 }
 
 void TLocalCompute::TransmitFLuxes(TContribution &relation){
-  //Criar tarefa de comunicação
-  //como fazer isso ?
-  //  int numout = fPartRelationPtr->OutgoingContribution(fProc);
   int npartitions = fPartRelationPtr->GetNPartitions();
   int i = 0;
   OOPDataVersion rhsver = GetCommunicationVersion();
@@ -41,9 +38,15 @@ void TLocalCompute::TransmitFLuxes(TContribution &relation){
     task->Submit();
   }
 }
-void TLocalCompute::ComputeFrontierFluxes(){}
+void TLocalCompute::ComputeFrontierFluxes(){
+#warning "ComputeFrontierFluxes is empty"
+	cout << "Nothing Implemented in ComputeFrontierFluxes\n";
+	cout.flush();	
+}
 
 OOPMReturnType TLocalCompute::Execute(){
+  cout << "Executing TLocalCompute task\n";
+  
   this->InitializePartitionRelationPointer();
   
   // message #1.1 to this:TLocalCompute

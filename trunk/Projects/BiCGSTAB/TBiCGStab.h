@@ -27,5 +27,48 @@ public:
 	{
 		return TDISTNORM_ID;
 	}
+private:
+	/**
+	 * Submits the necessary data objects for the BiCGStab completion
+	 */
+	void SubmitObjects();
+	/**
+	 * Sets up task/data dependency relationship.
+	 */
+	void SetupTaskData();
+
+	/**
+	 * Global Ids
+	 */
+	OOPObjectId fId_normb;
+	OOPObjectId fId_normr;
+	OOPObjectId fId_resid;
+	OOPObjectId fId_rho_1;
+	OOPObjectId fId_rho_2;
+	OOPObjectId fId_alpha;
+	OOPObjectId fId_beta;
+	OOPObjectId fId_omega;
+	OOPObjectId fId_max_iter;
+	OOPObjectId fId_tol;
+
+	/**
+	 * Local Ids
+	 */
+	vector <OOPObjectId> fId_A;
+	vector <OOPObjectId> fId_M;
+	vector <OOPObjectId> fId_x;
+	vector <OOPObjectId> fId_b;
+	vector <OOPObjectId> fId_p;
+	vector <OOPObjectId> fId_shat;
+	vector <OOPObjectId> fId_s;
+	vector <OOPObjectId> fId_shat;
+	vector <OOPObjectId> fId_t;
+	vector <OOPObjectId> fId_v;
+	vector <OOPObjectId> fId_CMatrix;
+	vector <OOPObjectId> fId_rtilde;
+	vector <OOPObjectId> fId_r;
+
+
+
 };
 #endif //TBICGSTAB_H

@@ -4,6 +4,7 @@
 #define TDISTNORM_H
 #include "ooptask.h"
 class OOPMReturnType;
+class OOPObjectId;
 
 /**
  * Computes the distributed norm
@@ -34,7 +35,19 @@ public:
 		return TDISTNORM_ID;
 	}
 
-private:    
+private:
+	/**
+	 * Holds the upon which the norm will be calculated
+	 */
     vector <double> fVector;
+	/**
+	 * Computes norm contribution from current processor
+	 */
+	double ComputeLocalNorm();
+	/**
+	 * Holds the Id of the object which will receive the contribution
+	 */
+	OOPObjectId fId_Target;
+	
 };
 #endif //TDISTNORM_H

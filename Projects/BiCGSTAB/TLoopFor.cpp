@@ -11,3 +11,67 @@ long TLoopFor::ExecTime ()
 {
 	return -1;
 }
+void TLoopFor::SetupVersions(){
+	OOPDataVersion auxver;
+	
+	auxver = fId_max_iter.Version();
+	auxver.IncrementLevel(-1)
+	fId_max_iter.SetVersion(auxver);
+	
+	auxver = fId_rho_1.Version();
+	auxver.IncrementLevel(-1);
+	fId_rho_1.SetVersion(auxver);
+
+	auxver = fId_rho_1.Version();
+	auxver.IncrementLevel(-1);
+	fId_rho_1.SetVersion(auxver);
+
+	auxver = fId_p.Version();
+	auxver.IncrementLevel(-1);
+	fId_p.SetVersion(auxver);
+	
+	auxver = fId_alpha.Version();
+	auxver.IncrementLevel(-1);
+	fId_alpha.SetVersion(auxver);
+	
+	auxver = fId_omega.Version();
+	auxver.IncrementLevel(-1);
+	fId_omega.SetVersion(auxver);
+	
+	auxver = fId_beta.Version();
+	auxver.IncrementLevel(-1);
+	fId_beta.SetVersion(auxver);
+	
+	auxver = fId_v.Version();
+	auxver.IncrementLevel(-1);
+	fId_v.SetVersion(auxver);
+	
+	auxver = fId_phat.Version();
+	auxver.IncrementLevel(-1);
+	fId_phat.SetVersion(auxver);
+	
+	auxver = fId_s.Version();
+	auxver.IncrementLevel(-1);
+	fId_s.SetVersion(auxver);
+	
+	auxver = fId_x.Version();
+	auxver.IncrementLevel(-1);
+	fId_x.SetVersion(auxver);
+
+	auxver = fId_shat.Version();
+	auxver.IncrementLevel(-1);
+	fId_shat.SetVersion(auxver);
+
+	auxver = fId_t.Version();
+	auxver.IncrementLevel(-1);
+	fId_t.SetVersion(auxver);
+	
+
+	rver.IncrementLevel(-1);
+	fId
+	rtilde
+	normb
+	normr
+	resid
+	
+}

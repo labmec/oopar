@@ -49,6 +49,8 @@ public:
 	 */
 	OOPTask (int Procid);
 
+	OOPTask (const OOPTask &task);
+
   virtual ~OOPTask() { }
 
 	/**
@@ -209,6 +211,10 @@ class OOPDaemonTask : public OOPTask
 public:
 
 	OOPDaemonTask (int ProcId);
+
+	OOPDaemonTask (const OOPDaemonTask &task) :
+	OOPTask(task) {
+	}
 
 	long ExecTime ();	// always returns 0
 

@@ -46,6 +46,11 @@ OOPTask::OOPTask(int proc){
   fIsRecurrent=0;
 }
 
+OOPTask::OOPTask(const OOPTask &task) : fProc(task.fProc),
+	fTaskId(), fDataDepend(task.fDataDepend),
+	fPriority(task.fPriority), fIsRecurrent(task.fIsRecurrent) {
+}
+
 void OOPTask::AddDependentData(const OOPMDataDepend &depend)
 {
   fDataDepend.AppendDependency(depend);	

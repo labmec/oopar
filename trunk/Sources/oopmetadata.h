@@ -70,6 +70,9 @@ private:
 	/**
 	 * Indicates the processor with current version access
 	 * If no processor accesses the object, its value == -1
+	 * If the value != -1
+	 * If fProcVersionAccess == this processor, the processor can grant version access
+	 * If fProcVersionAccess != processor request, access to that processor has been granted????
 	 */
 	int fProcVersionAccess;
 
@@ -88,9 +91,17 @@ private:
 	int fToDelete;
      /**
       * Processors accessing current data for read access.
-	  * Whenever the data is under write access, the vector contains only the id of that processor
+	  * 
+	  * Whenever the data has read access, the vector contains only the id of that processor
       */
-	list <int> fAccessProcessors;	  
+	list <int> fReadAccessProcessors;	  
+	
+     /**
+      * Processors accessing current data with access.
+	  * 
+	  * Whenever the data has suspended read access, the vector contains only the id of that processor
+      */
+	list <int> fSuspendAccessProcessors;	  
 	
 	 
      /**
@@ -131,13 +142,28 @@ public:
 	 * Checks if some task on the task access list is satisfied by the current data state
 	 */
 	void VerifyAccessRequests();
+private:
+	/**
+	 * Verifies whether the transition state of the object can
+	 * not be adjusted
+	 */
+	void CheckTransitionState();
+public:
 	/**
 	 * Submits a task which requires access on current data.
 	 * @param taskId Identifier of the task willing to access current data object.
 	 * @param depend dependency type requested.
+	 * @param processor processor for which access is requested
 	 */
-	void SubmitAccessRequest(const OOPObjectId &taskId, const OOPMDataDepend &depend);
+	void SubmitAccessRequest(const OOPObjectId &taskId, const OOPMDataDepend &depend, int processor);
 
+private:
+	/**
+	 * The access request is sent to the owning processor if it cannot
+	 * be honoured on the local processor
+	 */
+	void SendAccessRequest(const OOPMDataDepend &depend);
+public:
 	/**
 	 * Signals the object that the task is going into execution or not
 	 */
@@ -162,24 +188,6 @@ public:
       * @param &ms Identifies owner of the task.
       */
 	void HandleMessage (OOPDMOwnerTask & ms);
-	 /**
-      * Issues a request message to enable the requested access. This method is used when the data belongs to a different processor.
-      * @param ProcId Identifies processor which owns requested object
-      * @param TaskId Identifies task which is to be transfered
-      * @param AccessRequest Status of the data being requested
-      * @param version Identifies version of the object
-      */
-	void RequestTransferObject (int ProcId, OOPObjectId & TaskId,
-				    OOPMDataState AccessRequest, OOPDataVersion &version);
-     /**
-      * Takes action to transfer the ownership of this object
-      * @param ProcId Identifies processor which owns requested object
-      * @param TaskId Identifies task which is to be transfered
-      * @param AccessRequest Status of the data being requested
-      * @param version Identifies version of the object
-      */
-	void TransferOwnerShip (OOPObjectId & TaskId, int ProcId,
-				OOPMDataState AccessRequest, OOPDataVersion &version);
      /**
       * Returns the access state of this data
       */
@@ -188,11 +196,16 @@ public:
       * Returns the processor to which the object belongs
       */
 	int Proc () const;
+
+	/**
+	 * returns true if the current processor is owner of the object
+	 */
+	bool IamOwner() const;
+
      /**
-      * returns 1 if the current processor has read access
+      * returns 1 if any processor has read access
 	  * on the given data
       */
-
 	bool HasReadAccess () const;
      /**
       * returns 1 if the processor has read access
@@ -201,11 +214,6 @@ public:
       */
 
 	bool HasReadAccess (const int Procid ) const;
-     /**
-      * Returns 1 if the task has write access
-	  * on the given data
-      * @param taskid Identifies the task id
-      */
 
 	/**
 	 * Indicates whether the object can be accessed for version
@@ -245,6 +253,17 @@ public:
      * Issues the appropriate messages to the other processors and waits for confirmation
      */
 	void CancelReadAccess ();
+	/**
+	 * Suspends the read access to the objects
+	 * Issues the appropriate messages to the other processors
+	 */
+	void SuspendReadAccess ();
+
+	/**
+	 * Sends a TDMOwnerTask granting the access state to the processor
+	 */
+	void GrantAccess(OOPMDataState state, int processor);
+
 	/**
      * Changes the access state of the data and notifies the task manager to try the indicated task
      * Grants write access

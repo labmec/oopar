@@ -185,7 +185,7 @@ int OOPDataManager::SubmitAccessRequest(const OOPObjectId & TaskId, const OOPMDa
 		if (depend.Id() == (*i)->Id()){
 			found = true;
 			if(! depend.Version().AmICompatible((*i)->Version())) return 0;
-			(*i)->SubmitAccessRequest(TaskId, depend);
+			(*i)->SubmitAccessRequest(TaskId, depend,GetProcID());
 			//				cout << "Access request submitted" << endl;
 			//				(*i)->Print(cout);
 			break;
@@ -199,7 +199,7 @@ int OOPDataManager::SubmitAccessRequest(const OOPObjectId & TaskId, const OOPMDa
 	    OOPMetaData * dat = new OOPMetaData(0,depend.Id(), depend.Id().GetProcId());
 	    dat->SetTrace(true);//Erico
 	    fObjects.push_back(dat);//[id] = dat;
-	    dat->SubmitAccessRequest(TaskId,depend);
+	    dat->SubmitAccessRequest(TaskId,depend,GetProcID());
 	    //		cout << "Some appropriate action should be taken\n";
 	    //		cout << "Create a metadata object on the fly\n";
 	    return 1;
@@ -307,16 +307,6 @@ void OOPDataManager::TransferObject(OOPObjectId & ObjId, int ProcId) {
 
 void OOPDataManager::GetUpdate(OOPDMOwnerTask *task){
 
-	if(task->fType == ENotifyCreateObject) {
-		if(Data(task->fObjId)) {
-			// severe warning message
-			delete Data(task->fObjId);
-		}
-		OOPMetaData *d  = new OOPMetaData(0,task->fObjId,task->fProcOrigin);//Erico
-		d->SetTrace(task->fTrace);
-		fObjects.push_back(d);//[task->fObjId] = d;
-
-	}
 	OOPMetaData *dat = Data(task->fObjId);
 	if(!dat) {
 		cout << "TDataManager:GetUpdate called with invalid ojbid:";
@@ -333,18 +323,22 @@ void OOPDataManager::GetUpdate(OOPDMOwnerTask *task){
 
 void OOPDataManager::GetUpdate(OOPDMRequestTask *task){
 
-	switch(task->fType) {
-		case ENoRequest :
-			break;
-		case ERequestReadAccess :
-		case ERequestWriteAccess :
-			TransferObject(task->fObjId,task->fProcOrigin);
-			break;
-		case ERequestDelete :
-			DeleteObject(task->fObjId);
-			break;
-		default:
-			break;
+	OOPObjectId id = task->fDepend.Id();
+	deque<OOPMetaData *>::iterator i;
+	for(i=fObjects.begin();i!=fObjects.end();i++){
+		if (id == (*i)->Id()) break;
+	}
+	if(i == fObjects.end()) {
+		if(id.GetProcId() == this->GetProcID()) {
+			cout << "OOPDataManager send a delete object message to the original processor\n";
+		} else {
+			OOPDMRequestTask *ntask = new OOPDMRequestTask(*task);
+			ntask->SetProcID(id.GetProcId());
+			TM->Submit(ntask);
+		}
+	} else {
+		OOPObjectId taskid;
+		(*i)->SubmitAccessRequest(taskid,task->fDepend,task->fProcOrigin);
 	}
 }
 
@@ -375,7 +369,6 @@ OOPDMOwnerTask::OOPDMOwnerTask(OOPMDMOwnerMessageType t, int proc) : OOPDaemonTa
 	fVersion = 0;
 	fType = t;
 	fObjPtr = 0;
-	fProcDestination = proc;
 	fProcOrigin = DM->GetProcID();
 //	fObjId = 0;
 	fTrace = 0;//Erico
@@ -386,12 +379,18 @@ OOPDMOwnerTask::OOPDMOwnerTask(OOPMDMOwnerMessageType t, int proc) : OOPDaemonTa
 
 //***********************************************************************
 
-OOPDMRequestTask::OOPDMRequestTask(OOPDMRequestMessageType t, int proc) : OOPDaemonTask(proc) {
-	fType = t;
-	//fTaskId = 0;		// id of the task which originated this message
-	fProcDestination = proc;
+OOPDMRequestTask::OOPDMRequestTask(int proc, const OOPMDataDepend &depend) : OOPDaemonTask(proc),
+	fDepend(depend) {
 	fProcOrigin = DM->GetProcID();
 	//fObjId = 0;
+}
+
+OOPDMRequestTask::OOPDMRequestTask(const OOPDMRequestTask &task) :
+	OOPDaemonTask(task), fProcOrigin(task.fProcOrigin), fDepend(task.fDepend) {
+}
+
+OOPDMRequestTask::OOPDMRequestTask() : OOPDaemonTask(-1) {
+	fProcOrigin = -1;
 }
 
 int OOPDMOwnerTask::Unpack( OOPReceiveStorage *buf) {
@@ -407,36 +406,10 @@ int OOPDMOwnerTask::Unpack( OOPReceiveStorage *buf) {
 	fVersion.Unpack(buf);
 	fObjPtr = buf->Restore();
 	//buf->UpkLong(&fTaskId);
-	fTaskId.Unpack(buf);
 	buf->UpkInt(&fTrace);
-	buf->UpkInt(&fProcDestination);
 	buf->UpkInt(&fProcOrigin);
 	//Não faz sentido !!!
 	
-//	numitens = buf->UpkLong(&fObjId);
-	long clid;
-
-#define LONGVEC_ID 123456
-	numitens = buf->UpkLong(&clid);
-	if(clid != LONGVEC_ID) {
-		cout << "TDMOwnerTask.UnPack1 clid = " << clid << endl;
-		exit(-1);
-	}
-	//fAccessProcessors.Unpack(buf);
-	long sz=0;
-	buf->UpkLong(&sz);
-	long procs=0;
-	int i;
-	for(i=0;i<sz;i++) {
-		buf->UpkLong(&procs);
-		fAccessProcessors.push_back(procs);
-	}
-	buf->UpkLong(&clid);
-	if(clid != LONGVEC_ID) {
-		cout << "TDMOwnerTask.UnPack2 clid = " << clid << endl;
-		exit(-1);
-	}
-//	fBlockingReadProcesses.Unpack(buf);
 	return 1;
 }
 
@@ -459,64 +432,40 @@ int OOPDMOwnerTask::Pack( OOPSendStorage *buf ){
 		long zero = 0;
 		buf->PkLong(&zero);
 	}
-	fTaskId.Pack(buf);//buf->PkLong(&fTaskId);
 	buf->PkInt(&fTrace);
-	buf->PkInt(&fProcDestination);
 	buf->PkInt(&fProcOrigin);
 	fObjId.Pack(buf);//buf->PkLong(&fObjId);
-	long sz = fAccessProcessors.size();
-	buf->PkLong(&sz);
-	int i;
-	for(i=0;i<sz;i++) buf->PkLong(&fAccessProcessors[i]);
-	//fAccessProcessors.Pack(buf);
-//	fBlockingReadProcesses.Pack(buf);
 	return 1;
 }
 
 
 OOPMReturnType OOPDMOwnerTask::Execute() {
-	//DM->GetUpdate(this);
+	DM->GetUpdate(this);
 	return ESuccess;
 }
 
 OOPMReturnType OOPDMRequestTask::Execute() {
-	//DM->GetUpdate(this);
+	DM->GetUpdate(this);
 	return ESuccess;
 }
 
 int OOPDMRequestTask::Unpack( OOPReceiveStorage *buf) {
 	OOPDaemonTask::Unpack(buf);
-	int type;
-	buf->UpkInt(&type);
-	fType = (OOPDMRequestMessageType) type;
-	int access;
-	buf->UpkInt(&access);
-	fAccessState = (OOPMDataState) access;
-	fVersion.Unpack(buf);//buf->UpkLong(&fVersion);
-	fTaskId.Unpack(buf);//buf->UpkLong(&fTaskId);
-	buf->UpkInt(&fProcDestination);
 	buf->UpkInt(&fProcOrigin);
-	fObjId.Unpack(buf);//buf->UpkLong(&fObjId);
+	fDepend.Unpack(buf);
 	return 1;
 }
 
 OOPSaveable *OOPDMRequestTask::Restore(OOPReceiveStorage *buf){
-	OOPDMRequestTask *t = new OOPDMRequestTask(ENoRequest,0);
+	OOPDMRequestTask *t = new OOPDMRequestTask();
 	t->Unpack(buf);
 	return t;
 }
   
 int OOPDMRequestTask::Pack( OOPSendStorage *buf ){
 	OOPDaemonTask::Pack(buf);
-	int type = fType;
-	buf->PkInt(&type);
-	int access = fAccessState;
-	buf->PkInt(&access);
-	fVersion.Pack(buf);//buf->PkLong(&fVersion);
-	fTaskId.Pack(buf);//buf->PkLong(&fTaskId);
-	buf->PkInt(&fProcDestination);
 	buf->PkInt(&fProcOrigin);
-	fObjId.Pack(buf);//buf->PkLong(&fObjId);
+	fDepend.Pack(buf);
 	return 1;
 }
 

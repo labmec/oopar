@@ -41,8 +41,8 @@ bool OOPAccessInfo::CanExecute(const OOPMetaData &object) const {
  * This method adds an access request as passed by SubmitAccessRequest
  * It does no verifications
  */
-void OOPAccessInfoList::AddAccessRequest(const OOPObjectId &taskid, const OOPMDataDepend &depend){
-	fList.push_back(OOPAccessInfo(taskid,depend));
+void OOPAccessInfoList::AddAccessRequest(const OOPObjectId &taskid, const OOPMDataDepend &depend, int processor){
+	fList.push_back(OOPAccessInfo(taskid,depend,processor));
 }
 
 
@@ -53,9 +53,9 @@ void OOPAccessInfoList::AddAccessRequest(const OOPObjectId &taskid, const OOPMDa
  * @param ac If an access request was found, its reference will be stored into ac
  * @return true if an access request was found which can be granted
  */
-bool OOPAccessInfoList::VerifyAccessRequests(const OOPMetaData &object, OOPAccessInfo * &ac)  {
+bool OOPAccessInfoList::VerifyAccessRequests(const OOPMetaData &object, list<OOPAccessInfo>::iterator &ac)  {
 
-	ac = 0;
+	ac = fList.end();
 	if(!object.CanGrantAccess()) return false;
 
 	list<OOPAccessInfo>::iterator i;
@@ -64,7 +64,7 @@ bool OOPAccessInfoList::VerifyAccessRequests(const OOPMetaData &object, OOPAcces
 		while(i != fList.end()) {
 			if(!(i->fIsGranted) && i->fState == EVersionAccess) {
 				if(i->CanExecute(object)) {
-					ac = &(*i);
+					ac = i;
 					return true;
 				}
 			}
@@ -77,7 +77,7 @@ bool OOPAccessInfoList::VerifyAccessRequests(const OOPMetaData &object, OOPAcces
 			if(!(i->fIsGranted) && i->fState == EWriteAccess) {
 				if(HasReadAccessGranted()) return false;
 				if(i->CanExecute(object)) {
-					ac = &(*i);
+					ac = i;
 					return true;
 				}
 			}
@@ -88,7 +88,7 @@ bool OOPAccessInfoList::VerifyAccessRequests(const OOPMetaData &object, OOPAcces
 	while(i != fList.end()) {
 		if(!(i->fIsGranted) && i->fState == EReadAccess) {
 			if(i->CanExecute(object)) {
-				ac = &(*i);
+				ac = i;
 				return true;
 			}
 		}
@@ -103,14 +103,22 @@ bool OOPAccessInfoList::VerifyAccessRequests(const OOPMetaData &object, OOPAcces
  * @param taskid if a request was found then the taskid will indicate the corresponding task
  * @return true if an incompatible task was found
  */
-bool OOPAccessInfoList::HasIncompatibleTask(const OOPDataVersion &version, OOPObjectId &taskid) const {
+bool OOPAccessInfoList::HasIncompatibleTask(const OOPDataVersion &version, OOPObjectId &taskid) {
 
-	list<OOPAccessInfo>::const_iterator i = fList.begin();
+	list<OOPAccessInfo>::iterator i = fList.begin();
 	while(i != fList.end()) {
 		// can't cancel executing tasks
 		if(!(i->fVersion).AmICompatible(version) && ! i->fIsAccessing) {
-			taskid = i->fTaskId;
-			return true;
+			if(i->fTaskId.IsZero()) {
+				// This is a different processor requesting access
+				fList.erase(i);
+				i = fList.begin();
+				continue;
+			} else {
+				// no need to erase, the task will be canceled
+				taskid = i->fTaskId;
+				return true;
+			}
 		}
 		i++;
 	}
@@ -151,6 +159,23 @@ void OOPAccessInfoList::ReleaseAccess(const OOPObjectId &taskid, const OOPMDataD
 		i++;
 	}
 }
+bool OOPAccessInfoList::HasAccessGranted(const OOPObjectId &taskid, const OOPMDataDepend &depend) const
+{
+	list<OOPAccessInfo>::const_iterator i = fList.begin();
+	while(i != fList.end()) {
+		if(i->fTaskId == taskid && i->fState == depend.State() && i->fVersion == depend.Version()) {
+			return i->fIsGranted != 0;
+			break;
+		}
+		i++;
+	}
+	return false;
+}
+
+void OOPAccessInfoList::ReleaseAccess(list<OOPAccessInfo>::iterator &ac) {
+	if(ac != fList.end()) fList.erase(ac);
+}
+
 
 int OOPAccessInfoList::NElements()
 {
@@ -163,9 +188,10 @@ int OOPAccessInfoList::NElements()
  */
 bool OOPAccessInfoList::HasWriteAccessRequests(const OOPDataVersion &version) const {
 
+	if(HasWriteAccessGranted()) return false;
 	list<OOPAccessInfo>::const_iterator i = fList.begin();
 	while(i != fList.end()) {
-		if(i->fState == EWriteAccess && !i->fIsGranted && i->fVersion.CanExecute(version)) return true;
+		if(i->fState == EWriteAccess && i->fVersion.CanExecute(version)) return true;
 		i++;
 	}
 	return false;
@@ -179,7 +205,12 @@ bool OOPAccessInfoList::HasVersionAccessRequests(const OOPDataVersion &dataversi
 
 	list<OOPAccessInfo>::const_iterator i = fList.begin();
 	while(i != fList.end()) {
-		if(i->fState == EVersionAccess && !i->fIsGranted && i->fVersion.CanExecute(dataversion)) return true;
+		if(i->fState == EVersionAccess && i->fIsGranted) return false;
+		i++;
+	}
+	i = fList.begin();
+	while(i != fList.end()) {
+		if(i->fState == EVersionAccess && i->fVersion.CanExecute(dataversion)) return true;
 		i++;
 	}
 	return false;
@@ -222,6 +253,27 @@ void OOPAccessInfoList::RevokeAccessAndCancel(){
 		}
 	}
 
+}
+
+ /**
+ * Revokes all access which have been granted
+ */
+void OOPAccessInfoList::RevokeAccess(const OOPMetaData &obj){
+	list<OOPAccessInfo>::iterator i = fList.begin();
+	while(i != fList.end()) {
+		if(i->fIsAccessing) {
+		} else if(i->fIsGranted) {
+			OOPMDataDepend depend(i->fTaskId,i->fState,i->fVersion);
+			TM->RevokeAccess(i->fTaskId,depend);
+			if(!obj.IamOwner()) {
+				cout << "OOPAccessInfoList::RevokeAccess send an access request to the owning processor" << endl;
+#ifndef WIN32
+#warning "send an access request to the owning processor"
+#endif
+			}
+		}
+		i++;
+	}
 }
 
  /**

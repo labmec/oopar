@@ -3,18 +3,15 @@
 
 enum OOPMDMOwnerMessageType {
 	ENoMessage,
-	ENotifyAccessState,
 	ECancelReadAccess,
 	ECancelReadAccessConfirmation,
+	ESuspendAccess,
+	ESuspendAccessConfirmation,
+	ESuspendSuspendAccess,
 	ETransferOwnership,
-	ETransferOwnershipConfirmation,
 	EGrantReadAccess,
-	EGrantReadAccessConfirmation,
 	EGrantVersionAccess,
-	EGrantVersionAccessConfirmation,
-	ENotifyCreateObject,
 	ENotifyDeleteObject,
-	ENotifyDeleteObjectConfirmation
 };
 
 enum OOPDMRequestMessageType {
@@ -37,10 +34,8 @@ enum OOPMDataState {
 
 enum OOPMTransitionState {
 	ENoTransition,
-	EReadTransition,
-	EVersionTransition,
-	EOwnerTransition,
-	EDeleteTransition
+	ECancelReadTransition,
+	ESuspendReadTransition
 };
 
 enum OOPMReturnType {

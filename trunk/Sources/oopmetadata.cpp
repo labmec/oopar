@@ -212,23 +212,22 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		// access
 		list < int >::iterator i = fSuspendAccessProcessors.begin ();
 		while (i != fSuspendAccessProcessors.end ()) {
-			if (*i == DM->GetProcID ()) {
-//				fSuspendAccessProcessors.erase (i);
-//				break;
-			} else {
-				cout << "Sending suspend read access for obj " << fObjId << " to processor "<< *i << endl;
+			if (*i == DM->GetProcID () && !IamOwner()) {
+				cout << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
 				OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
+				town->fObjId = fObjId;
+				town->fVersion = fVersion;
+				TM->Submit(town);
+			} else if(IamOwner()) {
+				cout << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
+				OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
+				town->fObjId = fObjId;
+				town->fVersion = fVersion;
 				TM->Submit(town);
 			}
 			i++;
 		}
 		fSuspendAccessProcessors.clear();
-		cout << "OOPMetaData::ReleaseAccess Should Send messages "
-			" granting read access to the other processors (not implemented)" <<
-			endl;
-#ifndef WIN32
-#warning "Send messages to the other processors"
-#endif
 	}
 	else if (depend.State () == EWriteAccess) {
 		fTaskWrite.Zero ();
@@ -236,19 +235,28 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		cout << "granting read access for obj " << fObjId << " to processor " << fProc << endl;
 		fReadAccessProcessors.push_back (fProc);
 	}
-	CheckTransitionState ();
-	VerifyAccessRequests ();
+	if(fToDelete) {
+		CheckTransitionState ();
+	} else {
+		CheckTransitionState ();
+		VerifyAccessRequests ();
+	}
 }
 
 void OOPMetaData::CheckTransitionState ()
 {
-	if (fToDelete && !fAccessList.HasExecutingTasks ()) {
-		cout << "Deleting object " << fObjId << endl;
-		DM->DeleteObject (fObjId);
+	if(fToDelete) {
+		fAccessList.RevokeAccessAndCancel ();
+		if (!fAccessList.HasExecutingTasks ()) {
+			cout << "Deleting object " << fObjId << endl;
+			DM->DeleteObject (fObjId);
+			return;
+		}
+	}
+	if (fTrans == ENoTransition) {
 		return;
 	}
-	if (fTrans == ENoTransition)
-		return;
+	if(fTrans == ECancelReadTransition) fAccessList.ResendGrantedAccessRequests(fObjId,this->fProc);
 	fAccessList.RevokeAccess(*this);
 	if (!fAccessList.HasExecutingTasks ()) {
 		if (fTrans == ECancelReadTransition) {
@@ -258,13 +266,12 @@ void OOPMetaData::CheckTransitionState ()
 				if (*i == DM->GetProcID ()) {
 					fReadAccessProcessors.erase (i);
 					if (!IamOwner ()) {
-#ifndef WIN32
-#warning "must send cancelreadaccessconfirmation"
-#endif
-
+						OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccessConfirmation,fProc);
+						town->fProcOrigin = DM->GetProcID();
+						TM->Submit(town);
 						delete this->fObjPtr;
 						fObjPtr = 0;
-						cout << "OOPMetaData::CheckTransitionState must send CancelReadAccessConfirmation " << this->fObjId << "\n";
+						cout << "sending CancelReadAccessConfirmation for obj " << this->fObjId << "from proc " << DM->GetProcID() << " to proc " << fProc << endl;
 					}
 					break;
 				}
@@ -281,31 +288,25 @@ void OOPMetaData::CheckTransitionState ()
 				i++;
 			}
 			if (i == fSuspendAccessProcessors.end ()) {
-				fSuspendAccessProcessors.push_back (DM->
-								    GetProcID
-								    ());
+				fSuspendAccessProcessors.push_back (DM->GetProcID());
 				if (!IamOwner ()) {
 					cout << "Sending suspend access confirmation for obj " << fObjId << " to processor " << fProc << endl;
 					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccessConfirmation,fProc);
 					TM->Submit(town);
-#ifndef WIN32
-#warning "must check cancelsuspendaccessconfirmation"
-#endif
-					//cout << "OOPMetaData::CheckTransitionState must send SuspendAccessConfirmation " << this->fObjId << "\n";
 				}
 			}
 		}
 	}
 	if (fTrans == ECancelReadTransition) {
 		if (!fReadAccessProcessors.size ()) {
-			cout << "all read accesses have been canceled " << fObjId << endl;
+			cout << "all read accesses have been canceled " << fObjId << " on proc " << DM->GetProcID() <<  endl;
 			fTrans = ENoTransition;
 		}
 	}
 	else if (fTrans == ESuspendReadTransition) {
 		if (fSuspendAccessProcessors.size () && fSuspendAccessProcessors.size () ==
 		    fReadAccessProcessors.size ()) {
-			cout << "All read access have been suspended " << fObjId << endl;
+			cout << "All read access have been suspended " << fObjId << " on proc " << DM->GetProcID() << endl;
 			fTrans = ENoTransition;
 		}
 	}
@@ -385,10 +386,10 @@ void OOPMetaData::SetId (OOPObjectId & id)
 */
 void OOPMetaData::TransferObject (int ProcId)
 {
-	cout << "OOPMetaData::TransferObject not implemented " << fObjId << "\n";
-#ifndef WIN32
-#warning "OOPMetaData::TransferObject is not implemented"
-#endif
+	OOPDMOwnerTask *town = new OOPDMOwnerTask(ETransferOwnership,ProcId);
+	TM->Submit(town);
+	fAccessList.TransferAccessRequests(fObjId,ProcId);
+	cout << "Transfer object " << fObjId << "to proc " << ProcId << "\n";
 }
 
 
@@ -402,6 +403,10 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 		break;
 	case ESuspendAccessConfirmation: {
 	//Receiving a confirmation message from a processor
+		if(IamOwner() && ms.fProcOrigin != fProcVersionAccess) {
+			cout << "suspend access coming from proc " << ms.fProcOrigin << " and different from proc-version-acc " << fProcVersionAccess << endl;
+		}
+		fProcVersionAccess = -1;
 		if(!IamOwner() || !HasReadAccess(ms.fProcOrigin)) {
 			cout << "OOPMetaData::HandleMessage " << fObjId << " SuspendReadAccess at a processor which isnt owner or which for a processor without read access\n";
 			break;
@@ -423,6 +428,71 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 		this->VerifyAccessRequests();
 		break;
 	}
+	case ECancelReadAccess: {
+		fTrans = ECancelReadTransition;
+		fProc = ms.fProcOrigin;
+		CheckTransitionState();
+		break;
+	}
+	case ECancelReadAccessConfirmation: {
+		if(!IamOwner()) {
+			cout << "HandleMessage cancel read access confirmation received by not owning proc\n" <<
+				"obj " << fObjId << " proc " << DM->GetProcID() << endl;
+			break;
+		}
+		list<int>::iterator i = fReadAccessProcessors.begin();
+		while(i != fReadAccessProcessors.end()) {
+			if(*i == ms.fProcOrigin) {
+				fReadAccessProcessors.erase(i);
+				break;
+			}
+		}
+		break;
+	}
+	case ESuspendSuspendAccess: {
+		list<int>::iterator i = fSuspendAccessProcessors.begin();
+		while(i != fSuspendAccessProcessors.end()) {
+			if(*i == DM->GetProcID()) {
+				fSuspendAccessProcessors.erase(i);
+				break;
+			}
+		}
+		i = fSuspendAccessProcessors.begin();
+		while(i != fSuspendAccessProcessors.end()) {
+			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
+			town->fProcOrigin = DM->GetProcID();
+			town->fObjId = fObjId;
+			TM->Submit(town);
+		}
+		fSuspendAccessProcessors.clear();
+		break;
+	}
+	case ETransferOwnership: {
+		if(fObjPtr && ms.fObjPtr) delete fObjPtr;
+		if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
+		ms.fObjPtr = 0;
+		fVersion = ms.fVersion;
+		fProc = DM->GetProcID();
+		if(!HasReadAccess(fProc)) fReadAccessProcessors.push_back(fProc);
+		break;
+	}
+	case EGrantVersionAccess: {
+		fVersion = ms.fVersion;
+		fProcVersionAccess = DM->GetProcID();
+		fProc = ms.fProcOrigin;
+		VerifyAccessRequests();
+		if(fTaskVersion.IsZero()) {
+			cout << "grantversion access for obj " << fObjId << " did not find corresponding task\n";
+			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,fProc);
+			town->fProcOrigin = DM->GetProcID();
+			town->fObjId = fObjId;
+			TM->Submit(town);
+			fSuspendAccessProcessors.clear();
+		}
+	}
+	case ENotifyDeleteObject:
+		this->DeleteObject();
+		break;
 	default:
 		cout << "OOPMetaData::HandleMessage "<< fObjId << " unhandled message type " << ms.fType << endl;
 		break;
@@ -479,16 +549,25 @@ void OOPMetaData::DeleteObject ()
 {
 	this->fToDelete = 1;
 	cout << "deleting object " << fObjId << endl;
-	if (fReadAccessProcessors.size ()) {
-#ifndef WIN32
-#warning "mandar recado para deletar os objetos nesses processadores"
-#endif
+	if (IamOwner()) {
+		list<int>::iterator i = fReadAccessProcessors.begin();
+		while(i != fReadAccessProcessors.end()) {
+			if(*i != DM->GetProcID()) {
+				OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,*i);
+				town->fObjId = fObjId;
+				TM->Submit(town);
+			}
+			i++;
+		}
+		fReadAccessProcessors.clear();
+		fSuspendAccessProcessors.clear();
 	}
 	if (!(fProcVersionAccess != -1)) {
-#ifndef WIN32
-#warning "mandar recado para deletar os objetos nesse processador"
-#endif
+		OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,fProcVersionAccess);
+		town->fObjId = fObjId;
+		TM->Submit(town);
 	}
+	CheckTransitionState();
 	fAccessList.RevokeAccessAndCancel ();
 	if (!fAccessList.HasExecutingTasks ()) {
 		DM->DeleteObject (fObjId);
@@ -513,15 +592,21 @@ void OOPMetaData::RequestDelete ()
 void OOPMetaData::CancelReadAccess ()
 {
 
-#ifndef WIN32
-#warning "Send messages to other processors"
-#endif
+	list < int >::iterator i = fReadAccessProcessors.begin ();
+	while(i != fReadAccessProcessors.end()) {
+		if(*i != DM->GetProcID()) {
+			OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccess,*i);
+			town->fObjId = fObjId;
+			TM->Submit(town);
+		}
+		i++;
+	}
 
 	// send suspend messages to all processors and revoke the access
 	// granted
 	fAccessList.RevokeAccess (*this);
 	if (!fAccessList.HasExecutingTasks ()) {
-		list < int >::iterator i = fReadAccessProcessors.begin ();
+		i = fReadAccessProcessors.begin ();
 		while (i != fReadAccessProcessors.end ()) {
 			if (*i == DM->GetProcID ()) {
 				fReadAccessProcessors.erase (i);
@@ -602,6 +687,9 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		this->fReadAccessProcessors.push_back(processor);
 		break;
 	}
+	case EWriteAccess: 
+		TransferObject(processor);
+		break;
 	default:
 		cout << "OOPMetaData::GrantAccess " << fObjId << " unhandled state " << state << endl;
 		break;

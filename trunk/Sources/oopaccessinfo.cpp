@@ -2,6 +2,7 @@
 #include "oopaccessinfo.h"
 #include "oopmetadata.h"
 #include "ooptaskmanager.h"
+#include "oopdatamanager.h"
 
 bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 {
@@ -346,4 +347,58 @@ bool OOPAccessInfoList::HasExecutingTasks ()
 		i++;
 	}
 	return false;
+}
+
+/**
+ * Transfer the access requests to the given processor
+ */
+void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
+	list < OOPAccessInfo >::iterator i = fList.begin ();
+
+	// Send the requests of tasks executing on the current processor
+	// Keep a copy of the requests
+	while(i != fList.end()) {
+		if(i->fProcessor == DM->GetProcID()) {
+			OOPMDataDepend depend(id,i->fState,i->fVersion);
+			OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);
+			reqt->fProcOrigin = i->fProcessor;
+			TM->Submit(reqt);
+		}
+		i++;
+	}
+	i = fList.begin();
+	while(i != fList.end()) {
+		if(i->fProcessor == processor || i->fProcessor == DM->GetProcID()) {
+			i++;
+		// Send the requests which came from other processors to be filed at
+		// the target processor
+		// delete the requests from the current object because the ownership was
+		// transferred
+		} else {
+			OOPMDataDepend depend(id,i->fState,i->fVersion);
+			OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);
+			reqt->fProcOrigin = i->fProcessor;
+			TM->Submit(reqt);
+			fList.erase(i);
+			i=fList.begin();
+		}
+	}
+}
+
+/**
+ * Resend the granted access requests (because a read access has been 
+ * canceled)
+ */
+void OOPAccessInfoList::ResendGrantedAccessRequests(OOPObjectId &id, int owningproc) {
+	list < OOPAccessInfo >::iterator i = fList.begin ();
+
+	while(i != fList.end()) {
+		if(i->fIsGranted && !i->fIsAccessing) {
+			OOPMDataDepend depend(id,i->fState,i->fVersion);
+			OOPDMRequestTask *reqt = new OOPDMRequestTask(owningproc,depend);
+			reqt->fProcOrigin = i->fProcessor;
+			TM->Submit(reqt);
+		}
+		i++;
+	}
 }

@@ -12,19 +12,17 @@ TParMesh::~TParMesh() {
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TParMesh::Write (TPZStream * buf) {
-	TPZSaveable::Write(*buf);
-	return 1;
+void TParMesh::Write (TPZStream & buf) {
+	TPZSaveable::Write(buf);
 }
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TParMesh::Read (TPZStream * buf) {
-	TPZSaveable::Read(*buf);
-	return 1;
+void TParMesh::Read (TPZStream & buf, void * context) {
+	TPZSaveable::Read(buf);
 }
-TPZSaveable *TParMesh::Restore (TPZStream * buf) {
+TPZSaveable *TParMesh::Restore (TPZStream & buf, void * context) {
 	TParMesh *pm = new TParMesh();
 	pm->Read(buf);
 	return pm;

@@ -3,6 +3,7 @@
 #ifndef TCONTRIBUTION_H
 #define TCONTRIBUTION_H
 #include "oopobjectid.h"
+#include "fluxdefs.h"
 #include <vector>
 class   OOPDataVersion;
 using namespace std; 
@@ -17,6 +18,11 @@ using namespace std;
 class   TContribution
 {
       public:
+	virtual int ClassId () const
+	{
+		return TCONTRIBUTION_ID;
+	}
+		  
     /**
      * Returns the contribution vector identified by the index parameter
      * @param Index Identifies each vector to be returned
@@ -59,12 +65,12 @@ class   TContribution
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	int Write (TPZStream * buf);
+	void Write (TPZStream & buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	int Read (TPZStream * buf);
+	void Read (TPZStream & buf, void * context = 0);
       private:
     /**
      * ObjectId of the destination mesh

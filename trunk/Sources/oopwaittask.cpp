@@ -28,19 +28,19 @@ OOPWaitTask::~OOPWaitTask()
 }
 
 
-int OOPWaitTask::Write(TPZStream* buf)
+void OOPWaitTask::Write(TPZStream & buf)
 {
   OOPTask::Write(buf);
   cout << "OOPWaitTask should never be packed\n";
-  return -1;
+  
 }
 
-int OOPWaitTask::Read(TPZStream* buf)
+void OOPWaitTask::Read(TPZStream & buf, void * context)
 {
-    return OOPTask::Read(buf);
+    OOPTask::Read(buf);
 }
 
-long OOPWaitTask::GetClassID()
+int OOPWaitTask::ClassId() const
 {
     return -1;
 }

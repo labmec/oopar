@@ -19,7 +19,7 @@
 #include "oopfilestorage.h"
 #include "oopcommmanager.h"
 class   OOPTask;
-class   OOPFileStorageBuffer;
+//class   OOPFileStorageBuffer;
 class   OOPTaskManager;
 class   OOPSaveable;
 /**

@@ -13,7 +13,8 @@
 class   TPartitionRelation:public TPZSaveable
 {
       public:
-		  virtual long    GetClassID () {
+		  virtual ~TPartitionRelation(){}
+		  virtual int    ClassId () const {
 			  return TPARTITIONRELATION_ID;
 		  }
 	        TPartitionRelation ();
@@ -46,13 +47,13 @@ class   TPartitionRelation:public TPZSaveable
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual int Write (TPZStream * buf);
+	virtual void Write (TPZStream & buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	virtual int Read (TPZStream * buf);
-	static TPZSaveable *Restore (TPZStream * buf);
+	virtual void Read (TPZStream & buf, void * context = 0);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
       private:
 	int     fNumPartitions;
 	/**
@@ -62,4 +63,6 @@ class   TPartitionRelation:public TPZSaveable
 	        
 	vector < vector < TContribution > >fRelation;
 };
+template class TPZRestoreClass<TPartitionRelation, TPARTITIONRELATION_ID>;
+
 #endif // TPARTITIONRELATION_H

@@ -76,11 +76,11 @@ void OOPMDataDepend::LogMe(ostream &out) {
 	out << "Version " << fVersion;
 }
 
-void OOPMDataDepend::Write (TPZStream  * buf)
+void OOPMDataDepend::Write (TPZStream  & buf)
 {
 	fDataId.Write (buf);
 	int need = fNeed;
-	buf->Write (&need);
+	buf.Write (&need);
 	fVersion.Write(buf);
 	if (fObjPtr) {
 		cout << "OOPMDataDepend::Pack the object pointer should be zero\n";
@@ -89,15 +89,15 @@ void OOPMDataDepend::Write (TPZStream  * buf)
   /**
    * method to reconstruct the object
    */
-int OOPMDataDepend::Read (TPZStream * buf)
+void OOPMDataDepend::Read (TPZStream & buf, void * context)
 {
 	fDataId.Read (buf);
 	int need;
-	buf->Read (&need);
+	buf.Read (&need);
 	fNeed = (OOPMDataState) need;
 	fVersion.Read(buf);
 	fObjPtr = 0;
-	return 1;
+	
 }
 int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 {
@@ -212,11 +212,11 @@ int OOPMDataDependList::CanExecute ()
 	}
 	return 1;
 }
-void OOPMDataDependList::Write (TPZStream  * buf)
+void OOPMDataDependList::Write (TPZStream  & buf)
 {
 	deque < OOPMDataDepend >::iterator i;
 	int nel = fDependList.size ();
-	buf->Write (&nel);
+	buf.Write (&nel);
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		i->Write (buf);
 	}
@@ -224,17 +224,17 @@ void OOPMDataDependList::Write (TPZStream  * buf)
   /**
    * method to reconstruct the object
    */
-int OOPMDataDependList::Read (TPZStream  * buf)
+void OOPMDataDependList::Read (TPZStream  & buf, void * context)
 {
 	int nel;
-	buf->Read (&nel);
+	buf.Read (&nel);
 	int id;
 	OOPMDataDepend temp;
 	for (id = 0; id < nel; id++) {
 		temp.Read (buf);
 		fDependList.push_back (temp);
 	}
-	return 1;
+	
 }
 
 OOPMDataDepend & OOPMDataDependList::Dep (OOPObjectId & Id)	{

@@ -20,6 +20,7 @@ class   TContribution;
 class   TLocalCompute:public OOPTask
 {
       public:
+	TLocalCompute(){}
 	/**
      * Simple constructor 
      */
@@ -41,7 +42,7 @@ class   TLocalCompute:public OOPTask
      */
 	void    TransmitFLuxes ();
 	void    ComputeLocalFluxes ();
-	virtual long GetClassID ()
+	virtual int ClassId () const
 	{
 		return TLOCALCOMPUTE_ID;
 	}
@@ -51,13 +52,13 @@ class   TLocalCompute:public OOPTask
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual int Write (TPZStream * buf);
+	virtual void Write (TPZStream & buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	virtual int Read (TPZStream * buf);
-	static TPZSaveable *Restore (TPZStream * buf);
+	virtual void Read (TPZStream & buf, void * context = 0);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
       private:
   /**
    * Partition number to which this object corresponds
@@ -80,5 +81,6 @@ class   TLocalCompute:public OOPTask
      */
 	void    InitializePartitionRelationPointer ();
 };
+template class TPZRestoreClass<TLocalCompute, TLOCALCOMPUTE_ID>;
 extern ofstream TaskLog;
 #endif // TLOCALCOMPUTE_H

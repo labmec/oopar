@@ -1,4 +1,4 @@
-# Anjuta Version 1.0.1 
+# Anjuta Version 1.0.2 
 Compatibility Level: 1 
 
 <PROJECT_DESCRIPTION_START>
@@ -23,7 +23,7 @@ Parallel flux computation
 
 props.file.type=project
 
-anjuta.version=1.0.1
+anjuta.version=1.0.2
 anjuta.compatibility.level=1
 
 project.name=Flux
@@ -58,6 +58,9 @@ preferences.indent.size=4
 preferences.autoformat.style=Custom style
 preferences.autoformat.custom.style= -i8 -sc -bli0 -bl0 -cbi0 -ss -bfda -nbad -npsl -di8 -c8 -fca
 preferences.autoformat.disable=0
+preferences.debugger.command=gdb
+preferences.ui.designer=glade '$(project.name).glade'
+preferences.help.browser=devhelp -s '$(current.file.selection)'
 
 module.include.name=.
 module.include.type=

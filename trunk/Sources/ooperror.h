@@ -19,13 +19,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "pzfilebuffer.h"
 /**
  * It handle error messages, Each class derived from TError can have its own error log files
  * or it can make use of the methods G... Such methods will reffer to a unique global file.
  * @author Mauro Enrique de Souza Munoz
  * @since 27/05/95
  */
-class   OOPError
+class   OOPError : public TPZStream
 {
       public:
   /**

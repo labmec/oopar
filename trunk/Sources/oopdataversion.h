@@ -13,7 +13,7 @@ using namespace std;
  */
 class   OOPDataVersion
 {
-      public:
+public:
 	/**
 	 * Sets the version for the specified level
 	 * @param level Level to be changed
@@ -24,12 +24,12 @@ class   OOPDataVersion
 	 * Packs the object in buffer so it can be sent through the network.
 	 * @param buf Buffer which implements the communication.
 	 */
-	int     Write (TPZStream * buf);
+	void     Write (TPZStream & buf);
 	/**
 	 * Unpacks the object in buffer so it can be received through the network.
 	 * @param buf Buffer which implements the communication.
 	 */
-	int     Read (TPZStream * buf);
+	void     Read (TPZStream & buf);
 	/**
 	 * Returns class names
 	 */

@@ -56,6 +56,8 @@ enum OOPMReturnType
 #define OOPMETADATA_ID 3005
 #define TTERMINATIONTASK_ID 3006
 
+/**
+ * Discoontinued
 void RegisterOOParRestore();
-
+*/
 #endif

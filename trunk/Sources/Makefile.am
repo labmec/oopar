@@ -27,14 +27,9 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	ooptaskmanager.cpp \
 	oopdataversion.cpp \
 	ooperror.cpp \
-#	oopfilecomm.cpp \
-#	oopfilestorage.cpp \
 	oopmetadata.cpp \
 	oopobjectid.cpp \
 	oopparclass.cpp \
-#	oopsaveable.cpp \
-#	oopstorage.cpp \
-#	oopstore.cpp \
 	ooptask.cpp \
 	oopmdatadepend.cpp \
 	ooptaskcontrol.cpp \

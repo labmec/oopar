@@ -45,7 +45,6 @@ vector < int >&TContribution::DestinationVector (int index)
 }
 void TContribution::InitializeRandom ()
 {
-	int rs = rand ();
 	fNContributions = 1+(int) (5*rand()/(RAND_MAX+1.0));//rs % 5;
 	fLocalIndices.resize (fNContributions);
 	fFrom.resize(fNContributions);
@@ -68,51 +67,49 @@ void TContribution::InitializeRandom ()
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TContribution::Write (TPZStream * buf){
+void TContribution::Write (TPZStream & buf){
 	fDestinationMesh.Write(buf);
 	int i,sz;
 	sz = fFrom.size();
-	buf->Write(&sz);
-	for(i=0; i<sz; i++) buf->Write(&fFrom[i]);
+	buf.Write(&sz);
+	for(i=0; i<sz; i++) buf.Write(&fFrom[i]);
 	sz = fTo.size();
-	buf->Write(&sz);
-	for(i=0; i<sz; i++) buf->Write(&fTo[i]);
+	buf.Write(&sz);
+	for(i=0; i<sz; i++) buf.Write(&fTo[i]);
 	sz = fLocalIndices.size();
-	buf->Write(&sz);
+	buf.Write(&sz);
 	for(i=0; i<sz; i++) {
 		int lsz = fLocalIndices[i].size();
 		int il;
-		buf->Write(&lsz);
+		buf.Write(&lsz);
 		for(il=0; il<lsz; il++) {
-			buf->Write(&fLocalIndices[i][il]);
+			buf.Write(&fLocalIndices[i][il]);
 		}
 	}
-	buf->Write(&fNContributions);
-	return 0;
+	buf.Write(&fNContributions);
 }
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TContribution::Read (TPZStream * buf){
+void TContribution::Read (TPZStream & buf, void * context){
 	fDestinationMesh.Read(buf);
 	int i,sz;
-	buf->Read(&sz);
+	buf.Read(&sz);
 	fFrom.resize(sz);
-	for(i=0; i<sz; i++) buf->Read(&fFrom[i]);
-	buf->Read(&sz);
+	for(i=0; i<sz; i++) buf.Read(&fFrom[i]);
+	buf.Read(&sz);
 	fTo.resize(sz);
-	for(i=0; i<sz; i++) buf->Read(&fTo[i]);
-	buf->Read(&sz);
+	for(i=0; i<sz; i++) buf.Read(&fTo[i]);
+	buf.Read(&sz);
 	fLocalIndices.resize(sz);
 	for(i=0; i<sz; i++) {
 		int lsz,il;
-		buf->Read(&lsz);
+		buf.Read(&lsz);
 		fLocalIndices[i].resize(lsz);
 		for(il=0; il<lsz; il++) {
-			buf->Read(&fLocalIndices[i][il]);
+			buf.Read(&fLocalIndices[i][il]);
 		}
 	}
-	buf->Read(&fNContributions);
-	return 0;
+	buf.Read(&fNContributions);
 }

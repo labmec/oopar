@@ -19,14 +19,14 @@ using namespace std;
 class   TParAnalysis:public OOPTask
 {
       public:
-	
+	TParAnalysis();
 	TParAnalysis (int Procid);
 	        TParAnalysis (int Procid, int numpartitions, int numproc);
     /**
      * Initializes and submit all necessary data and tasks to the Data and Task managers. 
      */
 	void    SetupEnvironment ();
-	virtual long GetClassID ()
+	virtual int ClassId () const
 	{
 		return TPARANAYSIS_ID;
 	}
@@ -50,13 +50,13 @@ class   TParAnalysis:public OOPTask
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual int Write (TPZStream * buf);
+	virtual void Write (TPZStream & buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	virtual int Read (TPZStream * buf);
-	static TPZSaveable *Restore (TPZStream * buf);
+	virtual void Read (TPZStream & buf, void * context = 0);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
       private:
 	OOPObjectId fRelationTable;
 	int     fNumPartitions;
@@ -66,5 +66,6 @@ class   TParAnalysis:public OOPTask
 	vector < OOPObjectId > fMeshId;
 	vector < OOPObjectId > fStateId;
 };
+template class TPZRestoreClass<TParAnalysis, TPARANAYSIS_ID>;
 extern ofstream TaskLog;
 #endif // TPARANALYSIS_H

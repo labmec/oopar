@@ -877,10 +877,6 @@ void OOPMetaData::SetVersion (const OOPDataVersion & ver,
 	}
 	DataLog.flush();
 }
-long OOPMetaData::GetClassID ()
-{
-	return OOPMETADATA_ID;
-}
 void OOPMetaData::SendAccessRequest (const OOPMDataDepend & depend)
 {
 	OOPDMRequestTask *req = new OOPDMRequestTask (fProc, depend);

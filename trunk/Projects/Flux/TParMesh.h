@@ -13,7 +13,7 @@ class   TParMesh:public TPZSaveable
 	/**
 	 * Returns the class id for the current class.
 	 */
-	virtual long GetClassID () {
+	virtual int  ClassId () const {
 		return TPARMESH_ID;
 	}
   /**
@@ -22,12 +22,13 @@ class   TParMesh:public TPZSaveable
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual int Write (TPZStream * buf);
+	virtual void Write (TPZStream & buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	virtual int Read (TPZStream * buf);
-	static TPZSaveable *Restore (TPZStream * buf);
+	virtual void Read (TPZStream & buf, void * context = 0);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 };
+template class TPZRestoreClass<TParMesh, TPARMESH_ID>;
 #endif // TPARMESH_H

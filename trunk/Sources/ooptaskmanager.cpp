@@ -642,6 +642,15 @@ void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
 		out << (*j)->Task()->Id() << endl;
 	
 }
+OOPTMTask::OOPTMTask(){
+	cerr << "Should Never be Called\n";
+}
+OOPTMTask::~OOPTMTask(){}
+OOPMReturnType OOPTMTask::Execute (){
+	cerr << "Should never called\n";
+}
+
+
 OOPTerminationTask::~OOPTerminationTask (){}
 OOPTerminationTask::OOPTerminationTask (int ProcId) : OOPTask(ProcId){}
 OOPTerminationTask::OOPTerminationTask (const OOPTerminationTask & term): OOPTask(term)
@@ -654,24 +663,20 @@ OOPMReturnType OOPTerminationTask::Execute (){
 	cout.flush();
 	return ESuccess;
 }
-long OOPTerminationTask::GetClassID ()
-{
-	return TTERMINATIONTASK_ID;
-}
 
-int OOPTerminationTask::Write(TPZStream * buf){
+void OOPTerminationTask::Write(TPZStream & buf){
 	OOPTask::Write(buf);
-	return 0;
+
 }
-int OOPTerminationTask::Read(TPZStream * buf){
+void OOPTerminationTask::Read(TPZStream & buf, void * context){
 	OOPTask::Read(buf);
-	return 0;
+
 }
 
 long int OOPTerminationTask::ExecTime(){
 	return -1;
 }
-TPZSaveable *OOPTerminationTask::Restore (TPZStream * buf){
+TPZSaveable *OOPTerminationTask::Restore (TPZStream & buf, void * context){
 	OOPTerminationTask*v = new OOPTerminationTask(0);
 	v->Read (buf);
 	return v;

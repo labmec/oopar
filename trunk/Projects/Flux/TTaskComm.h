@@ -15,26 +15,28 @@ class   OOPStorageBuffer;
  */
 class   TTaskComm:public OOPTask
 {
-      public:
+public:
     /**
      * Virtual function must be redefined.
      * Used by the TM to access the task´s functinality. 
      */
 	OOPMReturnType Execute ();
-	int     Write (TPZStream * buf);
+	void     Write (TPZStream & buf, int classid);
 	/**
 	* Virtual Unpack function.
 	* Defines the necessary interface for task communication along the network.
 	* @param * buf Buffer for data manipulation.
 	*/
-	int     Read (TPZStream * buf);
+	void     Read (TPZStream & buf, void * context = 0);
   /**
    * Returns a Class ID identifier
    */
-	virtual long GetClassID () {
+	virtual int ClassId () const {
 		return TTASKCOMM_ID;
 	}
-	static TPZSaveable *Restore (TPZStream * buf);
-	        TTaskComm (int ProcId);
+	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
+	TTaskComm (int ProcId);
+	TTaskComm ();
 };
+template class TPZRestoreClass<TTaskComm, TTASKCOMM_ID>;
 #endif // TTASKCOMM_H

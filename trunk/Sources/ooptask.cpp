@@ -53,11 +53,8 @@ void OOPTask::AddDependentData (const OOPMDataDepend & depend)
 }
 void OOPTask::PrintLog(ostream & out, char * message){
 //	out << GLogMsgCounter << endl;
-	out << fTaskId << endl;
-	out << "\tDepend on\n";
-	fDataDepend.Print(out);
-	/*":" << message << ":" << GLogMsgCounter << endl;
-	GLogMsgCounter++;*/
+	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message << ":" << GLogMsgCounter << endl;
+	GLogMsgCounter++;
 	out.flush();
 }
 long OOPTask::ExecTime ()
@@ -82,6 +79,7 @@ int OOPDaemonTask::CanExecute ()
 }
 OOPMReturnType OOPTask::Execute ()
 {
+	cout << "OOPTask::Execute should never be called!\n";
 	return ESuccess;	// execute the task, verifying that
 }
 int OOPTask::GetProcID ()

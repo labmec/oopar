@@ -80,7 +80,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	DataLog << "Entering VerifyAccessRequests for Obj " << this->fObjId << "\n";
 	GLogMsgCounter++;
 	DataLog.flush();
-	
+	//Isso ta errado
 	OOPObjectId taskid;
 	while (fAccessList.HasIncompatibleTask (fVersion, taskid)) {
 		DataLog << "OOPMetaData::Verify.. task canceled " << taskid << endl;
@@ -129,7 +129,8 @@ void OOPMetaData::VerifyAccessRequests ()
 	// or valid write access request
 	// In these cases all read access must be either suspended or revoked
 	while (fAccessList.VerifyAccessRequests (*this, ac)) {
-		if (ac->fProcessor == DM->GetProcID ()) {
+		OOPAccessInfo *access = ac.operator->();
+		if (access->fProcessor == DM->GetProcID ()) {
 			ac->fIsGranted = 1;
 			OOPMDataDepend depend (this->Id (), ac->fState,
 					       ac->fVersion);
@@ -140,138 +141,13 @@ void OOPMetaData::VerifyAccessRequests ()
 				fTaskVersion = ac->fTaskId;
 				fProcVersionAccess = ac->fProcessor;
 			}
-			DataLog << "Grant access to " << ac->fTaskId << " with depend " << depend << endl;
+			DataLog << "Grant access for Obj " << fObjId << " to " << ac->fTaskId << " with depend " << depend << endl;
 			DataLog.flush();
 			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
 		}
 		else {
-//			DataLog << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor << endl;
+			DataLog << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor << endl;
 			GrantAccess (ac->fState, ac->fProcessor);
-#ifndef WIN32
-#warning "Send a grant access message to the processor"
-#endif
-			fAccessList.ReleaseAccess (ac);
-		}
-	}
-}
-void OOPMetaData::VerifyAccessRequests (ostream & VerifyLog)
-{
-	DataLog << GLogMsgCounter << endl;
-	VerifyLog << this->fObjId << "\tEntering VerifyAccessRequests\n";
-	VerifyLog.flush();
-	GLogMsgCounter++;
-	DataLog.flush();
-	VerifyLog << fObjId << "\t\tCheking for incompatible task\n";
-	VerifyLog.flush();
-	OOPObjectId taskid;
-	while (fAccessList.HasIncompatibleTask (fVersion, taskid)) {
-		VerifyLog << fObjId << "\t\t\tCheking for incompatible task failed\tFAILED\n";
-		VerifyLog.flush();
-
-		DataLog << "OOPMetaData::Verify.. task canceled " << taskid << endl;
-		DataLog.flush();
-		TM->CancelTask (taskid);
-	}
-	VerifyLog << fObjId << "\t\t\tCheking for incompatible task passed\tOK\n";
-	VerifyLog.flush();
-
-	VerifyLog << fObjId << "\t\tCheking for transition state\n";
-	VerifyLog.flush();
-	
-	if (fTrans != ENoTransition){
-		VerifyLog << fObjId << "\t\t\tCheking for transition state failed\tFAILED\n";
-		VerifyLog.flush();
-		return;
-	}
-	VerifyLog << fObjId << "\t\t\tCheking for transition state passed\tOK\n";
-	VerifyLog.flush();
-/*
-	How do we know the state of the object??
-	If any executing task is accessing the object for write or version access
-	   there is nothing to do (only one task can access the object at a time)
-	Follow the sequence :
-		-> first try to satisfy a version access request, first on this
-		   processor, then on a different processor.
-		-> try to satisfy a write access request on this processor
-		-> transfer ownership if is a write access request for a different processor
-    If there is an outstanding version access request.
-	-> If there is an executing task, there is nothing to do
-	-> If there are processors with read access, there is nothing to do
-	    BUT HOW DO I KNOW THE OBJECT SENT THE CANCEL MESSAGES??
-		-> Either I send the cancel message over and over
-		-> Either I forget to send the message
-		The messages were sent if the object is in a transition state
-	If there are reading processors and the object is not in a transition
-	then the messages need to be sent out and the object is put in a transition state
-    If the object is in a transition state, the code will not get that far,
-	  MESSAGES SHOULD BE SENT FROM HERE
-*/
-
-	VerifyLog << fObjId << "\t\tCheking for Version Access Req\n";
-	VerifyLog.flush();
-
-	list < OOPAccessInfo >::iterator ac;
-	if (fAccessList.HasVersionAccessRequests (fVersion)
-	    && fTrans == ENoTransition) {
-		VerifyLog << fObjId << "\t\t\tVersion Access Req exists\n";
-		VerifyLog << fObjId << "\t\t\tCalling SuspendReadAccess\n";
-		VerifyLog.flush();
-
-		SuspendReadAccess ();
-		// we should invoke a procedure to revoke all access requests
-//		if(IamOwner() && fReadAccessProcessors.size() == fSuspendAccessProcessors.size()) this->fProcVersionAccess = fProc;
-	}
-	else if (DM->GetProcID () == fProc
-		 && fAccessList.HasWriteAccessRequests (fVersion)
-		 && fTrans == ENoTransition) {
-		VerifyLog << fObjId << "\t\t\tVersion Access Req DOES NOT exists\n";
-		VerifyLog << fObjId << "\t\t\tCalling CancelReadAccess\n";
-		VerifyLog.flush();
-		
-		CancelReadAccess ();
-		// we should invoke a procedure to revoke all read access
-		// requests
-	}
-	// We need to put verification if there is a valid version access
-	// request
-	// or valid write access request
-	// In these cases all read access must be either suspended or revoked
-	VerifyLog << fObjId << "\t\tCheking Access Req\n";
-	VerifyLog.flush();
-	while (fAccessList.VerifyAccessRequests (*this, ac)) {
-		VerifyLog << fObjId << "\t\t\tAccess Req Exists\n";
-		VerifyLog.flush();
-		if (ac->fProcessor == DM->GetProcID ()) {
-			VerifyLog << fObjId << "\t\t\t\tAccess Req is local\n";
-			VerifyLog.flush();
-			
-			ac->fIsGranted = 1;
-			OOPMDataDepend depend (this->Id (), ac->fState,
-					       ac->fVersion);
-			if (ac->fState == EWriteAccess) {
-				VerifyLog << fObjId << "\t\t\t\t\tAccess Req is EWrite\n";
-				VerifyLog.flush();
-				fTaskWrite = ac->fTaskId;
-			}
-			if (ac->fState == EVersionAccess) {
-				VerifyLog << fObjId << "\t\t\t\t\tAccess Req is EVersion\n";
-				VerifyLog.flush();
-				fTaskVersion = ac->fTaskId;
-				fProcVersionAccess = ac->fProcessor;
-			}
-			DataLog << "Grant access to " << ac->fTaskId << " with depend " << depend << endl;
-			DataLog.flush();
-			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
-		}
-		else {
-//			DataLog << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor << endl;
-			VerifyLog << fObjId << "\t\t\t\tAccess Req is NOT local\n";
-			VerifyLog << fObjId << "\t\t\t\tAccess Req is from processor" << ac->fProcessor << "\n";
-			VerifyLog.flush();
-			GrantAccess (ac->fState, ac->fProcessor);
-#ifndef WIN32
-#warning "Send a grant access message to the processor"
-#endif
 			fAccessList.ReleaseAccess (ac);
 		}
 	}
@@ -315,27 +191,29 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		this->fTaskVersion.Zero ();
 		// remove this processor from the list of suspended read
 		// access
-		list < int >::iterator i = fSuspendAccessProcessors.begin ();
-		while (i != fSuspendAccessProcessors.end ()) {
-			if (*i == DM->GetProcID () && !IamOwner()) {
-				DataLog << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
-				DataLog.flush();
-				TransferDataLog << ":suspend read access " << fObjId << " to processor "<< *i << endl;
-				TransferDataLog.flush();
-				OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
-				town->fObjId = fObjId;
-				town->fVersion = fVersion;
-				TM->Submit(town);
-			} else if(IamOwner()) {
-				DataLog << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
-				TransferDataLog << ":suspend read access " << fObjId << " to processor "<< *i << endl;
-				TransferDataLog.flush();
-				OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
-				town->fObjId = fObjId;
-				town->fVersion = fVersion;
-				TM->Submit(town);
+		if(!IamOwner()) {
+			DataLog << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< DM->GetProcID() << endl;
+			DataLog.flush();
+			TransferDataLog << ":suspend read access " << fObjId << " to processor "<< DM->GetProcID() << endl;
+			TransferDataLog.flush();
+			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,this->fProc);
+			town->fObjId = fObjId;
+			town->fVersion = fVersion;
+			TM->SubmitDaemon(town);
+		} else {
+			list < int >::iterator i = fSuspendAccessProcessors.begin ();
+			while (i != fSuspendAccessProcessors.end ()) {
+				if (*i != DM->GetProcID ()) {
+					DataLog << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
+					TransferDataLog << ":suspend read access " << fObjId << " to processor "<< *i << endl;
+					TransferDataLog.flush();
+					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
+					town->fObjId = fObjId;
+					town->fVersion = fVersion;
+					TM->SubmitDaemon(town);
+				}
+				i++;
 			}
-			i++;
 		}
 		fSuspendAccessProcessors.clear();
 	}
@@ -352,9 +230,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		CheckTransitionState ();
 	} else {
 		CheckTransitionState ();
-		//VerifyAccessRequests ();
-		VerifyAccessRequests (VeriLog);
-		
+		VerifyAccessRequests ();
 	}
 }
 void OOPMetaData::CheckTransitionState ()
@@ -392,7 +268,7 @@ void OOPMetaData::CheckTransitionState ()
 						town->fObjPtr = this->fObjPtr;
 						town->fVersion = this->fVersion;
 						town->fProcOrigin = DM->GetProcID();
-						TM->Submit(town);
+						TM->SubmitDaemon(town);
 						delete this->fObjPtr;
 						fObjPtr = 0;
 						DataLog << "sending CancelReadAccessConfirmation for obj " << this->fObjId << "from proc " << DM->GetProcID() << " to proc " << fProc << endl;
@@ -422,7 +298,7 @@ void OOPMetaData::CheckTransitionState ()
 					town->fObjId=fObjId;
 					town->fObjPtr = this->fObjPtr;
 					town->fVersion = this->fVersion;
-					TM->Submit(town);
+					TM->SubmitDaemon(town);
 				}
 			}
 		}
@@ -470,15 +346,24 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
 {
 	DataLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
+//	if(GLogMsgCounter==132){
+//		int para;
+//		para=0;
+//	}
+	
 	DataLog << "SubmitAccessRequest task " << taskId << " depend " << depend << " proc " << processor << endl;
 	DataLog.flush();
 	fAccessList.AddAccessRequest (taskId, depend, processor);
-	VerifyAccessRequests ();
-	if (!IamOwner () && !fAccessList.HasAccessGranted (taskId, depend)) {
-		//DataLog << "OOPMetaData::SubmitAccessRequest must debug\n";
-		DataLog << "Sending access request with depend " << depend << " to proc " << fProc << endl;
-		DataLog.flush();
-		this->SendAccessRequest (depend);
+	if (!IamOwner ()) {
+		VerifyAccessRequests();
+		if(!fAccessList.HasAccessGranted (taskId, depend)) {
+			//DataLog << "OOPMetaData::SubmitAccessRequest must debug\n";
+			DataLog << "Sending access request from proc " << DM->GetProcID() << " with depend " << depend << " to proc " << fProc << endl;
+			DataLog.flush();
+			this->SendAccessRequest (depend);
+		}
+	} else {
+		VerifyAccessRequests ();
 	}
 }
 void OOPMetaData::SetExecute (const OOPObjectId & taskId,
@@ -522,7 +407,7 @@ void OOPMetaData::TransferObject (int ProcId)
 	this->fProc = ProcId;
 	this->fObjPtr = 0;
 	
-	TM->Submit(town);
+	TM->SubmitDaemon(town);
 	fAccessList.TransferAccessRequests(fObjId,ProcId);
 	DataLog << "Transfer object " << fObjId << " to proc " << ProcId << "\n";
 	TransferDataLog << ":Transfer object " << fObjId << " to proc " << ProcId << "\n";
@@ -604,6 +489,8 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 	}
 	case ESuspendSuspendAccess: {
 		DataLog << "Receiving Suspend Suspend Access from processor " << ms.fProcOrigin << endl;
+		DataLog.flush();
+		fVersion = ms.fVersion;
 		list<int>::iterator i = fSuspendAccessProcessors.begin();
 		while(i != fSuspendAccessProcessors.end()) {
 			if(*i == DM->GetProcID()) {
@@ -611,14 +498,22 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 				break;
 			}
 		}
-		i = fSuspendAccessProcessors.begin();
-		while(i != fSuspendAccessProcessors.end()) {
-			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
-			town->fProcOrigin = DM->GetProcID();
-			town->fObjId = fObjId;
-			TM->Submit(town);
+		fProcVersionAccess = -1;
+		fTaskVersion = OOPObjectId();
+		if(IamOwner()) {
+			i = fSuspendAccessProcessors.begin();
+			while(i != fSuspendAccessProcessors.end()) {
+				if(*i != this->fProc) {
+					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
+					town->fProcOrigin = DM->GetProcID();
+					town->fObjId = fObjId;
+					TM->SubmitDaemon(town);
+				}
+				i++;
+			}
 		}
 		fSuspendAccessProcessors.clear();
+		VerifyAccessRequests();
 		break;
 	}
 	case ETransferOwnership: {
@@ -626,7 +521,8 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 			cout << "OOPMetaData receiving transfer ownership with pointer \n";
 			DataLog << "OOPMetaData receiving transfer ownership with pointer \n";
 		}
-		DataLog << "Receiving transfer ownership from processor " << ms.fProcOrigin << endl;
+		DataLog << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fProcOrigin << endl;
+		DataLog.flush();
 		if(fObjPtr && ms.fObjPtr) delete fObjPtr;
 		if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
 		ms.fObjPtr = 0;
@@ -649,7 +545,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,fProc);
 			town->fProcOrigin = DM->GetProcID();
 			town->fObjId = fObjId;
-			TM->Submit(town);
+			TM->SubmitDaemon(town);
 			fSuspendAccessProcessors.clear();
 		}
 		break;
@@ -717,7 +613,7 @@ void OOPMetaData::DeleteObject ()
 			if(*i != DM->GetProcID()) {
 				OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,*i);
 				town->fObjId = fObjId;
-				TM->Submit(town);
+				TM->SubmitDaemon(town);
 			}
 			i++;
 		}
@@ -727,7 +623,7 @@ void OOPMetaData::DeleteObject ()
 	if (!(fProcVersionAccess != -1)) {
 		OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,fProcVersionAccess);
 		town->fObjId = fObjId;
-		TM->Submit(town);
+		TM->SubmitDaemon(town);
 	}
 	CheckTransitionState();
 //	fAccessList.RevokeAccessAndCancel ();
@@ -760,7 +656,7 @@ void OOPMetaData::CancelReadAccess ()
 		if(*i != DM->GetProcID()) {
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccess,*i);
 			town->fObjId = fObjId;
-			TM->Submit(town);
+			TM->SubmitDaemon(town);
 		}
 		i++;
 	}
@@ -810,7 +706,7 @@ void OOPMetaData::SuspendReadAccess ()
 			town->fObjPtr = this->fObjPtr;
 			town->fVersion = this->fVersion;
 			
-			TM->Submit(town);
+			TM->SubmitDaemon(town);
 		}
 		ir++;
 	}
@@ -846,7 +742,7 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		town->fObjId = this->fObjId;
 		town->fVersion = this->fVersion;
 		town->fProcOrigin = DM->GetProcID();
-		TM->Submit(town);
+		TM->SubmitDaemon(town);
 		fProcVersionAccess = processor;
 		break;
 	}
@@ -858,7 +754,7 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		town->fObjPtr = this->fObjPtr;
 		town->fVersion = this->fVersion;
 		town->fProcOrigin = DM->GetProcID();
-		TM->Submit(town);
+		TM->SubmitDaemon(town);
 		this->fReadAccessProcessors.push_back(processor);
 		break;
 	}
@@ -966,5 +862,5 @@ long OOPMetaData::GetClassID ()
 void OOPMetaData::SendAccessRequest (const OOPMDataDepend & depend)
 {
 	OOPDMRequestTask *req = new OOPDMRequestTask (fProc, depend);
-	TM->Submit (req);
+	TM->SubmitDaemon (req);
 }

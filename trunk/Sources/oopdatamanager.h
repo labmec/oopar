@@ -1,9 +1,6 @@
 // -*- c++ -*-
-
 #ifndef TDATAMANAGERH
 #define TDATAMANAGERH
-
-
 //#include "savlist.h"
 #include "ooppardefs.h"
 #include "ooptask.h"
@@ -17,18 +14,12 @@
 #include "oopobjectid.h"
 class   OOPSendStorage;
 class   OOPReceiveStorage;
-
-
 class   OOPSaveable;
-
-
 using namespace std;
-
 class   OOPMetaData;
 class   OOPDMOwnerTask;
 class   OOPDMRequestTask;
 class   OOPCurrentLocation;
-
 /**
  * Implements all the data management in the OOPar environment.
  * Acts as daemon in all processors which are part of the parallel environment.
@@ -36,20 +27,15 @@ class   OOPCurrentLocation;
  */
 class   OOPDataManager
 {
-
 	friend class OOPMetaData;
 	public:
-	void VerifyAccessRequest();
 	void PrintDataQueues(char * msg, ostream & out);
-
       public:
 	/**
 	 * Used only for testing purposes
 	 */
 	static void main ();
-
 	       ~OOPDataManager ();
-
 	/**
 	 * Releases the access request from TaskId on dataId and on the specifieds version and accees state
 	 * @param TaskId Identifies the task from which the access shoul be released.
@@ -90,7 +76,6 @@ class   OOPDataManager
 	* @param Procid : Processor where the data manager should be initialized
 	*/
 	OOPDataManager (int Procid);
-
 	/**
 	* Return the processor id which owns the current object
 	*/
@@ -125,9 +110,7 @@ class   OOPDataManager
 	* @param ObjId : Identifier of the object to be transfered.
 	* @param ProcessorId : Identifier of processor destination.
 	*/
-
 	void    TransferObject (OOPObjectId & ObjId, int ProcessorId);
-
 	/**
 	* Processes the updated access information from the other processors
 	* @param *task Pointer to the task which (Undocumented)
@@ -138,13 +121,10 @@ class   OOPDataManager
 	* @param *task Pointer to task which (Undocumented)
 	*/
 	void    GetUpdate (OOPDMRequestTask * task);
-
-
 	/**
 	 * Returns true if object is found on the DM list
 	 */
 	bool    HasObject (OOPObjectId id);
-
       private:
 	/**
 	* Processor where the processor is located.
@@ -162,12 +142,10 @@ class   OOPDataManager
 	* Maximum Id number that can be created
 	*/
 	long    fMaxId;
-
 	/**
 	* Collections of objects
 	*/
 	deque < OOPMetaData * >fObjects;
-
 	/**
 	* Generates a new object ID
 	*/
@@ -177,28 +155,21 @@ class   OOPDataManager
 	* @param ObjId : Id of object which must have its data structure pointer returned
 	*/
 	OOPMetaData *Data (OOPObjectId ObjId);
-
       public:
-
     /**
      * Returns the Data Version object of the Meta data identified by Id.
      * Necessary for inquiring the current version of the MetaData object.
      * @param Id Identifies the object to be inquired 
      */
 //    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
-
       private:
-
 };
-
 /**
  * Implements a task which owns (Undocumented)
  */
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
-
       public:
-
 	OOPMDMOwnerMessageType fType;
 	/**
 	* Access state associated with this message
@@ -208,7 +179,6 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	* Version of the data
 	*/
 	OOPDataVersion fVersion;
-
 	/**
 	* Holds a pointer to the object when the object data is transferred
 	*/
@@ -231,35 +201,24 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	* @param proc : processor which owns the message
 	*/
 	OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
-
 	virtual ~OOPDMOwnerTask();
-
 	virtual OOPMReturnType Execute ();
-
 	virtual long GetClassID ()
 	{
 		return TDMOWNERTASK_ID;
 	}
-
 	virtual int Unpack (OOPReceiveStorage * buf);
-
 	static OOPSaveable *Restore (OOPReceiveStorage * buf);
-
 	virtual int Pack (OOPSendStorage * buf);
-
 	// Apenas para DEBUG.
 	// virtual void Work() { Debug( "\nTSaveable::Work." ); }
 	// virtual void Print() { Debug( " TSaveable::Print." ); }
-
-
 };
-
 /**
  * Implements a request task (Undocumented)
  */
 class   OOPDMRequestTask:public OOPDaemonTask
 {
-
       public:
 	/**
 	 * Id of the processor to which the request applies.
@@ -272,39 +231,28 @@ class   OOPDMRequestTask:public OOPDaemonTask
 	/**
 	 * Constructor
 	 */
-	OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
-	OOPDMRequestTask (const OOPDMRequestTask & task);
-	OOPDMRequestTask ();
-	~OOPDMRequestTask();
-
+	        OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
+	        OOPDMRequestTask (const OOPDMRequestTask & task);
+	        OOPDMRequestTask ();
 	virtual OOPMReturnType Execute ();
-
 	virtual long GetClassID ()
 	{
 		return TDMREQUESTTASK_ID;
 	}
-
 	virtual int Unpack (OOPReceiveStorage * buf);
-
 	static OOPSaveable *Restore (OOPReceiveStorage * buf);
-
 	virtual int Pack (OOPSendStorage * buf);
-
-
 };
-
 class   OOPCurrentLocation
 {
       public:
 	OOPObjectId fObjectId;
 	long    fProcessor;
-
 	        OOPCurrentLocation (long Processor, OOPObjectId & Id)
 	{
 		fProcessor = Processor;
 		fObjectId = Id;
 	}
-
 	OOPCurrentLocation & operator = (const OOPCurrentLocation & loc)
 	{
 		fObjectId = loc.fObjectId;
@@ -317,8 +265,6 @@ class   OOPCurrentLocation
 		fProcessor = copy.fProcessor;
 	}
 };
-
-
 extern OOPDataManager *DM;
 extern ofstream DataManLog;
 extern int GLogMsgCounter;

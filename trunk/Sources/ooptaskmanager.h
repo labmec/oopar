@@ -74,6 +74,11 @@ class   OOPTaskManager
    */
 	OOPObjectId Submit (OOPTask * task);
   /**
+   * Submits a daemon task to the TaskManager.
+   * @param task Pointer to the submitted task.
+   */
+	void SubmitDaemon (OOPDaemonTask * task);
+  /**
    * Re submits a task to the task manager. It won't call the GenerateId() method
    * Assumes that the task was already given an Id.
    * @param *task Pointer to the task which will be submitted
@@ -123,6 +128,10 @@ class   OOPTaskManager
    */
 	void    TransfertoExecutable (const OOPObjectId & taskid);
   /**
+   * Execute all daemons which are in the list
+   */
+	void ExecuteDaemons();
+  /**
    * Very important method for the whole OOPar environment.
    * Starts all task which has their data access requests granted from the DM.
    * At least one call to one of the task managers should performed for the OOPar to start.
@@ -168,6 +177,10 @@ class   OOPTaskManager
    * List of tasks which can be readily executed
    */
 	        deque < OOPTaskControl * >fExecutable;
+	/**
+   * List of daemon tasks which can be readily executed
+   */
+	        deque < OOPDaemonTask * >fDaemon;
   /**
    * List of tasks recently submitted
    */

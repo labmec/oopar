@@ -28,7 +28,7 @@ ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
 
 int GLogMsgCounter;
-int numproc;
+int numproc = 4;
 
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
@@ -44,6 +44,7 @@ int multimain ()
 
 	//cout << "Number of processors\n";
 	//cin >> numproc;
+	
 	GLogMsgCounter=0;
 	int     iproc;
 	for (iproc = 0; iproc < numproc; iproc++) {
@@ -70,13 +71,17 @@ int multimain ()
 	OOPReceiveStorage::AddClassRestore(TDMOWNERTASK_ID,OOPDMOwnerTask::Restore);
 	OOPReceiveStorage::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
 	OOPReceiveStorage::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
+	OOPReceiveStorage::AddClassRestore(TTERMINATIONTASK_ID,OOPTerminationTask::Restore);
 	Load (0);
 	
+	//sprintf(filename,"datalogger%d", CM->GetProcID());
+	OOPDataLogger * LogDM = new OOPDataLogger("filedmlogger.log");
+    ::LogDM = LogDM;
 	
 	
 	TParAnalysis *partask = new TParAnalysis (1, numproc, numproc);
 	TM->Submit (partask);
-	int nsteps=500;
+	int nsteps=100;
 	int k=0;
 	while (NumTasks () && k<nsteps) {
 		for (iproc = 0; iproc < numproc; iproc++) {
@@ -95,8 +100,10 @@ int multimain ()
 	delete LogDM;
 	return 0;
 }
+#ifdef MPI
 int mpimain (int argc, char **argv)
 {
+
 	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
 	OOPReceiveStorage::AddClassRestore(TPARCOMPUTE_ID,TParCompute::Restore);
@@ -136,8 +143,9 @@ int mpimain (int argc, char **argv)
 	cout << "Leaving mpimain\n";
 	cout.flush();
 	return 0;
+	
 }
-
+#endif
 int NumTasks ()
 {
 	int     numproc = TMList.size ();

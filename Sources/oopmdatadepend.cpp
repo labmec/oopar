@@ -84,6 +84,7 @@ int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 			for (j = fDependList.begin (); j != i; j++) {
 				DM->ReleaseAccessRequest (taskid, *j);
 			}
+			fDependList.clear();
 			return 0;
 		}
 	}
@@ -202,10 +203,4 @@ int OOPMDataDependList::Unpack (OOPReceiveStorage * buf)
 		fDependList.push_back (temp);
 	}
 	return 1;
-}
-void OOPMDataDependList::PrintLog(ostream & out){
-	deque<OOPMDataDepend>::iterator i;
-	for(i=fDependList.begin();i!=fDependList.end();i++){
-		i->ShortPrint(out);
-	}
 }

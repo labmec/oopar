@@ -93,8 +93,8 @@ class   OOPMetaData:public OOPSaveable
       * It is mostly used for debugging purposes
       */
 	int     fTrace;
-public:
-	void VerifyAccessRequests (ostream & VerifyLog);		  
+      public:
+		  
 	void PrintLog (ostream & out = cout);
 	void    Print (ostream & out = cout);
 	/**
@@ -318,7 +318,6 @@ public:
  */
 extern ofstream DataLog;
 extern ofstream TransferDataLog;
-extern ofstream VeriLog;
 extern int GLogMsgCounter;
 /*
 inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {

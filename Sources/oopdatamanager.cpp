@@ -115,12 +115,6 @@ void OOPDataManager::main(){
 	
 }
 */
-void OOPDataManager::VerifyAccessRequest()
-{
-	deque < OOPMetaData * >::iterator i;
-	for (i = fObjects.begin (); i != fObjects.end (); i++) 
-		(*i)->VerifyAccessRequests();
-}
 OOPDataManager::~OOPDataManager ()
 {
 	deque < OOPMetaData * >::iterator i;
@@ -339,14 +333,21 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 				new OOPDMRequestTask (*task);
 			DataManLog << "OOPDataManager::GetUpdate Submitting received task\n";
 			ntask->SetProcID (id.GetProcId ());
-			TM->Submit (ntask);
+			TM->SubmitDaemon(ntask);
 		}
 	}
 	else {
-		DataManLog << "OOPDataManager::GetUpdate fDepend.Id() found in this prcessor:";
-		id.Print(DataManLog);
-		(*i)->SubmitAccessRequest (task->Id(), task->fDepend,
+		DataManLog << "OOPDataManager::GetUpdate fDepend.Id() found in this processor:" << id << endl;
+		if(!(*i)->IamOwner()) {
+			OOPDMRequestTask *ntask = new OOPDMRequestTask(*task);
+			ntask->SetProcID((*i)->Proc());
+			TM->SubmitDaemon(ntask);
+		} else if((*i)->IamOwner() && task->fProcOrigin == (*i)->Proc()) {
+			cout << "Task request ignored\n";
+		} else {
+			(*i)->SubmitAccessRequest (OOPObjectId(), task->fDepend,
 					   task->fProcOrigin);
+		}
 	}
 }
 OOPObjectId OOPDataManager::GenerateId ()
@@ -414,9 +415,9 @@ fDepend (depend)
 {
 	fProcOrigin = DM->GetProcID ();
 }
-OOPDMRequestTask::OOPDMRequestTask (const OOPDMRequestTask & task):
-	OOPDaemonTask (task),
-	fProcOrigin (task.fProcOrigin), fDepend (task.fDepend)
+OOPDMRequestTask::
+OOPDMRequestTask (const OOPDMRequestTask & task):OOPDaemonTask (task),
+fProcOrigin (task.fProcOrigin), fDepend (task.fDepend)
 {
 }
 OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
@@ -504,8 +505,4 @@ int OOPDMRequestTask::Pack (OOPSendStorage * buf)
 	buf->PkInt (&fProcOrigin);
 	fDepend.Pack (buf);
 	return 1;
-}
-OOPDMRequestTask::~OOPDMRequestTask()
-{
-	DM->ReleaseAccessRequest(Id(),fDepend);
 }

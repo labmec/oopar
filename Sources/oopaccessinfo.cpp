@@ -178,6 +178,9 @@ void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 		}
 		i++;
 	}
+	if(i == fList.end()) {
+		cout << "InfoList::ReleaseAccess didn't find the object" << endl;
+	}
 }
 bool OOPAccessInfoList::HasAccessGranted (const OOPObjectId & taskid,
 					  const OOPMDataDepend & depend) const
@@ -331,7 +334,7 @@ void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
 			OOPMDataDepend depend(id,i->fState,i->fVersion);
 			OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);
 			reqt->fProcOrigin = i->fProcessor;
-			TM->Submit(reqt);
+			TM->SubmitDaemon(reqt);
 		}
 		i++;
 	}
@@ -347,7 +350,7 @@ void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
 			OOPMDataDepend depend(id,i->fState,i->fVersion);
 			OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);
 			reqt->fProcOrigin = i->fProcessor;
-			TM->Submit(reqt);
+			TM->SubmitDaemon(reqt);
 			fList.erase(i);
 			i=fList.begin();
 		}
@@ -364,7 +367,7 @@ void OOPAccessInfoList::ResendGrantedAccessRequests(OOPObjectId &id, int owningp
 			OOPMDataDepend depend(id,i->fState,i->fVersion);
 			OOPDMRequestTask *reqt = new OOPDMRequestTask(owningproc,depend);
 			reqt->fProcOrigin = i->fProcessor;
-			TM->Submit(reqt);
+			TM->SubmitDaemon(reqt);
 		}
 		i++;
 	}

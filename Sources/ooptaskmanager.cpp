@@ -154,11 +154,20 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 		TaskId.Print (cerr);
 	}
 }
+void OOPTaskManager::SubmitDaemon (OOPDaemonTask * task) {
+	fDaemon.push_back(task);
+}
 OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 {
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
 	TaskManLog << "Calling Submit on OOPTaskManager ";
+	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
+	if(dmt) {
+		SubmitDaemon(dmt);
+		TaskManLog << "Task Submitted is a daemon\n";
+		return OOPObjectId();
+	}
 	OOPObjectId id;
 	// mutex lock 
 	id = GenerateId ();
@@ -180,6 +189,12 @@ OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)
 		cerr << "File " << __FILE__ << endl;
 		exit (-1);
 	}
+	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
+	if(dmt) {
+		SubmitDaemon(dmt);
+//		TaskManLog << "Task ReSubmitted is a daemon\n";
+		return OOPObjectId();
+	}
 	fSubmittedList.push_back (task);
 	// mutex unlock
 	return task->Id ();
@@ -187,7 +202,7 @@ OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)
 int OOPTaskManager::NumberOfTasks ()
 {
 	return fExecutable.size () + fFinished.size () +
-		fSubmittedList.size () + fTaskList.size ();
+		fSubmittedList.size () + fTaskList.size () + fDaemon.size();
 }
 int OOPTaskManager::ChangePriority (OOPObjectId & taskid, int newpriority)
 {
@@ -227,6 +242,17 @@ void OOPTaskManager::CleanUpTasks ()
 #warning "CleanUpTasks is empty"
 #endif
 }
+void OOPTaskManager::ExecuteDaemons() {
+	while(fDaemon.size()) {
+		if(fDaemon[0]->GetProcID() != DM->GetProcID()) {
+			CM->SendTask(fDaemon[0]);
+		} else {
+			fDaemon[0]->Execute();
+			delete fDaemon[0];
+		}
+		fDaemon.erase(fDaemon.begin());
+	}
+}
 void OOPTaskManager::Execute ()
 {
 	CM->ReceiveMessages ();
@@ -235,8 +261,9 @@ void OOPTaskManager::Execute ()
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
 	// TaskManLog << "Entering task list loop" << endl;
+	PrintTaskQueues("Antes", TaskQueueLog);
+	ExecuteDaemons();
 	while (fExecutable.size ()) {
-		PrintTaskQueues("Antes", TaskQueueLog);
 		while (fExecutable.size ()) {
 			DM->PrintDataQueues("Dentro do Loop ----------------------------------------",DataQueueLog);
 			i = fExecutable.begin ();
@@ -258,13 +285,13 @@ void OOPTaskManager::Execute ()
 			fFinished.push_back (tc);
 			fExecutable.erase (i);
 		}
-		PrintTaskQueues("Depois", TaskQueueLog);
 		TransferFinishedTasks ();
 		CM->ReceiveMessages ();
 		TransferSubmittedTasks ();
 		CM->SendMessages ();
-		PrintTaskQueues("Depois De Novo", TaskQueueLog);
+		ExecuteDaemons();
 	}
+	PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
 }
 OOPObjectId OOPTaskManager::GenerateId ()
@@ -362,7 +389,7 @@ void OOPTaskManager::TransferFinishedTasks ()
 			fFinished.erase (sub);
 		}
 		else {
- 			delete auxtc;
+			delete auxtc;
 			fFinished.erase (sub);
 		}
 	}
@@ -378,7 +405,11 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 			OOPDaemonTask *dmt =
 				dynamic_cast < OOPDaemonTask * >(tc->Task ());
 			if (dmt) {
-				fExecutable.push_front (tc);
+				cout << "TM::TransfertoExecutable inconsistent datastructure\n"
+					"There is daemontask in the fTaskList\n";
+				SubmitDaemon(dmt);
+				tc->ZeroTask();
+				delete tc;
 			}
 			else {
 				fExecutable.push_back (tc);
@@ -394,29 +425,20 @@ void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
 	out << "Print fSubmittedList\n";
 	out << "Number of tasks :" << fSubmittedList.size() << endl;
 	deque < OOPTask * >::iterator i;
-	for(i=fSubmittedList.begin();i!=fSubmittedList.end();i++){
+	for(i=fSubmittedList.begin();i!=fSubmittedList.end();i++)
 		out << (*i)->Id() << endl;
-		(*i)->PrintLog(out);
-	}
 	out << "Print fTaskList\n";
 	out << "Number of tasks :" << fTaskList.size() << endl;
 	deque < OOPTaskControl * >::iterator j;
-	for(j=fTaskList.begin();j!=fTaskList.end();j++){
+	for(j=fTaskList.begin();j!=fTaskList.end();j++)
 		out << (*j)->Task()->Id() << endl;
-		(*j)->Task()->PrintLog(out);
-	}
 	out << "Print fExecutable\n";
 	out << "Number of tasks :" << fExecutable.size() << endl;
-	for(j=fExecutable.begin();j!=fExecutable.end();j++){
+	for(j=fExecutable.begin();j!=fExecutable.end();j++)
 		out << (*j)->Task()->Id() << endl;
-		(*j)->Task()->PrintLog(out);
-	}
 	out << "Print fFinished\n";
 	out << "Number of tasks :" << fFinished.size() << endl;
-	for(j=fFinished.begin();j!=fFinished.end();j++){
+	for(j=fFinished.begin();j!=fFinished.end();j++)
 		out << (*j)->Task()->Id() << endl;
-		(*j)->Task()->PrintLog(out);
-	}
-	out.flush();
 	
 }

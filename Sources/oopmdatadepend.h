@@ -102,7 +102,6 @@ class   OOPMDataDependList
 {
 	deque < OOPMDataDepend > fDependList;
       public:
-	void PrintLog(ostream & out);
   /**
    * this method submits the data dependency to the DataManager
    * @returns 1 if successful 0 if the task should be deleted because of incompatibility

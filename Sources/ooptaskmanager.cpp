@@ -454,7 +454,7 @@ void OOPTaskManager::Execute ()
 	cout << "Created succesfuly\n";
 	cout.flush();
 		
-//	pthread_join(execute_thread,NULL);
+	pthread_join(fexecute_thread,NULL);
 #endif
 }
 void OOPTaskManager::SetKeepGoing(bool go){

@@ -43,6 +43,7 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 	cout << "Before calling MPI_Init\n";
 	cout.flush();
 	MPI_Init(&f_argc,&f_argv); 
+	Initialize((char*)argv, argc);
 	cout << "After calling MPI_Init\n";
 	cout.flush();
 }

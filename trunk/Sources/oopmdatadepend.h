@@ -56,6 +56,9 @@ class   OOPMDataDepend
    * method to reconstruct the object
    */
 	void Read (TPZStream  & buf, void * context = 0);
+   void SetState(OOPMDataState state){
+	   fNeed = state;
+   }
       private:
   /**
    * Id of the data needed to execute the task

@@ -130,6 +130,49 @@ int OOPTask::Pack(OOPSendStorage *buf)
   buf->PkInt(&fPriority);
   // Id assigned to the task after having been submitted
   //int numdep = fDataDepend.length();
+	
+#warning "Something else?"
+  deque<OOPMDataDepend>::iterator i;
+  //If any fObjPtr is not NULL issue and error message.
+  for(i=fDataDepend.begin();i!=fDataDepend.end();i++)
+    if(i->ObjPtr()){
+      cerr << "Inconsistent Task communication !"
+	   << " File:" << __FILE__
+	   << " Line:" << __LINE__ << endl;
+      exit(-1);
+    }
+  OOPSaveable::Pack(buf);
+  //ObjectId packing and unpacking
+  fTaskId.Pack(buf);
+
+  buf->PkInt(&fProc);	// Processor where the task should be executed
+  //buf->PkLong(&fTaskId);
+  buf->PkInt(&fPriority);
+  // Id assigned to the task after having been submitted
+  //int numdep = fDataDepend.length();
+  int numdep = fDataDepend.size();
+  buf->PkInt(&numdep);
+
+  for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
+    //Packing OOPObjectId data information
+    i->fDataId.Pack(buf);
+    //Finished OOPObjectId
+
+    int st = i->fNeed;
+    buf->PkInt(&st);
+
+    //packing stl vectors for OOPDataVersion
+    i->fVersion.Pack(buf);
+    //finished packing stl vectors for
+
+    //Still missing packing fObjPtr
+
+    //deque<OOPMDataDepend>::iterator qq = find(fDataDepend.begin(),fDataDepend.end(),d);
+    //fDataDepend.next(i);
+  }
+
+  return 0;
+
   
   return 0;
 }
@@ -165,4 +208,3 @@ OOPSaveable *OOPDaemonTask::Restore(OOPReceiveStorage *buf) {
   v->Unpack(buf);
   return v;
 }
-

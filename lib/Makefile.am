@@ -31,8 +31,11 @@ liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/OOPDataLogger.o \
 	../Sources/oopmpistorage.o \
 	../Sources/oopwaittask.o \
+	../Sources/OOPDouble.o \
+	../Sources/OOPInt.o \
+	../Sources/OOPVector.o \
 	../Save/pzfilebuffer.o \
-	../Save/pzsave.o
+	../Save/pzsave.o 
 else
 liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/ooptaskmanager.o \

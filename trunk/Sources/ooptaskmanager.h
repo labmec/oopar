@@ -56,6 +56,14 @@ public:
 			       const OOPMDataDepend & depend,
 				   OOPMetaData * objptr);
   /**
+     * Notifies the task that a required access was revoked on the data.
+   * @param TaskId Id of the task to which the access was granted.
+   * @param depend dependency structure including objectid, state and version.
+   */
+  void    RevokeAccess(const OOPObjectId & TaskId,
+			       const OOPMDataDepend & depend);
+
+  /**
    * Constructor passing processor id as parameter.
    * @param proc Processor where the TM is created.
    */

@@ -234,14 +234,12 @@ public:
      * Issues deletion request message
      * @param ObjId Id of object to be deleted
      */
-	int DeleteObject (OOPObjectId & ObjId);
+	void DeleteObject ();
 	/**
      * Issues a request message for deletion to the owner of the data
 	 * waits for delete confirmation and finishes the deletion procedure
-	 * returns 0 if the deletion was not concluded
-     * @param ObjId Id of object ti be deleted
      */
-	void RequestDelete (OOPObjectId & ObjId);
+	void RequestDelete ();
 	/**
      * Cancels read access to the object
      * Issues the appropriate messages to the other processors and waits for confirmation

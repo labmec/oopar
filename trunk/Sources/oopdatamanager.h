@@ -36,6 +36,8 @@ class OOPCurrentLocation;
  */
 class OOPDataManager {
 
+friend class OOPMetaData;
+
 public:
 	/**
 	 * Used only for testing purposes
@@ -91,12 +93,19 @@ public:
 	* @param trace : Indicates if submited object is traceable or not
 	*/
 	OOPObjectId SubmitObject(OOPSaveable *obj, int trace = 0);
+private:
+	/**
+	* Deletes the object from the datastructure
+	* @param ObjId : Id of object to be deleted
+	*/
+	void DeleteObject(OOPObjectId & ObjId);
+public:
 	/**
 	* Initiates the process do delete the object
 	* follows up on the process to delete it
 	* @param ObjId : Id of object to be deleted
 	*/
-	int DeleteObject(OOPObjectId & ObjId);
+	void RequestDeleteObject(OOPObjectId & ObjId);
 	/**
 	* Transfers the object identified by ObjId to the processor identified by
 	* ProcessorId.

@@ -149,6 +149,34 @@ void OOPTaskManager::NotifyAccessGranted(const OOPObjectId & TaskId, const OOPMD
 }
 
 
+void OOPTaskManager::RevokeAccess(const OOPObjectId & TaskId, const OOPMDataDepend & depend)
+{
+  deque<OOPTaskControl*>::iterator i;
+  bool found = false;
+
+  for(i=fTaskList.begin();i!=fTaskList.end();i++){
+    OOPTaskControl * tc = (*i);
+    if(tc->Task()->Id() == TaskId){
+      found = true;
+      tc->Depend().RevokeAccess( depend);
+#ifdef DEBUG
+      cout << "Access Revoked to taskId";
+      TaskId.Print(cout);
+      cout << " on data ";
+      depend.Id().Print(cout);
+#endif
+	  break;
+	}
+  }
+
+  if (!found) {
+    cerr << "OOPTaskManager::RevokeAccess Task not found on current TM: File:" << __FILE__ << " Line:" << __LINE__ << endl;
+	cerr << "Task \n";
+	TaskId.Print(cerr);
+  }
+}
+
+
 OOPObjectId OOPTaskManager::Submit(OOPTask *task) {
 		
   OOPObjectId id;

@@ -198,3 +198,40 @@ void OOPAccessInfoList::SetExecute(const OOPObjectId &taskid, const OOPMDataDepe
 	}
 }
 
+ /**
+ * Revokes all access requests and cancels the tasks which are not executing
+ */
+void OOPAccessInfoList::RevokeAccessAndCancel(){
+	OOPObjectId taskid;
+	list<OOPAccessInfo>::iterator i = fList.begin();
+	while(i != fList.end()) {
+		if(i->fIsAccessing) {
+		} else if(taskid.IsZero() && i->fIsGranted) {
+			taskid = i->fTaskId;
+			OOPMDataDepend depend(taskid,i->fState,i->fVersion);
+			TM->RevokeAccess(taskid,depend);
+		} else if(i->fTaskId == taskid && i->fIsGranted) {
+			OOPMDataDepend depend(taskid,i->fState,i->fVersion);
+			TM->RevokeAccess(taskid,depend);
+		}
+		i++;
+		if(i == fList.end() && ! taskid.IsZero()) {
+			TM->CancelTask(taskid);
+			taskid.Zero();
+			i = fList.begin();
+		}
+	}
+
+}
+
+ /**
+  * Returns true if a task is accessing the data
+  */
+bool OOPAccessInfoList::HasExecutingTasks() {
+	list<OOPAccessInfo>::iterator i = fList.begin();
+	while(i != fList.end()) {
+		if(i->fIsAccessing) return true;
+		i++;
+	}
+	return false;
+}

@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
 
 	TM->Execute();
 	
-	delete DM;
+	delete DM; 
 	delete TM;
 	delete CM;
 
@@ -52,5 +52,3 @@ int main(int argc, char *argv[]){
 	return 0;
 
 }
-
-

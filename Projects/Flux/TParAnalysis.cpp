@@ -103,7 +103,7 @@ void TParAnalysis::CreateParCompute() {
   }
   count = 0;
   //Setting the data version
-  //Não está funcionando aqui !!!!
+  //fTaskVersionAccess não estava sendo setado.
   while(count < 2*fNumPartitions) {
     (*dep).ObjPtr()->SetVersion(randver,Id());
     dep ++;
@@ -137,6 +137,7 @@ void TParAnalysis::CreateParCompute() {
   count = 0;
   // Setting the data version
   while(count < 2*fNumPartitions) {
+	//Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
     OOPDataVersion ver((*dep).ObjPtr()->Version());
     ver.Increment();
     AddDependentData((*dep).ObjPtr()->Id(),st,ver);

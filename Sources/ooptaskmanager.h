@@ -20,7 +20,7 @@ class   OOPObjectId;
  */
 class   OOPTaskManager
 {
-      public:
+      public: 
 	/**
 	 * Sets the KeepGoing flag which will control the TM Execute method
 	 */

@@ -2,6 +2,7 @@
 #include "TParAnalysis.h"
 #include <iostream>
 #include "TParVector.h"
+#include "ooptaskmanager.h"
 //ofstream TaskLog("tasklog.log");
 void TParAnalysis::Print (ostream & out)
 {
@@ -89,6 +90,7 @@ void TParAnalysis::CreateParCompute ()
 	OOPDataVersion taskver (randver);
 	taskver.SetLevelVersion (1, -1);
 	fTaskVersion = taskver;
+	
 	// skipping the mesh dependency
 	int count = 0;
 	// Setting the data version
@@ -172,7 +174,28 @@ void TParAnalysis::SetAppropriateVersions ()
 	fDataDepend.Clear ();
 	if (ver.GetNLevels () < 2) {
 		this->SetRecurrence (false);
-		cout << "TParAnalysis esta saindo!";
+		cout << "TParAnalysis esta saindo com versãofinal!\n";
+		ver.ShortPrint(cout);
+		cout.flush();
+		OOPTerminationTask * termtask = new OOPTerminationTask(fProc);
+		int i;
+		//for(i=0;i<ndep;i++){
+			OOPDataVersion termversion = fDataDepend.Dep (0).ObjPtr ()->Version ();
+			cout << "TermVersion\n";
+			cout.flush();
+			termversion.ShortPrint(cout);
+			cout << endl;
+			//++termversion;
+			termversion.ShortPrint(cout);
+			cout << endl;
+			cout.flush();
+			cout << fDataDepend.Dep(0).Id() << endl;
+			cout.flush();
+			OOPMDataDepend d(fDataDepend.Dep(0).Id(), EWriteAccess, termversion);
+			//termtask->AddDependentData(d);
+		//}
+		//termtask->Submit();
+		
 	}
 	else {
 		int count = 0;

@@ -382,6 +382,22 @@ void OOPMetaData::SetExecute (const OOPObjectId & taskId,
 	fAccessList.SetExecute (taskId, depend, condition);
 }
 OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
+			  const int ProcId, const OOPDataVersion ver)
+{
+	fProc = ProcId;
+	fObjPtr = ObPtr;
+	fObjId = ObjId;
+	fTrans = ENoTransition;
+	fToDelete = 0;
+	fTrace = 0;
+	fVersion = ver;
+	fProcVersionAccess = -1;
+	fTaskVersion.Zero ();
+	fTaskWrite.Zero ();
+	if(IamOwner()) fReadAccessProcessors.push_back(ProcId);
+}
+	
+OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 			  const int ProcId)
 {
 	fProc = ProcId;

@@ -80,7 +80,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	DataLog << "Entering VerifyAccessRequests for Obj " << this->fObjId << "\n";
 	GLogMsgCounter++;
 	DataLog.flush();
-	//Isso ta errado
+	
 	OOPObjectId taskid;
 	while (fAccessList.HasIncompatibleTask (fVersion, taskid)) {
 		DataLog << "OOPMetaData::Verify.. task canceled " << taskid << endl;
@@ -146,6 +146,128 @@ void OOPMetaData::VerifyAccessRequests ()
 		}
 		else {
 //			DataLog << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor << endl;
+			GrantAccess (ac->fState, ac->fProcessor);
+#ifndef WIN32
+#warning "Send a grant access message to the processor"
+#endif
+			fAccessList.ReleaseAccess (ac);
+		}
+	}
+}
+void OOPMetaData::VerifyAccessRequests (ostream & VerifyLog)
+{
+	DataLog << GLogMsgCounter << endl;
+	VerifyLog << this->fObjId << "\tEntering VerifyAccessRequests\n";
+	VerifyLog.flush();
+	GLogMsgCounter++;
+	DataLog.flush();
+	VerifyLog << fObjId << "\t\tCheking for incompatible task\n";
+	VerifyLog.flush();
+	OOPObjectId taskid;
+	while (fAccessList.HasIncompatibleTask (fVersion, taskid)) {
+		VerifyLog << fObjId << "\t\t\tCheking for incompatible task failed\tFAILED\n";
+		VerifyLog.flush();
+
+		DataLog << "OOPMetaData::Verify.. task canceled " << taskid << endl;
+		DataLog.flush();
+		TM->CancelTask (taskid);
+	}
+	VerifyLog << fObjId << "\t\t\tCheking for incompatible task passed\tOK\n";
+	VerifyLog.flush();
+
+	VerifyLog << fObjId << "\t\tCheking for transition state\n";
+	VerifyLog.flush();
+	
+	if (fTrans != ENoTransition){
+		VerifyLog << fObjId << "\t\t\tCheking for transition state failed\tFAILED\n";
+		VerifyLog.flush();
+		return;
+	}
+	VerifyLog << fObjId << "\t\t\tCheking for transition state passed\tOK\n";
+	VerifyLog.flush();
+/*
+	How do we know the state of the object??
+	If any executing task is accessing the object for write or version access
+	   there is nothing to do (only one task can access the object at a time)
+	Follow the sequence :
+		-> first try to satisfy a version access request, first on this
+		   processor, then on a different processor.
+		-> try to satisfy a write access request on this processor
+		-> transfer ownership if is a write access request for a different processor
+    If there is an outstanding version access request.
+	-> If there is an executing task, there is nothing to do
+	-> If there are processors with read access, there is nothing to do
+	    BUT HOW DO I KNOW THE OBJECT SENT THE CANCEL MESSAGES??
+		-> Either I send the cancel message over and over
+		-> Either I forget to send the message
+		The messages were sent if the object is in a transition state
+	If there are reading processors and the object is not in a transition
+	then the messages need to be sent out and the object is put in a transition state
+    If the object is in a transition state, the code will not get that far,
+	  MESSAGES SHOULD BE SENT FROM HERE
+*/
+
+	VerifyLog << fObjId << "\t\tCheking for Version Access Req\n";
+	VerifyLog.flush();
+
+	list < OOPAccessInfo >::iterator ac;
+	if (fAccessList.HasVersionAccessRequests (fVersion)
+	    && fTrans == ENoTransition) {
+		VerifyLog << fObjId << "\t\t\tVersion Access Req exists\n";
+		VerifyLog << fObjId << "\t\t\tCalling SuspendReadAccess\n";
+		VerifyLog.flush();
+
+		SuspendReadAccess ();
+		// we should invoke a procedure to revoke all access requests
+//		if(IamOwner() && fReadAccessProcessors.size() == fSuspendAccessProcessors.size()) this->fProcVersionAccess = fProc;
+	}
+	else if (DM->GetProcID () == fProc
+		 && fAccessList.HasWriteAccessRequests (fVersion)
+		 && fTrans == ENoTransition) {
+		VerifyLog << fObjId << "\t\t\tVersion Access Req DOES NOT exists\n";
+		VerifyLog << fObjId << "\t\t\tCalling CancelReadAccess\n";
+		VerifyLog.flush();
+		
+		CancelReadAccess ();
+		// we should invoke a procedure to revoke all read access
+		// requests
+	}
+	// We need to put verification if there is a valid version access
+	// request
+	// or valid write access request
+	// In these cases all read access must be either suspended or revoked
+	VerifyLog << fObjId << "\t\tCheking Access Req\n";
+	VerifyLog.flush();
+	while (fAccessList.VerifyAccessRequests (*this, ac)) {
+		VerifyLog << fObjId << "\t\t\tAccess Req Exists\n";
+		VerifyLog.flush();
+		if (ac->fProcessor == DM->GetProcID ()) {
+			VerifyLog << fObjId << "\t\t\t\tAccess Req is local\n";
+			VerifyLog.flush();
+			
+			ac->fIsGranted = 1;
+			OOPMDataDepend depend (this->Id (), ac->fState,
+					       ac->fVersion);
+			if (ac->fState == EWriteAccess) {
+				VerifyLog << fObjId << "\t\t\t\t\tAccess Req is EWrite\n";
+				VerifyLog.flush();
+				fTaskWrite = ac->fTaskId;
+			}
+			if (ac->fState == EVersionAccess) {
+				VerifyLog << fObjId << "\t\t\t\t\tAccess Req is EVersion\n";
+				VerifyLog.flush();
+				fTaskVersion = ac->fTaskId;
+				fProcVersionAccess = ac->fProcessor;
+			}
+			DataLog << "Grant access to " << ac->fTaskId << " with depend " << depend << endl;
+			DataLog.flush();
+			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
+		}
+		else {
+//			DataLog << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor << endl;
+			VerifyLog << fObjId << "\t\t\t\tAccess Req is NOT local\n";
+			VerifyLog << fObjId << "\t\t\t\tAccess Req is from processor" << ac->fProcessor << "\n";
+			VerifyLog.flush();
 			GrantAccess (ac->fState, ac->fProcessor);
 #ifndef WIN32
 #warning "Send a grant access message to the processor"
@@ -230,7 +352,9 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		CheckTransitionState ();
 	} else {
 		CheckTransitionState ();
-		VerifyAccessRequests ();
+		//VerifyAccessRequests ();
+		VerifyAccessRequests (VeriLog);
+		
 	}
 }
 void OOPMetaData::CheckTransitionState ()

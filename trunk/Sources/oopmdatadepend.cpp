@@ -203,3 +203,9 @@ int OOPMDataDependList::Unpack (OOPReceiveStorage * buf)
 	}
 	return 1;
 }
+void OOPMDataDependList::PrintLog(ostream & out){
+	deque<OOPMDataDepend>::iterator i;
+	for(i=fDependList.begin();i!=fDependList.end();i++){
+		i->ShortPrint(out);
+	}
+}

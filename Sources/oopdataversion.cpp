@@ -20,6 +20,8 @@ int OOPDataVersion::Pack (OOPSendStorage * buf)
 	for (ivl = fLevelCardinality.begin ();
 	     ivl != fLevelCardinality.end (); ivl++)
 		buf->PkInt (&*ivl);
+	
+	return 1;
 }
 
 int OOPDataVersion::Unpack (OOPReceiveStorage * buf)
@@ -112,16 +114,16 @@ void OOPDataVersion::main ()
 
 
 void OOPDataVersion::SetLevelVersion (int level,
-				    int version)
+				   int version)
 {
-	if (!(level < fVersion.size ()))
+	if (!(level < (int)fVersion.size ()))
 		exit (-1);
 	fVersion[level] = version;
 }
 void OOPDataVersion::SetLevelCardinality (int level,
 					int depth)
 {
-	if (!(level < fLevelCardinality.size ()))
+	if (!(level < (int)fLevelCardinality.size ()))
 		exit (-1);
 	fLevelCardinality[level] = depth;
 }
@@ -142,7 +144,7 @@ bool OOPDataVersion::AmICompatible (OOPDataVersion & version)
 			__LINE__;
 		return false;
 	}
-	int i = 0;
+	unsigned int i = 0;
 	for (i = 0; i < fVersion.size (); i++)
 	{
 		// Returns false if my version is older than the one
@@ -179,7 +181,7 @@ bool OOPDataVersion::operator == (const OOPDataVersion & version)
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
-	int i = 0;
+	unsigned int i = 0;
 	for (i = 0; i < fVersion.size (); i++)
 	{
 		// Returns false if my version is older than the one
@@ -201,7 +203,7 @@ bool OOPDataVersion::operator < (const OOPDataVersion & version)
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
-	int i = 0;
+	unsigned int i = 0;
 	for (i = 0; i < fVersion.size (); i++)
 	{
 		// Returns false if my version is older than the one
@@ -223,7 +225,7 @@ bool OOPDataVersion::operator > (const OOPDataVersion & version)
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
-	int i = 0;
+	unsigned int i = 0;
 	for (i = 0; i < fVersion.size (); i++)
 	{
 		// Returns false if my version is older than the one
@@ -329,7 +331,7 @@ vector < int >OOPDataVersion::GetLevelVersion () const
 
 int OOPDataVersion::GetLevelCardinality (int level) const
 {
-	if (!(level < fVersion.size ()))
+	if (!(level < (int)fVersion.size ()))
 	{
 		cerr << "FILE: " << __FILE__ << " LINE:" << __LINE__
 			<< " Accessing level out of range" << endl;
@@ -344,7 +346,7 @@ int OOPDataVersion::GetLevelCardinality (int level) const
 
 int OOPDataVersion::GetLevelVersion (int level) const
 {
-	if (!(level < fVersion.size ()))
+	if (!(level < (int)fVersion.size ()))
 	{
 		cerr << "FILE: " << __FILE__ << " LINE:" << __LINE__
 			<< " Accessing level out of range" << endl;

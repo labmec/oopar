@@ -189,6 +189,20 @@ OOPObjectId OOPTaskManager::Submit(OOPTask *task) {
   return id;
 }
 
+OOPObjectId OOPTaskManager::ReSubmit(OOPTask *task) {
+	//mutex lock 
+	OOPObjectId auxId = task->Id();
+	int intId = auxId.GetId();
+	if(intId == -1) {
+		cerr << "ReSubmite called on task with no Id\n";
+		cerr << "File " << __FILE__ << endl;
+		exit(-1);
+	}
+	fSubmittedList.push_back(task);
+	//mutex unlock
+  return task->Id();
+}
+
 
 int OOPTaskManager::NumberOfTasks() {
   return fExecutable.size()+fFinished.size()+fSubmittedList.size()+fTaskList.size();

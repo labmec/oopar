@@ -140,6 +140,11 @@ int mpimain (int argc, char **argv)
 			TM->Execute ();
 		}
 	}*/
+	delete  DM;
+	delete  TM;
+	delete  CM;
+	delete LogDM;
+
 	cout << "Leaving mpimain\n";
 	cout.flush();
 	return 0;

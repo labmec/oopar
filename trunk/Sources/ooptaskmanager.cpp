@@ -84,7 +84,7 @@ void OOPTaskManager::main ()
 OOPTaskManager::OOPTaskManager (int proc)
 {
 	fProc = proc;
-	fLastCreated = NUMOBJECTS * fProc;
+	fLastCreated = 0;//NUMOBJECTS * fProc;
 	fMaxId = fLastCreated + NUMOBJECTS;
 }
 
@@ -265,13 +265,14 @@ void OOPTaskManager::Execute ()
 	while (fExecutable.size ()) {
 		while (fExecutable.size ()) {
 			i = fExecutable.begin ();
-			(*i)->Task ()->Execute ();
+			OOPTaskControl *tc = (*i);
+			tc->Task ()->Execute ();
 //              TaskManLog << (*i)->Task() << ":";
 			OOPObjectId id;
-			id = (*i)->Task ()->Id ();
-			(*i)->Depend ().SetExecuting ((*i)->Task ()->Id (),
+			id = tc->Task ()->Id ();
+			tc->Depend ().SetExecuting (tc->Task ()->Id (),
 						      false);
-			(*i)->Depend ().ReleaseAccessRequests ((*i)->Task ()->
+			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
 							       Id ());
 #ifdef DEBUG
 			// TaskManLog << "Executing task on processor " << fProc << 
@@ -279,7 +280,7 @@ void OOPTaskManager::Execute ()
 			// id.Print(TaskManLog);
 			// TaskManLog.flush();
 #endif
-			fFinished.push_back (*i);
+			fFinished.push_back (tc);
 			fExecutable.erase (i);
 		}
 		TransferFinishedTasks ();
@@ -343,8 +344,9 @@ void OOPTaskManager::TransferSubmittedTasks ()
 	deque < OOPTask * >::iterator sub;
 	while (fSubmittedList.begin () != fSubmittedList.end ()) {
 		sub = fSubmittedList.begin ();
-		if ((*sub)->GetProcID () != fProc) {
-			CM->SendTask (*sub);
+		OOPTask * aux = (*sub);
+		if (aux->GetProcID () != fProc) {
+			CM->SendTask (aux);
 			fSubmittedList.erase (sub);
 		}
 		else {
@@ -369,31 +371,32 @@ void OOPTaskManager::TransferFinishedTasks ()
 	deque < OOPTaskControl * >::iterator sub;
 	while (fFinished.size ()) {
 		sub = fFinished.begin ();
-		if ((*sub)->Task ()->GetProcID () != fProc) {
-			CM->SendTask ((*sub)->Task ());
-			(*sub)->ZeroTask ();
-			delete (*sub);
+		OOPTaskControl * auxtc=(*sub);
+		if (auxtc->Task ()->GetProcID () != fProc) {
+			CM->SendTask (auxtc->Task ());
+			auxtc->ZeroTask ();
+			delete auxtc;
 			fFinished.erase (sub);
 		}
-		else if ((*sub)->Task ()->IsRecurrent ()) {
-			(*sub)->Depend () =
-				(*sub)->Task ()->GetDependencyList ();
-			(*sub)->Depend ().ClearPointers ();
-			fTaskList.push_back (*sub);
+		else if (auxtc->Task ()->IsRecurrent ()) {
+			auxtc->Depend () =
+				auxtc->Task ()->GetDependencyList ();
+			auxtc->Depend ().ClearPointers ();
+			fTaskList.push_back (auxtc);
 
-			if ((*sub)->Depend ().
-			    SubmitDependencyList ((*sub)->Task ()->Id ())) {
+			if (auxtc->Depend ().
+			    SubmitDependencyList (auxtc->Task ()->Id ())) {
 				// their is no incompatibility between
 				// versions
 			}
 			else {
 				// there is an incompatibility of versions
-				CancelTask ((*sub)->Task ()->Id ());
+				CancelTask (auxtc->Task ()->Id ());
 			}
 			fFinished.erase (sub);
 		}
 		else {
-			delete (*sub);
+			delete auxtc;
 			fFinished.erase (sub);
 		}
 	}

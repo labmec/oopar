@@ -135,6 +135,8 @@ OOPDataManager::~OOPDataManager ()
 		delete *i;
 	}
 	fObjects.clear ();
+	DataManLog << "Terminating DM\n";
+	DataManLog.flush();
 }
 
 

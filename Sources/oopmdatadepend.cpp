@@ -37,6 +37,31 @@ void OOPMDataDepend::Print(ostream & out) const {
   fVersion.Print(out);
 }
 
+void OOPMDataDepend::Pack(OOPSendStorage *buf) {
+  fDataId.Pack(buf);
+  int need = fNeed;
+  buf->PkInt(&need);
+  fVersion.Pack(buf);
+  if(fObjPtr) {
+    cout << "OOPMDataDepend::Pack the object pointer should be zero\n";
+  }
+
+}
+
+  /**
+   * method to reconstruct the object
+   */
+int OOPMDataDepend::Unpack(OOPReceiveStorage *buf) {
+  fDataId.Unpack(buf);
+  int need;
+  buf->UpkInt(&need);
+  fNeed = (OOPMDataState) need;
+  fVersion.Unpack(buf);
+  fObjPtr = 0;
+  return 1;
+}
+
+
 int OOPMDataDependList::SubmitDependencyList(const OOPObjectId &taskid) {
 
 	if(fDependList.size() ==0) {
@@ -155,25 +180,27 @@ int OOPMDataDependList::CanExecute() {
   return 1;
 }
 
-bool OOPMDataDependList::AmIConsistent() {
-	deque<OOPMDataDepend>::iterator i;
+void OOPMDataDependList::Pack(OOPSendStorage *buf) {
+  deque<OOPMDataDepend>::iterator i;
+  int nel = fDependList.size();
+  buf->PkInt(&nel);
+  for(i=fDependList.begin();i!=fDependList.end();i++){
+    i->Pack(buf);
+  }
 
-#ifndef WIN32
-#warning "Gustavo, I question the correctness of this method"
-#endif
-	for(i=fDependList.begin();i!=fDependList.end();i++){
-		//Run through all elements in this list.
-		//Check with the DataManager the version of each object entry and
-		//According to its dependency issue a warning or error message ?
-		OOPMetaData *objptr = i->ObjPtr();
-		if(!objptr) continue;
-		
-		if(!i->Version().AmICompatible(objptr->Version())){
-			cerr << "Inconsistent version found\n" ;
-			return false;
-		}
-	}
-	return 1;
-	
 }
 
+  /**
+   * method to reconstruct the object
+   */
+int OOPMDataDependList::Unpack(OOPReceiveStorage *buf) {
+  int nel;
+  buf->UpkInt(&nel);
+  int id;
+  OOPMDataDepend temp;
+  for(id=0; id<nel; id++) {
+    temp.Unpack(buf);
+    fDependList.push_back(temp);
+  }
+  return 1;
+}

@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.4 2003-07-19 10:35:29 longhin Exp $
+dnl $Id: configure.in,v 1.5 2004-02-20 11:25:31 longhin Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -256,6 +256,7 @@ dnl --| Projects subtree |--
 	Projects/Makefile \
 	Projects/Trivial/Makefile \
 	Projects/Flux/Makefile \
+  	Projects/BiCGSt/Makefile \
 	Projects/PhilFlux/Makefile \
 ])
 

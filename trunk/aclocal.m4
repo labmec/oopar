@@ -15,7 +15,7 @@ dnl acinclude.m4 for OOPar
 dnl
 dnl Process this file with GNU aclocal to produce a configure script.
 dnl
-dnl $Id: aclocal.m4,v 1.1 2003-08-01 19:05:59 longhin Exp $
+dnl $Id: aclocal.m4,v 1.2 2004-02-20 11:25:37 longhin Exp $
 dnl
 
 dnl

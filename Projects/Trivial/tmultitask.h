@@ -10,13 +10,13 @@
 //class OOPMReturnType;
 class OOPSaveable;
 
-class OOPSendStorage;
-class OOPReceiveStorage;
+class OOPStorageBuffer;
+
 
 class TMultiTask : public OOPTask {
 public:
 	
-static	OOPSaveable * Restore(OOPReceiveStorage *buf);
+static	OOPSaveable * Restore(OOPStorageBuffer *buf);
 	
 //	TMultiTask();
 public:
@@ -53,9 +53,9 @@ public:
     * Defines the necessary interface for task communication along the network.
     * @param * buf Buffer for data manipulation.
     */
-	virtual int Unpack (OOPReceiveStorage * buf);
+	virtual int Unpack (OOPStorageBuffer * buf);
 
-	virtual int Pack (OOPSendStorage * buf);
+	virtual int Pack (OOPStorageBuffer * buf);
 
     /**
     * Returns class name
@@ -69,12 +69,12 @@ public:
     * Returns true if the object belongs to a class derived from the specified classid
     * @param ClassId Id of inquired super class
     */
-	virtual int DerivedFrom (long Classid);
+	int DerivedFrom (long Classid);
 
     /**
     * Returns true if the object belongs to a class derived from the specified class name
     * @param classname Name of inquired super class
     */
-	virtual int DerivedFrom (char *classname);
+	int DerivedFrom (char *classname);
 };
 #endif //TMULTITASK_H

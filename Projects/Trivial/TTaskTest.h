@@ -3,7 +3,7 @@
 #ifndef TTASKTEST_H
 #define TTASKTEST_H
 #include "ooptask.h"
-#include "../gnu/gnudefs.h"
+//#include "../gnu/gnudefs.h"
 #include "tmultidata.h"
 #include "tresultdata.h"
 #include "ooptask.h"

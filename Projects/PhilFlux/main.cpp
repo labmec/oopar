@@ -159,6 +159,6 @@ void InsertTasks(int numtasks)
 }
 void RegisterPhilFluxRestore() 
 {
-  OOPReceiveStorage::AddClassRestore (TSMALLTASKID, TSmallTask::Restore);
-  OOPReceiveStorage::AddClassRestore (TPARVECTOR_ID, TParVector::Restore);
+  OOPStorageBuffer::AddClassRestore (TSMALLTASKID, TSmallTask::Restore);
+  OOPStorageBuffer::AddClassRestore (TPARVECTOR_ID, TParVector::Restore);
 }

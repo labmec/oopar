@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 */
 	ParAddClass();
 	//Isso para cada classe !
-	OOPReceiveStorage::AddClassRestore(TMULTITASK_ID, TMultiTask::Restore);//,"TBuildGridTask");
+	OOPStorageBuffer::AddClassRestore(TMULTITASK_ID, TMultiTask::Restore);//,"TBuildGridTask");
 
 	CM = new OOPFileComManager();
 	CM->Initialize( argv[0], 0 );

@@ -8,11 +8,11 @@ class   TParVector:public OOPSaveable
       public:
 	TParVector ();
 	long    GetClassID ();
-	int     Pack (OOPSendStorage * buf);
-	int     Unpack (OOPReceiveStorage * buf);
+	int     Pack (OOPStorageBuffer * buf);
+	int     Unpack (OOPStorageBuffer * buf);
 	void    Resize (int size);
 	void    SetVector (vector < double >data);
-static OOPSaveable *Restore(OOPReceiveStorage *buf);
+static OOPSaveable *Restore(OOPStorageBuffer *buf);
       private:
 	        vector < double >fData;
 };

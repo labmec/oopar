@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.3 2003-07-18 21:41:26 longhin Exp $
+dnl $Id: configure.in,v 1.4 2003-07-19 10:35:29 longhin Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -188,7 +188,7 @@ case "${mpi_enabled}" in
     MPIDIR=$mpi_dir
     MPIINCLUDE="-I$MPIDIR/include"
     MPILIBDIR="-L$MPIDIR/lib"
-    MPILIB="-lmpi"
+    MPILIB="-lmpich"
 	MPISOURCE="oopmpicomm.cpp oopmpistorage.cpp"
   ;;
   no)

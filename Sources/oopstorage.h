@@ -199,7 +199,7 @@ class   OOPReceiveStorage:public OOPError
   /**
    * Pointer to restore functions of all classes present on the environment.
    */
-	static  map < long, void *>gFuncTree;
+	static  map < long, TRestFunction >gFuncTree;
 };
 typedef OOPReceiveStorage *PTReceiveStorage;
 #endif // _STORAGEHH_

@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.13 2003-10-13 23:48:25 longhin Exp $
-// $Revision: 1.13 $
+// $Author: phil $
+// $Id: oopmpistorage.cpp,v 1.14 2003-10-14 09:49:55 phil Exp $
+// $Revision: 1.14 $
 
 
 #include "oopstorage.h"
@@ -172,6 +172,7 @@ OOPSaveable *OOPMPIReceiveStorage::Restore () {
 		return NULL;
 	}
 	f_isreceiving = 0;
+	f_position = 0;
 	OOPSaveable *obj = OOPReceiveStorage::Restore();
 	//MPI_Request_free(&f_request);
 	return obj;

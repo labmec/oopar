@@ -1,7 +1,7 @@
 /***************************************************************************
-                          bicgdouble.h  -  description
+                          tbicg_one.h  -  description
                              -------------------
-    begin                : Wed Feb 11 2004
+    begin                : Mon Feb 16 2004
     copyright            : (C) 2004 by longhin
     email                : longhin@carlsberg.fec.unicamp.br
  ***************************************************************************/
@@ -15,27 +15,49 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef BICGDOUBLE_H
-#define BICGDOUBLE_H
+#ifndef TBICG_ONE_H
+#define TBICG_ONE_H
 
+#include <ooptask.h>
 #include <bicgdefs.h>
-#include <oopsaveable.h>
+#include <bicgdouble.h>
+#include <BiCGInt.h>
 
-
-/**Implements the transmitable double variable
+/**Implements the last operations on the BiCGStab method before the loop. The operations are:
+  if(resid = normr/normb){
+      tol=resid;
+      max_iter=0;
+      return 0;
+  }
   *@author longhin
   */
 
-class BiCGDouble : public OOPSaveable {
-public:
-  double value;
-	BiCGDouble();
-	~BiCGDouble();
-  long GetClassID();
+class TBiCG_One : public OOPTask  {
+public: 
+	TBiCG_One(int proc);
+	~TBiCG_One();
+	/**
+	* Returns the estimated execution time.
+	* returns 0 if the task is instantaneous
+	* returns > 0 if estimate is known
+	* return < 0 if no estimate is known
+	*/
+	long ExecTime (){
+    return -1;
+  }
+
+	/**
+	* Execute the task, verifying that all needed data acesses are satisfied.
+	*/
+	OOPMReturnType Execute ();
+  
+  long GetClassID(){
+    return TBICG_ONE_ID;
+  }
 
   int Pack (OOPSendStorage * buf);
 	int Unpack (OOPReceiveStorage * buf);
-  
+
 };
 
 #endif

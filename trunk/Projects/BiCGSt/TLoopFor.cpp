@@ -2,20 +2,95 @@
 
 #include "TLoopFor.h"
 #include "TDotProduct.h"
+#include <tbicgfor_one.h>
 #include <oopmetadata.h>
 #include <ooptaskmanager.h>
 #include <oopcommmanager.h>
 
-void TLoopFor::SubmitIf(){
- //if(rho_1==0) tol = Norm(r)/normb
-// int i, nproc;
+void TLoopFor::SubmitPartOne(){
+/*
+    if (rho_1 == 0) {
+      tol = Norm(r) / normb;
+      return 2;
+    }
+    if (i == 1)
+      p = r;
+    else {
+      //beta(0) = (rho_1(0)/rho_2(0)) * (alpha(0)/omega(0));
+      beta = (rho_1/rho_2) * (alpha/omega); //TComputeBeta
+      //p = r + beta(0) * (p - omega(0) * v);
+      p *= beta; //p.Add(beta,1)
+      p.Add(1., r);
+      p.Add(- beta * omega, v);
+    }
+    M.Solve(p, phat);//parei aqui.
+*/
 
- OOPDataVersion version = fDataDepend.Dep(fId_rho_1).ObjPtr()->Version();
- version.DecreaseLevel();
- version.Increment();
+ OOPDataVersion rho_version = fDataDepend.Dep(fId_rho_1).ObjPtr()->Version();
+ rho_version.Increment();
 
+ //First if necessary data
  OOPDataVersion tolVersion = fDataDepend.Dep(fId_tol).ObjPtr()->Version();
- tolVersion.IncrementLevel(-1);
+ OOPDataVersion normr_ver = fDataDepend.Dep(fId_normr).ObjPtr()->Version();
+ OOPDataVersion rver = fDataDepend.Dep(f_lId_r[0]).ObjPtr()->Version();
+ OOPDataVersion normb_ver = fDataDepend.Dep(fId_normb).ObjPtr()->Version();
+
+
+ //Sencond If necessary data
+ //Condition
+ OOPDataVersion max_iter_Version = fDataDepend.Dep(fId_max_iter).ObjPtr()->Version();
+ //True operation
+ OOPDataVersion p_Version = fDataDepend.Dep(f_lId_p[0]).ObjPtr()->Version();
+ OOPDataVersion r_Version = fDataDepend.Dep(f_lId_r[0]).ObjPtr()->Version();
+ 
+ //False operation
+ OOPDataVersion beta_ver = fDataDepend.Dep(fId_beta).ObjPtr()->Version();
+ //rho_1 already dependent
+ OOPDataVersion rho_2_ver = fDataDepend.Dep(fId_rho_2).ObjPtr()->Version();
+ OOPDataVersion alpha_Version = fDataDepend.Dep(fId_alpha).ObjPtr()->Version();
+ OOPDataVersion omega_Version = fDataDepend.Dep(fId_omega).ObjPtr()->Version();
+ //p already dependent
+ //r already dependent
+ OOPDataVersion v_Version = fDataDepend.Dep(f_lId_v[0]).ObjPtr()->Version();
+
+ //M.Solve(p,phat)
+ OOPDataVersion M_Version = fDataDepend.Dep(f_lId_M[0]).ObjPtr()->Version();
+ OOPDataVersion phat_Version = fDataDepend.Dep(f_lId_phat[0]).ObjPtr()->Version();
+
+
+ int nproc = CM->NumProcessors();
+ TBiCGFor_One * bicgforone;
+ int i = 0;
+ for(i=0;i<nproc;i++){
+       bicgforone = new TBiCGFor_One(i);
+       bicgforone->AddDependentData(OOPMDataDepend(fId_rho_1,EReadAccess,rho_version));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_tol,EReadAccess,tolVersion));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_normr,EReadAccess,normr_ver));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_r[i],EReadAccess,r_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_normb,EReadAccess,normb_ver));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_max_iter, EReadAccess, max_iter_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_p[i], EWriteAccess, p_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_r[i], EReadAccess, r_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_beta, EWriteAccess, beta_ver));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_rho_2, EReadAccess, rho_2_ver));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_alpha, EReadAccess, alpha_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(fId_omega, EReadAccess, omega_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_v[i], EReadAccess, v_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_M[i], EReadAccess, M_Version));
+       bicgforone->AddDependentData(OOPMDataDepend(f_lId_phat[i], EReadAccess, phat_Version));
+ }
+ 
+
+ 
+
+
+ 
+
+ 
+ 
+ 
+
+ 
  /*
  TIfConditional * ifcond = new TIfConditional(0);
  ifcond->AddDependentData(OOPMDataDepend(fId_rho_1, ERead, version));
@@ -34,44 +109,19 @@ OOPMReturnType TLoopFor::Execute ()
   /**
    * Submit the dot product between rtilde and r
    */
-  SubmitDistDotProduct(f_lId_rtilde, f_lId_r);
+  SubmitDistDotProduct();
 
   /**
    * Submit the if conditional.
    * fId_tol incremented.
    */
-  SubmitIf();
+  SubmitPartOne();
 
-  /**
-   * Submits the second if on the loop instruction.
-   */
-  SumbmitSecondIf();
-   
-	return ESuccess;
+
+  return ESuccess;
 }
-void TLoopFor::SumbmitSecondIf(){
-  OOPDataVersion version;
-  version = fDataDepend.Dep(fId_max_iter).ObjPtr()->Version();
- /* TSecondIf * sec = new TSecondIf(0);
-  sec->AddDependentData(OOPMDataDepend(fId_max_iter, EVersion, version));
-  sec->AddDependentData(OOPMDataDepend(fId_beta, EVersion, version));
-  sec->AddDependentData(OOPMDataDepend(fId_rho_1, EVersion, version));
-  sec->AddDependentData(OOPMDataDepend(fId_rho_2, EVersion, version));
-  sec->AddDependentData(OOPMDataDepend(fId_alpha, EVersion, version));
-  sec->AddDependentData(OOPMDataDepend(fId_omega, EVersion, version));
-*/
-  //dentro de um for para todos os processadores
-  int i, nproc;
-  nproc = CM->NumProcessors();
-  for(i=0;i<nproc;i++){
-  /*  sec->AddDependentData(OOPMDataDepend(f_lId_p[i], EVersion, version));
-    sec->AddDependentData(OOPMDataDepend(f_lId_r[i], EVersion, version));
-    sec->AddDependentData(OOPMDataDepend(f_lId_v[i], EVersion, version));
-    */
-  }
-  //sec->Submit();
-}
-void TLoopFor::SubmitDistDotProduct(vector<OOPObjectId> & Id1, vector<OOPObjectId> &Id2)
+
+void TLoopFor::SubmitDistDotProduct()
 {
   int i, nproc = CM->NumProcessors();
   TDotProduct * dotprod;

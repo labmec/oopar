@@ -5,7 +5,7 @@ install_location=
 type=DATA
 
 [./Makefile.am]
-files=./TBiCGStab.cpp,./TBiCGStab.h,./TMultAdd.cpp,./TMultAdd.h,./TDistNorm.cpp,./TDistNorm.h,./TDotProduct.cpp,./TDotProduct.h,./TLoopFor.cpp,./TLoopFor.h,./TUpdateResidue.cpp,./TUpdateResidue.h,./bicgdouble.h,./bicgdouble.cpp,./bicgdefs.h,./BiCGSt.kdevprj,./TTaskComm.cpp,./TTaskComm.h,./tparmatrix.cpp,./tparmatrix.h
+files=./TBiCGStab.cpp,./TBiCGStab.h,./TMultAdd.cpp,./TMultAdd.h,./TDistNorm.cpp,./TDistNorm.h,./TDotProduct.cpp,./TDotProduct.h,./TLoopFor.cpp,./TLoopFor.h,./TUpdateResidue.cpp,./TUpdateResidue.h,./bicgdouble.h,./bicgdouble.cpp,./bicgdefs.h,./BiCGSt.kdevprj,./TTaskComm.cpp,./TTaskComm.h,./tparmatrix.cpp,./tparmatrix.h,./tbicg_one.cpp,./tbicg_one.h,./tbicgfor_one.cpp,./tbicgfor_one.h
 sub_dirs=
 type=static_library
 
@@ -106,6 +106,30 @@ install_location=
 type=SOURCE
 
 [./bicgdouble.h]
+dist=true
+install=false
+install_location=
+type=HEADER
+
+[./tbicg_one.cpp]
+dist=true
+install=false
+install_location=
+type=SOURCE
+
+[./tbicg_one.h]
+dist=true
+install=false
+install_location=
+type=HEADER
+
+[./tbicgfor_one.cpp]
+dist=true
+install=false
+install_location=
+type=SOURCE
+
+[./tbicgfor_one.h]
 dist=true
 install=false
 install_location=

@@ -185,3 +185,16 @@ bool OOPAccessInfoList::HasVersionAccessRequests(const OOPDataVersion &dataversi
 	return false;
 
 }
+
+void OOPAccessInfoList::SetExecute(const OOPObjectId &taskid, const OOPMDataDepend &depend, bool condition)
+{
+	list<OOPAccessInfo>::iterator i = fList.begin();
+	while(i != fList.end()) {
+		if(i->fTaskId == taskid && i->fState == depend.State() && i->fVersion == depend.Version()) {
+			i->fIsAccessing = condition;
+			break;
+		}
+		i++;
+	}
+}
+

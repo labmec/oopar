@@ -61,6 +61,14 @@ int OOPMDataDependList::SubmitDependencyList(const OOPObjectId &taskid) {
   return 1;
 }
 
+void OOPMDataDependList::SetExecuting(const OOPObjectId &taskid, bool condition) {
+
+  deque<OOPMDataDepend>::iterator i;
+  for(i=fDependList.begin();i!=fDependList.end();i++){
+	  i->ObjPtr()->SetExecute(taskid,*i,condition);
+  }
+}
+
 void OOPMDataDependList::ReleaseAccessRequests(const OOPObjectId &taskid) {
 
   deque<OOPMDataDepend>::iterator i;
@@ -135,15 +143,20 @@ bool OOPMDataDependList::AmIConsistent() {
 	deque<OOPMDataDepend>::iterator i;
 	OOPObjectId auxId;
 	OOPDataVersion auxVer;
-	
+
+#ifndef WIN32
+#warning "Gustavo, I question the correctness of this method"
+#endif
 	for(i=fDependList.begin();i!=fDependList.end();i++){
 		//Run through all elements in this list.
 		//Check with the DataManager the version of each object entry and
 		//According to its dependency issue a warning or error message ?
 		auxId = i->Id();
 		auxVer = i->Version();
+		OOPMetaData *objptr = i->ObjPtr();
+		if(!objptr) continue;
 		
-		if(!i->Version().AmICompatible(DM->GetDataVersion(i->Id()))){
+		if(!i->Version().AmICompatible(objptr->Version())){
 			cerr << "Inconsistent version found\n" ;
 			return false;
 		}

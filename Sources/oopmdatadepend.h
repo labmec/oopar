@@ -95,6 +95,12 @@ public:
   int SubmitDependencyList(const OOPObjectId &taskid);
 
   /**
+   * Signal the OOPMetaData objects that the task is executing
+   * @param condition true if the task enters execution, false if it finished executing
+   */
+   void SetExecuting(const OOPObjectId &taskid, bool condition);
+
+  /**
    * Prints the list of data dependencies
    */
   void Print(ostream &out);

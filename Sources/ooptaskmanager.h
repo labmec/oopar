@@ -10,11 +10,11 @@
 #include <deque>
 #include <vector>
 //#include "ooptask.h"
-class OOPDataVersion;
+class   OOPDataVersion;
 //class OOPMReturnType;
 //class OOPMDataState;
-class OOPSaveable;
-class OOPTaskControl;
+class   OOPSaveable;
+class   OOPTaskControl;
 using namespace std;
 
 class   OOPObjectId;
@@ -34,17 +34,17 @@ class   OOPObjectId;
  */
 class   OOPTaskManager
 {
-public:
-  void Print(ostream & out);
+      public:
+	void    Print (ostream & out);
   /**
    * Checks for the existence for obselete tasks on the task manager list
    */
-  void CleanUpTasks();
+	void    CleanUpTasks ();
   /**
    * Used for testing purposes.
    * Checks all the public interfaces of the class
    */
-  static void main ();
+	static void main ();
 
   /**
      * Notifies the task that a required access was granted on the data.
@@ -52,33 +52,33 @@ public:
    * @param depend dependency structure including objectid, state and version.
    * @param objptr Pointer to data object.
    */
-  void    NotifyAccessGranted (const OOPObjectId & TaskId,
-			       const OOPMDataDepend & depend,
-				   OOPMetaData * objptr);
+	void    NotifyAccessGranted (const OOPObjectId & TaskId,
+				     const OOPMDataDepend & depend,
+				     OOPMetaData * objptr);
   /**
      * Notifies the task that a required access was revoked on the data.
    * @param TaskId Id of the task to which the access was granted.
    * @param depend dependency structure including objectid, state and version.
    */
-  void    RevokeAccess(const OOPObjectId & TaskId,
-			       const OOPMDataDepend & depend);
+	void    RevokeAccess (const OOPObjectId & TaskId,
+			      const OOPMDataDepend & depend);
 
   /**
    * Constructor passing processor id as parameter.
    * @param proc Processor where the TM is created.
    */
-  OOPTaskManager (int proc);
+	        OOPTaskManager (int proc);
   /**
    * Simple destructor
    */
-  ~OOPTaskManager ();
+	       ~OOPTaskManager ();
   /**
    * Submits a task to the TaskManager.
    * Assigns to that task a unique Id on the environment.
    * @param task Pointer to the submitted task.
    */
-  OOPObjectId Submit (OOPTask * task);
-  
+	OOPObjectId Submit (OOPTask * task);
+
   /**
    * Re submits a task to the task manager. It won't call the GenerateId() method
    * Assumes that the task was already given an Id.
@@ -87,115 +87,115 @@ public:
    * @since 25/07/2003
    * @author Gustavo C Longhin
    */
-  OOPObjectId ReSubmit(OOPTask *task);
+	OOPObjectId ReSubmit (OOPTask * task);
 
   /**
    * Returns the number tasks currently being managed by this data manager
    */
-  int     NumberOfTasks ();
+	int     NumberOfTasks ();
 
   /**
    * Returns the total number of task on the environment.
    */
-  int     GlobalNumberOfTasks ();
+	int     GlobalNumberOfTasks ();
 
   /**
    * Changes the priority of the task identified by Id.
    * @param Id Id of the task having its priority changed.
    * @param newpriority New priority assigned to the task.
    */
-  int     ChangePriority (OOPObjectId &Id,
-			  int newpriority);
+	int     ChangePriority (OOPObjectId & Id, int newpriority);
 
   /**
    * Cancels the task.
    * @param taskid Id of task which will be canceled.
    */
-  int     CancelTask (OOPObjectId taskid);
+	int     CancelTask (OOPObjectId taskid);
 
   /**
    * Returns 1 if task does exist on the current TM
    * @param taskid Id of the searched task
    */
-  int     ExistsTask (OOPObjectId taskid);	// returns 1 if the task
-  // exists
+	int     ExistsTask (OOPObjectId taskid);	// returns 1 if the
+	// task
+	// exists
 
   /**
    * Transfer the tasks which are in the fSubmittedList to the
    * fTaskList, registering their dependencies
    */
-  void TransferSubmittedTasks();
+	void    TransferSubmittedTasks ();
 
   /**
    * Transfer the finished tasks to the tasklist if they are recurrent
    * else delete the finished tasks
    */
-  void TransferFinishedTasks();
+	void    TransferFinishedTasks ();
 
   /**
    * Indicate to the TaskManager that a given task can execute
    */
-  void TransfertoExecutable(const OOPObjectId &taskid);
+	void    TransfertoExecutable (const OOPObjectId & taskid);
   /**
    * Very important method for the whole OOPar environment.
    * Starts all task which has their data access requests granted from the DM.
    * At least one call to one of the task managers should performed for the OOPar to start.
    */
-  void    Execute ();
-private:
+	void    Execute ();
+      private:
 #ifndef WIN32
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
-  pthread_mutex_t fActOnTaskList;
+	        pthread_mutex_t fActOnTaskList;
 
 #endif
   /**
    * Generate a unique id number
    */
-  OOPObjectId GenerateId ();
+	OOPObjectId GenerateId ();
   /**
    * Find the task with the given id.
    */
-  OOPTask  *FindTask (OOPObjectId taskid);	// 
+	OOPTask *FindTask (OOPObjectId taskid);	// 
   /**
    * reorder the tasks according to their priority
    */
-  void    Reschedule ();
+	void    Reschedule ();
 
   /**
    * Processor where the current object is located
    */
-  int     fProc;
+	int     fProc;
   /**
    * Counter for number of objects assigned to this manager.
    * Whenever a new task is assigned, fLastCreated is incremented.
    */
-  long    fLastCreated;
+	long    fLastCreated;
   /**
    * Maximum number of generated Id.
    */
-  long fMaxId;	
+	long    fMaxId;
   /**
    * List of tasks which can't be executed yet
    */
-  deque <OOPTaskControl *> fTaskList;
-	
+	        deque < OOPTaskControl * >fTaskList;
+
 
   /**
    * List of tasks which can be readily executed
    */
-  deque< OOPTaskControl *> fExecutable;
+	        deque < OOPTaskControl * >fExecutable;
 
   /**
    * List of tasks recently submitted
    */
-  deque <OOPTask *> fSubmittedList;
+	        deque < OOPTask * >fSubmittedList;
 
   /**
    * List of finished tasks
    */
-  deque <OOPTaskControl *> fFinished;
+	        deque < OOPTaskControl * >fFinished;
 };
 
 /**
@@ -207,12 +207,12 @@ class   OOPTMTask:public OOPDaemonTask
   /**
    * Simple constructor
    */
-  OOPTMTask (int ProcId);
+	OOPTMTask (int ProcId);
 
   /**
    * Returns execution type
    */
-  OOPMReturnType Execute ();
+	OOPMReturnType Execute ();
 
 };
 

@@ -3,22 +3,23 @@
 #ifndef TPARMESH_H
 #define TPARMESH_H
 #include "oopsaveable.h"
-class TParMesh : public OOPSaveable {
-public:    
+class   TParMesh:public OOPSaveable
+{
+      public:
 
-    TParMesh();
+	TParMesh ();
 	/**
 	 * Returns the class id for the current class.
 	 */
-	virtual long GetClassID();
-private:
+	virtual long GetClassID ();
+      private:
 	/**
 	 * Holds the unique class Id for the parallel environment.
 	 * @author Gustavo Camargo Longhin
 	 * @since 04/06/2003
 	 */
-	long fClassId;
-	
+	long    fClassId;
+
 
 };
-#endif //TPARMESH_H
+#endif // TPARMESH_H

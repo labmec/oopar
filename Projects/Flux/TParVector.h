@@ -5,25 +5,26 @@
 #include "oopsaveable.h"
 #include <vector>
 
-class TParVector : public OOPSaveable {
-public:    
+class   TParVector:public OOPSaveable
+{
+      public:
 
-    TParVector();
-	
-	long GetClassID();
+	TParVector ();
 
-	int Pack(OOPSendStorage * buf);
+	long    GetClassID ();
 
-	int Unpack(OOPReceiveStorage *buf );
-	
-	void Resize(int size);
+	int     Pack (OOPSendStorage * buf);
 
-	void SetVector(vector<double> data);
-private:
-	long fClassId;
+	int     Unpack (OOPReceiveStorage * buf);
 
-	vector<double> fData;
+	void    Resize (int size);
+
+	void    SetVector (vector < double >data);
+      private:
+	long    fClassId;
+
+	        vector < double >fData;
 
 
 };
-#endif //TPARRHS_H
+#endif // TPARRHS_H

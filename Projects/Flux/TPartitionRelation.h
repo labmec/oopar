@@ -12,39 +12,40 @@
 /**
  * This class describe the relationship between the partitions of a mesh
  */
-class TPartitionRelation : public OOPSaveable {
-public:
+class   TPartitionRelation:public OOPSaveable
+{
+      public:
 
-	long GetClassID();
-	TPartitionRelation();
-    TPartitionRelation(int npart);
+	long    GetClassID ();
+	        TPartitionRelation ();
+	        TPartitionRelation (int npart);
     /**
      * Returns the total number of 
      */
 
-  	static TPartitionRelation *CreateRandom(int numpart);
+	static TPartitionRelation *CreateRandom (int numpart);
 
-    int GetNPartitions();
+	int     GetNPartitions ();
 
-    TContribution &GetRelation(int parfrom, int parto);
+	        TContribution & GetRelation (int parfrom, int parto);
 
-    int IncomingContribution(int partition);
+	int     IncomingContribution (int partition);
 
     /**
      * Returns a vector containing the ID of all the partitions to each the local partitions will contribute to. 
      */
-    int OutgoingContribution(int partition);
+	int     OutgoingContribution (int partition);
 
-    void Print(ostream &out);
+	void    Print (ostream & out);
 
     /**
      * inform to the relation table the mesh id
      */
-    void SetMeshId(int index, OOPObjectId &meshid);
-private:    
-    int fNumPartitions;
-	vector< vector<TContribution > > fRelation;
+	void    SetMeshId (int index, OOPObjectId & meshid);
+      private:
+	int     fNumPartitions;
+	        vector < vector < TContribution > >fRelation;
 
-	long fClassId;
+	long    fClassId;
 };
-#endif //TPARTITIONRELATION_H
+#endif // TPARTITIONRELATION_H

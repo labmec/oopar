@@ -3,8 +3,8 @@
 #ifndef TTASKCOMM_H
 #define TTASKCOMM_H
 #include "ooptask.h"
-class OOPReceiveStorage;
-class OOPSendStorage;
+class   OOPReceiveStorage;
+class   OOPSendStorage;
 
 
 /**
@@ -15,24 +15,25 @@ class OOPSendStorage;
  * @version 0.8
  * @since 12/06/2003 
  */
-class TTaskComm : public OOPTask {
-public:    
+class   TTaskComm:public OOPTask
+{
+      public:
 
     /**
      * Virtual function must be redefined.
      * Used by the TM to access the task´s functinality. 
      */
-    OOPMReturnType Execute();    
+	OOPMReturnType Execute ();
 
-	int Pack (OOPSendStorage * buf);
+	int     Pack (OOPSendStorage * buf);
 
 	/**
 	* Virtual Unpack function.
 	* Defines the necessary interface for task communication along the network.
 	* @param * buf Buffer for data manipulation.
 	*/
-	int Unpack (OOPReceiveStorage * buf);
+	int     Unpack (OOPReceiveStorage * buf);
 
-    TTaskComm(int ProcId);
+	        TTaskComm (int ProcId);
 };
-#endif //TTASKCOMM_H
+#endif // TTASKCOMM_H

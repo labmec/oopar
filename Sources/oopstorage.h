@@ -42,31 +42,33 @@
 
 using namespace std;
 
-class OOPSaveable;
-class OOPReceiveStorage;
+class   OOPSaveable;
+class   OOPReceiveStorage;
 typedef unsigned int u_int;
 typedef unsigned short u_short;
 typedef unsigned long u_long;
-typedef OOPSaveable* (*TRestFunction)(OOPReceiveStorage *);
+typedef OOPSaveable *(*TRestFunction) (OOPReceiveStorage *);
 
 //class map;
 
-class OOPSaveable;
+class   OOPSaveable;
 
 
 /**
  * Base class for for input buffers used on data transmition
  */
-class OOPSendStorage
-
-: public OOPError
+class   OOPSendStorage:public OOPError
 {
-public:
+      public:
   /**
    * Simple constructor
    */
-  OOPSendStorage()  {}
-  virtual ~OOPSendStorage() {}
+	OOPSendStorage ()
+	{
+	}
+	virtual ~ OOPSendStorage ()
+	{
+	}
 
   /**
 	Methods for packing data to be transmitted.
@@ -74,27 +76,63 @@ public:
 	@param n Number of elements on the buffer
   */
 
-  virtual int PkByte  ( char    *p, int n=1 )  { return 0; }
-  virtual int PkInt   ( int     *p, int n=1 )  { return 0; }
-  virtual int PkShort ( short   *p, int n=1 )  { return 0; }
-  virtual int PkLong  ( long    *p, int n=1 )  { return 0; }
-  virtual int PkUint  ( u_int   *p, int n=1 )  { return 0; }
-  virtual int PkUshort( u_short *p, int n=1 )  { return 0; }
-  virtual int PkUlong ( u_long  *p, int n=1 )  { return 0; }
-  virtual int PkFloat ( float   *p, int n=1 )  { return 0; }
-  virtual int PkDouble( double  *p, int n=1 )  { return 0; }
-  virtual int PkStr   ( char *str )            { return 0; }
+	virtual int PkByte (char *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkInt (int *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkShort (short *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkLong (long *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkUint (u_int * p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkUshort (u_short * p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkUlong (u_long * p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkFloat (float *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkDouble (double *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int PkStr (char *str)
+	{
+		return 0;
+	}
 
   /**
    * Undocumented
    */
-  virtual int Send( int msg_id, int tid )      { return 0; }
+	virtual int Send (int msg_id, int tid)
+	{
+		return 0;
+	}
 
   /**
    * Returns class name.
    */
-  virtual char *ClassName()  { return( "OOPSendStorage::" ); }
-  
+	virtual char *ClassName ()
+	{
+		return ("OOPSendStorage::");
+	}
+
 };
 typedef OOPSendStorage *PTSendStorage;
 
@@ -105,66 +143,92 @@ typedef OOPSendStorage *PTSendStorage;
  * Base class for for output buffers used on data transmition
  */
 
-class OOPReceiveStorage
-: public OOPError
+class   OOPReceiveStorage:public OOPError
 {
-public:
+      public:
 
   /**
    * Simple constructor.
    */
-  OOPReceiveStorage()  {}
-  virtual ~OOPReceiveStorage();// {}
+	OOPReceiveStorage ()
+	{
+	}
+	virtual ~ OOPReceiveStorage ();	// {}
 
   /**
 	Methods for unpacking data transmitted.
 	@param p Pointer to the buffer which holds the data to be packed
 	@param n Number of elements on the buffer
   */
-  virtual int UpkByte  ( char    *p, int n=1 )  { return 0; }
-  virtual int UpkInt   ( int     *p, int n=1 )  { return 0; }
-  virtual int UpkShort ( short   *p, int n=1 )  { return 0; }
-  virtual int UpkLong  ( long    *p, int n=1 )  { return 0; }
-  virtual int UpkUint  ( u_int   *p, int n=1 )  { return 0; }
-  virtual int UpkUshort( u_short *p, int n=1 )  { return 0; }
-  virtual int UpkUlong ( u_long  *p, int n=1 )  { return 0; }
-  virtual int UpkFloat ( float   *p, int n=1 )  { return 0; }
-  virtual int UpkDouble( double  *p, int n=1 )  { return 0; }
-  virtual int UpkStr   ( char *str )            { return 0; }
+	virtual int UpkByte (char *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkInt (int *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkShort (short *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkLong (long *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkUint (u_int * p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkUshort (u_short * p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkUlong (u_long * p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkFloat (float *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkDouble (double *p, int n = 1)
+	{
+		return 0;
+	}
+	virtual int UpkStr (char *str)
+	{
+		return 0;
+	}
 
-  static void AddClassRestore(long classid,TRestFunction f);
+	static void AddClassRestore (long classid, TRestFunction f);
 
   /**
    * Receives the data to he buffer
    */
-  virtual int Receive(int msg_id, int tid)    { return 0; }
+	virtual int Receive (int msg_id, int tid)
+	{
+		return 0;
+	}
 
   /**
    * Restores next object in the buffer
    */
-  OOPSaveable *Restore();
+	OOPSaveable *Restore ();
   /**
    * Returns class name
    */
-  virtual char *ClassName() { return( "TReceiveStorage" ); }
+	virtual char *ClassName ()
+	{
+		return ("TReceiveStorage");
+	}
 
 
-private:
+      private:
   /**
    * Pointer to restore functions of all classes present on the environment.
    */
-  static map<long,void*> gFuncTree;
+	static  map < long, void *>gFuncTree;
 };
 typedef OOPReceiveStorage *PTReceiveStorage;
-#endif //_STORAGEHH_
-
-
-
-
-
-
-
-
-
-
-
+#endif // _STORAGEHH_

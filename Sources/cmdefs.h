@@ -8,4 +8,3 @@
 #define CID_TERROR  2048
 #define CID_TSAVEABLE 2049
 #define CID_TMATRIX 1
-

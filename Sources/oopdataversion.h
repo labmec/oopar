@@ -12,16 +12,15 @@ using namespace std;
  * Incorporates cardinality for the data versioning.
  * Allows for a more complex data versioning treatment.
  */
-class   OOPDataVersion 
+class   OOPDataVersion
 {
-public:
+      public:
 	/**
 	 * Sets the version for the specified version
 	 * @param level Level to be changed
 	 * @param version Version to be set on level
 	 */
-	void    SetLevelVersion (int level,
-				 int version);
+	void    SetLevelVersion (int level, int version);
 
 	/**
 	 * Packs the object in buffer so it can be sent through the network.
@@ -68,7 +67,7 @@ public:
 	/**
 	 * Operator overloaded
 	 */
-	        OOPDataVersion & operator = (const OOPDataVersion & version) ;
+	        OOPDataVersion & operator = (const OOPDataVersion & version);
 
 	/**
 	 * Operator overloaded
@@ -112,7 +111,7 @@ public:
     /**
      * Copy constructor 
      */
-	        OOPDataVersion (const ::OOPDataVersion & version);
+	        OOPDataVersion (const::OOPDataVersion & version);
 
 	/**
 	 * Ordinary destructor
@@ -149,13 +148,11 @@ public:
 	/**
 	 * Sets the cardinality vector
 	 */
-	void    SetData (vector < int >&card,
-			 vector < int >&version);
+	void    SetData (vector < int >&card, vector < int >&version);
     /**
      * Sets the Cardinality depth 
      */
-	void    SetLevelCardinality (int level,
-				     int depth);
+	void    SetLevelCardinality (int level, int depth);
 
 
     /**
@@ -164,7 +161,7 @@ public:
      */
 	static void main ();
 
-private:
+      private:
 
 	/**
 	 * The cardinality of each level

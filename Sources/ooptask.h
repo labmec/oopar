@@ -9,16 +9,16 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include "oopmdatadepend.h"
-class OOPSendStorage;
-class OOPReceiveStorage;
+class   OOPSendStorage;
+class   OOPReceiveStorage;
 
 using namespace std;
 
-class OOPMetaData;
+class   OOPMetaData;
 
-class OOPMDataDepend;
+class   OOPMDataDepend;
 
-class OOPMDataDependList;
+class   OOPMDataDependList;
 
 /**
  * Implements a abstract Task on the environment.
@@ -26,22 +26,25 @@ class OOPMDataDependList;
  * Since tasks are transmitted through the network TTask is also derived from TSaveable
  * and implements Pack() and Unpack() methods.
  */
-class OOPTask : public OOPSaveable
+class   OOPTask:public OOPSaveable
 {
-public:
+      public:
 	/**
 	 * Returns the reference to the OOPMDataDependList object.
 	 * @since 04/07/2003
 	 * @author Gustavo C. Longhin
 	 */
-	OOPMDataDependList &Depend() { return fDataDepend;}
-	
-	void Print(ostream & out=cout);
+	OOPMDataDependList & Depend ()
+	{
+		return fDataDepend;
+	}
+
+	void    Print (ostream & out = cout);
 	/**
 	 * This method is called when a task terminates its execution
 	 * Update information such as data access, ownership etc pending on that task.
 	 */
-	void TaskFinished();
+	void    TaskFinished ();
 
 	/**
 	 * Constructor based on a processor-id
@@ -49,46 +52,52 @@ public:
 	 */
 	OOPTask (int Procid);
 
-	OOPTask (const OOPTask &task);
+	OOPTask (const OOPTask & task);
 
-  virtual ~OOPTask() { }
+	virtual ~ OOPTask ()
+	{
+	}
 
 	/**
 	 * Returns the Id of current object
 	 */
-	OOPObjectId Id ();	
-	
+	OOPObjectId Id ();
+
 
   /**
    * returns the dependency list of the task
    */
-  OOPMDataDependList &GetDependencyList() { return fDataDepend;}
+	OOPMDataDependList & GetDependencyList ()
+	{
+		return fDataDepend;
+	}
 
   /**
    * Sets the dependency list of the task
    */
-  void SetDependencyList(const OOPMDataDependList &deplist) {
-    fDataDepend = deplist;
-  }
+	void    SetDependencyList (const OOPMDataDependList & deplist)
+	{
+		fDataDepend = deplist;
+	}
   /**
    * Sets the id of current object
    * @param id Id to be set
    */
-  void SetTaskId (OOPObjectId id)
-  {
-    fTaskId = id;
-  }
+	void    SetTaskId (OOPObjectId id)
+	{
+		fTaskId = id;
+	}
 
 	/**
 	 * Processor where the task should execute
 	 */
-	int GetProcID ();	
+	int     GetProcID ();
 
 	/**
 	 * Sets the processor Id where the task should be executed
 	 * @param proc Processor Id
 	 */
-	void SetProcID (int proc)
+	void    SetProcID (int proc)
 	{
 		fProc = proc;
 	}
@@ -98,18 +107,18 @@ public:
 	 * Changes the task priority
 	 * @param newpriority New priority to be set
 	 */
-	void ChangePriority (int newpriority);	// execute this task
+	void    ChangePriority (int newpriority);	// execute this task
 
 	/**
 	 * Returns the priority of the current task
 	 */
-	int Priority ();
+	int     Priority ();
 	/**
 	* Adds a data dependency to the task. It is assumed that
 	* write-access implies that this procedure update the object
 	* @param depend Dependency which will be appended
 	*/
-	void AddDependentData(const OOPMDataDepend &depend);
+	void    AddDependentData (const OOPMDataDepend & depend);
 
 	/**
 	* Returns the estimated execution time.
@@ -159,22 +168,22 @@ public:
     /**
      * Returns the recurrence information 
      */
-    int IsRecurrent();
+	int     IsRecurrent ();
 
     /**
      * Sets the recurrence parameter
      * @param recurrence Holds the recurrence value
      * @since 12/06/2003 
      */
-    void SetRecurrence(bool recurrence = true);
+	void    SetRecurrence (bool recurrence = true);
 
 
-protected:
+      protected:
 
 	/**
 	* Processor where the task should be executed
 	*/
-	int fProc;
+	int     fProc;
 	/**
 	* Id of current task.
 	* The Id is assigned to the task after having been submitted.
@@ -189,15 +198,15 @@ protected:
 	/**
 	* Priority of current task
 	*/
-	int fPriority;
-private:
+	int     fPriority;
+      private:
 
     /**
      * Indicates when a task is recurrent.
      * @since 12/06/2003 
      */
-    int fIsRecurrent;
-protected:
+	int     fIsRecurrent;
+      protected:
 
 };
 
@@ -205,20 +214,20 @@ protected:
 /**
  * Prototype for an instantaneous task
  */
-class OOPDaemonTask : public OOPTask
+class   OOPDaemonTask:public OOPTask
 {
 
-public:
+      public:
 
 	OOPDaemonTask (int ProcId);
 
-	OOPDaemonTask (const OOPDaemonTask &task) :
-	OOPTask(task) {
+	        OOPDaemonTask (const OOPDaemonTask & task):OOPTask (task)
+	{
 	}
 
-	long ExecTime ();	// always returns 0
+	long    ExecTime ();	// always returns 0
 
-	int CanExecute ();	// always returns 1
+	int     CanExecute ();	// always returns 1
 
 	virtual long GetClassID ()
 	{

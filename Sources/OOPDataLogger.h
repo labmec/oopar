@@ -8,7 +8,10 @@
 class OOPDMOwnerTask;
 class OOPDMRequestTask;
 class OOPDataLogger {//: public OOPSaveable {
-public:    
+public:
+	void LogReleaseAccess(int proc, OOPObjectId & Id, OOPMDataState state, int targetproc, OOPObjectId & taskId);
+	void LogSetVersion(int proc, OOPObjectId & Id, OOPDataVersion & oldver, const OOPDataVersion & newver);
+	void LogGeneric(int proc, OOPObjectId & Id, char * msg);	
 	void GrantAccessLog(int proc, 
 						const OOPObjectId & objId,
 						OOPMDataState mstate,

@@ -414,9 +414,9 @@ fDepend (depend)
 {
 	fProcOrigin = DM->GetProcID ();
 }
-OOPDMRequestTask::
-OOPDMRequestTask (const OOPDMRequestTask & task):OOPDaemonTask (task),
-fProcOrigin (task.fProcOrigin), fDepend (task.fDepend)
+OOPDMRequestTask::OOPDMRequestTask (const OOPDMRequestTask & task):
+	OOPDaemonTask (task),
+	fProcOrigin (task.fProcOrigin), fDepend (task.fDepend)
 {
 }
 OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
@@ -504,4 +504,8 @@ int OOPDMRequestTask::Pack (OOPSendStorage * buf)
 	buf->PkInt (&fProcOrigin);
 	fDepend.Pack (buf);
 	return 1;
+}
+OOPDMRequestTask::~OOPDMRequestTask()
+{
+	DM->ReleaseAccessRequest(Id(),fDepend);
 }

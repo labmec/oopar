@@ -104,8 +104,8 @@ oopardir = $(prefix)/Sources
 oopar_HEADERS = $(wildcard *.h)
 
 noinst_LIBRARIES = liboopar.a
-@OOPMPI_TRUE@liboopar_a_SOURCES = oopdatamanager.cpp 	ooptaskmanager.cpp 	oopdataversion.cpp 	ooperror.cpp 	oopfilecomm.cpp 	oopfilestorage.cpp 	oopmetadata.cpp 	oopobjectid.cpp 	oopparclass.cpp 	oopsaveable.cpp 	oopstorage.cpp 	oopstore.cpp 	ooptask.cpp 	oopmdatadepend.cpp 	ooptaskcontrol.cpp 	oopaccessinfo.cpp 	oopmpicomm.cpp 	oopmpistorage.cpp
-@OOPMPI_FALSE@liboopar_a_SOURCES = oopdatamanager.cpp 	ooptaskmanager.cpp 	oopdataversion.cpp 	ooperror.cpp 	oopfilecomm.cpp 	oopfilestorage.cpp 	oopmetadata.cpp 	oopobjectid.cpp 	oopparclass.cpp 	oopsaveable.cpp 	oopstorage.cpp 	oopstore.cpp 	ooptask.cpp 	oopmdatadepend.cpp 	ooptaskcontrol.cpp 	oopaccessinfo.cpp
+@OOPMPI_TRUE@liboopar_a_SOURCES = oopdatamanager.cpp 	ooptaskmanager.cpp 	oopdataversion.cpp 	ooperror.cpp 	oopfilecomm.cpp 	oopfilestorage.cpp 	oopmetadata.cpp 	oopobjectid.cpp 	oopparclass.cpp 	oopsaveable.cpp 	oopstorage.cpp 	oopstore.cpp 	ooptask.cpp 	oopmdatadepend.cpp 	ooptaskcontrol.cpp 	oopaccessinfo.cpp 	OOPDataLogger.cpp 	oopmpicomm.cpp 	oopmpistorage.cpp
+@OOPMPI_FALSE@liboopar_a_SOURCES = oopdatamanager.cpp 	ooptaskmanager.cpp 	oopdataversion.cpp 	ooperror.cpp 	oopfilecomm.cpp 	oopfilestorage.cpp 	oopmetadata.cpp 	oopobjectid.cpp 	oopparclass.cpp 	oopsaveable.cpp 	oopstorage.cpp 	oopstore.cpp 	ooptask.cpp 	oopmdatadepend.cpp 	ooptaskcontrol.cpp 	oopaccessinfo.cpp 	OOPDataLogger.cpp
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(noinst_LIBRARIES)
@@ -120,14 +120,14 @@ liboopar_a_LIBADD =
 @OOPMPI_TRUE@oopdataversion.o ooperror.o oopfilecomm.o oopfilestorage.o \
 @OOPMPI_TRUE@oopmetadata.o oopobjectid.o oopparclass.o oopsaveable.o \
 @OOPMPI_TRUE@oopstorage.o oopstore.o ooptask.o oopmdatadepend.o \
-@OOPMPI_TRUE@ooptaskcontrol.o oopaccessinfo.o oopmpicomm.o \
-@OOPMPI_TRUE@oopmpistorage.o
+@OOPMPI_TRUE@ooptaskcontrol.o oopaccessinfo.o OOPDataLogger.o \
+@OOPMPI_TRUE@oopmpicomm.o oopmpistorage.o
 @OOPMPI_FALSE@liboopar_a_OBJECTS =  oopdatamanager.o ooptaskmanager.o \
 @OOPMPI_FALSE@oopdataversion.o ooperror.o oopfilecomm.o \
 @OOPMPI_FALSE@oopfilestorage.o oopmetadata.o oopobjectid.o \
 @OOPMPI_FALSE@oopparclass.o oopsaveable.o oopstorage.o oopstore.o \
 @OOPMPI_FALSE@ooptask.o oopmdatadepend.o ooptaskcontrol.o \
-@OOPMPI_FALSE@oopaccessinfo.o
+@OOPMPI_FALSE@oopaccessinfo.o OOPDataLogger.o
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
@@ -141,13 +141,13 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
-DEP_FILES =  .deps/oopaccessinfo.P .deps/oopdatamanager.P \
-.deps/oopdataversion.P .deps/ooperror.P .deps/oopfilecomm.P \
-.deps/oopfilestorage.P .deps/oopmdatadepend.P .deps/oopmetadata.P \
-.deps/oopmpicomm.P .deps/oopmpistorage.P .deps/oopobjectid.P \
-.deps/oopparclass.P .deps/oopsaveable.P .deps/oopstorage.P \
-.deps/oopstore.P .deps/ooptask.P .deps/ooptaskcontrol.P \
-.deps/ooptaskmanager.P
+DEP_FILES =  .deps/OOPDataLogger.P .deps/oopaccessinfo.P \
+.deps/oopdatamanager.P .deps/oopdataversion.P .deps/ooperror.P \
+.deps/oopfilecomm.P .deps/oopfilestorage.P .deps/oopmdatadepend.P \
+.deps/oopmetadata.P .deps/oopmpicomm.P .deps/oopmpistorage.P \
+.deps/oopobjectid.P .deps/oopparclass.P .deps/oopsaveable.P \
+.deps/oopstorage.P .deps/oopstore.P .deps/ooptask.P \
+.deps/ooptaskcontrol.P .deps/ooptaskmanager.P
 SOURCES = $(liboopar_a_SOURCES)
 OBJECTS = $(liboopar_a_OBJECTS)
 

@@ -13,6 +13,7 @@
 #include "ooptask.h"
 #include "oopdataversion.h"
 #include "oopobjectid.h"
+#include <pthread.h>
 class   OOPSendStorage;
 class   OOPReceiveStorage;
 class   OOPSaveable;
@@ -170,6 +171,8 @@ class   OOPDataManager
      */
 //    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
       private:
+	pthread_mutex_t fDataMutex;
+
 };
 /**
  * Implements a task which owns (Undocumented)

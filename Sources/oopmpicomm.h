@@ -50,6 +50,10 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * posted message is received
    */
 	int     ReceiveBlocking ();
+	/**
+	 * Multithreading blocking receive
+	 */
+	static void * ReceiveMsgBlocking (void *t);
   /**
    * Sends all messages stored in the SendStorage buffers
    */
@@ -88,5 +92,8 @@ class   OOPMPICommManager:public OOPCommunicationManager
 	int     f_argc;
   /** Communication argument */
 	char  **f_argv;
+	bool fReceiveThreadExists;
+	pthread_t fThreadId;
 };
+extern pthread_t receivethread;
 #endif

@@ -16,12 +16,15 @@
 #include <stdio.h>
 //#include <stdlib.h>
 #include <string>
+#include <pthread.h>
 #include "oopmpicomm.h"
 #include "ooptaskmanager.h"
 class   OOPMPIReceiveStorage;
 class   OOPMPICommManager;
 using namespace std;
 extern OOPTaskManager *TM;
+
+
 OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 {
 	f_buffer = (POOPMPISendStorage *) NULL;
@@ -29,8 +32,10 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 	int     f_num_proc = 0;
 	f_argc = argc;
 	f_argv = argv;
+	fReceiveThreadExists=false;
+	
 	// f_proc = (int *) NULL; 
-	// MPI_Init(&argc,&argv);
+	// MPI_Init(&argc,&argv); 
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
@@ -124,14 +129,38 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 };
 int OOPMPICommManager::ReceiveMessages ()
 {
-	OOPMPIReceiveStorage msg;
+	
+	OOPMPICommManager * LocalCM = dynamic_cast<OOPMPICommManager * > (CM);
+	if(!fReceiveThreadExists) {
+		
+		pthread_create(&receivethread, NULL, LocalCM->ReceiveMsgBlocking, NULL);
+		fReceiveThreadExists = true;
+	}
+	return 1;
+	
+	/*OOPMPIReceiveStorage msg;
 	int ret = msg.Receive ();
 	// Se nao tiver mensagem, retorna.
 	if (ret <= 0)
 		return (ret);
 	ProcessMessage (msg);
-	return 1;
+	return 1;*/
 };
+void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
+	//OOPMPICommManager *CM=(OOPMPICommManager *)(t);
+	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
+	while (1){
+		
+		OOPMPIReceiveStorage msg;
+		int ret = msg.ReceiveBlocking ();
+		// se houver erro, Kill
+		if (ret <= 0) {
+	#warning "Finish("ReceiveBlocking <receive error>");\n";
+		}
+		LocalCM->ProcessMessage (msg);
+	}
+	return NULL;
+}
 int OOPMPICommManager::ReceiveBlocking ()
 {
 	OOPMPIReceiveStorage msg;

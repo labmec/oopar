@@ -30,12 +30,9 @@ OOPMReturnType TParCompute::Execute ()
 	}
 	cout << "TParCompute::Execute\n";
 	cout << "Submiting TLocalCompute tasks\n";
-	cout << "fPartVersion ";
-	fPartRelationVersion.Print (cout);
-	cout << "Mesh Version ";
-	fMeshVersions.Print (cout);
-	cout << "State and Rhs Version ";
-	fDataVersions.Print (cout);
+	cout << "fPartVersion " <<	fPartRelationVersion << endl;
+	cout << "Mesh Version "<<	fMeshVersions << endl;
+	cout << "State and Rhs Version " << fDataVersions << endl;
 	cout.flush ();
 	return ESuccess;
 }

@@ -19,7 +19,7 @@ public:
      * Returns the total number of 
      */
 
-  static TPartitionRelation *CreateRandom(int numpart);
+  	static TPartitionRelation *CreateRandom(int numpart);
 
     int GetNPartitions();
 

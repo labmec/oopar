@@ -8,3 +8,9 @@
 vector<int> & TContribution::DestinationVector(int index){
     return fLocalIndices[index];
 }
+
+
+void TContribution::InitializeRandom(int i){
+    seed();
+    int rs = rnd(10)%1;
+}

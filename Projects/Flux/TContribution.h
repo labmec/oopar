@@ -24,11 +24,14 @@ public:
      * @param Index Identifies each vector to be returned
      * @since 23/05/2003 
      */
-    vector<int> &DestinationVector(int index);
+    vector<int> &DestinationVector(int index);	
 
-	
-
-    void InitializeRandom();
+    /**
+     * Initializes the structure randomically
+     * @param i Maximum number of partitions.
+     * @since 13/06/2003 
+     */
+    void InitializeRandom(int i);
 
     TContribution();
 

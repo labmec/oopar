@@ -2,8 +2,8 @@
 #include <iostream>
 #include <typeinfo>
 #include "oopdataversion.h"
-class   OOPStorageBuffer;
-class   OOPStorageBuffer;
+//class   OOPStorageBuffer;
+//class   OOPStorageBuffer;
 class   OOPDataVersion;
 using namespace std;
 void OOPDataVersion::Write (TPZStream & buf)
@@ -45,6 +45,12 @@ void OOPDataVersion::SetData (vector < int >&card, vector < int >&version)
 	fVersion = version;
 	fLevelCardinality = card;
 }
+void OOPDataVersion::GetData (vector < int >&card, vector < int >&version)
+{
+	version = fVersion;
+	card = fLevelCardinality;
+}
+
 void OOPDataVersion::main ()
 {
 	int i = 0;

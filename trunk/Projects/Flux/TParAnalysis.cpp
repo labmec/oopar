@@ -112,8 +112,8 @@ void TParAnalysis::CreateParCompute ()
 		count++;
 	}
 	// message #1.1 to pc:TParCompute
-	TParCompute *pc = new TParCompute (fNumProcessors-1-GetProcID(), fNumPartitions);
-	//TParCompute *pc = new TParCompute (GetProcID(), fNumPartitions);
+	//TParCompute *pc = new TParCompute (fNumProcessors-1-GetProcID(), fNumPartitions);
+	TParCompute *pc = new TParCompute (GetProcID(), fNumPartitions);
 	OOPDataVersion ver;
 	
 	pc->SetMeshId (fMeshId, ver);

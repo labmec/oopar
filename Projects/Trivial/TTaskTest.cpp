@@ -21,6 +21,7 @@ int TTaskTest::Unpack( OOPReceiveStorage *buf )
 	long clid;
 	buf->UpkLong(&clid);
 	if(clid != LONGVEC_ID) {
+    cout << __PRETTY_FUNCTION__ << "wrong class id" << endl;
 		exit(-1);
 	}
 	//fTaskDepend.Unpack(buf);

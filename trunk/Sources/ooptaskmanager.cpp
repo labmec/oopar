@@ -10,6 +10,9 @@ class   OOPSaveable;
 //class TMultiTask;
 //class TMultiData;
 class   OOPObjectId;
+#include <sys/types.h>
+#include <unistd.h>
+
 void OOPTaskManager::main ()
 {
 	/* 
@@ -164,7 +167,11 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
 	TaskManLog << "Calling Submit on OOPTaskManager ";
+	cout << "Tryng to lock mutex on Submit PID " << getpid() << endl;
+	cout.flush();
 	pthread_mutex_lock(&fExecuteMutex);
+	cout << "Mutex locked Submit PID " << getpid() << endl;
+	cout.flush();
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
 	if(dmt) {
 		// lock
@@ -172,8 +179,14 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 		TaskManLog << "Task Submitted is a daemon\n";
 		// signal the service thread
 		// unlock
+		cout << "Signalling on SubmiteDaemon()\n";
+		cout.flush();
 		pthread_cond_signal(&fExecuteCondition);
+		cout << "Mutex unlocking SubmiteDaemon PID " << getpid() << endl;
+		cout.flush();
 		pthread_mutex_unlock(&fExecuteMutex);
+		cout << "Mutex unlocked SubmiteDaemon PID " << getpid() << endl;
+		cout.flush();
 		
 		return OOPObjectId();
 	}
@@ -187,8 +200,14 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	fSubmittedList.push_back (task);
 	// signal to service thread
 	// mutex unlock
+	cout << "Signalling on Submit()\n";
+	cout.flush();
 	pthread_cond_signal(&fExecuteCondition);
+	cout << "Mutex unlocking Submit PID " << getpid() << endl;
+	cout.flush();
 	pthread_mutex_unlock(&fExecuteMutex);
+	cout << "Mutex unlocked Submit PID " << getpid() << endl;
+	cout.flush();
 	return id;
 }
 OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)
@@ -304,12 +323,16 @@ void OOPTaskManager::Execute ()
 		CM->SendMessages ();
 		ExecuteDaemons();
 		//wait
-		/*pthread_mutex_lock(&fExecuteMutex);
+		pthread_mutex_lock(&fExecuteMutex);
 		if(!fExecutable.size ()){
-			
+			cout << "Going into condwait on TM->Execute()\n";
+			cout << "ProcessID " << getpid() << endl;
+			cout.flush();			
 			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
+			cout << "Leaving condwait PID " << getpid() << endl;
+			cout.flush();
 		}
-		*/
+		
 			
 	}
 	PrintTaskQueues("Depois", TaskQueueLog);

@@ -93,7 +93,7 @@ int multimain ()
 	delete LogDM;
 	return 0;
 }
-int mpimain (int argc, char *argv[])
+int mpimain (int argc, char **argv)
 {
 	
 /*	
@@ -113,9 +113,9 @@ int mpimain (int argc, char *argv[])
 */
 	//pthread_join(testethread_1,0);
 	
-	int numproc = argc;
-	CM = new OOPMPICommManager (numproc, argv);
-	CM->Initialize (*(argv), numproc);
+	//int numproc = argc;
+	CM = new OOPMPICommManager (argc, argv);
+	CM->Initialize((char*)argv, argc);
 	TM = new OOPTaskManager (CM->GetProcID ());
 	DM = new OOPDataManager (CM->GetProcID ());
 	

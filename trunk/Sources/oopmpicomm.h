@@ -39,7 +39,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * @param *process_name
    * @param num_of_process
    */
-	int     Initialize (char *process_name = " ", int num_of_process = 1);
+	int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v); 
   /**
    * Nonblocking receive. If there is a posted message to 
    * receive, receives it and returns 1. Else, returns 0

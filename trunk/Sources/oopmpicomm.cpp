@@ -158,9 +158,8 @@ int OOPMPICommManager::ProcessMessage( OOPMPIReceiveStorage &msg ){
   char has_more_objects = 0;
   msg.UpkByte( &has_more_objects );
   for ( count = 0; has_more_objects; count++ )  {
-    OOPSaveable *obj=0;
+    OOPSaveable *obj=msg.Restore();;
 	#warning "Restore( &msg ); not implemented on OOPMPICommManager"
-    
     if ( obj == NULL ){
       #warning "Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );"
 	}
@@ -170,5 +169,6 @@ int OOPMPICommManager::ProcessMessage( OOPMPIReceiveStorage &msg ){
     TM->Submit( (OOPTask *)obj );
     msg.UpkByte( &has_more_objects );
   }
+  return 1;
 }
 

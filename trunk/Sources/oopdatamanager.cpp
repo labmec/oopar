@@ -157,7 +157,7 @@ void OOPDataManager::ReleaseAccessRequest(const OOPObjectId & TaskId, const OOPM
 		if (depend.Id() == (*i)->Id()){
 			found = true;
 			(*i)->ReleaseAccess(TaskId, depend);
-			//Talvez aqui!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			
 			break;
 		}
 	}

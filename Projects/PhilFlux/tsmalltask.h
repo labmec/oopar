@@ -27,12 +27,10 @@ public:
 
     ~TSmallTask();
 
-	virtual int    ClassId () const{
-		return TSMALLTASKID;
-	}
-	virtual void Write (TPZStream & buf, int withclassid=0);
-	virtual void Read (TPZStream & buf, void * context = 0);
-    static TPZSaveable* Restore(TPZStream & buf, void * context);
+    static OOPSaveable* Restore(OOPStorageBuffer* buf);
+    virtual int Pack(OOPStorageBuffer* buf);
+    virtual int Unpack(OOPStorageBuffer* buf);
+    virtual long GetClassID();
     virtual OOPMReturnType Execute();
 
 };

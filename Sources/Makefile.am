@@ -36,7 +36,10 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	ooppardefs.cpp \
 	oopmpicomm.cpp \
 	oopmpistorage.cpp \
-	oopwaittask.cpp 
+	oopwaittask.cpp \
+	OOPInt.cpp \
+	OOPDouble.cpp \
+	OOPVector.cpp
 else
 liboopar_a_SOURCES = oopdatamanager.cpp \
 	ooptaskmanager.cpp \

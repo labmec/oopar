@@ -219,7 +219,7 @@ public:
 	* Priority of current task
 	*/
 	int     fPriority;
-      private:
+
     /**
      * Indicates when a task is recurrent.
      * @since 12/06/2003 

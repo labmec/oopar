@@ -40,7 +40,9 @@ public:
    * @param *process_name
    * @param num_of_process
    */
-	int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v); 
+private:	
+	int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v);
+public:
 	/* Sends all messages in all buffers
 	*/
 	virtual int SendMessages () {return 0;}

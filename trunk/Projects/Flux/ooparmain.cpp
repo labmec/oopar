@@ -13,7 +13,7 @@
 OOPCommunicationManager *CM;
 OOPDataManager *DM;
 OOPTaskManager *TM;
-OOPDataLogger *LogDM;
+//OOPDataLogger *LogDM;
 using namespace std;
 void    ParAddClass ();
 int     multimain ();

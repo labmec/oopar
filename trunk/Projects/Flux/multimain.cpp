@@ -27,7 +27,7 @@ ofstream TaskQueueLog("taskqueue.log");
 ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
 
-int GLogMsgCounter;
+//int GLogMsgCounter;
 int numproc = 4;
 
 vector < OOPCommunicationManager * >CMList (numproc);

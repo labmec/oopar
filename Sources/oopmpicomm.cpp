@@ -75,7 +75,8 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	//pthread_mutex_lock(&fCommunicate);
 //#warning "Nao tem necessidade do mutex neste ponto"
 #ifdef DEBUG
-	cout << "Sending task " << pTask->ClassId() << endl;
+	cout <<  __PRETTY_FUNCTION__ << " Sending task " << pTask->ClassId() << 
+         " to proc " << pTask->GetProcID () << endl;
 	cout.flush();
 #endif
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
@@ -83,20 +84,32 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	// Se "process_id" nao for valido.
 	if (process_id >= f_num_proc) {
 		Finish( "SendObject <process ID out of range>");
+		cout <<  "SendObject <process ID out of range>" << endl;
+                cout.flush();
 		delete pTask;
 		return -1;
 	}
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
 		Finish( "SendObject <I cannot send to myself>");
+		cout <<  "SendObject <I cannot send to myself>" << endl;
+                cout.flush();
 		delete pTask;
 		return -1;
 	}
 	//Attention here
+#ifdef DEBUG
+	cout << __PRETTY_FUNCTION__ <<" Packing the task in a buffer\n";
+	cout.flush();
+#endif
 	pTask->Write (f_buffer, 1);
+#ifdef DEBUG
+	cout <<  __PRETTY_FUNCTION__ << " Sending the buffer\n";
+	cout.flush();
+#endif
 	f_buffer.Send(process_id);
 #ifdef DEBUG
-	cout << "Message Sent\n";
+	cout <<  __PRETTY_FUNCTION__ << " Message Sent\n";
 	cout.flush();
 #endif
 	delete pTask;
@@ -176,6 +189,9 @@ int OOPMPICommManager::ReceiveBlocking ()
 	} else {
 //		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
 	}
+#ifdef DEBUG
+  sleep(1);
+#endif
 	return 1;
 };
 int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)

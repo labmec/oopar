@@ -78,18 +78,18 @@ TRANSITION STATES
 void OOPMetaData::VerifyAccessRequests ()
 {
 	DataLog << GLogMsgCounter << endl;
-	DataLog << "Entering VerifyAccessRequests for Obj " << this->fObjId << "\n";
+	DataLog << __PRETTY_FUNCTION__ << " Entering VerifyAccessRequests for Obj " << this->fObjId << "\n";
 	GLogMsgCounter++;
 	DataLog.flush();
 	//Isso ta errado
 	OOPObjectId taskid;
 	while (fAccessList.HasIncompatibleTask (fVersion, taskid)) {
-		DataLog << "OOPMetaData::Verify.. task canceled " << taskid << endl;
+		DataLog << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << taskid << endl;
 		DataLog.flush();
 		TM->CancelTask (taskid);
 	}
 	if (fTrans != ENoTransition && fTrans != ECancelReadTransition) {
-		DataLog << "Verify leaving because fTrans = " << fTrans << endl;
+		DataLog << __PRETTY_FUNCTION__ << " Verify leaving because fTrans = " << fTrans << endl;
 		return;
 	}
 /*
@@ -123,7 +123,7 @@ void OOPMetaData::VerifyAccessRequests ()
 	    && !fAccessList.HasReadAccessGranted()
 		&& !fAccessList.HasExecutingOrReadGrantedTasks()/*fTaskWrite.IsZeroOOP()*/) 
 	{
-		DataLog << "Revoked write access to task "<< fTaskWrite << endl;
+		DataLog << __PRETTY_FUNCTION__ << " Revoked write access to task "<< fTaskWrite << endl;
 		fAccessList.RevokeWriteAccess(*this);
 		fTaskWrite = OOPObjectId();
 		fReadAccessProcessors.push_back(DM->GetProcID());
@@ -139,8 +139,9 @@ void OOPMetaData::VerifyAccessRequests ()
 	}
 	else if (DM->GetProcID () == fProc
 		 && fAccessList.HasWriteAccessRequests (fVersion)
+                 && !fAccessList.HasReadAccessRequests(fVersion)
 		 && fTrans == ENoTransition) {
-		DataLog << "Performing CancelReadAccess\n";
+		DataLog << __PRETTY_FUNCTION__ << " Performing CancelReadAccess in order to grant a write access\n";
 		CancelReadAccess ();
 		// we should invoke a procedure to revoke all read access
 		// requests
@@ -162,7 +163,7 @@ void OOPMetaData::VerifyAccessRequests ()
 				fTaskVersion = ac->fTaskId;
 				fProcVersionAccess = ac->fProcessor;
 			}
-			DataLog << "Grant access for Obj " << fObjId << " to " << ac->fTaskId << " with depend " << depend << endl;
+			DataLog << __PRETTY_FUNCTION__ << " Grant access for Obj " << fObjId << " to " << ac->fTaskId << " with depend " << depend << endl;
 			DataLog.flush();
 			LogDM->GrantAccessLog(DM->GetProcID(),fObjId,ac->fState,ac->fVersion,ac->fProcessor,ac->fTaskId, State());
 			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
@@ -206,7 +207,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 				 const OOPMDataDepend & depend)
 {
 	DataLog << GLogMsgCounter << ":";
-	DataLog << fObjId << ":Entering ReleaseAccess:";
+	DataLog << fObjId << __PRETTY_FUNCTION__ ;
 	TransferDataLog << fObjId;
 	TransferDataLog.flush();
 	DataLog.flush();
@@ -254,7 +255,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, fTaskWrite, State(), fVersion);
 		fTaskWrite.Zero ();
 		// grant read access to the owning processor
-		DataLog << "granting read access for obj " << fObjId << " to processor " << fProc << endl;
+		DataLog << " granting read access for obj " << fObjId << " to processor " << fProc << endl;
 		TransferDataLog << "granting read access " << fObjId << " to processor " << fProc << endl;
 		TransferDataLog.flush();
 		DataLog.flush();
@@ -798,7 +799,7 @@ void OOPMetaData::GrantVersionAccess (OOPObjectId TaskId, int ProcId,
 void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 {
 	DataLog << GLogMsgCounter << endl;
-	DataLog << "Entering GrantAccess for Object " << this->fObjId << endl;
+	DataLog << __PRETTY_FUNCTION__ << "Entering GrantAccess for Object " << this->fObjId << endl;
 	GLogMsgCounter++;
 	switch(state) {
 	case EVersionAccess: {

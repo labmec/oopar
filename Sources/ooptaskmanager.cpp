@@ -275,7 +275,16 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 	}
 }
 void OOPTaskManager::SubmitDaemon (OOPDaemonTask * task) {
-	fDaemon.push_back(task);
+  if(task->GetProcID() != this->fProc) 
+  {
+    TaskManLog << __PRETTY_FUNCTION__ << " Sending a daemon task to proc " << task->GetProcID() << endl;;
+    CM->SendTask(task);
+  }
+  else
+  {
+	TaskManLog << __PRETTY_FUNCTION__ << " Submitting a daemon task " << endl;
+    fDaemon.push_back(task);
+  }
 }
 OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 {
@@ -284,16 +293,16 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	TaskManLog << "Calling Submit on OOPTaskManager ";
         TaskManLog.flush();
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
+        OOPObjectId id;
 	if(dmt) {
-		// lock
-		SubmitDaemon(dmt);
 		TaskManLog << "Task Submitted is a daemon\n";
-		return OOPObjectId();
-	}
-	OOPObjectId id = task->Id();
-	if(id.IsZeroOOP()) id = GenerateId ();
-	task->SetTaskId (id);
-	TaskManLog << "Task with id " << id << " submitted " << endl;
+	} else 
+        {
+          id = task->Id();
+          if(id.IsZeroOOP()) id = GenerateId ();
+          task->SetTaskId (id);
+        }
+	TaskManLog << __PRETTY_FUNCTION__ << " Task with id " << task->Id() << " submitted for processor" << task->GetProcID() << endl;
 	TaskManLog.flush();
 	pthread_mutex_lock(&fSubmittedMutex);
 	fSubmittedList.push_back (task);
@@ -519,10 +528,16 @@ void OOPTaskManager::TransferSubmittedTasks ()
 	while (aux){//(fSubmittedList.begin () != fSubmittedList.end ()) {
 		//sub = fSubmittedList.begin ();
 		//OOPTask * aux = (*sub);
+               	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(aux);
 		if (aux->GetProcID () != fProc) {
 			CM->SendTask (aux);
 		}
-		else {
+                else if(dmt)
+                {
+                  SubmitDaemon(dmt);
+                }
+		else 
+                {
 			OOPTaskControl *tc = new OOPTaskControl (*sub);
 			fTaskList.push_back (tc);
 			if (tc->Depend ().

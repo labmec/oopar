@@ -174,7 +174,7 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 		cout.flush();
 #endif
 		LocalCM->ProcessMessage (msg);
-	}
+}
 	return NULL;
 	
 }

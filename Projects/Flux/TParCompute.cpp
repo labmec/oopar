@@ -66,7 +66,7 @@ void TParCompute::CreateFluxesTasks(  ){
     OOPDataVersion * version = new OOPDataVersion[fPartRelationPtr->GetNPartitions()];
     //Inserir as depend�cias de escrita sobre os fluxos de outros parti�es.
     for(i=0;i<fPartRelationPtr->GetNPartitions();i++)
-        version[i]=DM->GetVersion(fRhsIds[i]);
+        version[i]=DM->GetDataVersion(fRhsIds[i]);
 
     //Para cada Rhs, deve-se ainda estabelecer as depend�cias referentes �comu-
     //nica�o

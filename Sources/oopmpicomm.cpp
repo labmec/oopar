@@ -13,23 +13,23 @@
 //
 
 #include "mpi.h"
-#include "communic.h"
-#include <stdio>
+//#include "communic.h"
+#include <stdio.h>
 //#include <stdlib.h>
 #include <string>
 #include "oopmpicomm.h"
-#include "ooptaskman.h"
+#include "ooptaskmanager.h"
 
 class OOPMPIReceiveStorage;
 class OOPMPICommManager;
 
 using namespace std;
 
-extern TTaskManager *TM;
+extern OOPTaskManager *TM;
 
 OOPMPICommManager::OOPMPICommManager(int argc, char **argv)
 {
-  f_buffer = (PTSendStorageMpi *) NULL;
+  f_buffer = (POOPMPISendStorage *) NULL;
   f_myself = -1;
   int f_num_proc = 0;
   f_argc = argc;
@@ -59,14 +59,17 @@ int OOPMPICommManager::Initialize(char *process_name, int num_of_process)
   MPI_Comm_size(MPI_COMM_WORLD, &f_num_proc);
   MPI_Comm_rank(MPI_COMM_WORLD, &f_myself);
 
-  f_buffer = new(PTSendStorageMpi[ f_num_proc]);
-  if ( f_buffer == NULL )  Finish( "Initialize <Error allocating sending buffers>" );
+  f_buffer = new(POOPMPISendStorage[ f_num_proc]);
+  if ( f_buffer == NULL )  {
+	  #warning "//Finish( "Initialize <Error allocating sending buffers>" );"
+	  #warning "Finish not defined ??? No idea !"
+  }
   for ( int i = 0; i < f_num_proc; i++ ){
     if ( i == f_myself ){
-      f_buffer[i] = (TSendStorageMpi *)NULL;
+      f_buffer[i] = (OOPMPISendStorage *)NULL;
     }
     else   {
-      f_buffer[i] = new TSendStorageMpi(i);  // inicializador nao-padrao
+      f_buffer[i] = new OOPMPISendStorage(i);  // inicializador nao-padrao
       //if ( f_buffer[i] == NULL ) Finish( "Initialize <Error making sendings buffers>");
     }
   }
@@ -76,16 +79,17 @@ int OOPMPICommManager::Initialize(char *process_name, int num_of_process)
   else return 0;
 }
   
-int OOPMPICommManager::SendTaskVrt(TTask *pTask)
+int OOPMPICommManager::SendTaskVrt(OOPTask *pTask)
 {
   int process_id = pTask->GetProcID(); //processo onde ptask deve ser executada
   // Se "process_id" nao for valido.
-  if ( process_id >= f_num_proc )
-    Finish( "SendObject <process ID out of range>" );
+  if ( process_id >= f_num_proc ){
+	#warning "//Finish( "Initialize <Error allocating sending buffers>" );"//    Finish( "SendObject <process ID out of range>" );
+  }
   // Se estiver tentando enviar para mim mesmo.
-  if ( process_id == f_myself )
-    Finish( "SendObject <I cannot send to myself>" );
-
+  if ( process_id == f_myself ){
+    #warning "//Finish( "Initialize <Error allocating sending buffers>" );"//Finish( "SendObject <I cannot send to myself>" );
+  }
  // Se 'process_id' < 0, faz um multi cast.
  //se process_id < 0, first = 0. se > 0, first = process_id.
   int first = ( process_id < 0 ? 0 : process_id );
@@ -98,7 +102,7 @@ int OOPMPICommManager::SendTaskVrt(TTask *pTask)
       {
     	// Empacota o objeto no buffer destino.
     	pTask->SetProcID( i );      //muda destino para processador i          
-    	TSendStorageMpi *buf = f_buffer[i]; 
+    	OOPMPISendStorage *buf = f_buffer[i]; 
     	//buf->Activate();     //  soh no pvm
     	buf->PkByte( &has_an_object ); //empacota primeiro valor = int = 1
     	pTask->Pack( buf );
@@ -111,7 +115,7 @@ int OOPMPICommManager::SendTaskVrt(TTask *pTask)
 };
 
 int OOPMPICommManager::ReceiveMessages(){
-  TReceiveStorageMpi msg;
+  OOPMPIReceiveStorage msg;
   int ret = msg.Receive();
   // Se nao tiver mensagem, retorna.
   if ( ret <= 0 ) return( ret );
@@ -120,45 +124,50 @@ int OOPMPICommManager::ReceiveMessages(){
 };
 
 int OOPMPICommManager::ReceiveBlocking(){
-  TReceiveStorageMpi msg;
+  OOPMPIReceiveStorage msg;
   int ret = msg.ReceiveBlocking();
   // se houver erro, Kill
-  if ( ret <= 0 ) Finish("ReceiveBlocking <receive error>");
+  if ( ret <= 0 ) {
+	  #warning "Finish("ReceiveBlocking <receive error>");\n";
+  }
   ProcessMessage(msg);
   return 1;
 };
 
 
 int OOPMPICommManager::SendMessages(){
-  TSendStorageMpi *p;
+  OOPMPISendStorage *p;
   char end_of_message = 0;
   int  length = 0;
   for ( int i = 0; i < f_num_proc; i++ ) {
     p = f_buffer[i];
     if ( p != NULL  &&  p->Length() > 0 ){
       p->PkByte( &end_of_message ); //coloca int = 0 no final da mensagem
-      if ( p->Send(1) < 1 )//msg_id=1, target=TSendStorage::f_target_tid  
-	Finish ("SendMessages <send error>" );
+      if ( p->Send(1) < 1 ){//msg_id=1, target=TSendStorage::f_target_tid  
+		#warning "Finish ("SendMessages <send error>" );"
+		  }
     }
   } 
   return( 1 );
 };
 
 int OOPMPICommManager::ProcessMessage( OOPMPIReceiveStorage &msg ){
-  Trace("Recebendo uma mensagem do processador ");
-  Trace( FindID(msg.GetSender())<<"\n");
+  //Trace("Recebendo uma mensagem do processador ");
+  //Trace( FindID(msg.GetSender())<<"\n");
   int count;
   char has_more_objects = 0;
   msg.UpkByte( &has_more_objects );
   for ( count = 0; has_more_objects; count++ )  {
-    TSaveable *obj = Restore( &msg );
+    OOPSaveable *obj=0;
+	#warning "Restore( &msg ); not implemented on OOPMPICommManager"
     
-    if ( obj == NULL )
-      Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
-    Trace( "  ClassID do objeto recebido: " );
-    Trace( obj->GetClassID() << ".\n" );
+    if ( obj == NULL ){
+      #warning "Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );"
+	}
+    //Trace( "  ClassID do objeto recebido: " );
+    //Trace( obj->GetClassID() << ".\n" );
     
-    TM->Submit( (TTask *)obj );
+    TM->Submit( (OOPTask *)obj );
     msg.UpkByte( &has_more_objects );
   }
 }

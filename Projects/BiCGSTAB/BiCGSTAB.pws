@@ -1,0 +1,24 @@
+
+[executer]
+RunInTerminal=true
+
+[Project DBase]
+ShowLocals=true
+
+[filenumbers]
+0=12
+1=13
+2=4
+3=10
+
+[filemarkers]
+0=
+1=
+2=
+3=
+
+[filelist]
+0=/home/pos/longhin/Projetos/OOPar/Projects/BiCGSTAB/TDistNorm.cpp
+1=/home/pos/longhin/Projetos/OOPar/Projects/BiCGSTAB/bicgstaboopar.cpp
+2=/home/pos/longhin/Projetos/OOPar/Projects/BiCGSTAB/TBiCGStab.h
+3=/home/pos/longhin/Projetos/OOPar/Projects/BiCGSTAB/TBiCGStab.cpp

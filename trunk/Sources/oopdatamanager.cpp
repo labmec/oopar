@@ -299,7 +299,7 @@ OOPSaveable *OOPDataManager::GetObjPtr(OOPObjectId ObjId) {
 //.........
 OOPObjectId OOPDataManager::SubmitObject(OOPSaveable *obj, int trace) {
 	//como fazer ?? 
-	OOPObjectId id = GenerateId();
+	OOPObjectId id = DM->GenerateId();
 	OOPMetaData * dat = new OOPMetaData(obj, id, fProcessor);
 	dat->SetTrace(trace);//Erico
 	fObjects.push_back(dat);//[id] = dat;
@@ -490,8 +490,8 @@ void OOPDataManager::GetUpdate(OOPDMRequestTask *task){
 OOPObjectId OOPDataManager::GenerateId() {
 	fLastCreated++;
 	if(fLastCreated >= fMaxId) exit(-1);	// the program ceases to function
-	OOPObjectId tmp(GetProcID(), fLastCreated);
-	return tmp;//fLastCreated;
+	OOPObjectId * obj = new OOPObjectId(GetProcID(), fLastCreated);
+	return *obj;//fLastCreated;
 }
 
 OOPMetaData *OOPDataManager::MetaData(OOPObjectId ObjId) {

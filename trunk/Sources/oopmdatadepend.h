@@ -78,7 +78,7 @@ class   OOPMDataDepend
   /**
    * Empty constructor
    */
-	        OOPMDataDepend ()
+	OOPMDataDepend ()
 	{
 		fObjPtr = 0;
 	}
@@ -165,6 +165,7 @@ class   OOPMDataDependList
 	{
 		return fDependList[i];
 	}
+	OOPMDataDepend & Dep (OOPObjectId & Id);
   /**
    * method which will serialize the object
    */

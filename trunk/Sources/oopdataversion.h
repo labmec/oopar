@@ -15,7 +15,7 @@ class   OOPDataVersion
 {
       public:
 	/**
-	 * Sets the version for the specified version
+	 * Sets the version for the specified level
 	 * @param level Level to be changed
 	 * @param version Version to be set on level
 	 */

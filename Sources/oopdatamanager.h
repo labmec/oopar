@@ -39,6 +39,7 @@ class   OOPDataManager
 
 	friend class OOPMetaData;
 	public:
+	void VerifyAccessRequest();
 	void PrintDataQueues(char * msg, ostream & out);
 
       public:

@@ -115,6 +115,12 @@ void OOPDataManager::main(){
 	
 }
 */
+void OOPDataManager::VerifyAccessRequest()
+{
+	deque < OOPMetaData * >::iterator i;
+	for (i = fObjects.begin (); i != fObjects.end (); i++) 
+		(*i)->VerifyAccessRequests();
+}
 OOPDataManager::~OOPDataManager ()
 {
 	deque < OOPMetaData * >::iterator i;

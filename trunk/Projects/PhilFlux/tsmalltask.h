@@ -27,9 +27,9 @@ public:
 
     ~TSmallTask();
 
-    static OOPSaveable* Restore(OOPReceiveStorage* buf);
-    virtual int Pack(OOPSendStorage* buf);
-    virtual int Unpack(OOPReceiveStorage* buf);
+    static OOPSaveable* Restore(OOPStorageBuffer* buf);
+    virtual int Pack(OOPStorageBuffer* buf);
+    virtual int Unpack(OOPStorageBuffer* buf);
     virtual long GetClassID();
     virtual OOPMReturnType Execute();
 

@@ -23,19 +23,19 @@ TSmallTask::~TSmallTask()
 }
 
 
-OOPSaveable* TSmallTask::Restore(OOPReceiveStorage* buf)
+OOPSaveable* TSmallTask::Restore(OOPStorageBuffer* buf)
 {
   TSmallTask *loc = new TSmallTask(-1);
   loc->Unpack(buf);
   return loc;
 }
 
-int TSmallTask::Pack(OOPSendStorage* buf)
+int TSmallTask::Pack(OOPStorageBuffer* buf)
 {
     return OOPTask::Pack(buf);
 }
 
-int TSmallTask::Unpack(OOPReceiveStorage* buf)
+int TSmallTask::Unpack(OOPStorageBuffer* buf)
 {
     return OOPTask::Unpack(buf);
 }

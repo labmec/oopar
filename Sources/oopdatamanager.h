@@ -201,15 +201,6 @@ public:
 	*/
 	OOPSaveable *fObjPtr;
 	/**
-	* Id of task which originated this message
-	*/
-	OOPObjectId fTaskId;
-	/**
-	* Id of processor for which this message is intended
-	* If Id==-1 all the processor must be notified (Multi-Cast)
-	*/
-	int fProcDestination;
-	/**
 	* Id of processor which originated the message
 	*/
 	int fProcOrigin;
@@ -217,10 +208,6 @@ public:
 	* Id of object to which this object refers
 	*/
 	OOPObjectId fObjId;
-	/**
-	* List of processors with access state for updating
-	*/
-	vector<long> fAccessProcessors;
 	/**
 	* Used for debugging purposes, keeps track of all data by means of log files.
 	*/
@@ -256,39 +243,19 @@ class OOPDMRequestTask : public OOPDaemonTask {
 
 public:
 	/**
-	 * Returns the type of message request.
-	 */
-	OOPDMRequestMessageType fType;
-	/**
-	 * Access state associated with this message.
-	 */
-	OOPMDataState	fAccessState;	
-	
-	/**
-	 * Version associated with this message.
-	 */
-	OOPDataVersion fVersion;
-	/**
-	 * Id of the task which originated this message.
-	 */
-	OOPObjectId fTaskId;
-	/**
-	 * Id of the processor for which this message is intended.
-	 */
-	 
-	int fProcDestination;
-	/**
 	 * Id of the processor to which the request applies.
 	 */
 	int fProcOrigin;	
 	/**
-	 * Id of the object to which this object refers.
+	 * Dependency data of the request
 	 */
-	OOPObjectId fObjId;		
+	OOPMDataDepend fDepend;
 	/**
 	 * Constructor
 	 */
-	OOPDMRequestTask(OOPDMRequestMessageType t, int proc);
+	OOPDMRequestTask(int proc, const OOPMDataDepend &depend);
+	OOPDMRequestTask(const OOPDMRequestTask &task);
+	OOPDMRequestTask();
 	
 	virtual OOPMReturnType Execute();
 	

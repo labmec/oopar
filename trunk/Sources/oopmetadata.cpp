@@ -111,9 +111,25 @@ void OOPMetaData::VerifyAccessRequests ()
     If the object is in a transition state, the code will not get that far,
 	  MESSAGES SHOULD BE SENT FROM HERE
 */
+
+	
+
 	list < OOPAccessInfo >::iterator ac;
-	if (fAccessList.HasVersionAccessRequests (fVersion)
-	    && fTrans == ENoTransition) {
+	//Check for ReadAccessRequests
+	if(fAccessList.HasWriteAccessGranted()
+		&& fAccessList.HasReadAccessRequests (fVersion)
+	    && !fAccessList.HasReadAccessGranted()
+		&& !fAccessList.HasExecutingOrReadGrantedTasks()/*fTaskWrite.IsZeroOOP()*/) 
+	{
+		fAccessList.RevokeWriteAccess(*this);
+		fTaskWrite = OOPObjectId();
+		fReadAccessProcessors.push_back(DM->GetProcID());
+		//CancelReadAccess();
+	}
+	else if (fAccessList.HasVersionAccessRequests (fVersion)
+	    && fTrans == ENoTransition 
+		&& !fAccessList.HasReadAccessRequests(fVersion)
+		&& IamOwner()) {
 		SuspendReadAccess ();
 		// we should invoke a procedure to revoke all access requests
 //		if(IamOwner() && fReadAccessProcessors.size() == fSuspendAccessProcessors.size()) this->fProcVersionAccess = fProc;
@@ -152,6 +168,9 @@ void OOPMetaData::VerifyAccessRequests ()
 			GrantAccess (ac->fState, ac->fProcessor);
 			
 			fAccessList.ReleaseAccess (ac);
+			if(fAccessList.HasWriteAccessRequests (fVersion)){
+				CancelReadAccess();
+			}
 		}
 	}
 }
@@ -161,7 +180,7 @@ OOPObjectId OOPMetaData::Id () const
 }
 bool OOPMetaData::CanGrantAccess () const
 {
-	if (fTrans != ENoTransition)
+	if (fTrans != ENoTransition && fTrans != ECancelReadTransition)
 		return false;
 	if (fProcVersionAccess != -1
 	    && fProcVersionAccess != DM->GetProcID ())
@@ -242,6 +261,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 		OOPObjectId locid(taskid);
 		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, locid, State(), locver);
 	}
+	
 	if(fToDelete) {
 		CheckTransitionState ();
 	} else {
@@ -258,7 +278,7 @@ void OOPMetaData::CheckTransitionState ()
 	
 	if(fToDelete) {
 		fAccessList.RevokeAccessAndCancel ();
-		if (!fAccessList.HasExecutingTasks ()) {
+		if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
 			DataLog << "Deleting object " << fObjId << endl;
 			LogDM->LogGeneric(DM->GetProcID(), fObjId, "Deleting Object");
 			DataLog.flush();
@@ -269,12 +289,13 @@ void OOPMetaData::CheckTransitionState ()
 	if (fTrans == ENoTransition) {
 		return;
 	}
-	if(fTrans == ECancelReadTransition) fAccessList.ResendGrantedAccessRequests(fObjId,this->fProc);
-	fAccessList.RevokeAccess(*this);
-	if (!fAccessList.HasExecutingTasks ()) {
+	//if(fTrans == ECancelReadTransition) fAccessList.ResendGrantedAccessRequests(fObjId,this->fProc);
+	//fAccessList.RevokeWriteAccess(*this);
+	if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
 		if (fTrans == ECancelReadTransition) {
 			list < int >::iterator i =
 				fReadAccessProcessors.begin ();
+#warning "isto é um simples find"
 			while (i != fReadAccessProcessors.end ()) {
 				if (*i == DM->GetProcID ()) {
 					fReadAccessProcessors.erase (i);
@@ -282,7 +303,7 @@ void OOPMetaData::CheckTransitionState ()
 						OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccessConfirmation,fProc);
 						//alterei aqui!!!
 						town->fObjId=fObjId;
-						town->fObjPtr = this->fObjPtr;
+						town->fObjPtr = 0;
 						town->fVersion = this->fVersion;
 						town->fProcOrigin = DM->GetProcID();
 						LogDM->SendOwnTask(town);
@@ -300,6 +321,7 @@ void OOPMetaData::CheckTransitionState ()
 		else if (fTrans == ESuspendReadTransition) {
 			list < int >::iterator i =
 				fSuspendAccessProcessors.begin ();
+#warning "isto é um simples find"			
 			while (i != fSuspendAccessProcessors.end ()) {
 				if (*i == DM->GetProcID ()) {
 					break;
@@ -340,7 +362,8 @@ void OOPMetaData::CheckTransitionState ()
 }
 OOPMDataState OOPMetaData::State () const
 {
-	if (fTaskWrite.IsZeroOOP ()) {
+	#warning "IsZero !!!"
+	if (!fTaskWrite.IsZeroOOP ()) {
 		return EWriteAccess;
 	}
 	else {
@@ -497,6 +520,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 	case ECancelReadAccess: {
 		DataLog << "Cancel read access received from " << ms.fProcOrigin << endl;
 		fTrans = ECancelReadTransition;
+		// fProc ja deveria ser igual ms.fProcOrigin
 		fProc = ms.fProcOrigin;
 		CheckTransitionState();
 		break;
@@ -516,6 +540,8 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 				break;
 			}
 		}
+		CheckTransitionState();
+		VerifyAccessRequests();
 		break;
 	}
 	case ESuspendSuspendAccess: {
@@ -555,6 +581,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 		}
 		DataLog << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fProcOrigin << endl;
 		DataLog.flush();
+		// isto deveria pelo menos gerar um log...
 		if(fObjPtr && ms.fObjPtr) delete fObjPtr;
 		if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
 		ms.fObjPtr = 0;
@@ -700,10 +727,8 @@ void OOPMetaData::CancelReadAccess ()
 	}
 	// send suspend messages to all processors and revoke the access
 	// granted
-	
-// GUSTAVO, Talvez tirar isto basta!!!
-//	fAccessList.RevokeAccess (*this);
-	if (!fAccessList.HasExecutingTasks ()) {
+/*	fAccessList.RevokeWriteAccess (*this);*/
+	if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
 		i = fReadAccessProcessors.begin ();
 		while (i != fReadAccessProcessors.end ()) {
 			if (*i == DM->GetProcID ()) {
@@ -724,8 +749,8 @@ void OOPMetaData::SuspendReadAccess ()
 	GLogMsgCounter++;
 	// send suspend messages to all processors and revoke the access
 	// granted
-	fAccessList.RevokeAccess (*this);
-	if (!fAccessList.HasExecutingTasks () && HasReadAccess()) {
+	fAccessList.RevokeWriteAccess (*this);
+	if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
 		DataLog << "suspending read access for obj " << fObjId << " at proc " << DM->GetProcID() << endl;
 		DataLog.flush();
 		fSuspendAccessProcessors.push_back (DM->GetProcID ());
@@ -739,7 +764,6 @@ void OOPMetaData::SuspendReadAccess ()
 			DataLog << "Sending suspend read access for obj " << fObjId << " to proc " << *ir << endl;
 			DataLog.flush();
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccess, *ir);
-			//alterei aqui
 			town->fObjId=fObjId;
 			town->fObjPtr = this->fObjPtr;
 			town->fVersion = this->fVersion;
@@ -824,7 +848,6 @@ void OOPMetaData::IncrementVersion (const OOPObjectId &taskid)
 		OOPDataVersion ver = fVersion;
 		++ver;
 		LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver, State(),taskid);
-		fVersion = ver;
 		DataLog << "Incrementing Version for Obj " << this->fObjId << " to version "
 			<< ver << "\n";
 //		++fVersion;

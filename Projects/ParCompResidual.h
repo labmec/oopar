@@ -17,7 +17,7 @@ public:
     /**
     	* Execute the task, verifying that all needed data acesses are satisfied.
     	*/
-	virtual OOPMReturnType Execute ();    
+	virtual OOPMReturnType ExecuteOld ();    
 
 
     ParCompResidual(int ProcId);    
@@ -36,6 +36,11 @@ private:
      * Initializes the task dependence to state variables (solutions). This is always necessary in arecurrent task. 
      */
     void InitializeSolutionVersion();
+public:
+
+    OOPMReturnType Execute();
+
+private:
 
     /**
      * Holds the Ids of the subtasks created. Each subtask is responsible for computing the residual on one partition. 

@@ -380,6 +380,10 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
 {
 	DataLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
+	if(GLogMsgCounter==132){
+		int para;
+		para=0;
+	}
 	
 	DataLog << "SubmitAccessRequest task " << taskId << " depend " << depend << " proc " << processor << endl;
 	DataLog.flush();

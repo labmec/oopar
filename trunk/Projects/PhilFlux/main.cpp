@@ -23,13 +23,13 @@ using namespace std;
 OOPCommunicationManager *CM;
 OOPDataManager *DM;
 OOPTaskManager *TM;
-ofstream TaskLog("tasklog.log");
-ofstream DataLog("datalog.log");
-ofstream DataManLog("datamanlog.log");
-ofstream TransferDataLog("transferdatalog.log");
-ofstream TaskQueueLog("taskqueue.log");
-ofstream TaskManLog("taskmanlog.log");
-ofstream DataQueueLog("dataqueuelog.log");
+ofstream TaskLog;
+ofstream DataLog;
+ofstream DataManLog;
+ofstream TransferDataLog;
+ofstream TaskQueueLog;
+ofstream TaskManLog;
+ofstream DataQueueLog;
 
 void InsertTasks(int numtasks);
 // void RegisterPhilFluxRestore();
@@ -37,12 +37,20 @@ void InsertTasks(int numtasks);
 
 struct DataAccessOrg {
   int fTaskid;
+  int fProcid;
   int fDataId;
   int fVersion;
   OOPMDataState fAccessType;
-  DataAccessOrg(){}
-  DataAccessOrg (int taskid,int id, int version, OOPMDataState access){
+  DataAccessOrg()
+  {
+    fTaskid=-1;
+    fProcid=-1;
+    fDataId=-1;
+    fVersion=-1;
+  }
+  DataAccessOrg (int taskid,int procid, int id, int version, OOPMDataState access){
     fTaskid = taskid;
+    fProcid = procid;
     fDataId = id;
     fVersion = version;
     fAccessType = access; 
@@ -84,7 +92,7 @@ void ReadDataAccess (istream &arq, std::list<DataAccessOrg> &mylist) {
   while(arq) {
     DataAccessOrg ac;
     int accesstype;
-    arq >> ac.fTaskid >> ac.fDataId >> ac.fVersion >> accesstype;
+    arq >> ac.fTaskid >> ac.fProcid >> ac.fDataId >> ac.fVersion >> accesstype;
     ac.fAccessType = (OOPMDataState)accesstype;
     if(!arq) break;
     mylist.push_back(ac);
@@ -169,12 +177,19 @@ void CreateTaskFromFile(string &file) {
   for(it=mylist.begin(),counter=0; it!=mylist.end(); it++,counter++) {
     int task = (*it).fTaskid;
     if(task != lasttask) {
-      if(st) TM->Submit(st);
-      st = new TSmallTask(0);
+      cout << "task = " << task << " lasttask = " << lasttask << endl;
+      lasttask = task;
+      if(st) 
+      {
+        OOPObjectId id = TM->Submit(st);
+        cout << __PRETTY_FUNCTION__ << " submitted task id " << id << " task " << lasttask << endl;
+      }
+      st = new TSmallTask((*it).fProcid);
     }
     st->AddDependentData(depend[counter]);
   }
-  TM->Submit(st);
+  OOPObjectId id = TM->Submit(st);
+  cout << __PRETTY_FUNCTION__ << " submitted task id " << id << " task " << lasttask << endl;
 
   // build a task such that the current thread has access to internal OOP data
   OOPWaitTask *wt = new OOPWaitTask(CM->GetProcID());
@@ -218,9 +233,24 @@ int mpimain (int argc, char **argv)
   CM->Initialize((char*)argv, argc);
   
   char filename[256];
-  sprintf(filename,"datalogger%d", CM->GetProcID());
+  sprintf(filename,"datalogger%d.log", CM->GetProcID());
   OOPDataLogger * LogDM = new OOPDataLogger(filename);
   ::LogDM = LogDM;
+  sprintf(filename,"tasklog%d.log", CM->GetProcID());  
+  TaskLog.open(filename);
+  sprintf(filename,"datalog%d.log", CM->GetProcID());  
+  DataLog.open(filename);
+  sprintf(filename,"datamanlog%d.log", CM->GetProcID());  
+  DataManLog.open(filename);
+  sprintf(filename,"transferdatalog%d.log", CM->GetProcID());  
+  TransferDataLog.open(filename);
+  sprintf(filename,"taskqueue%d.log", CM->GetProcID());  
+  TaskQueueLog.open(filename);
+  sprintf(filename,"taskmanlog%d.log", CM->GetProcID());  
+  TaskManLog.open(filename);
+  sprintf(filename,"dataqueuelog%d.log", CM->GetProcID());  
+  DataQueueLog.open(filename);
+
   TM = new OOPTaskManager (CM->GetProcID ());
   DM = new OOPDataManager (CM->GetProcID ());
 
@@ -236,7 +266,7 @@ int mpimain (int argc, char **argv)
     cout << "Inserting tasks\n";
     cout.flush();
     //InsertTasks(30);
-    string file ("teste_oopar.txt");
+    string file ("tasks.txt");
     CreateTaskFromFile(file);
   } else {
     cout << "IAmTheMaster returned " << CM->IAmTheMaster() << endl;

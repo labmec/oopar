@@ -11,7 +11,7 @@ void TParVector::Write (TPZStream & buf, int withclassid)
 	vector < double >::iterator i = fData.begin ();
 	int aux = fData.size ();
 	buf.Write (&aux);
-	while (i != fData.end ()) {
+	for (i=fData.begin(); i != fData.end ();i++) {
 		buf.Write (&(*i), 1);
 	}
 }
@@ -21,10 +21,11 @@ void TParVector::Read (TPZStream & buf, void * context)
 	int aux = 0;
 	int i = 0;
 	buf.Read (&aux);
+        fData.resize(aux);
 	double val = 0.;
 	for (i = 0; i < aux; i++) {
 		buf.Read (&val, 1);
-		fData.push_back (val);
+		fData[i] = val;
 	}
 }
 void TParVector::SetVector (vector < double >data)

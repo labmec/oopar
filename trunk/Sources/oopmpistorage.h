@@ -19,15 +19,17 @@
 //
 #ifndef _STR_MPIHH_
 #define _STR_MPIHH_
-#include "oopstorage.h"
+
 #include "pzmanvector.h"
 #include "mpi.h"
+#include "pzfilebuffer.h"
+#include "pzsave.h"
 /** 
  * Non abstract class, which implements the receive
  * buffer using MPI (Message Passing Interface) library 
  * for communication.
 */
-class   OOPMPIStorageBuffer:public OOPStorageBuffer
+class   OOPMPIStorageBuffer:public TPZStream
 {
 	
 
@@ -73,7 +75,7 @@ public:
   /**
    * Restores next object in the buffer
    */
-	virtual OOPSaveable *Restore ();
+	virtual TPZSaveable *Restore ();
    /**
    * Unpacks array of characteres from received buffer
    * @param p Pointer to array for which elements must be unpacked
@@ -258,6 +260,22 @@ public:
 	{
 		return ("OOPMPIStorageBuffer::");
 	}
+
+    virtual void Write(int *p, int size = 1);
+
+    virtual void Write(double *p, int size = 1);
+
+    virtual void Write(char *p, int size = 1);
+
+    virtual void Write(string *p, int size = 1);
+
+    virtual void Read(int *p, int size = 1);
+
+    virtual void Read(double *p, int size = 1);
+
+    virtual void Read(char *p, int size = 1);
+
+    virtual void Read(string *p, int size = 1);
 };
 typedef OOPMPIStorageBuffer *POOPMPIStorageBuffer;
 #endif

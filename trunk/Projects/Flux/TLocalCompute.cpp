@@ -127,31 +127,31 @@ fPartition (partition)
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TLocalCompute::Pack (OOPStorageBuffer * buf){
-	OOPTask::Pack (buf);
-	buf->PkInt(&fPartition);
+int TLocalCompute::Write (TPZStream * buf){
+	OOPTask::Write (buf);
+	buf->Write(&fPartition);
 	int i,sz = fRhsIds.size();
-	buf->PkInt(&sz);
-	for(i=0; i<sz; i++) fRhsIds[i].Pack(buf);
-	fRhsVersion.Pack(buf);
+	buf->Write(&sz);
+	for(i=0; i<sz; i++) fRhsIds[i].Write(buf);
+	fRhsVersion.Write(buf);
 	return 0;
 }
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TLocalCompute::Unpack (OOPStorageBuffer * buf){
-	OOPTask::Unpack(buf);
-	buf->UpkInt(&fPartition);
+int TLocalCompute::Read (TPZStream * buf){
+	OOPTask::Read(buf);
+	buf->Read(&fPartition);
 	int i,sz;
-	buf->UpkInt(&sz);
+	buf->Read(&sz);
 	fRhsIds.resize(sz);
-	for(i=0; i<sz; i++) fRhsIds[i].Unpack(buf);
-	fRhsVersion.Unpack(buf);
+	for(i=0; i<sz; i++) fRhsIds[i].Read(buf);
+	fRhsVersion.Read(buf);
 	return 0;
 }
-OOPSaveable *TLocalCompute::Restore (OOPStorageBuffer * buf) {
+TPZSaveable *TLocalCompute::Restore (TPZStream * buf) {
 	TLocalCompute *loc = new TLocalCompute(0,0);
-	loc->Unpack(buf);
+	loc->Read(buf);
 	return loc;
 }

@@ -254,19 +254,19 @@ TParAnalysis::TParAnalysis (int Procid, int numpartitions, int numproc):OOPTask 
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TParAnalysis::Pack (OOPStorageBuffer * buf)
+int TParAnalysis::Write (TPZStream * buf)
 {
-	OOPTask::Pack (buf);
-	buf->PkInt (&fNumPartitions);
-	buf->PkInt (&fNumProcessors);
-	fRelationTable.Pack (buf);
-	fTaskVersion.Pack (buf);
+	OOPTask::Write (buf);
+	buf->Write (&fNumPartitions);
+	buf->Write (&fNumProcessors);
+	fRelationTable.Write (buf);
+	fTaskVersion.Write (buf);
 	int ip, np = fRhsId.size ();
-	buf->PkInt (&np);
+	buf->Write (&np);
 	for (ip = 0; ip < np; ip++) {
-		fRhsId[ip].Pack (buf);
-		fMeshId[ip].Pack (buf);
-		fStateId[ip].Pack (buf);
+		fRhsId[ip].Write (buf);
+		fMeshId[ip].Write (buf);
+		fStateId[ip].Write (buf);
 	}
 	return 0;
 }
@@ -274,28 +274,28 @@ int TParAnalysis::Pack (OOPStorageBuffer * buf)
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TParAnalysis::Unpack (OOPStorageBuffer * buf)
+int TParAnalysis::Read (TPZStream * buf)
 {
-	OOPTask::Unpack (buf);
-	buf->UpkInt (&fNumPartitions);
-	buf->UpkInt (&fNumProcessors);
-	fRelationTable.Unpack (buf);
-	fTaskVersion.Unpack (buf);
+	OOPTask::Read (buf);
+	buf->Read (&fNumPartitions);
+	buf->Read (&fNumProcessors);
+	fRelationTable.Read (buf);
+	fTaskVersion.Read (buf);
 	int ip, np;
-	buf->UpkInt (&np);
+	buf->Read (&np);
 	fRhsId.resize (np);
 	fMeshId.resize (np);
 	fStateId.resize (np);
 	for (ip = 0; ip < np; ip++) {
-		fRhsId[ip].Unpack (buf);
-		fMeshId[ip].Unpack (buf);
-		fStateId[ip].Unpack (buf);
+		fRhsId[ip].Read (buf);
+		fMeshId[ip].Read (buf);
+		fStateId[ip].Read (buf);
 	}
 	return 0;
 }
-OOPSaveable *TParAnalysis::Restore (OOPStorageBuffer * buf)
+TPZSaveable *TParAnalysis::Restore (TPZStream * buf)
 {
 	TParAnalysis *par = new TParAnalysis (0);
-	par->Unpack (buf);
+	par->Read (buf);
 	return par;
 }

@@ -61,7 +61,7 @@ int multimain ()
 		DMList[iproc] =
 			new OOPDataManager (CMList[iproc]->GetProcID ());
 	}
-	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
+/*	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
 	OOPStorageBuffer::AddClassRestore(TPARCOMPUTE_ID,TParCompute::Restore);
 	OOPStorageBuffer::AddClassRestore(TLOCALCOMPUTE_ID,TLocalCompute::Restore);
@@ -72,6 +72,7 @@ int multimain ()
 	OOPStorageBuffer::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
 	OOPStorageBuffer::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
 	OOPStorageBuffer::AddClassRestore(TTERMINATIONTASK_ID,OOPTerminationTask::Restore);
+	*/
 	Load (0);
 	
 	//sprintf(filename,"datalogger%d", CM->GetProcID());
@@ -103,7 +104,7 @@ int multimain ()
 #ifdef MPI
 int mpimain (int argc, char **argv)
 {
-
+/*
 	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
 	OOPStorageBuffer::AddClassRestore(TPARCOMPUTE_ID, TParCompute::Restore);
@@ -115,7 +116,7 @@ int mpimain (int argc, char **argv)
 	OOPStorageBuffer::AddClassRestore(TDMREQUESTTASK_ID, OOPDMRequestTask::Restore);
 	OOPStorageBuffer::AddClassRestore(TPARVECTOR_ID, TParVector::Restore);
 	OOPStorageBuffer::AddClassRestore(TTERMINATIONTASK_ID, OOPTerminationTask::Restore);
-
+*/
 	CM = new OOPMPICommManager (argc, argv);
 	CM->Initialize((char*)argv, argc);
 	char filename[256];

@@ -28,16 +28,16 @@ OOPWaitTask::~OOPWaitTask()
 }
 
 
-int OOPWaitTask::Pack(OOPStorageBuffer* buf)
+int OOPWaitTask::Write(TPZStream* buf)
 {
-  OOPTask::Pack(buf);
+  OOPTask::Write(buf);
   cout << "OOPWaitTask should never be packed\n";
   return -1;
 }
 
-int OOPWaitTask::Unpack(OOPStorageBuffer* buf)
+int OOPWaitTask::Read(TPZStream* buf)
 {
-    return OOPTask::Unpack(buf);
+    return OOPTask::Read(buf);
 }
 
 long OOPWaitTask::GetClassID()

@@ -659,21 +659,21 @@ long OOPTerminationTask::GetClassID ()
 	return TTERMINATIONTASK_ID;
 }
 
-int OOPTerminationTask::Pack(OOPStorageBuffer * buf){
-	OOPTask::Pack(buf);
+int OOPTerminationTask::Write(TPZStream * buf){
+	OOPTask::Write(buf);
 	return 0;
 }
-int OOPTerminationTask::Unpack(OOPStorageBuffer * buf){
-	OOPTask::Unpack(buf);
+int OOPTerminationTask::Read(TPZStream * buf){
+	OOPTask::Read(buf);
 	return 0;
 }
 
 long int OOPTerminationTask::ExecTime(){
 	return -1;
 }
-OOPSaveable *OOPTerminationTask::Restore (OOPStorageBuffer * buf){
+TPZSaveable *OOPTerminationTask::Restore (TPZStream * buf){
 	OOPTerminationTask*v = new OOPTerminationTask(0);
-	v->Unpack (buf);
+	v->Read (buf);
 	return v;
 }
 extern OOPTaskManager *TM;

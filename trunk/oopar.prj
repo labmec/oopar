@@ -1,8 +1,9 @@
-# Anjuta Version 1.2.0 
+# Anjuta Version 1.0.2 
 Compatibility Level: 1 
 
 <PROJECT_DESCRIPTION_START>
-Object Oriented parallelism package<PROJECT_DESCRIPTION_END>
+
+<PROJECT_DESCRIPTION_END>
 <CONFIG_PROGS_START>
 <CONFIG_PROGS_END>
 <CONFIG_LIBS_START>
@@ -22,17 +23,16 @@ Object Oriented parallelism package<PROJECT_DESCRIPTION_END>
 
 props.file.type=project
 
-anjuta.version=1.2.0
+anjuta.version=1.0.2
 anjuta.compatibility.level=1
 
 project.name=oopar
 project.type=GENERIC
 project.target.type=EXECUTABLE
 project.version=$OOP_VERSION.$OOP_REV
-project.author=Gustavo Camargo Longhin
+project.author=Gustavo Longhin
 project.source.target=liboopar.a
 project.has.gettext=0
-project.gui.command=
 project.programming.language=C_C++
 project.excluded.modules=intl
 
@@ -49,29 +49,12 @@ project.menu.need.terminal=0
 
 project.configure.options=
 anjuta.program.arguments=
-preferences.build.option.jobs=0
-preferences.build.option.silent=0
-preferences.build.option.autosave=0
-preferences.anjuta.make.options=-k
-preferences.make=make
-preferences.build.option.keep.going=1
-preferences.build.option.warn.undef=0
-preferences.autoformat.custom.style= -i8 -sc -bli0 -bl0 -cbi0 -ss
-preferences.indent.opening=0
-preferences.autoformat.disable=1
-preferences.indent.automatic=1
-preferences.use.tabs=1
-preferences.indent.size=4
-preferences.tabsize=4
-preferences.indent.closing=0
 
 module.include.name=.
 module.include.type=
+module.include.expanded=0
 module.include.files=\
 	Sources/oopobjectid.h\
-	Sources/Save/pzbfilestream.h\
-	Sources/Save/pzfilebuffer.h\
-	Sources/Save/pzsave.h\
 	Sources/cmdefs.h\
 	Sources/oopdataversion.h\
 	Sources/ooppardefs.h\
@@ -139,10 +122,14 @@ module.include.files=\
 	Projects/BiCGSTAB/TDistNorm.h\
 	Projects/PhilFlux/TParVector.h\
 	Projects/PhilFlux/tsmalltask.h\
-	Projects/PhilFlux/fluxdefs.h
+	Projects/PhilFlux/fluxdefs.h\
+	NeoPZ/Save/pzbfilestream.h\
+	NeoPZ/Save/pzfilebuffer.h\
+	NeoPZ/Save/pzsave.h
 
 module.source.name=.
 module.source.type=
+module.source.expanded=0
 module.source.files=\
 	Sources/ooptaskmanager.cpp\
 	Sources/oopmetadata.cpp\
@@ -150,9 +137,6 @@ module.source.files=\
 	Sources/ooppardefs.cpp\
 	Sources/oopparclass.cpp\
 	Sources/oopdatamanager.cpp\
-	Sources/Save/pzbfilestream.cpp\
-	Sources/Save/pzfilebuffer.cpp\
-	Sources/Save/pzsave.cpp\
 	Sources/oopwaittask.cpp\
 	Sources/oopmpicomm.cpp\
 	Sources/ooperror.cpp\
@@ -215,22 +199,29 @@ module.source.files=\
 	Projects/BiCGSTAB/bicgstaboopar.cpp\
 	Projects/PhilFlux/main.cpp\
 	Projects/PhilFlux/TParVector.cpp\
-	Projects/PhilFlux/tsmalltask.cpp
+	Projects/PhilFlux/tsmalltask.cpp\
+	NeoPZ/Save/pzbfilestream.cpp\
+	NeoPZ/Save/pzfilebuffer.cpp\
+	NeoPZ/Save/pzsave.cpp
 
 module.pixmap.name=.
 module.pixmap.type=
+module.pixmap.expanded=0
 module.pixmap.files=
 
 module.data.name=.
 module.data.type=
+module.data.expanded=0
 module.data.files=
 
 module.help.name=.
 module.help.type=
+module.help.expanded=0
 module.help.files=
 
 module.doc.name=.
 module.doc.type=
+module.doc.expanded=0
 module.doc.files=\
 	NEWS\
 	ChangeLog\
@@ -239,6 +230,7 @@ module.doc.files=\
 	COPYING\
 	README
 
+module.po.expanded=0
 module.po.files=
 
 compiler.options.supports=
@@ -250,12 +242,11 @@ compiler.options.libraries=
 compiler.options.libraries.selected=
 compiler.options.defines=\
 	HAVE_CONFIG_H
-compiler.options.defines.selected=
 compiler.options.warning.buttons=0 0 1 1 0 1 0 0 0 0 0 0 0 1 0 0 
 compiler.options.optimize.buttons=0 0 1 0 
 compiler.options.other.buttons=1 0 
 compiler.options.other.c.flags=
 compiler.options.other.l.flags=
 compiler.options.other.l.libs=
+project.source.paths=
 
-project.src.paths=

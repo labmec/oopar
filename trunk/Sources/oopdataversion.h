@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <stack>
-#include "oopstorage.h"
+#include "pzfilebuffer.h"
 using namespace std;
 /**
  * Implements the data versioning functionality.
@@ -24,12 +24,12 @@ class   OOPDataVersion
 	 * Packs the object in buffer so it can be sent through the network.
 	 * @param buf Buffer which implements the communication.
 	 */
-	int     Pack (OOPStorageBuffer * buf);
+	int     Write (TPZStream * buf);
 	/**
 	 * Unpacks the object in buffer so it can be received through the network.
 	 * @param buf Buffer which implements the communication.
 	 */
-	int     Unpack (OOPStorageBuffer * buf);
+	int     Read (TPZStream * buf);
 	/**
 	 * Returns class names
 	 */

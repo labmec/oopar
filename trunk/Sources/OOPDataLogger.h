@@ -2,7 +2,7 @@
 
 #ifndef OOPDATALOGGER_H
 #define OOPDATALOGGER_H
-#include "oopsaveable.h"
+
 #include "oopdatamanager.h"
 
 class OOPDMOwnerTask;
@@ -100,5 +100,3 @@ private:
 };
 extern OOPDataLogger * LogDM;
 #endif //OOPDATALOGGER_H
-
-

@@ -19,11 +19,11 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.21 2004-07-23 21:30:10 longhin Exp $
-// $Revision: 1.21 $
+// $Id: oopmpistorage.cpp,v 1.22 2004-08-05 12:44:35 longhin Exp $
+// $Revision: 1.22 $
 
 
-#include "oopstorage.h"
+
 #include "oopmpistorage.h"
 #include "mpi.h"
 #include <iostream>
@@ -96,7 +96,8 @@ int OOPMPIStorageBuffer::PkStr (char *p)
 {
 	int len = strlen(p);
 	PkInt(&len,1);
-	return PackGeneric(p,len,MPI_CHAR);
+	//return PackGeneric(p,len,MPI_CHAR);
+	return PkByte(p,len);
 }
 int OOPMPIStorageBuffer::PkDouble (double *p, int n)
 {
@@ -178,7 +179,7 @@ bool OOPMPIStorageBuffer::TestReceive() {
   /**
    * Restores next object in the buffer
    */
-OOPSaveable *OOPMPIStorageBuffer::Restore () {
+TPZSaveable *OOPMPIStorageBuffer::Restore () {
 	if(!TestReceive()) {
 		cout << "Restore called at the wrong moment\n";
 		cout.flush();
@@ -186,7 +187,7 @@ OOPSaveable *OOPMPIStorageBuffer::Restore () {
 	}
 	f_isreceiving = 0;
 	f_recv_position = 0;
-	OOPSaveable *obj = OOPStorageBuffer::Restore();
+	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
 	//MPI_Request_free(&f_request);
 	return obj;
 }
@@ -294,3 +295,35 @@ int OOPMPIStorageBuffer::UpkStr (char *p)
 	UpkByte(p,n);
 	return 1;
 }
+ void OOPMPIStorageBuffer::Write(int *p, int size){
+	 PkInt(p, size);
+ }
+ void OOPMPIStorageBuffer::Write(double *p, int size){
+	 PkDouble(p, size);
+ }
+ void OOPMPIStorageBuffer::Write(char *p, int size){
+	 PkByte(p, size);
+ }
+ void OOPMPIStorageBuffer::Write(string *p, int size){
+	 PkInt(&size);
+	 char* buf = new char[p->length()];
+  	 p->copy(buf, p->length());	 
+	 PkStr(buf);
+ }
+ void OOPMPIStorageBuffer::Read(int *p, int size){
+	 UpkInt(p, size);	 
+ }
+ void OOPMPIStorageBuffer::Read(double *p, int size){
+	 UpkDouble(p, size);
+ }
+ void OOPMPIStorageBuffer::Read(char *p, int size){
+	 UpkByte(p, size);
+ }
+ void OOPMPIStorageBuffer::Read(string *p, int size){
+	 UpkInt(&size);
+	 char * buf = new char[size];
+	 int i=0;
+	 for (i=0;i<size;i++)
+	 	UpkStr(&buf[i]);
+	 p->insert(size, buf);
+ }

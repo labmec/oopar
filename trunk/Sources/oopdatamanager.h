@@ -14,6 +14,7 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include <pthread.h>
+class TPZSaveable;
 class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 class   OOPSaveable;
@@ -95,7 +96,7 @@ public:
 	* @param *obj : Pointer to TSaveable object which is to be submited
 	* @param trace : Indicates if submited object is traceable or not
 	*/
-	OOPObjectId SubmitObject (OOPSaveable * obj, int trace = 0);
+	OOPObjectId SubmitObject (TPZSaveable * obj, int trace = 0);
       private:
 	/**
 	* Deletes the object from the datastructure
@@ -204,7 +205,7 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	/**
 	* Holds a pointer to the object when the object data is transferred
 	*/
-	OOPSaveable *fObjPtr;
+	TPZSaveable *fObjPtr;
 	/**
 	* Id of processor which originated the message
 	*/
@@ -229,9 +230,9 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 	{
 		return TDMOWNERTASK_ID;
 	}
-	virtual int Unpack (OOPStorageBuffer * buf);
-	static OOPSaveable *Restore (OOPStorageBuffer * buf);
-	virtual int Pack (OOPStorageBuffer * buf);
+	virtual int Read (TPZStream * buf);
+	static TPZSaveable *Restore (TPZStream * buf);
+	virtual int Write (TPZStream * buf);
 	// Apenas para DEBUG.
 	// virtual void Work() { Debug( "\nTSaveable::Work." ); }
 	// virtual void Print() { Debug( " TSaveable::Print." ); }
@@ -262,9 +263,9 @@ class   OOPDMRequestTask:public OOPDaemonTask
 	{
 		return TDMREQUESTTASK_ID;
 	}
-	virtual int Unpack (OOPStorageBuffer * buf);
-	static OOPSaveable *Restore (OOPStorageBuffer * buf);
-	virtual int Pack (OOPStorageBuffer * buf);
+	virtual int Read (TPZStream * buf);
+	static TPZSaveable *Restore (TPZStream * buf);
+	virtual int Write (TPZStream  * buf);
 };
 class   OOPCurrentLocation
 {

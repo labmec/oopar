@@ -68,51 +68,51 @@ void TContribution::InitializeRandom ()
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TContribution::Pack (OOPStorageBuffer * buf){
-	fDestinationMesh.Pack(buf);
+int TContribution::Write (TPZStream * buf){
+	fDestinationMesh.Write(buf);
 	int i,sz;
 	sz = fFrom.size();
-	buf->PkInt(&sz);
-	for(i=0; i<sz; i++) buf->PkInt(&fFrom[i]);
+	buf->Write(&sz);
+	for(i=0; i<sz; i++) buf->Write(&fFrom[i]);
 	sz = fTo.size();
-	buf->PkInt(&sz);
-	for(i=0; i<sz; i++) buf->PkInt(&fTo[i]);
+	buf->Write(&sz);
+	for(i=0; i<sz; i++) buf->Write(&fTo[i]);
 	sz = fLocalIndices.size();
-	buf->PkInt(&sz);
+	buf->Write(&sz);
 	for(i=0; i<sz; i++) {
 		int lsz = fLocalIndices[i].size();
 		int il;
-		buf->PkInt(&lsz);
+		buf->Write(&lsz);
 		for(il=0; il<lsz; il++) {
-			buf->PkInt(&fLocalIndices[i][il]);
+			buf->Write(&fLocalIndices[i][il]);
 		}
 	}
-	buf->PkInt(&fNContributions);
+	buf->Write(&fNContributions);
 	return 0;
 }
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TContribution::Unpack (OOPStorageBuffer * buf){
-	fDestinationMesh.Unpack(buf);
+int TContribution::Read (TPZStream * buf){
+	fDestinationMesh.Read(buf);
 	int i,sz;
-	buf->UpkInt(&sz);
+	buf->Read(&sz);
 	fFrom.resize(sz);
-	for(i=0; i<sz; i++) buf->UpkInt(&fFrom[i]);
-	buf->UpkInt(&sz);
+	for(i=0; i<sz; i++) buf->Read(&fFrom[i]);
+	buf->Read(&sz);
 	fTo.resize(sz);
-	for(i=0; i<sz; i++) buf->UpkInt(&fTo[i]);
-	buf->UpkInt(&sz);
+	for(i=0; i<sz; i++) buf->Read(&fTo[i]);
+	buf->Read(&sz);
 	fLocalIndices.resize(sz);
 	for(i=0; i<sz; i++) {
 		int lsz,il;
-		buf->UpkInt(&lsz);
+		buf->Read(&lsz);
 		fLocalIndices[i].resize(lsz);
 		for(il=0; il<lsz; il++) {
-			buf->UpkInt(&fLocalIndices[i][il]);
+			buf->Read(&fLocalIndices[i][il]);
 		}
 	}
-	buf->UpkInt(&fNContributions);
+	buf->Read(&fNContributions);
 	return 0;
 }

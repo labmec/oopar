@@ -15,8 +15,8 @@
 
 void RegisterOOParRestore()
 {
-  OOPStorageBuffer::AddClassRestore(TDMOWNERTASK_ID, OOPDMOwnerTask::Restore);
+/*  OOPStorageBuffer::AddClassRestore(TDMOWNERTASK_ID, OOPDMOwnerTask::Restore);
   OOPStorageBuffer::AddClassRestore(TDMREQUESTTASK_ID, OOPDMRequestTask::Restore);
   OOPStorageBuffer::AddClassRestore(TTERMINATIONTASK_ID, OOPTerminationTask::Restore);
-
+*/
 }

@@ -76,12 +76,12 @@ void OOPMDataDepend::LogMe(ostream &out) {
 	out << "Version " << fVersion;
 }
 
-void OOPMDataDepend::Pack (OOPStorageBuffer * buf)
+void OOPMDataDepend::Write (TPZStream  * buf)
 {
-	fDataId.Pack (buf);
+	fDataId.Write (buf);
 	int need = fNeed;
-	buf->PkInt (&need);
-	fVersion.Pack (buf);
+	buf->Write (&need);
+	fVersion.Write(buf);
 	if (fObjPtr) {
 		cout << "OOPMDataDepend::Pack the object pointer should be zero\n";
 	}
@@ -89,13 +89,13 @@ void OOPMDataDepend::Pack (OOPStorageBuffer * buf)
   /**
    * method to reconstruct the object
    */
-int OOPMDataDepend::Unpack (OOPStorageBuffer * buf)
+int OOPMDataDepend::Read (TPZStream * buf)
 {
-	fDataId.Unpack (buf);
+	fDataId.Read (buf);
 	int need;
-	buf->UpkInt (&need);
+	buf->Read (&need);
 	fNeed = (OOPMDataState) need;
-	fVersion.Unpack (buf);
+	fVersion.Read(buf);
 	fObjPtr = 0;
 	return 1;
 }
@@ -212,33 +212,33 @@ int OOPMDataDependList::CanExecute ()
 	}
 	return 1;
 }
-void OOPMDataDependList::Pack (OOPStorageBuffer * buf)
+void OOPMDataDependList::Write (TPZStream  * buf)
 {
 	deque < OOPMDataDepend >::iterator i;
 	int nel = fDependList.size ();
-	buf->PkInt (&nel);
+	buf->Write (&nel);
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
-		i->Pack (buf);
+		i->Write (buf);
 	}
 }
   /**
    * method to reconstruct the object
    */
-int OOPMDataDependList::Unpack (OOPStorageBuffer * buf)
+int OOPMDataDependList::Read (TPZStream  * buf)
 {
 	int nel;
-	buf->UpkInt (&nel);
+	buf->Read (&nel);
 	int id;
 	OOPMDataDepend temp;
 	for (id = 0; id < nel; id++) {
-		temp.Unpack (buf);
+		temp.Read (buf);
 		fDependList.push_back (temp);
 	}
 	return 1;
 }
 
 OOPMDataDepend & OOPMDataDependList::Dep (OOPObjectId & Id)	{
-  deque< OOPMDataDepend >::iterator i;
+	deque< OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		if (i->Id() == Id)
 			return *(i);

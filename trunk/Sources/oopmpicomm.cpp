@@ -70,7 +70,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
 	
 	//pthread_mutex_lock(&fCommunicate);
-#warning "Nao tem necessidade do mutex neste ponto"
+//#warning "Nao tem necessidade do mutex neste ponto"
 #ifdef VERBOSE
 	cout << "Sending task " << pTask->GetClassID() << endl;
 	cout.flush();
@@ -89,7 +89,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 		delete pTask;
 		return -1;
 	}
-	pTask->Pack (&f_buffer);
+	pTask->Write (&f_buffer);
 	f_buffer.Send(process_id);
 #ifdef VERBOSE
 	cout << "Message Sent\n";
@@ -176,7 +176,7 @@ int OOPMPICommManager::ReceiveBlocking ()
 };
 int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 {
-	OOPSaveable *obj = msg.Restore ();
+	TPZSaveable *obj = msg.Restore ();
 #warning "Restore( &msg ); not implemented on OOPMPICommManager"
 	if (obj == NULL) {
 		Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );

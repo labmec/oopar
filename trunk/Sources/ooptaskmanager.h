@@ -250,10 +250,10 @@ public:
    */
 	OOPMReturnType Execute ();
 	virtual long GetClassID ();
-	int Pack(OOPStorageBuffer * buf);
-	int Unpack(OOPStorageBuffer * buf);
+	int Write(TPZStream * buf);
+	int Read(TPZStream* buf);
 	long int ExecTime();
-	static OOPSaveable *Restore (OOPStorageBuffer * buf);
+	static TPZSaveable *Restore (TPZStream* buf);
 };
 
 /*

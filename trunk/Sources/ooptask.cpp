@@ -100,38 +100,38 @@ OOPObjectId OOPTask::Id ()
 {
 	return fTaskId;
 }
-OOPSaveable *OOPTask::Restore (OOPStorageBuffer * buf)
+TPZSaveable *OOPTask::Restore (TPZStream * buf)
 {
 	OOPTask *v = new OOPTask (0);
-	v->Unpack (buf);
+	v->Read (buf);
 	return v;
 }
-int OOPTask::Pack (OOPStorageBuffer * buf)
+int OOPTask::Write (TPZStream * buf, int nel)
 {
-	OOPSaveable::Pack (buf);
+	TPZSaveable::Write (*buf, 1);
 	// ObjectId packing and unpacking
-	fTaskId.Pack (buf);
-	buf->PkInt (&fProc);	// Processor where the task should be
+	fTaskId.Write (buf);
+	buf->Write (&fProc);	// Processor where the task should be
 	// executed
-	buf->PkInt (&fPriority);
-	buf->PkInt (&fIsRecurrent);
-	fDataDepend.Pack (buf);
+	buf->Write (&fPriority);
+	buf->Write (&fIsRecurrent);
+	fDataDepend.Write (buf);
 	return 0;
 }
-int OOPTask::Unpack (OOPStorageBuffer * buf)
+int OOPTask::Read (TPZStream * buf, int nel)
 {
-	OOPSaveable::Unpack (buf);
-	fTaskId.Unpack (buf);
+	TPZSaveable::Read(*buf);
+	fTaskId.Read (buf);
 	// Finished OOPObjectId unpacking
-	buf->UpkInt (&fProc);
-	buf->UpkInt (&fPriority);
-	buf->UpkInt (&fIsRecurrent);
-	fDataDepend.Unpack (buf);
+	buf->Read (&fProc);
+	buf->Read (&fPriority);
+	buf->Read (&fIsRecurrent);
+	fDataDepend.Read(buf);
 	return 0;
 }
-OOPSaveable *OOPDaemonTask::Restore (OOPStorageBuffer * buf)
+TPZSaveable *OOPDaemonTask::Restore (TPZStream * buf)
 {
 	OOPDaemonTask *v = new OOPDaemonTask (0);
-	v->Unpack (buf);
+	v->Read (buf);
 	return v;
 }

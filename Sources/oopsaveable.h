@@ -64,26 +64,5 @@ public:
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
   virtual int Unpack( OOPReceiveStorage *buf );
-
-  /**
-   * Sets an ID to the class
-   * @param id to be set
-   */
-  void SetGlobalId(const OOPObjectId &id);
-
-  /**
-   * Returns the class id of the object within the DM
-   */
-  OOPObjectId GlobalId();
-  
-
-
-
-protected:
-  /**
-   * ID of the Data Manager
-   */
-  OOPObjectId fDMId;
-
 };
 #endif //_SAVEABLEHH_

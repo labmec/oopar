@@ -14,7 +14,7 @@
 
 
 #include "oopsaveable.h"
-#include "oopdataversion.h"
+
 class OOPSendStorage;
 class OOPReceiveStorage;
 class OOPDataVersion;
@@ -34,10 +34,9 @@ OOPSaveable::GetClassID()
 int
 OOPSaveable::Pack(OOPSendStorage * buf)
 {
-  long class_id = GetClassID();
-  buf->PkLong( &class_id );
-  fDMId.Pack(buf);
-  return 1;
+	long class_id = GetClassID();
+	buf->PkLong(&class_id);
+	return 1;
 }
 
 
@@ -46,24 +45,9 @@ OOPSaveable::Pack(OOPSendStorage * buf)
 int 
 OOPSaveable::Unpack( OOPReceiveStorage *buf ) 
 {
-  return fDMId.Unpack(buf);
+	#ifndef WIN32
+	#warning "Unpack on the OOPSaveable class is empty ! Should it exist ?"
+	#warning "Souldn't it be virtual ?"
+	#endif
+	return 1;
 }
-
-
-/*********************/
-/*** Set Global ID ***/
-void
-OOPSaveable::SetGlobalId(const OOPObjectId &id)
-{
-  fDMId = id;
-}
-
-
-/*****************/
-/*** Global ID ***/
-OOPObjectId
-OOPSaveable::GlobalId()
-{
-  return fDMId;
-}
-

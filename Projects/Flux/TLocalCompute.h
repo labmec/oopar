@@ -45,7 +45,8 @@ private:
      */
     void InitializePartitionRelationPointer();
 
-public:
+private:
+
 
     /**
      * Simple constructor 

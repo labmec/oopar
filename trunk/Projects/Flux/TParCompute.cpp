@@ -33,6 +33,7 @@ void TParCompute::CreateFluxesTasks(  ){
     int i;
     //Pointers to LocalTasks created
     fTasks = new TLocalCompute[fPartRelationPtr->GetNPartitions()] (fProc);
+    //Atenção com DELETE !!!!
 
     //For each LocalTask its necessary data dependence attribution
     OOPMDataState st_read = EReadAccess;
@@ -55,6 +56,7 @@ void TParCompute::CreateFluxesTasks(  ){
 
         //Contributions to each partition
         ncontributions = fPartRelationPtr->IncomingContribution(i);
+        //Passar para as subtarefas.
 		DM->IncrementLevel(aux_Id, fRhsIds[i], ncontributions, (long)fProc);
     }
 }

@@ -21,7 +21,7 @@ bin_PROGRAMS = main
 main_SOURCES = TTaskTest.cpp main.cpp
 
 if OOPMPI
-main_LDADD = $(top_builddir)/lib/liboopar.a -lpthread @MPILIBDIR@ @MPILIB@
+main_LDADD = $(top_builddir)/lib/liboopar.a @MPILIBDIR@ @MPILIB@ -lpthread
 else
 main_LDADD = $(top_srcdir)/lib/liboopar.a \
 		-L$(top_srcdir)/lib/ \
@@ -30,5 +30,5 @@ endif
 #@MPIDIR@/lib/libmpi.a
 
 ## --| OOPar |------------------------------------------------------------------
-INCLUDES = -I$(top_srcdir)/Common -I$(top_srcdir)/Save -I$(top_srcdir)/Sources -I$(top_srcdir)/Util
-AM_CXXFLAGS = -DMPI
+INCLUDES = -I$(top_srcdir)/Common -I$(top_srcdir)/Save -I$(top_srcdir)/Sources -I$(top_srcdir)/Util @MPILIBDIR@ @MPILIB@
+AM_CXXFLAGS = @USING_MPI@

@@ -15,8 +15,6 @@
 class TPartitionRelation : public OOPSaveable {
 public:
 
-	//OOPDataVersion Version() {return fVersion;}
-
 	long GetClassID();
 	TPartitionRelation();
     TPartitionRelation(int npart);

@@ -463,15 +463,6 @@ int OOPDMOwnerTask::Pack( OOPSendStorage *buf ){
 	return 1;
 }
 
-int OOPDMOwnerTask::DerivedFrom(long Classid) {
-	if(Classid == GetClassID()) return 1;
-	return OOPDaemonTask::DerivedFrom(Classid);
-}
-
-int OOPDMOwnerTask::DerivedFrom(char *classname) {
-	if(!strcmp(ClassName(),classname)) return 1;
-	return OOPDaemonTask::DerivedFrom(classname);
-}
 
 OOPMReturnType OOPDMOwnerTask::Execute() {
 	//DM->GetUpdate(this);
@@ -519,12 +510,3 @@ int OOPDMRequestTask::Pack( OOPSendStorage *buf ){
 	return 1;
 }
 
-int OOPDMRequestTask::DerivedFrom(long Classid) {
-	if(Classid == GetClassID()) return 1;
-	return OOPDaemonTask::DerivedFrom(Classid);
-}
-
-int OOPDMRequestTask::DerivedFrom(char *classname) {
-	if(!strcmp(ClassName(),classname)) return 1;
-	return OOPDaemonTask::DerivedFrom(classname);
-}

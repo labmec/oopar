@@ -24,14 +24,6 @@ int TTaskComm::Pack(OOPSendStorage *buf)
   OOPTask::Pack(buf);
   return 0;
 }
-int TTaskComm::DerivedFrom(long Classid){
-  if(Classid == GetClassID()) return 1;
-  return OOPSaveable::DerivedFrom(Classid);
-}
-int TTaskComm::DerivedFrom(char *classname){
-  if(!strcmp(ClassName(),classname)) return 1;
-  return OOPSaveable::DerivedFrom(classname);
-}
 
 OOPMReturnType TTaskComm::Execute(){
     int i;

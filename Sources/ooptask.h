@@ -154,27 +154,6 @@ public:
 //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
 //  virtual void Print() { Debug( "  TSaveable::Print." ); }
 
-	/**
-	* Returns class name
-	*/
-	virtual char *ClassName ()
-	{
-		return ("TTask");
-	}
-
-	/**
-	* Returns true if the object belongs to a class derived from the specified classid
-	* @param ClassId Id of inquired super class
-	*/
-	virtual int DerivedFrom (long Classid);
-	/**
-	* Returns true if the object belongs to a class derived from the specified class name
-	* @param classname Name of inquired super class
-	*/
-	virtual int DerivedFrom (char *classname);	// a class with name
-							// classname
-
-
     /**
      * Returns the recurrence information 
      */
@@ -242,20 +221,7 @@ public:
 
 	static OOPSaveable *Restore (OOPReceiveStorage * buf);
 
-//  Apenas para DEBUG.
-//  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
-//  virtual void Print() { Debug( "  TSaveable::Print." ); }
 
-	virtual char *ClassName ()
-	{
-		return ("TDaemonTask");
-	}
-
-	virtual int DerivedFrom (long Classid);	// returns true if the object
-//  belongs to a class which is derived from a class
-//  with id classid
-	virtual int DerivedFrom (char *classname);	// a class with name
-							// classname
 };
 
 #endif

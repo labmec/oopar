@@ -24,26 +24,6 @@ public:
      */
     OOPMReturnType Execute();    
 
-	/**
-	* Returns class name
-	*/
-	char *ClassName ()
-	{
-		return ("TTaskComm");
-	}
-
-	/**
-	* Returns true if the object belongs to a class derived from the specified class name
-	* @param classname Name of inquired super class
-	*/
-	int DerivedFrom (char *classname);
-
-	/**
-	* Returns true if the object belongs to a class derived from the specified classid
-	* @param ClassId Id of inquired super class
-	*/
-	int DerivedFrom (long Classid);
-
 	int Pack (OOPSendStorage * buf);
 
 	/**

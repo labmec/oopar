@@ -259,6 +259,7 @@ void OOPTaskManager::Execute(){
 	  CM->SendMessages();
 	}
 
+  CM->SendMessages();
 
 	
 }

@@ -24,8 +24,8 @@
 #include "oopobjectid.h"
 
 
-class OOPTaskManager;
-class OOPSaveable;
+//class OOPTaskManager;
+//class OOPSaveable;
 class OOPTask;
 
 
@@ -60,7 +60,7 @@ public:
 	/**
 	* Returns the processor number in which this object is running
 	*/
-	int GetProcID()     { return( fObjectId.GetProcId()); }
+	int GetProcID()     { return f_myself; }
 	/**
 	* Returns the total number of processors
 	*/
@@ -119,10 +119,6 @@ protected:
 	*/
 	int f_myself;
 	
-	/**
-	* Id of the object
-	*/
-	OOPObjectId fObjectId;
 
 };
 

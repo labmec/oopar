@@ -102,15 +102,6 @@ OOPObjectId OOPTask::Id() {
   return fTaskId;
 }
 
-
-int OOPTask::DerivedFrom(long Classid){
-  if(Classid == GetClassID()) return 1;
-}
-
-int OOPTask::DerivedFrom(char *classname){
-  if(!strcmp(ClassName(),classname)) return 1;
-}
-
 OOPSaveable *OOPTask::Restore(OOPReceiveStorage *buf) {
   OOPTask *v = new OOPTask(0);
   v->Unpack(buf);
@@ -119,16 +110,13 @@ OOPSaveable *OOPTask::Restore(OOPReceiveStorage *buf) {
 
 int OOPTask::Pack(OOPSendStorage *buf)
 {
-#ifndef WIN32
-#warning "OOPTask::Pack should be implemented"
-#endif
   OOPSaveable::Pack(buf);
   //ObjectId packing and unpacking
   fTaskId.Pack(buf);
 		
   buf->PkInt(&fProc);	// Processor where the task should be executed
-  //buf->PkLong(&fTaskId);
   buf->PkInt(&fPriority);
+  buf->PkInt(&fIsRecurrent);
   fDataDepend.Pack(buf);
   return 0;
 
@@ -144,19 +132,11 @@ int OOPTask::Unpack( OOPReceiveStorage *buf )
 
   buf->UpkInt(&fProc);
   buf->UpkInt(&fPriority);
+  buf->UpkInt(&fIsRecurrent);
   fDataDepend.Unpack(buf);
   return 0;
 }
 
-int OOPDaemonTask::DerivedFrom(long Classid){
-  if(Classid == GetClassID()) return 1;
-  return OOPTask::DerivedFrom(Classid);
-}
-
-int OOPDaemonTask::DerivedFrom(char *classname){
-  if(!strcmp(ClassName(),classname)) return 1;
-  return OOPTask::DerivedFrom(classname);
-}
 
 OOPSaveable *OOPDaemonTask::Restore(OOPReceiveStorage *buf) {
   OOPDaemonTask *v = new OOPDaemonTask(0);

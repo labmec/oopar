@@ -154,7 +154,7 @@ public:
 	 */
 	        vector < int >fVersion;
 };
-inline ostream & operator<<(ostream &out, const OOPDataVersion &obj) {
+inline std::ostream & operator<<(std::ostream &out, const OOPDataVersion &obj) {
 	return obj.ShortPrint(out);
 }
 #endif // TDATAVERSION_H

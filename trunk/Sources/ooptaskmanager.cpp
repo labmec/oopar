@@ -28,6 +28,17 @@ class	OOPTerminationTask;
 //#include <sys/types.h>
 //#include <unistd.h>
 
+#include <sstream>
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskManager"));
+
 void OOPTaskManager::main ()
 {
 	/* 
@@ -93,10 +104,12 @@ void OOPTaskManager::main ()
 }
 void OOPTaskManager::TransferExecutingTasks(){
 
+  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	list < OOPTaskControl * >::iterator sub;
 	int listsize = fExecuting.size();
@@ -111,14 +124,18 @@ void OOPTaskManager::TransferExecutingTasks(){
       isfinished = auxtc->TaskFinished();
     } else
     {
-      cerr << __FUNCTION__ << " I dont understand \n";
+      sout << __FUNCTION__ << " I dont understand \n";
+      LOG4CXX_DEBUG (logger,sout);
+      sout.clear();
     }
   
 //		pthread_mutex_unlock(&fExecutingMutex);
 		if (isfinished){
       auxtc->Join();
-      TaskManLog << __PRETTY_FUNCTION__ << "Task finished " << auxtc->Task()->Id() << " classid " << auxtc->Task()->ClassId() << endl;
-      TaskManLog.flush();
+      /*TaskManLog*/ sout << __PRETTY_FUNCTION__ << "Task finished " << auxtc->Task()->Id() << " classid " << auxtc->Task()->ClassId() << endl;
+      LOG4CXX_DEBUG (logger,sout);
+      sout.clear();
+      //TaskManLog.flush();
 			OOPObjectId id;
 			id = auxtc->Task ()->Id ();
 			auxtc->Depend ().SetExecuting (id, false);
@@ -165,7 +182,9 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	list < OOPTaskControl * >::iterator i;
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
-        TaskManLog << "Entering task list loop" << endl;
+  /*TaskManLog*/ sout << "Entering task list loop" << endl;
+  LOG4CXX_DEBUG (logger,sout);
+  sout.clear();
 	//PrintTaskQueues("Antes", TaskQueueLog);
 	lTM->fKeepGoing=true;
 	lTM->ExecuteDaemons();
@@ -178,9 +197,11 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			lTM->fExecutable.erase(i);
 			lTM->fExecuting.push_back(tc);
 			tc->Task()->SetExecuting(true);
-                        TaskManLog << "Entering taskcontrol execute for task " << tc->Task()->Id() << " classid " << tc->Task()->ClassId() << endl;
-                        TaskManLog.flush();
-                        tc->Execute();
+      /*TaskManLog*/ sout << "Entering taskcontrol execute for task " << tc->Task()->Id() << " classid " << tc->Task()->ClassId() << endl;
+      LOG4CXX_DEBUG (logger,sout);
+      sout.clear();
+//       TaskManLog.flush();
+      tc->Execute();
 			lTM->TransferExecutingTasks();
 			DM->SubmitAllObjects();
 		}
@@ -253,10 +274,12 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 					  const OOPMDataDepend & depend,
 					  OOPMetaData * objptr)
 {
+  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
@@ -268,33 +291,40 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 			found = true;
 			tc->Depend ().GrantAccess (depend, objptr);
 #ifdef DEBUG
-			TaskManLog << "Access Granted to taskId " << TaskId  << " classid " << tc->Task()->ClassId();
+			/*TaskManLog*/ sout << "Access Granted to taskId " << TaskId  << " classid " << tc->Task()->ClassId();
 //			TaskId.Print (TaskManLog);
-			TaskManLog << " on data " << depend.Id() << endl;
+			/*TaskManLog*/ sout << " on data " << depend.Id() << endl;
+      LOG4CXX_DEBUG (logger,sout);
+      sout.clear();
 //			depend.Id ().Print (TaskManLog);
 #endif
 			if (tc->Depend ().CanExecute ()) {
 				TransfertoExecutable (tc->Task ()->Id ());
-				TaskManLog << "OOPTaskManager task is executable " << TaskId << " classid " << tc->Task()->ClassId() << endl;
+				/*TaskManLog*/ sout << "OOPTaskManager task is executable " << TaskId << " classid " << tc->Task()->ClassId() << endl;
+        LOG4CXX_DEBUG (logger,sout);
+        sout.clear();
 //				TaskId.Print (TaskManLog);
 			}
 			break;
 		}
 	}
 	if (!found) {
-		cerr << "Task not found on current TM: File:" << __FILE__ <<
+		sout << "Task not found on current TM: File:" << __FILE__ <<
 			" Line:" << __LINE__ << endl;
-		cerr << "Task \n";
-		TaskId.Print (cerr);
+		sout << "Task \n";
+		TaskId.Print (sout);
+    LOG4CXX_DEBUG (logger,sout);
 	}
 }
 void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 				   const OOPMDataDepend & depend)
 {
+  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
@@ -306,55 +336,70 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 			found = true;
 			tc->Depend ().RevokeAccess (depend);
 #ifdef DEBUG
-			TaskManLog << "Access Revoked to taskId " << TaskId << " classid " << tc->Task()->ClassId();
+			/*TaskManLog*/ sout << "Access Revoked to taskId " << TaskId << " classid " << tc->Task()->ClassId();
 //			TaskId.Print (TaskManLog);
-			TaskManLog << " on data " << depend.Id() << endl;
+			/*TaskManLog*/ sout << " on data " << depend.Id() << endl;
+      LOG4CXX_DEBUG (logger,sout);
+      sout.clear();
 //			depend.Id ().Print (TaskManLog);
 #endif
 			break;
 		}
 	}
 	if (!found) {
-		cerr << "OOPTaskManager::RevokeAccess Task not found on current TM: File:" << __FILE__ << " Line:" << __LINE__ << endl;
-		cerr << "Task \n";
-		TaskId.Print (cerr);
+		sout << "OOPTaskManager::RevokeAccess Task not found on current TM: File:" << __FILE__ << " Line:" << __LINE__ << endl;
+		sout << "Task \n";
+		TaskId.Print (sout);
+    LOG4CXX_DEBUG (logger,sout);
 	}
 }
 void OOPTaskManager::SubmitDaemon (OOPDaemonTask * task) {
+  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
   if(task->GetProcID() != this->fProc) 
   {
-    TaskManLog << __PRETTY_FUNCTION__ << " Sending a daemon task to proc " << task->GetProcID() << " classid " << task->ClassId() << endl;;
+    /*TaskManLog*/ sout << __PRETTY_FUNCTION__ << " Sending a daemon task to proc " << task->GetProcID() << " classid " << task->ClassId() << endl;;
     CM->SendTask(task);
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
   else
   {
-	TaskManLog << __PRETTY_FUNCTION__ << " Submitting a daemon task " << " classid " << task->ClassId() << endl;
+	/*TaskManLog*/ sout << __PRETTY_FUNCTION__ << " Submitting a daemon task " << " classid " << task->ClassId() << endl;
+    LOG4CXX_DEBUG (logger,sout);
     fDaemon.push_back(task);
   }
 }
 OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 {
+  stringstream sout;
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-	TaskManLog << "Calling Submit on OOPTaskManager ";
-        TaskManLog.flush();
+	/*TaskManLog*/ sout << "Calling Submit on OOPTaskManager ";
+  //TaskManLog.flush();
+  LOG4CXX_DEBUG (logger,sout);
+  sout.clear();
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
         OOPObjectId id;
 	if(dmt) {
-		TaskManLog << "Task Submitted is a daemon\n";
+    /*TaskManLog*/ sout << "Task Submitted is a daemon\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
 	} else 
         {
           id = task->Id();
           if(id.IsZeroOOP()) id = GenerateId ();
           task->SetTaskId (id);
         }
-	TaskManLog << __PRETTY_FUNCTION__ << " Task with id " << task->Id() << " submitted for processor" << task->GetProcID() << " classid " << task->ClassId() << endl;
-	TaskManLog.flush();
+	/*TaskManLog*/ sout << __PRETTY_FUNCTION__ << " Task with id " << task->Id() << " submitted for processor" << task->GetProcID() << " classid " << task->ClassId() << endl;
+	//TaskManLog.flush();
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
 #ifdef DEBUG
       OOPWaitTask *wait = dynamic_cast<OOPWaitTask *> (task);
   if(!wait && !dmt && !CM->GetProcID())
@@ -411,8 +456,10 @@ int OOPTaskManager::NumberOfTasks ()
 {
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	pthread_mutex_lock(&fSubmittedMutex);
 //	pthread_mutex_lock(&fFinishedMutex);
@@ -426,8 +473,10 @@ bool OOPTaskManager::HasWorkTodo ()
 {
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	pthread_mutex_lock(&fSubmittedMutex);
 //	pthread_mutex_lock(&fFinishedMutex);
@@ -443,8 +492,10 @@ int OOPTaskManager::ChangePriority (OOPObjectId & taskid, int newpriority)
 {
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	OOPTask *t = FindTask (taskid);
 	if (t) {
@@ -455,19 +506,26 @@ int OOPTaskManager::ChangePriority (OOPObjectId & taskid, int newpriority)
 }
 int OOPTaskManager::CancelTask (OOPObjectId taskid)
 {
+  stringstream sout;
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
-	TaskManLog << GLogMsgCounter << endl;
+  
+	/*TaskManLog*/ sout << GLogMsgCounter << endl;
+  LOG4CXX_DEBUG (logger,sout);
+  sout.clear();
 	GLogMsgCounter++;
 	list < OOPTaskControl * >::iterator i;	// , iprev, atual;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = *i;
 		if (tc->Task ()->Id () == taskid) {
-			TaskManLog << "Task erased ";
-			TaskManLog << "Task ID " << tc->Task()->Id() << " classid " << tc->Task()->ClassId() << endl;
+      /*TaskManLog*/sout << "Task erased ";
+      /*TaskManLog*/sout << "Task ID " << tc->Task()->Id() << " classid " << tc->Task()->ClassId() << endl;
+      LOG4CXX_DEBUG (logger,sout);
+      sout.clear();
 //			tc->Task ()->Id ().Print (TaskManLog);
 			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
 							     Id ());
@@ -479,10 +537,13 @@ int OOPTaskManager::CancelTask (OOPObjectId taskid)
 	return 0;
 }
 void OOPTaskManager::ExecuteDaemons() {
+  
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	list < OOPDaemonTask * >::iterator i;
 	while(fDaemon.size()) {
@@ -498,6 +559,7 @@ void OOPTaskManager::ExecuteDaemons() {
 }
 void OOPTaskManager::Execute ()
 {
+  stringstream sout;
 #ifndef MT	
 	//Qual é o service thread ?
 	// O service thread e a linha de execucao do programa principal
@@ -557,8 +619,9 @@ void OOPTaskManager::Execute ()
 			if(MPICM) MPICM->ReceiveBlocking();
 			#endif
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
-			cout << "Leaving blocking receive PID " << getpid() << endl;
-			cout.flush();
+			sout << "Leaving blocking receive PID " << getpid() << endl;
+      LOG4CXX_DEBUG (logger,sout);
+      sout.clear();
 			DM->SubmitAllObjects();
 		}
 //		pthread_mutex_unlock(&fExecuteMutex)
@@ -567,16 +630,17 @@ void OOPTaskManager::Execute ()
 	CM->SendMessages ();
 #else
 //	pthread_t execute_thread;
-	cout << "Creating service thread\n";
-	cout.flush();
+	sout << "Creating service thread\n";
+  LOG4CXX_DEBUG (logger,sout);
+  sout.clear();
 	if(pthread_create(&fExecuteThread, NULL, ExecuteMT, this)){
-		cerr << "Fail to create service thread\n";
-		cerr << "Going out\n";
-		cerr.flush();
+    sout << "Fail to create service thread\n";
+    sout << "Going out\n";
+    LOG4CXX_ERROR (logger,sout);
+    sout.clear();
 	} 
-	cout << "Created succesfuly\n";
-	cout.flush();
-		
+	sout << "Created succesfuly\n";
+  LOG4CXX_DEBUG (logger,sout);
 #endif
 }
 void OOPTaskManager::Wait(){
@@ -613,7 +677,7 @@ OOPTask *OOPTaskManager::FindTask (OOPObjectId taskid)
 void OOPTaskManager::Reschedule ()
 {
 }
-void OOPTaskManager::Print (ostream & out)
+void OOPTaskManager::Print (std::ostream & out)
 {
 	out << "Task Manager data structure \t" << endl;
 	out << "TM Processor " << fProc << endl;
@@ -685,8 +749,10 @@ void OOPTaskManager::TransferFinishedTasks ()
 {
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	list < OOPTaskControl * >::iterator sub;
 	int listsize = fFinished.size();
@@ -737,8 +803,10 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 {
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
-    cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
-    cout.flush();
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
   }
 	list < OOPTaskControl * >::iterator i;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
@@ -749,8 +817,7 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 			OOPDaemonTask *dmt =
 				dynamic_cast < OOPDaemonTask * >(tc->Task ());
 			if (dmt) {
-				cout << "TM::TransfertoExecutable inconsistent datastructure\n"
-					"There is daemontask in the fTaskList\n";
+        LOG4CXX_DEBUG (logger,"TM::TransfertoExecutable inconsistent datastructure\nThere is daemontask in the fTaskList\n");
 				SubmitDaemon(dmt);
 				tc->ZeroTask();
 				delete tc;
@@ -763,7 +830,7 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 		}
 	}
 }
-void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
+void OOPTaskManager::PrintTaskQueues(char * msg, std::ostream & out){
 	out << msg << endl;
 	out << "Printing TaskManager Queues on TM:" << fProc << endl;
 	out << "Print fSubmittedList\n";
@@ -787,12 +854,12 @@ void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
 	
 }
 OOPTMTask::OOPTMTask(): OOPDaemonTask() {
-	cerr << "Should Never be Called\n";
+  LOG4CXX_DEBUG (logger,"Should Never be Called\n");
 }
 OOPTMTask::~OOPTMTask(){}
 OOPMReturnType OOPTMTask::Execute (){
-	cerr << "Should never called\n";
-	return EContinue;
+  LOG4CXX_DEBUG (logger,"Should Never be Called\n");
+  return EContinue;
 }
 
 
@@ -803,9 +870,8 @@ OOPTerminationTask::OOPTerminationTask (const OOPTerminationTask & term): OOPTas
 }
 
 OOPMReturnType OOPTerminationTask::Execute (){
-	TM->SetKeepGoing(false);
-	cout << "----------------------------------------------TM Finished\n";
-	cout.flush();
+  TM->SetKeepGoing(false);
+  LOG4CXX_DEBUG (logger,"----------------------------------------------TM Finished\n");
 	return ESuccess;
 }
 

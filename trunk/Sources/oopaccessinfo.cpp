@@ -3,29 +3,28 @@
 #include "ooptaskmanager.h"
 #include "oopdatamanager.h"
 
-#ifdef LOG4CXX
+#include <sstream>
+
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
 
-using namespace std;
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
-LoggerPtr loggerOOPAccessInfo(Logger::getLogger("OOPAR.OOPAccessInfo"));
-#endif
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPAccessInfo"));
+
 
 bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 {
-	if (fIsGranted || fIsAccessing) {
-#ifdef LOG4CXX
-    LOG4CXX_WARN(loggerOOPAccessInfo, "CanExecute should not be called for an object which is being accessed");
-#else
-		cout << "OOPAccessInfo::CanExecute should not be called for an object which is being accessed\n";
-#endif
-		return false;
-	}
+  stringstream sout;
+  if (fIsGranted || fIsAccessing) {
+    sout << "OOPAccessInfo::CanExecute should not be called for an object which is being accessed\n";
+    LOG4CXX_WARN(logger, sout.str());
+    sout.clear();
+    return false;
+  }
 	// if the version is not right, don't even consider granting access
 	if (!fVersion.CanExecute (object.Version ()))
 		return false;
@@ -60,11 +59,9 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		return true;
 		break;
 	default:
-#ifdef LOG4CXX
-    LOG4CXX_WARN(loggerOOPAccessInfo, "CanExecute inconsistent");
-#else
-		cout << "OOPAccessInfo::CanExecute inconsistent\n";
-#endif
+    sout << "OOPAccessInfo::CanExecute inconsistent\n";
+    LOG4CXX_WARN(logger, sout.str());
+    sout.clear();
 		break;
 	}
 	return false;
@@ -87,14 +84,16 @@ void OOPAccessInfoList::AddAccessRequest (const OOPObjectId & taskid,
  * @return true if an access request was found which can be granted
  */
 bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
-					      list <
-					      OOPAccessInfo >::iterator & ac)
+                                              list <OOPAccessInfo >::iterator & ac)
 {
+  stringstream sout;
 	ac = fList.end ();
 	if (!object.CanGrantAccess ())
-	{
-		DataLog << __PRETTY_FUNCTION__ << "VerifyAccessRequests object returned CanGrantAccess false\n";
-		return false;
+	{  
+    sout <<  __PRETTY_FUNCTION__ << "VerifyAccessRequests object returned CanGrantAccess false\n";
+    LOG4CXX_WARN (logger, sout.str());
+    sout.clear();
+    return false;
 	}
 	list < OOPAccessInfo >::iterator i;
 	if (!HasReadAccessGranted () && !HasWriteAccessGranted ()) {
@@ -180,8 +179,16 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
     if(!i->fIsAccessing) AmICompatibleResult = (i->fVersion).AmICompatible (version);
     if(!AmICompatibleResult) 
     {
-      DataLog << "False AmICompatible from " << __PRETTY_FUNCTION__ << 
-        " IsAccessing returns " << i->fIsAccessing << std::endl;
+      stringstream sout;
+      sout << "False AmICompatible from " << __PRETTY_FUNCTION__ 
+           << " IsAccessing returns " << i->fIsAccessing << std::endl;
+#ifdef LOG4CXX      
+      LOG4CXX_WARN(logger, sout.str());
+      sout.clear();
+#else
+      DataLog << sout;
+#endif
+      
     }
 		if (!AmICompatibleResult
 		    && !i->fIsAccessing) {
@@ -264,22 +271,17 @@ void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 		i++;
 	}
 	if(i == fList.end()) {
-#ifdef LOG4CXX
-    std::string aux = "InfoList::ReleaseAccess didn't find Task Id = "
-    aux += itoa (taskid);
-    aux += " depend = ";
-    aux += depend;
-    LOG4CXX_WARN(loggerOOPAccessInfo, aux);
-#else
-		cout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend << endl;
-#endif
+    stringstream sout;
+    sout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend <<endl;
+    LOG4CXX_INFO(logger, sout.str());
+    sout.clear();
 		Print(cout);
 		cout.flush();
 	}
 	
 }
 bool OOPAccessInfoList::HasAccessGranted (const OOPObjectId & taskid,
-					  const OOPMDataDepend & depend) const
+                                          const OOPMDataDepend & depend) const
 {
 	list < OOPAccessInfo >::const_iterator i = fList.begin ();
 	while (i != fList.end ()) {
@@ -352,8 +354,8 @@ HasVersionAccessRequests (const OOPDataVersion & dataversion) const
 	return false;
 }
 void OOPAccessInfoList::SetExecute (const OOPObjectId & taskid,
-				    const OOPMDataDepend & depend,
-				    bool condition)
+                                    const OOPMDataDepend & depend,
+                                    bool condition)
 {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while (i != fList.end ()) {
@@ -477,7 +479,7 @@ void OOPAccessInfoList::ResendGrantedAccessRequests(OOPObjectId &id, int owningp
 }
  */
 
-void OOPAccessInfoList::Print(ostream & out) {
+void OOPAccessInfoList::Print(std::ostream & out) {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while(i != fList.end()) {
 		i->Print(out);

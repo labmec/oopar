@@ -10,6 +10,17 @@
 //
 //
 #include "oopwaittask.h"
+#include <sstream>
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
+
 class OOPStorageBuffer;
 extern ofstream TaskManLog;
 
@@ -30,8 +41,7 @@ OOPWaitTask::~OOPWaitTask()
 void OOPWaitTask::Write(TPZStream & buf, int withclassid)
 {
   OOPTask::Write(buf, withclassid);
-  cout << "OOPWaitTask should never be packed\n";
-  
+  LOG4CXX_WARN(logger,"OOPWaitTask should never be packed\n");
 }
 
 void OOPWaitTask::Read(TPZStream & buf, void * context)
@@ -52,11 +62,11 @@ OOPMReturnType OOPWaitTask::Execute()
   pthread_mutex_unlock(&fExtMutex);
   //sleep(10);
   pthread_cond_wait(&fExecCond, &fExecMutex);
-  TaskManLog << "Wait task is leaving execute id " << Id() << endl;
+  stringstream sout;
+  /*TaskManLog*/ sout << "Wait task is leaving execute id " << Id() << endl;
+  LOG4CXX_WARN(logger,sout);
   return ESuccess;
 }
-
-
 
 /*!
     \fn OOPWaitTask::Finish()

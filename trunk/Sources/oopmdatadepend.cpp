@@ -4,7 +4,6 @@
 #include "oopmetadata.h"
 class OOPStorageBuffer;
 
-#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
@@ -13,8 +12,8 @@ class OOPStorageBuffer;
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
-LoggerPtr OOPMDataDependlogger(Logger::getLogger("OOPAR.OOPMDataDepend"));
-#endif
+LoggerPtr logger(Logger::getLogger("OOPAR.OOPMDataDepend"));
+
 
 OOPMDataDepend::OOPMDataDepend (const OOPObjectId & id, OOPMDataState st,
 				const OOPDataVersion & ver)
@@ -45,7 +44,7 @@ bool OOPMDataDepend::operator == (const OOPMDataDepend & dd) const
 												// true;
 	// return false;
 }
-void OOPMDataDepend::Print (ostream & out) const
+void OOPMDataDepend::Print (std::ostream & out) const
 {
 	out << "Data Id" << endl;
 	fDataId.Print (out);
@@ -54,12 +53,12 @@ void OOPMDataDepend::Print (ostream & out) const
 	out << "Required version " << endl;
 	fVersion.Print (out);
 }
-ostream &OOPMDataDepend::ShortPrint(ostream &out) const {
+std::ostream &OOPMDataDepend::ShortPrint(std::ostream &out) const {
 	out << "obj " << fDataId << " acc " << fNeed << " vers " << fVersion;
 	return out;
 }
 
-void OOPMDataDepend::LogMe(ostream &out) {
+void OOPMDataDepend::LogMe(std::ostream &out) {
 	out << "regarding obj " << fDataId << "\t\tState ";
 	/*
 	ENoAccess,
@@ -96,11 +95,7 @@ void OOPMDataDepend::Write (TPZStream  & buf)
 	buf.Write (&need);
 	fVersion.Write(buf);
 	if (fObjPtr) {
-#ifdef LOG4CXX
-    LOG4CXX_ERROR(OOPMDataDependlogger, "Pack the object pointer should be zero");
-#else
-		cout << "OOPMDataDepend::Pack the object pointer should be zero\n";
-#endif
+    LOG4CXX_ERROR(logger, "Pack the object pointer should be zero");
 	}
 }
   /**
@@ -125,13 +120,12 @@ int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		if (!DM->SubmitAccessRequest (taskid, *i)) {
-#ifdef LOG4CXX
-      LOG4CXX_ERROR(OOPMDataDependlogger, "SubmitDependencyList failed for task id ");
-#endif
-			cout << "OOPMDataDependList::SubmitDependencyList failed for task id ";
-			taskid.Print (cout);
-			cout << "With dependency ";
-			(*i).Print (cout);
+      stringstream sout;
+      sout << "SubmitDependencyList failed for task id ";
+      taskid.Print (sout);
+      sout << "With dependency ";
+      (*i).Print (sout);
+      LOG4CXX_ERROR(logger,sout);
 			deque < OOPMDataDepend >::iterator j;
 			for (j = fDependList.begin (); j != i; j++) {
 				DM->ReleaseAccessRequest (taskid, *j);
@@ -164,7 +158,7 @@ void OOPMDataDependList::ClearPointers ()
 		(*i).SetObjPtr (0);
 	}
 }
-void OOPMDataDependList::Print (ostream & out)
+void OOPMDataDependList::Print (std::ostream & out)
 {
 	out << "OOPMDataDependList printout\n";
 	deque < OOPMDataDepend >::iterator i;
@@ -181,7 +175,9 @@ void OOPMDataDependList::AppendDependency (const OOPMDataDepend & depend)
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		if (*i == depend) {
-			cerr << "OOPMDataDependList::AppendDependency duplicate dependency __FILE__ __LINE__ \n";
+      stringstream sout;
+			sout << "OOPMDataDependList::AppendDependency duplicate dependency __FILE__ __LINE__ \n";
+      LOG4CXX_WARN(logger,sout);
 		}
 	}
 	fDependList.push_back (depend);
@@ -197,10 +193,11 @@ void OOPMDataDependList::GrantAccess (const OOPMDataDepend & depend,
 		}
 	}
 	if (i == fDependList.end ()) {
-		cerr << "OOPMDataDepend::GrantAccess didn't find the corresponding dependency\n";
-		depend.ShortPrint (cerr);
-		cerr << endl;
-		Print (cerr);
+    stringstream sout;
+    sout << "OOPMDataDepend::GrantAccess didn't find the corresponding dependency\n";
+    depend.ShortPrint (sout);
+    sout << endl;
+    LOG4CXX_WARN(logger,sout);
 	}
 }
 void OOPMDataDependList::RevokeAccess (const OOPMDataDepend & depend)
@@ -213,10 +210,11 @@ void OOPMDataDependList::RevokeAccess (const OOPMDataDepend & depend)
 		}
 	}
 	if (i == fDependList.end ()) {
-		cerr << "OOPMDataDepend::RevokeAccess didn't find the corresponding dependency\n";
-		depend.ShortPrint (cerr);
-		cerr << endl;
-		Print (cerr);
+    stringstream sout;
+    sout << "OOPMDataDepend::RevokeAccess didn't find the corresponding dependency\n";
+    depend.ShortPrint (sout);
+    sout << endl;
+    LOG4CXX_WARN(logger,sout);
 	}
 }
 void OOPMDataDependList::Clear ()
@@ -263,7 +261,9 @@ OOPMDataDepend & OOPMDataDependList::Dep (OOPObjectId & Id)	{
 		if (i->Id() == Id)
 			return *(i);
 	}
-	cerr << "Wrong Dependency information\n"
-		 << __FILE__ << " line " << __LINE__ << endl;
+  stringstream sout;
+  sout << "Wrong Dependency information\n"
+       << __FILE__ << " line " << __LINE__ << endl;
+  LOG4CXX_WARN(logger,sout);
 	return * new OOPMDataDepend;
 }

@@ -124,7 +124,7 @@ class   OOPObjectId
 	int     fProcId;
 };
 
-inline ostream &operator<<(ostream &out, const OOPObjectId &obj) {
+inline std::ostream &operator<<(std::ostream &out, const OOPObjectId &obj) {
 	return obj.ShortPrint(out);
 }
 #endif // TOBJECTID_H

@@ -6,6 +6,18 @@ class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 //class OOPObjectId;
  
+#include <sstream>
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPObjectId"));
+
+
 OOPObjectId::OOPObjectId ()
 {
 	fProcId = 0;
@@ -16,18 +28,19 @@ OOPObjectId::OOPObjectId (long ProcId, long Id)
 	fProcId = ProcId;
 	fId = Id;
 }
-void OOPObjectId::Print (ostream & out) const
+void OOPObjectId::Print (std::ostream & out) const
 {
 	out << "ObjectId: " << fId << endl;
 	out << "ProcessorId: " << GetProcId () << endl;
 }
-ostream &OOPObjectId::ShortPrint (ostream & out) const
+std::ostream &OOPObjectId::ShortPrint (std::ostream & out) const
 {
 	out << fProcId << ':' << fId;
 	return out;
 }
 int OOPObjectId::main ()
 {
+  stringstream sout;
 	deque < OOPObjectId * >TestDeQue;
 	OOPObjectId id (20, 1);
 	OOPObjectId idteste (id);
@@ -40,7 +53,7 @@ int OOPObjectId::main ()
 	ptrid->SetId (30);
 	ptrid->SetProcId (2);
 	TestDeQue.push_back (ptrid);
-	cout << TestDeQue.size () << endl;
+	sout << TestDeQue.size () << endl;
 	deque < OOPObjectId * >::iterator i;
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		(*i)->Print ();
@@ -50,7 +63,9 @@ int OOPObjectId::main ()
 			TestDeQue.erase (i);
 		}
 	}
-	cout << TestDeQue.size () << endl;
+ 
+	sout << TestDeQue.size () << endl;
+  LOG4CXX_DEBUG(logger,sout);
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		(*i)->Print ();
 	}

@@ -32,6 +32,19 @@
 //       #include <unistd.h>
 using namespace std;
 class   OOPSaveable;
+
+#include <sstream>
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPStorageBuffer"));
+
+
 /************************ TSendStorage ************************/
 /************************ TReceiveStorage ************************/
 //TVoidPtrMap TReceiveStorage::gFuncTree(0);
@@ -46,15 +59,18 @@ OOPStorageBuffer::~OOPStorageBuffer ()
 /*** Restore ***/
 OOPSaveable *OOPStorageBuffer::Restore ()
 {
+  stringstream sout;
 	long class_id = 0; 
 	UpkLong (&class_id);
 #ifdef DEBUG
-	cout << "PID" << getpid() << " Restorig object of class Id " << class_id << endl;
-	cout.flush();
+	sout << "PID" << getpid() << " Restorig object of class Id " << class_id << endl;
+  LOG4CXX_DEBUG (logger,sout);
+  sout.clear();
 #endif
 	if (!class_id) {
-		cout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore\n";
-		cout.flush();
+    sout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore\n";
+    LOG4CXX_DEBUG (logger,sout);
+    sout.clear();
 		return (0);
 	}
 	map < long, TRestFunction >::iterator i;

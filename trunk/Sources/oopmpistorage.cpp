@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: phil $
-// $Id: oopmpistorage.cpp,v 1.27 2005-01-28 17:49:05 phil Exp $
-// $Revision: 1.27 $
+// $Author: cesar $
+// $Id: oopmpistorage.cpp,v 1.28 2005-02-18 20:30:00 cesar Exp $
+// $Revision: 1.28 $
 
 
 
@@ -31,6 +31,17 @@
 #include <sys/types.h>
       #include <unistd.h>
 
+#include <sstream>
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMPIStorageBuffer"));
+      
 void OOPMPIStorageBuffer::ExpandBuffer (int more_dimension)
 {
 	f_send_buffr.Resize(f_send_buffr.NElements()+more_dimension);
@@ -57,8 +68,10 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, int mpitype)
 int OOPMPIStorageBuffer::Send (int target)
 {
 #ifdef DEBUGALL
-	cout << "PID" << getpid() << " Called MPI_Send ret = \n";
-	cout.flush();
+  stringstream sout;
+  sout << "PID" << getpid() << " Called MPI_Send ret = \n";
+  LOG4CXX_DEBUG(logger,sout.str()):
+  sout.clear();
 #endif
 	int ret;
 	int tag = 0;
@@ -67,25 +80,37 @@ int OOPMPIStorageBuffer::Send (int target)
 #ifdef DEBUGALL
 	switch(ret){
 		case MPI_SUCCESS:
-			cout <<" - No error; MPI routine completed successfully\n";
+      sout <<" - No error; MPI routine completed successfully\n";
+      LOG4CXX_DEBUG(logger,sout.str()):
+      sout.clear();
 			break;
 		case MPI_ERR_COMM:
-			cout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).\n";
+      sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).\n";
+      LOG4CXX_DEBUG(logger,sout.str()):
+      sout.clear();
 			break;
 		case MPI_ERR_COUNT:
-			cout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid\n";
+      sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid\n";
+      LOG4CXX_DEBUG(logger,sout.str()):
+      sout.clear();
 			break;
 		case MPI_ERR_TYPE:
-		  cout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).\n";
+      sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).\n";      
+      LOG4CXX_DEBUG(logger,sout.str()):
+      sout.clear();
 			break;
 		case MPI_ERR_TAG:
-		  cout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
-		   << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
-			<< "be MPI_ANY_TAG .  The largest tag value is available through the\n"
-		  << "the attribute MPI_TAG_UB .\n";
+      sout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
+            << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
+            << "be MPI_ANY_TAG .  The largest tag value is available through the\n"
+            << "the attribute MPI_TAG_UB .\n";
+      LOG4CXX_DEBUG(logger,sout.str()):
+      sout.clear();
 			break;
 		case MPI_ERR_RANK:
-			cout << "-  Invalid  source  or  destination rank.\n";
+      sout << "-  Invalid  source  or  destination rank.\n";
+      LOG4CXX_DEBUG(logger,sout.str()):
+      sout.clear();
 			break;
 	}
 	cout.flush();
@@ -182,15 +207,16 @@ bool OOPMPIStorageBuffer::TestReceive() {
    */
 TPZSaveable *OOPMPIStorageBuffer::Restore () {
 	if(!TestReceive()) {
-		cout << "Restore called at the wrong moment\n";
-		cout.flush();
-		return NULL;
+    LOG4CXX_WARN(logger,"Restore called at the wrong moment\n");
+    return NULL;
 	}
 	f_isreceiving = 0;
 	f_recv_position = 0;
 	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
 #ifdef DEBUGALL
-        cout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId() << endl;
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId() << endl;
+  LOG4CXX_DEBUG(logger,sout.str()):
 #endif
 	//MPI_Request_free(&f_request);
 	return obj;

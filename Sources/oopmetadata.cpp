@@ -439,7 +439,7 @@ void OOPMetaData::TransferObject (int ProcId)
 	OOPDMOwnerTask *town = new OOPDMOwnerTask(ETransferOwnership,ProcId);
 	//alterei aqui
 	town->fObjId=fObjId;
-	
+	town->fVersion=fVersion;
 	TM->Submit(town);
 	fAccessList.TransferAccessRequests(fObjId,ProcId);
 	DataLog << "Transfer object " << fObjId << " to proc " << ProcId << "\n";

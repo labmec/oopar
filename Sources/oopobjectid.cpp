@@ -4,7 +4,7 @@
 #include <algorithm>
 class OOPSendStorage;
 class OOPReceiveStorage;
-class OOPObjectId;
+//class OOPObjectId;
 
 
 OOPObjectId::OOPObjectId(){

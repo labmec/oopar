@@ -1,36 +1,37 @@
 #
-# Top Makefile.am for OOPar
+# NeoPZ adaptivity makefile
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.2 2003-07-18 21:41:26 longhin Exp $
+# $Id#
 #
-
-usermkdir = $(prefix)
-
-usermk_DATA = OOP_user.mk
-
-SUBDIRS = Sources lib
 
 DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@
 
-PACKAGE = OOP
-DEVELOPER_ID = LabMeC
+if OOPMPI
+-include $(top_srcdir)/@OOP_MK@ $(mpi_dir)/include
+#/home/pos/longhin/Projetos/NeoPZ/Util/ /home/pos/longhin/Projetos/NeoPZ/
+else
+-include $(top_srcdir)/@OOP_MK@
+endif
 
-clean-project:
-	cd Projects && make distclean
+bin_PROGRAMS = main
+#Include here all sources for the current project
+main_SOURCES =
 
-backup: clean-project distclean
-	@ echo Making $(PACKAGE) backup...
-	@ echo -----------------------------------------------------------------
-	@ echo Generating tarball...
-	@ cd .. && tar --exclude={*.a,*.so,*.bz2,.tm_*,.snprj} -cf \
-          $(PACKAGE)-$(DEVELOPER_ID)-`date +%Y%m%d_%Hh%Mm`.tar ./Pantheon
-	@ echo Compacting...
-	@ cd .. && bzip2 $(PACKAGE)-*.tar
-	@ echo Generated file:
-	@ echo $(PACKAGE)-$(DEVELOPER_ID)-`date +%Y%m%d_%Hh%Mm`.tar
-	@ echo -----------------------------------------------------------------
+if OOPMPI
+main_LDADD = $(top_srcdir)/lib/liboopar.a \
+		-L$(top_srcdir)/lib/ \
+		-loopar \
+		-lpthread \
+		$(MPILIBDIR) \
+		$(MPILIB)
+else
+main_LDADD = $(top_srcdir)/lib/liboopar.a \
+		-L$(top_srcdir)/lib/ \
+		-loopar
+endif
+#@MPIDIR@/lib/libmpi.a
 
 ## --| OOPar |------------------------------------------------------------------

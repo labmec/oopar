@@ -37,7 +37,11 @@ int main (int argc, char *argv[])
 					    TLocalCompute::Restore);
 	OOPReceiveStorage::AddClassRestore (TTASKCOMM_ID, TTaskComm::Restore);
 	// return multimain();
+#ifdef MPI
 	return mpimain (argc, argv);
+#else
+	return multimain();
+#endif
 }
 
 int singlemain ()
@@ -48,7 +52,7 @@ int singlemain ()
 	TM = new OOPTaskManager (CM->GetProcID ());
 	DM = new OOPDataManager (CM->GetProcID ());
 
-	TParAnalysis *paranalysis = new TParAnalysis (DM->GetProcID (), 2);
+	TParAnalysis *paranalysis = new TParAnalysis (DM->GetProcID (), 2,1);
 	paranalysis->Submit ();
 
 	TM->Execute ();

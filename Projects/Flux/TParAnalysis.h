@@ -22,7 +22,7 @@ class   TParAnalysis:public OOPTask
       public:
 
 	TParAnalysis (int Procid);
-	        TParAnalysis (int Procid, int numpartitions);
+	        TParAnalysis (int Procid, int numpartitions, int numproc);
     /**
      * Initializes and submit all necessary data and tasks to the Data and Task managers. 
      */
@@ -70,6 +70,7 @@ class   TParAnalysis:public OOPTask
       private:
 	OOPObjectId fRelationTable;
 	int     fNumPartitions;
+	int fNumProcessors;
 	OOPDataVersion fTaskVersion;
 	vector < OOPObjectId > fRhsId;
 	vector < OOPObjectId > fMeshId;

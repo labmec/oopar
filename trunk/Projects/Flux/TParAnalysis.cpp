@@ -19,15 +19,15 @@ void TParAnalysis::SetupEnvironment(){
 
 
   int ip;
-  // message #1.3 to rhs:TParRhs
-  vector<TParRhs *> RhsVec(npartitions);
+  // message #1.3 to rhs:TParVector
+  vector<TParVector *> RhsVec(npartitions);
   fRhsId.resize(npartitions);
-  for(ip=0; ip<npartitions; ip++) RhsVec[ip] = new TParRhs();
+  for(ip=0; ip<npartitions; ip++) RhsVec[ip] = new TParVector();
 
-  // message #1.4 to state:TParState
-  vector<TParState *> StateVec(npartitions);
+  // message #1.4 to state:TParVector
+  vector<TParVector *> StateVec(npartitions);
   fStateId.resize(npartitions);
-  for(ip=0; ip<npartitions; ip++) StateVec[ip] = new TParState();
+  for(ip=0; ip<npartitions; ip++) StateVec[ip] = new TParVector();
 
   // message #1.5 to mesh:TParMesh
   vector<TParMesh *> MeshVec(npartitions);

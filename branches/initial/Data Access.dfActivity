@@ -1,0 +1,251 @@
+package id2zu21dbc3iw19dbc4dwl1;
+
+/**
+@version 2.0
+@__modelType diagram 
+*/
+class diagram {
+/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node:oiref><oihard>
+@__modelType reference 
+*/
+class reference {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node14:oiref><oihard>
+@__modelType reference 
+*/
+class reference15 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node18:oiref><oihard>
+@__modelType reference 
+*/
+class reference19 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node20:oiref><oihard>
+@__modelType reference 
+*/
+class reference21 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node22:oiref><oihard>
+@__modelType reference 
+*/
+class reference23 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node24:oiref><oihard>
+@__modelType reference 
+*/
+class reference25 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node26:oiref><oihard>
+@__modelType reference 
+*/
+class reference27 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node29:oiref><oihard>
+@__modelType reference 
+*/
+class reference30 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node31:oiref><oihard>
+@__modelType reference 
+*/
+class reference32 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node33:oiref><oihard>
+@__modelType reference 
+*/
+class reference34 {
+}/**
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node36:oiref><oihard>
+@__modelType reference 
+*/
+class reference37 {
+}}/**
+Describes the activity on accessing some specific data with some specific access state
+@__tags
+@shapeType ActivityDiagram 
+*/
+class __tags {
+}/**
+@__options 
+*/
+class __options {
+}/**
+@__positions 
+
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node.link:oiref>=176,52,176,90:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node31.link:oiref>=177,671,177,739:oigroup>
+<oigroup:Composite#$transitionInplaceEditing#<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node22.link:oiref>=385,322,32,13,1:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node18.link35:oiref>=167,222,167,270:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node24.link:oiref>=280,475,252,475:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node:oiref>=170,40,12,12,1:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node33:oiref>=60,270,125,51,0:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node22:oiref>=300,250,77,52,0:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node36:oiref>=169,739,15,15,1:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node31:oiref>=90,581,148,90,0:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node20:oiref>=280,180,116,41,0:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node14:oiref>=110,90,146,43,0:oigroup>
+<oigroup:Composite#$transitionInplaceEditing#<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node18.link35:oiref>=177,239,32,13,1:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node18.link:oiref>=210,200,280,200:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node33.link:oiref>=122,321,30,440,30,670,173,739:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node26.link:oiref>=528,385,371,450:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node29.link:oiref>=164,500,164,581:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node22.link28:oiref>=338,302,338,450:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node14.link:oiref>=180,133,180,170:oigroup>
+<oigroup:Composite#$transitionInplaceEditing#<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node18.link:oiref>=211,221,38,13,1:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node26:oiref>=460,310,136,75,0:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node12.link:oiref>=:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node24:oiref>=280,450,125,51,0:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node29:oiref>=70,450,182,50,0:oigroup>
+<oigroup:Composite#$transitionInplaceEditing#<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node22.link28:oiref>=348,369,37,13,1:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node18:oiref>=150,170,60,52,0:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node22.link:oiref>=377,292,460,325:oigroup>
+<oigroup:<oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node20.link:oiref>=338,221,338,250:oigroup>
+ 
+*/
+class __positions {
+}/**
+@shapeType StartState
+@__modelType node
+@name Request Data access
+@backgroundColor 0,0,0 
+*/
+class node {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node14:oiref><oihard> 
+*/
+class link {
+}}/**
+@shapeType Activity
+@__modelType node
+@name Check for ownership of specified data 
+*/
+class node14 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node18:oiref><oihard> 
+*/
+class link {
+}}/**
+Checks for the ownership of the data on the current processor
+@shapeType Decision
+@__modelType node
+@name Ownership 
+*/
+class node18 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node20:oiref><oihard> 
+@condition Yes
+*/
+class link {
+}/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node33:oiref><oihard>
+@condition no*/
+class link35 {
+}}/**
+@shapeType Activity
+@__modelType node
+@name Check for access state 
+*/
+class node20 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node22:oiref><oihard> 
+*/
+class link {
+}}/**
+@shapeType Decision
+@__modelType node
+@name AccessStates 
+*/
+class node22 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node26:oiref><oihard> 
+@condition no
+*/
+class link {
+}/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node24:oiref><oihard> 
+@condition yes
+*/
+class link28 {
+}}/**
+@shapeType Activity
+@__modelType node
+@name Grant requested access 
+*/
+class node24 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node29:oiref><oihard> 
+*/
+class link {
+}}/**
+@shapeType Activity
+@__modelType node
+@name Take appropriate actions so access state is verified 
+*/
+class node26 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node24:oiref><oihard> 
+*/
+class link {
+}}/**
+@shapeType Activity
+@__modelType node
+@name Update information concerning data/task relationship on DM 
+*/
+class node29 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node31:oiref><oihard> 
+*/
+class link {
+}}/**
+@shapeType Activity
+@__modelType node
+@name Broadcast the updated information through the parallel environment 
+*/
+class node31 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node36:oiref><oihard> 
+*/
+class link {
+}}/**
+@shapeType Activity
+@__modelType node
+@name Request Transfer data 
+*/
+class node33 {
+/**
+@shapeType TransitionLink
+@__modelType link
+@__ref <oiref:design#Class#id2zu21dbc3iw19dbc4dwl1.node36:oiref><oihard> 
+*/
+class link {
+}}/**
+@shapeType EndState
+@__modelType node
+@name EndState1
+@backgroundColor 0,0,0 
+*/
+class node36 {
+}

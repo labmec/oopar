@@ -27,7 +27,10 @@ public:
 
     int IncomingContribution(int partition);
 
-    int OutgoingContribution(int partition);
+    /**
+     * Returns a vector containing the ID of all the partitions to each the local partitions will contribute to. 
+     */
+    vector<int> OutgoingContribution(int partition);
 
     void Print(ostream &out);
 

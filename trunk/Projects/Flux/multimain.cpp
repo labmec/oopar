@@ -21,6 +21,8 @@
 ofstream TaskLog("tasklog.log");
 ofstream DataLog("datalog.log");
 ofstream DataManLog("datamanlog.log");
+ofstream TransferDataLog("transferdatalog.log");
+
 ofstream TaskManLog("taskmanlog.log");
 
 int GLogMsgCounter;
@@ -81,6 +83,7 @@ int multimain ()
 	DataLog.close();
 	DataManLog.close();
 	TaskManLog.close();
+	TransferDataLog.close();
 	return 0;
 	
 

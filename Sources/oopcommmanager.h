@@ -12,23 +12,16 @@
 //
 // Versao:  07 / 08 / 95.
 //
-
 #ifndef _COMMUNICHH_
 #define _COMMUNICHH_
-
-
 #include "ooperror.h"
 #include "oopstorage.h"
 #include "oopobjectid.h"
 #include "ooperror.h"
 #include "oopobjectid.h"
-
-
 //class OOPTaskManager;
 //class OOPSaveable;
 class   OOPTask;
-
-
 /**
  * Implements the communication manager for the oopar environment
  * Defines interface for any communication library used as communication layer
@@ -52,7 +45,6 @@ class   OOPCommunicationManager:public OOPError
 	virtual ~ OOPCommunicationManager ()
 	{
 	}
-
 	/**
 	* If this process was created by the user, all remaining processes are
 	* intialized and !=0 is returned. If this process was created by another
@@ -78,7 +70,6 @@ class   OOPCommunicationManager:public OOPError
 	{
 		return f_num_proc;
 	}
-
 	// Armazena "*pObject" no buffer enderecado para o processo
 	// "processID". O buffer so' e' enviado atraves de "SendMessage".
 	// Como "TSavable" e' uma classe base para varias outras,
@@ -92,7 +83,6 @@ class   OOPCommunicationManager:public OOPError
 	* @param *pTask : A pointer to the object TTask which will be sent
 	*/
 	virtual int SendTask (OOPTask * pTask) = 0;
-
 	// Recebe uma mensagem qualquer que tenha chegado. Se nao huver
 	// nenhuma mensagem, retorna 0.
 	// 
@@ -101,14 +91,12 @@ class   OOPCommunicationManager:public OOPError
 	* Returns zero if none has arrived
 	*/
 	virtual int ReceiveMessages () = 0;
-
 	// Envia todas as mensagens de todos os buffers.
 	// 
 	/**
 	* Sends all messages in all buffers
 	*/
 	virtual int SendMessages () = 0;
-
 	// Retorna 0 se este processo nao tiver sido disparado pelo
 	// console.
 	// 
@@ -127,8 +115,6 @@ class   OOPCommunicationManager:public OOPError
 	{
 		return ("");
 	}
-
-
       protected:
 	/**
 	* Indicates the number of processors in the oopar environment.
@@ -138,13 +124,6 @@ class   OOPCommunicationManager:public OOPError
 	* Indicates the objects number
 	*/
 	int     f_myself;
-
-
 };
-
-
-
 extern OOPCommunicationManager *CM;
-
-
 #endif // _COMMUNICHH_

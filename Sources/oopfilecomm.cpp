@@ -1,4 +1,3 @@
-
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
 //
@@ -12,8 +11,6 @@
 //
 // Versao:  09 / 08 / 95.
 //
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -23,23 +20,15 @@
 #include "ooperror.h"
 #include "ooppartask.h"
 #include <errno.h>
-
 using namespace std;
-
 class   OOPTask;
-
 OOPError Err;
-
 /************************** Public *************************/
-
-
 /*******************/
 /*** Constructor ***/
-
 OOPFileComManager::OOPFileComManager ()
 {
 }
-
 OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 {
 	// Inicializa variaveis.
@@ -49,7 +38,6 @@ OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 	f_myself = myID % f_num_proc;
 	strcpy (f_prefix, prefix);
 	sprintf (f_my_prefix, "%s.%1d", f_prefix, f_myself);
-
 	// Cria novos buffers.
 	f_buffer = new (PTSendStorageFile[f_num_proc]);
 	if (f_buffer == NULL) {
@@ -64,14 +52,9 @@ OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 		else
 			f_buffer[i] = NULL;
 	}
-
 }
-
-
-
 /******************/
 /*** Destructor ***/
-
 OOPFileComManager::~OOPFileComManager ()
 {
 	if (f_buffer != NULL) {
@@ -81,42 +64,34 @@ OOPFileComManager::~OOPFileComManager ()
 		delete[]f_buffer;
 	}
 }
-
-
-
 /*******************/
 /*** Send Object ***/
 int OOPFileComManager::SendTaskVrt (OOPTask * pObject)
 {
 	int process_id;
 	process_id = pObject->GetProcID ();
-
 	// Se "process_id" nao for valido.
 	if ((process_id < -1) || (process_id >= f_num_proc)) {
 		Err.Error (1, "SendObject <process ID out of range>\n");
 		return 0;
 	}
-
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
 		Err.Error (1, "SendObject <I canot send to myself>\n");
 		return 0;
 	}
-
 	int iprmin = process_id;
 	int iprmax = process_id + 1;
 	if (process_id == -1) {
 		iprmin = 0;
 		iprmax = f_num_proc;
 	}
-
 	int ipr;
 	for (ipr = iprmin; ipr < iprmax; ipr++) {
 		if (ipr == f_myself)
 			continue;
 		process_id = ipr;
 		pObject->SetProcID (process_id);
-
 		// Empacota o objeto no buffer destino.
 		OOPSendStorageFile *buf = f_buffer[process_id];
 		char name[256];
@@ -127,34 +102,28 @@ int OOPFileComManager::SendTaskVrt (OOPTask * pObject)
 		pObject->Pack (buf);
 		buf->Close ();
 	}
-
 	return (1);
 }
-
 int OOPFileComManager::SendTask (OOPTask * pObject)
 {
 	int process_id;
 	process_id = pObject->GetProcID ();
-
 	// Se "process_id" nao for valido.
 	if ((process_id < -1) || (process_id >= f_num_proc)) {
 		Err.Error (1, "SendObject <process ID out of range>\n");
 		return 0;
 	}
-
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
 		Err.Error (1, "SendObject <I canot send to myself>\n");
 		return 0;
 	}
-
 	int iprmin = process_id;
 	int iprmax = process_id + 1;
 	if (process_id == -1) {
 		iprmin = 0;
 		iprmax = f_num_proc;
 	}
-
 	int ipr;
 	//Alguma coisa estranha aqui !!!!
 	for (ipr = iprmin; ipr < iprmax; ipr++) {
@@ -162,7 +131,6 @@ int OOPFileComManager::SendTask (OOPTask * pObject)
 			continue;
 		process_id = ipr;
 		pObject->SetProcID (process_id);
-
 		// Empacota o objeto no buffer destino.
 		OOPSendStorageFile *buf = f_buffer[process_id];
 		char name[256];
@@ -173,11 +141,8 @@ int OOPFileComManager::SendTask (OOPTask * pObject)
 		pObject->Pack (buf);
 		buf->Close ();
 	}
-
 	return (1);
 }
-
-
 /************************/
 /*** Receive Messages ***/
 int OOPFileComManager::ReceiveMessages ()
@@ -185,7 +150,6 @@ int OOPFileComManager::ReceiveMessages ()
 	// Monta o nome do arquivo de recepcao dos dados.
 	char rcv_file[FILE_NAME_SIZE];
 	sprintf (rcv_file, "%s00", f_my_prefix);
-
 	// Verifica se o arquivo de recepcao existe.
 	FILE   *recv;
 	if ((recv = fopen (rcv_file, "r")) == NULL) {
@@ -199,7 +163,6 @@ int OOPFileComManager::ReceiveMessages ()
 			return (0);
 		}
 	}
-
 	// Enquanto houver arquivos de mensagens...
 	char msg_file_name[FILE_NAME_SIZE];
 	int leu_msg;
@@ -210,7 +173,6 @@ int OOPFileComManager::ReceiveMessages ()
 		int last = strlen (msg_file_name) - 1;
 		if (msg_file_name[last] == '\n')
 			msg_file_name[last] = '\0';
-
 		// Le os dados de cada arquivo indicado no arquivo
 		// de recepcao de dados.
 		int check;
@@ -219,7 +181,6 @@ int OOPFileComManager::ReceiveMessages ()
 		char has_more_objects;
 		has_more_objects = 0;
 		msg.UpkByte (&has_more_objects);
-
 		while (has_more_objects) {
 			// Restore para o corrente objeto não está definido
 			// Era alguma coisa global ?
@@ -230,15 +191,12 @@ int OOPFileComManager::ReceiveMessages ()
 				Err.Error (1,
 					   "ReceiveMessages <Erro em Restore() do objeto>.\n");
 			}
-
 			TM->ReSubmit ((OOPTask *) new_object);
 			// TM->Submit((OOPTask *) new_object);
-
 			msg.UpkByte (&has_more_objects);
 		}
 		leu_msg = 1;
 	}
-
 	// Fecha e ZERA o arquivo de recepcao de dados.
 	fclose (recv);
 	if ((recv = fopen (rcv_file, "w")) == NULL) {
@@ -246,19 +204,14 @@ int OOPFileComManager::ReceiveMessages ()
 			   "ReceiveMessages <error truncating receive file>\n");
 	}
 	fclose (recv);
-
 	return (leu_msg);
 }
-
-
-
 /*********************/
 /*** Send Messages ***/
 int OOPFileComManager::SendMessages ()
 {
 	for (int i = 0; i < f_num_proc; i++) {
 		char file_to_send[FILE_NAME_SIZE];
-
 		// Nesta chamada o buffer finaliza o arquivo a ser enviado,
 		// coloca seu nome em 'file_to_send' e procura um outro
 		// arquivo para usar como buffer.
@@ -280,10 +233,6 @@ int OOPFileComManager::SendMessages ()
 			fclose (dest);
 		}
 	}
-
 	return (1);
 }
-
-
-
 /************************** Private *************************/

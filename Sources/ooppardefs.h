@@ -1,6 +1,5 @@
 #ifndef PARDEFSH
 #define PARDEFSH
-
 enum OOPMDMOwnerMessageType
 {
 	ENoMessage,
@@ -14,7 +13,6 @@ enum OOPMDMOwnerMessageType
 	EGrantVersionAccess,
 	ENotifyDeleteObject,
 };
-
 enum OOPDMRequestMessageType
 {
 	ENoRequest,
@@ -34,25 +32,20 @@ enum OOPMDataState
 	EWriteAccess,
 	EVersionAccess
 };
-
 enum OOPMTransitionState
 {
 	ENoTransition,
 	ECancelReadTransition,
 	ESuspendReadTransition
 };
-
 enum OOPMReturnType
 {
 	ESuccess,
 	EFail,
 	EContinue
 };
-
 //#define NUMOBJECTS  0x100000
-
 #define NUMOBJECTS  1000
-
 #define TTASK_ID 3000
 #define TDAEMONTASK_ID 3001
 #define TTMMESSAGETASK_ID 3002

@@ -1,12 +1,9 @@
-
 #include "oopaccessinfo.h"
 #include "oopmetadata.h"
 #include "ooptaskmanager.h"
 #include "oopdatamanager.h"
-
 bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 {
-
 	if (fIsGranted || fIsAccessing) {
 		cout << "OOPAccessInfo::CanExecute should not be called for an object which is being accessed\n";
 		return false;
@@ -48,7 +45,6 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 	}
 	return false;
 }
-
 /**
  * This method adds an access request as passed by SubmitAccessRequest
  * It does no verifications
@@ -59,8 +55,6 @@ void OOPAccessInfoList::AddAccessRequest (const OOPObjectId & taskid,
 {
 	fList.push_back (OOPAccessInfo (taskid, depend, processor));
 }
-
-
 /**
  * Verifies whether there is an access request can be granted for the given
  * object.
@@ -72,11 +66,9 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 					      list <
 					      OOPAccessInfo >::iterator & ac)
 {
-
 	ac = fList.end ();
 	if (!object.CanGrantAccess ())
 		return false;
-
 	list < OOPAccessInfo >::iterator i;
 	if (!HasReadAccessGranted () && !HasWriteAccessGranted ()) {
 		i = fList.begin ();
@@ -116,7 +108,6 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 	}
 	return false;
 }
-
 /**
  * Verifies whether an access request is incompatible with the version/state
  * of the corresponding object
@@ -126,7 +117,6 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
 					     OOPObjectId & taskid)
 {
-
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while (i != fList.end ()) {
 		// can't cancel executing tasks
@@ -150,7 +140,6 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
 	}
 	return false;
 }
-
 /**
  * Indicates whether any access request of type ReadAccess has been granted
  */
@@ -164,7 +153,6 @@ bool OOPAccessInfoList::HasReadAccessGranted () const
 	}
 	return false;
 }
-
 /**
  * Indicates whether any access request of type WriteAccess has been granted
  */
@@ -178,7 +166,6 @@ bool OOPAccessInfoList::HasWriteAccessGranted () const
 	}
 	return false;
 }
-
 void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 				       const OOPMDataDepend & depend)
 {
@@ -206,27 +193,21 @@ bool OOPAccessInfoList::HasAccessGranted (const OOPObjectId & taskid,
 	}
 	return false;
 }
-
 void OOPAccessInfoList::ReleaseAccess (list < OOPAccessInfo >::iterator & ac)
 {
 	if (ac != fList.end ())
 		fList.erase (ac);
 }
-
-
 int OOPAccessInfoList::NElements ()
 {
 	return fList.size ();
 }
-
-
 /**
  * Indicates whether write requests are filed with appropriate version
  */
 bool OOPAccessInfoList::
 HasWriteAccessRequests (const OOPDataVersion & version) const
 {
-
 	if (HasWriteAccessGranted ())
 		return false;
 	list < OOPAccessInfo >::const_iterator i = fList.begin ();
@@ -237,17 +218,13 @@ HasWriteAccessRequests (const OOPDataVersion & version) const
 		i++;
 	}
 	return false;
-
-
 }
-
 /**
  * Indicates whether version requests are filed with appropriate version
  */
 bool OOPAccessInfoList::
 HasVersionAccessRequests (const OOPDataVersion & dataversion) const
 {
-
 	list < OOPAccessInfo >::const_iterator i = fList.begin ();
 	while (i != fList.end ()) {
 		if (i->fState == EVersionAccess && i->fIsGranted)
@@ -262,9 +239,7 @@ HasVersionAccessRequests (const OOPDataVersion & dataversion) const
 		i++;
 	}
 	return false;
-
 }
-
 void OOPAccessInfoList::SetExecute (const OOPObjectId & taskid,
 				    const OOPMDataDepend & depend,
 				    bool condition)
@@ -279,7 +254,6 @@ void OOPAccessInfoList::SetExecute (const OOPObjectId & taskid,
 		i++;
 	}
 }
-
  /**
  * Revokes all access requests and cancels the tasks which are not executing
  */
@@ -308,9 +282,7 @@ void OOPAccessInfoList::RevokeAccessAndCancel ()
 			i = fList.begin ();
 		}
 	}
-
 }
-
  /**
  * Revokes all access which have been granted
  */
@@ -334,7 +306,6 @@ void OOPAccessInfoList::RevokeAccess (const OOPMetaData & obj)
 		i++;
 	}
 }
-
  /**
   * Returns true if a task is accessing the data
   */
@@ -348,13 +319,11 @@ bool OOPAccessInfoList::HasExecutingTasks ()
 	}
 	return false;
 }
-
 /**
  * Transfer the access requests to the given processor
  */
 void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
-
 	// Send the requests of tasks executing on the current processor
 	// Keep a copy of the requests
 	while(i != fList.end()) {
@@ -384,14 +353,12 @@ void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
 		}
 	}
 }
-
 /**
  * Resend the granted access requests (because a read access has been 
  * canceled)
  */
 void OOPAccessInfoList::ResendGrantedAccessRequests(OOPObjectId &id, int owningproc) {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
-
 	while(i != fList.end()) {
 		if(i->fIsGranted && !i->fIsAccessing) {
 			OOPMDataDepend depend(id,i->fState,i->fVersion);

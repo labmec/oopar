@@ -3,15 +3,12 @@
 #include "TPartitionRelation.h"
 #include "TTaskComm.h"
 #include "oopmetadata.h"
-
-
 void TLocalCompute::InitializePartitionRelationPointer ()
 {
 	OOPMetaData *objptr = fDataDepend.Dep (0).ObjPtr ();
 	fPartRelationPtr =
 		dynamic_cast < TPartitionRelation * >(objptr->Ptr ());
 }
-
 void TLocalCompute::ComputeLocalFluxes ()
 {
 	OOPMetaData *ptr = fDataDepend.Dep (3).ObjPtr ();
@@ -41,14 +38,12 @@ void TLocalCompute::ComputeLocalFluxes ()
 //	ver.Print (cout);
 	ptr->SetVersion (ver, Id ());
 }
-
 void TLocalCompute::SetRhsIds (vector < OOPObjectId > &rhsids,
 			       OOPDataVersion & rhsversion)
 {
 	fRhsIds = rhsids;
 	fRhsVersion = rhsversion;
 }
-
 void TLocalCompute::TransmitFLuxes ()
 {
 	int npartitions = fPartRelationPtr->GetNPartitions ();
@@ -89,28 +84,22 @@ void TLocalCompute::ComputeFrontierFluxes ()
 	cout << "Nothing Implemented in ComputeFrontierFluxes\n";
 	cout.flush ();
 }
-
 OOPMReturnType TLocalCompute::Execute ()
 {
 	cout << "Executing TLocalCompute task\n";
 	PrintLog(TaskLog,"Executing TLocalCompute task\n");
-
 	this->InitializePartitionRelationPointer ();
-
 	// message #1.1 to this:TLocalCompute
 	this->ComputeFrontierFluxes ();
-
 	this->TransmitFLuxes ();
 	// message #1.3 to this:TLocalCompute
 	this->ComputeLocalFluxes ();
 	return ESuccess;
 }
-
 TLocalCompute::TLocalCompute (int ProcId, int partition):OOPTask (ProcId),
 fPartition (partition)
 {
 }
-
   /**
    * Packs the object in on the buffer so it can be transmitted through the network.
    * The Pack function  packs the object's class_id while function Unpack() doesn't,
@@ -140,7 +129,6 @@ int TLocalCompute::Unpack (OOPReceiveStorage * buf){
 	fRhsVersion.Unpack(buf);
 	return 0;
 }
-
 OOPSaveable *TLocalCompute::Restore (OOPReceiveStorage * buf) {
 	TLocalCompute *loc = new TLocalCompute(0,0);
 	loc->Unpack(buf);

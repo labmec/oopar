@@ -1,7 +1,6 @@
 // -*- c++ -*-
 #ifndef OOPMDATADEPENDH
 #define OOPMDATADEPENDH
-
 #include "oopobjectid.h"
 #include "ooppardefs.h"
 #include "oopdataversion.h"
@@ -9,7 +8,6 @@
 #include <deque>
 using namespace std;
 class   OOPMetaData;
-
 /**
  * Implements the dependency relation between a Task a Data
  */
@@ -18,7 +16,6 @@ class   OOPMDataDepend
       public:
 	void    Print (ostream & out = cout) const;
 	ostream &ShortPrint (ostream & out = cout) const;
-
   /**
    * Operator overloaded
    */
@@ -27,7 +24,6 @@ class   OOPMDataDepend
    * Copy constructor
    */
 	        OOPMDataDepend (const::OOPMDataDepend & dd);
-
   /**
    * return ths ObjectId to which the dependency refers
    */
@@ -35,7 +31,6 @@ class   OOPMDataDepend
 	{
 		return fDataId;
 	}
-
   /**
    * returns the version to which the dependency refers
    */
@@ -43,7 +38,6 @@ class   OOPMDataDepend
 	{
 		return fVersion;
 	}
-
   /**
    * returns the state corresponding to the dependency
    */
@@ -51,17 +45,14 @@ class   OOPMDataDepend
 	{
 		return fNeed;
 	}
-
   /**
    * method which will serialize the object
    */
 	void    Pack (OOPSendStorage * buf);
-
   /**
    * method to reconstruct the object
    */
 	int     Unpack (OOPReceiveStorage * buf);
-
       private:
   /**
    * Id of the data needed to execute the task
@@ -106,48 +97,38 @@ class   OOPMDataDepend
 		// cout << "Pointer " << fObjPtr << endl;
 		return fObjPtr != 0;
 	}
-
 };
-
 class   OOPMDataDependList
 {
-
 	deque < OOPMDataDepend > fDependList;
-
       public:
   /**
    * this method submits the data dependency to the DataManager
    * @returns 1 if successful 0 if the task should be deleted because of incompatibility
    */
 	int     SubmitDependencyList (const OOPObjectId & taskid);
-
   /**
    * Signal the OOPMetaData objects that the task is executing
    * @param condition true if the task enters execution, false if it finished executing
    */
 	void    SetExecuting (const OOPObjectId & taskid, bool condition);
-
   /**
    * Prints the list of data dependencies
    */
 	void    Print (ostream & out);
-
   /**
    * This method will release all access requests filed in this container
    */
 	void    ReleaseAccessRequests (const OOPObjectId & taskid);
-
   /**
    * @return the number of elements in the list
    */
 	int     NElements ();
-
   /**
    * appends an element to the list
    * @param depend element appended to the list
    */
 	void    AppendDependency (const OOPMDataDepend & depend);
-
   /**
    * Signals the dependency list that a accessrequest has been granted
    * @param depend Dependent data as requested
@@ -155,33 +136,27 @@ class   OOPMDataDependList
    */
 	void    GrantAccess (const OOPMDataDepend & depend,
 			     OOPMetaData * ObjPtr);
-
   /**
    * Signals the dependency list that a accessrequest has been revoked
    * @param depend Dependent data as requested
    */
 	void    RevokeAccess (const OOPMDataDepend & depend);
-
   /**
    * deletes all elements
    */
 	void    Clear ();
-
   /**
    * zeroes all the OOPMetaDataPointers
    */
 	void    ClearPointers ();
-
   /**
    * @return 1 if all access requests have been granted
    */
 	int     CanExecute ();
-
 	void    operator= (const OOPMDataDependList & copy)
 	{
 		fDependList = copy.fDependList;
 	}
-
   /**
    * Access method while functionality is not fully implemented
    */
@@ -189,21 +164,16 @@ class   OOPMDataDependList
 	{
 		return fDependList[i];
 	}
-
   /**
    * method which will serialize the object
    */
 	void    Pack (OOPSendStorage * buf);
-
   /**
    * method to reconstruct the object
    */
 	int     Unpack (OOPReceiveStorage * buf);
-
 };
-
 inline ostream &operator<<(ostream &out, const OOPMDataDepend &obj) {
 	return obj.ShortPrint(out);
 }
-
 #endif

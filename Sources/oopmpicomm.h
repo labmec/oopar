@@ -13,15 +13,11 @@
 //
 #ifndef _COM_MPIHH_
 #define _COM_MPIHH_
-
-
 #include "mpi.h"
 #include "oopmpistorage.h"
-
 #include "oopcommmanager.h"
 class   OOPMPISendStorage;
 class   OOPMPIReceiveStorage;
-
 /**
    Non abstract class which implements the OOPar Communicator Manager using the MPI (Message Passing Interface) communication libray.
 */
@@ -32,7 +28,6 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * Constructor 
    */
 	OOPMPICommManager (int argc, char **argv);
-
   /**
    * Simple destructor
    */
@@ -74,7 +69,6 @@ class   OOPMPICommManager:public OOPCommunicationManager
 	{
 		return ("TMpiComManager::");
 	}
-
       protected:
   /**
    * Unpacks the received message
@@ -94,7 +88,5 @@ class   OOPMPICommManager:public OOPCommunicationManager
 	int     f_argc;
   /** Communication argument */
 	char  **f_argv;
-
 };
-
 #endif

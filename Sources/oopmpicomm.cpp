@@ -11,7 +11,6 @@
 //
 // Versao: 12 / 2002
 //
-
 #include "mpi.h"
 //#include "communic.h"
 #include <stdio.h>
@@ -19,14 +18,10 @@
 #include <string>
 #include "oopmpicomm.h"
 #include "ooptaskmanager.h"
-
 class   OOPMPIReceiveStorage;
 class   OOPMPICommManager;
-
 using namespace std;
-
 extern OOPTaskManager *TM;
-
 OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 {
 	f_buffer = (POOPMPISendStorage *) NULL;
@@ -37,7 +32,6 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 	// f_proc = (int *) NULL; 
 	// MPI_Init(&argc,&argv);
 }
-
 OOPMPICommManager::~OOPMPICommManager ()
 {
 	for (int i = 0; i < f_num_proc; i++)
@@ -46,7 +40,6 @@ OOPMPICommManager::~OOPMPICommManager ()
 	delete[]f_buffer;
 	MPI_Finalize ();
 }
-
  // Diferente de PVM, o argumento Destino em mpi nao eh o endereco absoluto
  // do 
   // destino, mas o relativo. ou seja, o comando MPI_INIT inicializa os
@@ -60,7 +53,6 @@ int OOPMPICommManager::Initialize (char *process_name, int num_of_process)
 	MPI_Init (&f_argc, &f_argv);
 	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
-
 	f_buffer = new (POOPMPISendStorage[f_num_proc]);
 	if (f_buffer == NULL) {
 #warning "//Finish( "Initialize <Error allocating sending buffers>" );"
@@ -77,14 +69,11 @@ int OOPMPICommManager::Initialize (char *process_name, int num_of_process)
 			// <Error making sendings buffers>");
 		}
 	}
-
-
 	if (f_myself == 0)
 		return f_num_proc;
 	else
 		return 0;
 }
-
 int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
@@ -117,7 +106,6 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	// se process_id < 0, last = numero de processos. se > 0, last =
 	// process_id + 1.
 	int last = (process_id < 0 ? f_num_proc : process_id + 1);	// 
-
 	char has_an_object = 1;
 	for (int i = first; i < last; i++)
 		if (i != f_myself) {
@@ -130,13 +118,10 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 							// valor = int = 1
 			pTask->Pack (buf);
 		}
-
 	// Restaura o ID do processador destino na 'task'.
 	pTask->SetProcID (process_id);
-
 	return 1;
 };
-
 int OOPMPICommManager::ReceiveMessages ()
 {
 	OOPMPIReceiveStorage msg;
@@ -147,7 +132,6 @@ int OOPMPICommManager::ReceiveMessages ()
 	ProcessMessage (msg);
 	return 1;
 };
-
 int OOPMPICommManager::ReceiveBlocking ()
 {
 	OOPMPIReceiveStorage msg;
@@ -159,8 +143,6 @@ int OOPMPICommManager::ReceiveBlocking ()
 	ProcessMessage (msg);
 	return 1;
 };
-
-
 int OOPMPICommManager::SendMessages ()
 {
 	OOPMPISendStorage *p;
@@ -180,7 +162,6 @@ int OOPMPICommManager::SendMessages ()
 	}
 	return (1);
 };
-
 int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
 {
 	// Trace("Recebendo uma mensagem do processador ");
@@ -196,7 +177,6 @@ int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
 		}
 		// Trace( " ClassID do objeto recebido: " );
 		// Trace( obj->GetClassID() << ".\n" );
-
 		TM->Submit ((OOPTask *) obj);
 		msg.UpkByte (&has_more_objects);
 	}

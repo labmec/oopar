@@ -1,7 +1,5 @@
 #ifndef OOPACCESSINFOH
 #define OOPACCESSINFOH
-
-
 #include <deque>
 #include <set>
 #include <list>
@@ -10,10 +8,7 @@
 #include "ooppardefs.h"
 #include "oopmdatadepend.h"
 using namespace std;
-
 class   OOPMetaData;
-
-
 /**
  * Implements functionalities concerning access information on a data.
  * It is sufficient to describe all the possible access requirements from a TTask to any data
@@ -21,22 +16,18 @@ class   OOPMetaData;
 class   OOPAccessInfo
 {
       public:
-
     /**
      * Describes the type of access state 
      */
 	OOPMDataState fState;
-
     /**
      * Identifies the TaskId willing to access the data object 
      */
 	OOPObjectId fTaskId;
-
     /**
      * Identifies in which version the task needs the data to be 
      */
 	OOPDataVersion fVersion;
-
 	/**
 	 * Indicates whether the corresponding access was granted
 	 */
@@ -45,12 +36,10 @@ class   OOPAccessInfo
      * Indicates if data is being accessed (i.e. task is executing)
      */
 	int     fIsAccessing;
-
 	/**
 	 * Processor which filed the request
 	 */
 	int     fProcessor;
-
     /**
      * Constructor with initial parameters
 	 * @param TaskId Id of task requiring access on the data.
@@ -69,7 +58,6 @@ class   OOPAccessInfo
 		fIsAccessing = 0;
 		fProcessor = processor;
 	}
-
 	OOPAccessInfo (const OOPObjectId & taskid,
 		       const OOPMDataDepend & depend, int processor)
 	{
@@ -80,7 +68,6 @@ class   OOPAccessInfo
 		fIsAccessing = 0;
 		fProcessor = processor;
 	}
-
 	/**
 	 * Operator equal overloaded
 	 */
@@ -107,14 +94,12 @@ class   OOPAccessInfo
 		fIsAccessing = aci.fIsAccessing;
 		fProcessor = aci.fProcessor;
 	}
-
 	bool    OOPAccessInfo::operator == (const OOPAccessInfo & other)
 	{
 		return (fTaskId == other.fTaskId && fState == other.fState
 			&& fVersion == other.fVersion
 			&& fProcessor == other.fProcessor);
 	}
-
 void    Print (ostream & out = cout)
 	{
 		out << "Is Accessing ? " << (bool) fIsAccessing << endl;
@@ -124,11 +109,8 @@ void    Print (ostream & out = cout)
 		out << "TaskId " << fTaskId << endl;
 		out << "Version" << fVersion << endl;
 	}
-
 bool    CanExecute (const OOPMetaData & object) const;
-
 };
-
 /**
  * This class manages the set of access requests which were filed
  * to an OOPar object (data + OOPMetaData)
@@ -139,8 +121,6 @@ class   OOPAccessInfoList
       public:
 		 
 	  void Print(ostream & out);
-
-
 	/**
 	 * returns the number of elements in the list
 	 */
@@ -154,8 +134,6 @@ class   OOPAccessInfoList
 	void    AddAccessRequest (const OOPObjectId & taskid,
 				  const OOPMDataDepend & depend,
 				  int processor);
-
-
 /**
  * Verifies whether there is an access request can be granted for the given
  * object.
@@ -165,7 +143,6 @@ class   OOPAccessInfoList
  */
 	bool    VerifyAccessRequests (const OOPMetaData & object,
 				      list < OOPAccessInfo >::iterator & ac);
-
 /**
  * Verifies whether an access request is incompatible with the version/state
  * of the corresponding object
@@ -174,12 +151,10 @@ class   OOPAccessInfoList
  */
 	bool    HasIncompatibleTask (const OOPDataVersion & version,
 				     OOPObjectId & taskid);
-
 /**
  * Indicates whether any access request of type ReadAccess has been granted
  */
 	bool    HasReadAccessGranted () const;
-
 /**
  * Indicates whether the task has the specified access request granted
  */
@@ -189,55 +164,45 @@ class   OOPAccessInfoList
  * Indicates whether any access request of type WriteAccess has been granted
  */
 	bool    HasWriteAccessGranted () const;
-
 /**
  * Indicates whether write requests are filed with appropriate version
  */
 	bool    HasWriteAccessRequests (const OOPDataVersion & object) const;
-
 /**
  * Indicates whether version requests are filed with appropriate version
  */
 	bool    HasVersionAccessRequests (const OOPDataVersion & object)
 		const;
-
 /**
  * Deletes the corresponding access request record from the list
  */
 	void    ReleaseAccess (const OOPObjectId & taskid,
 			       const OOPMDataDepend & depend);
-
 /**
  * Deletes the corresponding access request record from the list
  */
 	void    ReleaseAccess (list < OOPAccessInfo >::iterator & ac);
-
 /**
  * Flags if the task is going into/out-of execution
  */
 	void    SetExecute (const OOPObjectId & taskid,
 			    const OOPMDataDepend & depend, bool condition);
-
  /**
  * Revokes all access requests and cancels the tasks which are not executing
  */
 	void    RevokeAccessAndCancel ();
-
  /**
  * Revokes all access requests
  */
 	void    RevokeAccess (const OOPMetaData & obj);
-
  /**
   * Returns true if a task is accessing the data
   */
 	bool    HasExecutingTasks ();
-
 /**
  * Transfer the access requests to the given processor
  */
 	void TransferAccessRequests(OOPObjectId &id, int processor);
-
 /**
  * Resend the granted access requests (because a read access has been 
  * canceled)
@@ -252,5 +217,4 @@ class   OOPAccessInfoList
 		return *this;
 	}
 };
-
 #endif

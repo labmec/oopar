@@ -1,14 +1,11 @@
 // -*- c++ -*-
-
 #ifndef TMETADATAH
 #define TMETADATAH
-
 #include "oopdataversion.h"
 #include "oopsaveable.h"
 //#include "longvec.h"
 //#include "oopdatamanager.h"
 #include "ooppardefs.h"
-
 #include "oopdataversion.h"
 #include <deque>
 #include <set>
@@ -19,11 +16,9 @@
 #include "oopaccessinfo.h"
 using namespace std;
 // NOT IMPLEMENTED :
-
 class   OOPDataManager;
 extern OOPDataManager *DM;
 class   OOPDMOwnerTask;
-
 /**
  * Implements some sort of tag which must be attatched to any obejct subjected
  * to parallelization on the environment.
@@ -33,16 +28,13 @@ class   OOPDMOwnerTask;
  * @since Jan/2003
  * @author Gustavo Longhin
  */
-
 class   OOPMetaData:public OOPSaveable
 {
       private:
-
 	/**
 	 * List of tasks which requires specific access to this data.
 	 */
 	OOPAccessInfoList fAccessList;
-
 // dados:
     /**
     * pointer to the object
@@ -56,8 +48,6 @@ class   OOPMetaData:public OOPSaveable
       * Holds version of data
       */
 	OOPDataVersion fVersion;
-
-
      /**
       * Processor where the object is located
       */
@@ -66,7 +56,6 @@ class   OOPMetaData:public OOPSaveable
 	 * Indicates if the current data is write access mode
 	 */
 	OOPObjectId fTaskWrite;
-
 	/**
 	 * Indicates the processor with current version access
 	 * If no processor accesses the object, its value == -1
@@ -75,12 +64,10 @@ class   OOPMetaData:public OOPSaveable
 	 * If fProcVersionAccess != processor request, access to that processor has been granted????
 	 */
 	int     fProcVersionAccess;
-
 	/**
 	 * Indicates the id of the task which has version access
 	 */
 	OOPObjectId fTaskVersion;
-
      /**
       * Indicates in which transition state the object is
       */
@@ -95,23 +82,17 @@ class   OOPMetaData:public OOPSaveable
 	  * Whenever the data has read access, the vector contains only the id of that processor
       */
 	        list < int >fReadAccessProcessors;
-
      /**
       * Processors accessing current data with access.
 	  * 
 	  * Whenever the data has suspended read access, the vector contains only the id of that processor
       */
 	        list < int >fSuspendAccessProcessors;
-
-
      /**
       * Indicates trace of the data.
       * It is mostly used for debugging purposes
       */
-
 	int     fTrace;
-
-
       public:
 		  
 	void PrintLog (ostream & out = cout);
@@ -126,12 +107,10 @@ class   OOPMetaData:public OOPSaveable
 	 * @param id Id to be set
 	 */
 	void    SetId (OOPObjectId & id);
-
 	/**
 	 * Empty constructor
 	 */
 	        OOPMetaData ();
-
      /**
       * Constructor
       * @param *ObPtr Pointer to object TSaveable
@@ -140,7 +119,6 @@ class   OOPMetaData:public OOPSaveable
       */
 	        OOPMetaData (OOPSaveable * ObPtr, const OOPObjectId & ObjId,
 			     const int proc);
-
 	virtual long GetClassID ();
 	/**
 	 * Checks if some task on the task access list is satisfied by the current data state
@@ -162,7 +140,6 @@ class   OOPMetaData:public OOPSaveable
 	void    SubmitAccessRequest (const OOPObjectId & taskId,
 				     const OOPMDataDepend & depend,
 				     int processor);
-
       private:
 	/**
 	 * The access request is sent to the owning processor if it cannot
@@ -175,7 +152,6 @@ class   OOPMetaData:public OOPSaveable
 	 */
 	void    SetExecute (const OOPObjectId & taskId,
 			    const OOPMDataDepend & depend, bool condition);
-
      /**
       * Returns pointer to the TSaveable object
       */
@@ -203,12 +179,10 @@ class   OOPMetaData:public OOPSaveable
       * Returns the processor to which the object belongs
       */
 	int     Proc () const;
-
 	/**
 	 * returns true if the current processor is owner of the object
 	 */
 	bool    IamOwner () const;
-
      /**
       * returns 1 if any processor has read access
 	  * on the given data
@@ -219,14 +193,11 @@ class   OOPMetaData:public OOPSaveable
 	  * on the given data
       * @param Procid Identifies processor id
       */
-
 	bool    HasReadAccess (const int Procid) const;
-
 	/**
 	 * Indicates whether the object can be accessed for version
 	 */
 	bool    HasVersionAccess () const;
-
 	/**
 	 * Indicates whether the version access has been granted to a task
 	 */
@@ -234,7 +205,6 @@ class   OOPMetaData:public OOPSaveable
 	{
 		return !fTaskVersion.IsZero ();
 	}
-
 	/**
 	 * Indicates whether a task has write access to the object
 	 */
@@ -267,12 +237,10 @@ class   OOPMetaData:public OOPSaveable
 	 * Issues the appropriate messages to the other processors
 	 */
 	void    SuspendReadAccess ();
-
 	/**
 	 * Sends a TDMOwnerTask granting the access state to the processor
 	 */
 	void    GrantAccess (OOPMDataState state, int processor);
-
 	/**
      * Changes the access state of the data and notifies the task manager to try the indicated task
      * Grants write access
@@ -319,7 +287,6 @@ class   OOPMetaData:public OOPSaveable
      * @param ms Owner of the message to be traced.
      */
 	void    TraceMessage (OOPDMOwnerTask & ms);	// Erico
-
       protected:
     /**
      * Traces a message based on is name.
@@ -327,7 +294,6 @@ class   OOPMetaData:public OOPSaveable
      */
 	void    TraceMessage (char *message);
       public:
-
 	/**
 	 * Returns current object Id
 	 */
@@ -341,8 +307,6 @@ class   OOPMetaData:public OOPSaveable
 	 */
 	void    ReleaseAccess (const OOPObjectId & taskid,
 			       const OOPMDataDepend & depend);
-
-
 	 /**
 	  * Verifies whether the object can grant any type of access
 	  * @return true if there are types of access which can be granted
@@ -355,7 +319,6 @@ class   OOPMetaData:public OOPSaveable
 extern ofstream DataLog;
 extern ofstream TransferDataLog;
 extern int GLogMsgCounter;
-
 /*
 inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {
 	fObjPtr = ObPtr;
@@ -364,31 +327,24 @@ inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {
 	fState = st;
 }
 */
-
 inline OOPSaveable *OOPMetaData::Ptr ()
 {
 	return fObjPtr;
 }
-
 inline OOPSaveable *OOPMetaData::operator-> ()
 {
 	return fObjPtr;
 }
-
 /*inline MDataState
 TData::State ()
 {
 	return (MDataState) fAccessProcessors[DM->GetProcID ()];
 }
 */
-
-
      inline int OOPMetaData::Proc () const
      {
 	     return fProc;
      }
-
-
      inline void OOPMetaData::SetTrace (int trace)
 {      // Erico
 	fTrace = trace;

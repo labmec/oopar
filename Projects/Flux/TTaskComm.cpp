@@ -2,14 +2,12 @@
 #include "oopdatamanager.h"
 #include "TTaskComm.h"
 #include "TParCompute.h"
-
 int TTaskComm::Unpack (OOPReceiveStorage * buf)
 {
 	OOPSaveable::Unpack (buf);
 	OOPTask::Unpack (buf);
 	return 0;
 }
-
 int TTaskComm::Pack (OOPSendStorage * buf)
 {
 	int i;
@@ -25,7 +23,6 @@ int TTaskComm::Pack (OOPSendStorage * buf)
 	OOPTask::Pack (buf);
 	return 0;
 }
-
 OOPMReturnType TTaskComm::Execute ()
 {
 	int i;
@@ -55,12 +52,10 @@ OOPMReturnType TTaskComm::Execute ()
 			fDataDepend.Dep (i).ObjPtr ()->Version ().
 				Print (cout);
 		}
-
 	}
 	TaskFinished ();
 	return ESuccess;	// execute the task, verifying that
 }
-
 TTaskComm::TTaskComm (int ProcId):OOPTask (ProcId)
 {
 }

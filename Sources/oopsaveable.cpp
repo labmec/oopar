@@ -1,4 +1,3 @@
-
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
 //
@@ -11,23 +10,16 @@
 //
 // Versao:  02 / 04 / 96.
 //
-
-
 #include "oopsaveable.h"
-
 class   OOPSendStorage;
 class   OOPReceiveStorage;
 class   OOPDataVersion;
-
-
-
 /********************/
 /*** Get Class ID ***/
 long OOPSaveable::GetClassID ()
 {
 	return 0;
 }
-
 /************/
 /*** Pack ***/
 int OOPSaveable::Pack (OOPSendStorage * buf)
@@ -36,8 +28,6 @@ int OOPSaveable::Pack (OOPSendStorage * buf)
 	buf->PkLong (&class_id);
 	return 1;
 }
-
-
 /**************/
 /*** Unpack ***/
 int OOPSaveable::Unpack (OOPReceiveStorage * buf)

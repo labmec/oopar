@@ -12,23 +12,16 @@
 //
 // Versao:  07 / 08 / 95.
 //
-
 #ifndef _COM_FILEHH_
 #define _COM_FILEHH_
-
-
 #include "ooperror.h"
 #include "oopcommmanager.h"
 #include "oopfilestorage.h"
 #include "oopcommmanager.h"
 class   OOPTask;
 class   OOPSendStorageFile;
-
-
 class   OOPTaskManager;
 class   OOPSaveable;
-
-
 /**
  * Implements communication manager functionality through files.
  * Very useful in a NIS / LDAP environment.
@@ -63,7 +56,6 @@ class   OOPFileComManager:public OOPCommunicationManager
    Ex.: Passar todas as TTasks na frente.
   */
 	int     SendTaskVrt (OOPTask * pObject /* , int processID */ );
-
   /**
    Recebe uma mensagem qualquer que tenha chegado. Se nao houver
    nenhuma mensagem, retorna 0.
@@ -73,18 +65,14 @@ class   OOPFileComManager:public OOPCommunicationManager
 	{
 		return (ReceiveMessages ());
 	}
-
   /**Envia todas as mensagens de todos os buffers.*/
 	int     SendMessages ();
-
 	char   *ClassName ()
 	{
 		return ("TFileComManager::");
 	}
-
 	int     SendTask (OOPTask * pTask);
       private:
-
   /**Prefixo para a montagem dos nomes dos arquivos.*/
 	char    f_prefix[FILE_NAME_SIZE];
   /**
@@ -95,13 +83,7 @@ class   OOPFileComManager:public OOPCommunicationManager
     string.
   */
 	char    f_my_prefix[FILE_NAME_SIZE];
-
   /**1 buffer para cada processo do grupo.*/
 	OOPSendStorageFile **f_buffer;
-
 };
-
-
-
-
 #endif // _COM_FILEHH_

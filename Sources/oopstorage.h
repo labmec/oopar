@@ -1,4 +1,3 @@
-
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
 //
@@ -25,35 +24,24 @@
 //
 // Versao:  27 / 05 / 95.
 //
-
-
 #ifndef _STORAGEHH_
 #define _STORAGEHH_
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <fstream>
 #include "ooperror.h"
 //#include "voidavl.h"
-
 #include <map>
 #include "ooperror.h"
-
 using namespace std;
-
 class   OOPSaveable;
 class   OOPReceiveStorage;
 typedef unsigned int u_int;
 typedef unsigned short u_short;
 typedef unsigned long u_long;
 typedef OOPSaveable *(*TRestFunction) (OOPReceiveStorage *);
-
 //class map;
-
 class   OOPSaveable;
-
-
 /**
  * Base class for for input buffers used on data transmition
  */
@@ -69,13 +57,11 @@ class   OOPSendStorage:public OOPError
 	virtual ~ OOPSendStorage ()
 	{
 	}
-
   /**
 	Methods for packing data to be transmitted.
 	@param p Pointer to the buffer which holds the data to be packed
 	@param n Number of elements on the buffer
   */
-
 	virtual int PkByte (char *p, int n = 1)
 	{
 		return 0;
@@ -116,7 +102,6 @@ class   OOPSendStorage:public OOPError
 	{
 		return 0;
 	}
-
   /**
    * Undocumented
    */
@@ -124,7 +109,6 @@ class   OOPSendStorage:public OOPError
 	{
 		return 0;
 	}
-
   /**
    * Returns class name.
    */
@@ -132,21 +116,14 @@ class   OOPSendStorage:public OOPError
 	{
 		return ("OOPSendStorage::");
 	}
-
 };
 typedef OOPSendStorage *PTSendStorage;
-
-
-
-
 /**
  * Base class for for output buffers used on data transmition
  */
-
 class   OOPReceiveStorage:public OOPError
 {
       public:
-
   /**
    * Simple constructor.
    */
@@ -154,7 +131,6 @@ class   OOPReceiveStorage:public OOPError
 	{
 	}
 	virtual ~ OOPReceiveStorage ();	// {}
-
   /**
 	Methods for unpacking data transmitted.
 	@param p Pointer to the buffer which holds the data to be packed
@@ -200,9 +176,7 @@ class   OOPReceiveStorage:public OOPError
 	{
 		return 0;
 	}
-
 	static void AddClassRestore (long classid, TRestFunction f);
-
   /**
    * Receives the data to he buffer
    */
@@ -210,7 +184,6 @@ class   OOPReceiveStorage:public OOPError
 	{
 		return 0;
 	}
-
   /**
    * Restores next object in the buffer
    */
@@ -222,8 +195,6 @@ class   OOPReceiveStorage:public OOPError
 	{
 		return ("TReceiveStorage");
 	}
-
-
       private:
   /**
    * Pointer to restore functions of all classes present on the environment.

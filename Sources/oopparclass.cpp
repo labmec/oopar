@@ -1,9 +1,6 @@
-
 #include "ooptask.h"
 #include "ooptaskmanager.h"
 #include "oopdatamanager.h"
-
-
 void ParAddClass ()
 {
 	OOPReceiveStorage::AddClassRestore (TTASK_ID, OOPTask::Restore);

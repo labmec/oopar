@@ -5,7 +5,6 @@
 #include <vector>
 #include <stack>
 #include "oopstorage.h"
-
 using namespace std;
 /**
  * Implements the data versioning functionality.
@@ -21,7 +20,6 @@ class   OOPDataVersion
 	 * @param version Version to be set on level
 	 */
 	void    SetLevelVersion (int level, int version);
-
 	/**
 	 * Packs the object in buffer so it can be sent through the network.
 	 * @param buf Buffer which implements the communication.
@@ -49,7 +47,6 @@ class   OOPDataVersion
 	 * false otherwise.
 	 */
 	bool    AmICompatible (const OOPDataVersion & version) const;
-
 	/**
 	 * Returns true when the state of the current data is sufficient
 	 * for a task to start executing
@@ -59,29 +56,24 @@ class   OOPDataVersion
      * Increments version with a call to Increment method
 	 */
 	void    operator ++ ();
-
 	/**
      * Streams out TDataVersion data structure
 	 */
 	void    Print (ostream & out = cout) const;
-
 	ostream & ShortPrint(ostream &out = cout) const;
 	/**
 	 * Operator overloaded
 	 */
 	        OOPDataVersion & operator = (const OOPDataVersion & version);
-
 	/**
 	 * Operator overloaded
 	 */
 	bool    operator == (const OOPDataVersion & version) const;
-
 	/**
 	 * Overloaded operator
 	 */
 	bool    operator < (const OOPDataVersion & version);
 	bool    operator > (const OOPDataVersion & version);
-
 	/**
      * Implements the abstraction of data version incrementation.
 	 * The class will perform necessary checks to either increment only
@@ -93,60 +85,47 @@ class   OOPDataVersion
 	 * @param cardinality : New level is created with depth cardinality
 	 */
 	void    IncrementLevel (int cardinality);
-
 	/**
 	 * Deletes last level
 	 */
 	void    DecreaseLevel ();
-
     /**
      * Simple constructor 
      */
 	        OOPDataVersion ();
-
     /**
      * Constructor setting n Level parameter. Depth will be set to 1.
      * @param Level : Level to be set 
      */
 	        OOPDataVersion (int cardinality);
-
     /**
      * Copy constructor 
      */
 	        OOPDataVersion (const::OOPDataVersion & version);
-
 	/**
 	 * Ordinary destructor
 	 */
 	       ~OOPDataVersion ();
-
     /**
      * Returns current counter for specified Level
      */
 	int     GetLevelVersion (int level) const;
-
 	/**
 	 * Returns level cardinality
 	 */
 	int     GetLevelCardinality (int level) const;
-
 	/**
 	 * Returns total number of levels
 	 */
 	int     GetNLevels () const;
-
 	/**
 	 * Returns vector containing all levels depths
 	 */
 	        vector < int >GetLevelCardinality () const;
-
 	/**
 	 * Returns vector containing all level counters
 	 */
-
 	        vector < int >GetLevelVersion () const;
-
-
 	/**
 	 * Sets the cardinality vector
 	 */
@@ -155,32 +134,22 @@ class   OOPDataVersion
      * Sets the Cardinality depth 
      */
 	void    SetLevelCardinality (int level, int depth);
-
-
     /**
      * Method used for testing.
      * Mostly performs tests on all functionalities provided by the class 
      */
 	static void main ();
-
       private:
-
 	/**
 	 * The cardinality of each level
 	 */
 	        vector < int >fLevelCardinality;
-
 	/**
 	 * The version for each level
 	 */
 	        vector < int >fVersion;
-
-
-
 };
-
 inline ostream & operator<<(ostream &out, const OOPDataVersion &obj) {
 	return obj.ShortPrint(out);
 }
-
 #endif // TDATAVERSION_H

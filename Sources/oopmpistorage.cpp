@@ -1,4 +1,3 @@
-
 //
 // Autor:   Fabio Amaral Castro,  RA: 991722
 //
@@ -21,16 +20,12 @@
 #include "oopstorage.h"
 #include "oopmpistorage.h"
 #include "mpi.h"
-
-
 //TSend
-
 OOPMPISendStorage::OOPMPISendStorage (int f_target)
 {
 	f_target_tid = f_target;
 	ResetBuffer ();
 }
-
   // Metodos para EMPACOTAR os dados a serem enviados.
   // p : Ponteiro para o buffer que contem os dados a serem empacotados.
   // n : Numero de elementos no buffer (default: um unico dado).
@@ -43,7 +38,6 @@ int OOPMPISendStorage::PkByte (char *p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkInt (int *p, int n)
 {
 	if (f_position + n * (sizeof (int)) > f_size)
@@ -52,7 +46,6 @@ int OOPMPISendStorage::PkInt (int *p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkShort (short *p, int n)
 {
 	if (f_position + n * (sizeof (short)) > f_size)
@@ -61,7 +54,6 @@ int OOPMPISendStorage::PkShort (short *p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkLong (long *p, int n)
 {
 	if (f_position + n * (sizeof (long)) > f_size)
@@ -70,7 +62,6 @@ int OOPMPISendStorage::PkLong (long *p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkUint (u_int * p, int n)
 {
 	if (f_position + n * (sizeof (u_int)) > f_size)
@@ -79,7 +70,6 @@ int OOPMPISendStorage::PkUint (u_int * p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkUshort (u_short * p, int n)
 {
 	if (f_position + n * (sizeof (u_short)) > f_size)
@@ -88,7 +78,6 @@ int OOPMPISendStorage::PkUshort (u_short * p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkUlong (u_long * p, int n)
 {
 	if (f_position + n * (sizeof (u_long)) > f_size)
@@ -97,7 +86,6 @@ int OOPMPISendStorage::PkUlong (u_long * p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkFloat (float *p, int n)
 {
 	if (f_position + n * (sizeof (float)) > f_size)
@@ -106,7 +94,6 @@ int OOPMPISendStorage::PkFloat (float *p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkDouble (double *p, int n)
 {
 	if (f_position + n * (sizeof (double)) > f_size)
@@ -115,7 +102,6 @@ int OOPMPISendStorage::PkDouble (double *p, int n)
 		  MPI_COMM_WORLD);
 	return 1;
 }
-
 int OOPMPISendStorage::PkStr (char *p)
 {
 	// em PkStr, conta-se o número de caracteres na string para depois
@@ -129,7 +115,6 @@ int OOPMPISendStorage::PkStr (char *p)
 		  MPI_COMM_WORLD);
 	return 0;
 }
-
 void OOPMPISendStorage::ExpandBuffer (int more_dimension)
 {
 	if (more_dimension < 0) {
@@ -142,7 +127,6 @@ void OOPMPISendStorage::ExpandBuffer (int more_dimension)
 		f_buffr[i] = prov_buffer[i];
 	return;
 }
-
 int OOPMPISendStorage::ResetBuffer ()
 {
 	f_position = sizeof (int);
@@ -150,8 +134,6 @@ int OOPMPISendStorage::ResetBuffer ()
 	f_buffr = new (char[sizeof (int)]);
 	return 1;
 }
-
-
 int OOPMPISendStorage::Send (int msg_id)
 {
 	// MPI_Send(&f_position,1,MPI_INT,f_target_tid,msg_id,MPI_COMM_WORLD);
@@ -173,10 +155,7 @@ int OOPMPISendStorage::Send (int msg_id)
 		ResetBuffer ();
 	return ret;
 }
-
 //       TReceiveStorageMpi
-
-
 int OOPMPIReceiveStorage::Receive ()
 {      // nonblocking!!!!
 	MPI_Status status;
@@ -215,7 +194,6 @@ int OOPMPIReceiveStorage::Receive ()
 						receive_buffer
 						[receive_position];
 		}
-
 		return 1;
 	}
 	else {
@@ -223,7 +201,6 @@ int OOPMPIReceiveStorage::Receive ()
 		return 0;
 	}
 }
-
 int OOPMPIReceiveStorage::ReceiveBlocking ()
 {
 	MPI_Status status;
@@ -257,7 +234,6 @@ int OOPMPIReceiveStorage::ReceiveBlocking ()
 	}
 	return 1;
 }
-
   // Metodos para DESEMPACOTAR dados do buffer.
   // p : Ponteiro para o buffer onde os dados serao lidos.
   // n : Numero de elementos a serem lidos (default: um unico dado).
@@ -268,7 +244,6 @@ int OOPMPIReceiveStorage::UpkByte (char *p, int n)
 	// f_position=f_position+n*sizeof(char);
 	return 1;
 }
-
 int OOPMPIReceiveStorage::UpkInt (int *p, int n)
 {
 	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_INT,
@@ -276,7 +251,6 @@ int OOPMPIReceiveStorage::UpkInt (int *p, int n)
 	// f_position=f_position+n*sizeof(int);
 	return 1;
 }
-
 int OOPMPIReceiveStorage::UpkShort (short *p, int n)
 {
 	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_SHORT,
@@ -284,7 +258,6 @@ int OOPMPIReceiveStorage::UpkShort (short *p, int n)
 	// f_position=f_position+n*sizeof(short);
 	return 1;
 }
-
 int OOPMPIReceiveStorage::UpkLong (long *p, int n)
 {
 	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_LONG,
@@ -292,7 +265,6 @@ int OOPMPIReceiveStorage::UpkLong (long *p, int n)
 	// f_position=f_position+n*sizeof(long);
 	return 1;
 }
-
 int OOPMPIReceiveStorage::UpkUint (u_int * p, int n)
 {
 	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_UNSIGNED,
@@ -300,7 +272,6 @@ int OOPMPIReceiveStorage::UpkUint (u_int * p, int n)
 	// f_position=f_position+n*sizeof(u_int);
 	return 1;
 }
-
 int OOPMPIReceiveStorage::UpkUshort (u_short * p, int n)
 {
 	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_UNSIGNED_SHORT,
@@ -308,7 +279,6 @@ int OOPMPIReceiveStorage::UpkUshort (u_short * p, int n)
 	// f_position=f_position+n*sizeof(u_short);
 	return 1;
 }
-
 int OOPMPIReceiveStorage::UpkUlong (u_long * p, int n)
 {
 	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_UNSIGNED_LONG,
@@ -316,7 +286,6 @@ int OOPMPIReceiveStorage::UpkUlong (u_long * p, int n)
 	// f_position=f_position+n*sizeof(u_long);
 	return 1;
 }
-
 int OOPMPIReceiveStorage::UpkFloat (float *p, int n)
 {
 	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_FLOAT,
@@ -324,7 +293,6 @@ int OOPMPIReceiveStorage::UpkFloat (float *p, int n)
 	// f_position=f_position+n*sizeof(float);
 	return 1;
 }
-
 int OOPMPIReceiveStorage::UpkDouble (double *p, int n)
 {
 	MPI_Unpack (f_buffr, f_size, &f_position, p, n, MPI_DOUBLE,
@@ -332,7 +300,6 @@ int OOPMPIReceiveStorage::UpkDouble (double *p, int n)
 	// f_position=f_position+n*sizeof(double);
 	return 1;
 }
-
 //essa eh meio complicada...
 int OOPMPIReceiveStorage::UpkStr (char *p)
 {

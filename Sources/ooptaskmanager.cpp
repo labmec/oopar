@@ -83,8 +83,6 @@ void OOPTaskManager::TransferExecutingTasks(){
 	sub = fExecuting.begin();
 	OOPTaskControl * auxtc=0;
 	if(listsize){
-		cout <<"ListSize TET " << listsize << endl;
-		cout.flush();
 		auxtc = (*sub);
 	}
 	while (auxtc){
@@ -105,8 +103,6 @@ void OOPTaskManager::TransferExecutingTasks(){
 		
 		
 	}
-	cout << "Saiu do TET\n";
-	cout.flush();
 
 }
 
@@ -130,14 +126,8 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
 	//Qual é o service thread ?
 	// O service thread e a linha de execucao do programa principal
-	cout << "Calling DM->SubmitAllObjects();\n";
-	cout.flush();
 	DM->SubmitAllObjects();
-	cout << "Calling CM->ReceiveMessages();\n";
-	cout.flush();
 	CM->ReceiveMessages ();
-	cout << "Calling lTM->TransferSubmittedTasks ();\n";
-	cout.flush();
 	lTM->TransferSubmittedTasks ();
 	list < OOPTaskControl * >::iterator i;
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
@@ -147,42 +137,20 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	lTM->fKeepGoing=true;
 	lTM->ExecuteDaemons();
 	while (lTM->fKeepGoing) {
-		cout << "Dentro do While em ExecuteMT\n";
-		cout.flush();
 		//pthread_mutex_lock(&fExecuteMutex);
 		DM->SubmitAllObjects();
-		cout << "chamando ReceiveMessages\n";
-		cout.flush();
 		CM->ReceiveMessages();
-		cout << "chamou ReceiveMessages\n";
-		cout.flush();
 		lTM->ExecuteDaemons();
 		while (lTM->fExecutable.size ()) {
-			cout << "Aqui\n";
-			cout.flush();
-			//pthread_mutex_unlock(&fExecuteMutex);
-			//DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
 			i = lTM->fExecutable.begin ();
 			OOPTaskControl *tc = (*i);
 			lTM->fExecutable.erase(i);
-			//Shouldn't a lock be required here ?
-			//pthread_mutex_lock(&lTM->fExecutingMutex);
 			lTM->fExecuting.push_back(tc);
-			cout << "while 2\n";
-			cout.flush();
-			//pthread_mutex_unlock(&lTM->fExecutingMutex);
 			tc->Task()->SetExecuting(true);
 			pthread_t task_thread;
 			pthread_create(&task_thread, NULL, TriggerTask, tc);
 			pthread_join(task_thread,NULL);
-//              TaskManLog << (*i)->Task() << ":";
-			cout << "while 3\n";
-			cout.flush();
-			
-			
 			lTM->TransferExecutingTasks();
-			cout << "while 4\n";
-			cout.flush();
 			OOPObjectId id;
 			id = tc->Task ()->Id ();
 			tc->Depend ().SetExecuting (tc->Task ()->Id (),
@@ -196,33 +164,15 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			// endl;
 			// id.Print(TaskManLog);
 			// TaskManLog.flush();
-			cout << "Aqui ainda\n";
-			cout.flush();
 #endif
 		}
-		cout << "Aqui 2\n";
-		cout.flush();
 		DM->SubmitAllObjects();
-		cout << "Aqui 3\n";
-		cout.flush();
 		lTM->TransferExecutingTasks();
-		cout << "Aqui 4\n";
-		cout.flush();
 		DM->SubmitAllObjects();
-		cout << "Aqui 5\n";
-		cout.flush();
 		lTM->TransferFinishedTasks ();
-		cout << "Aqui 6\n";
-		cout.flush();
 		CM->ReceiveMessages ();
-		cout << "Aqui 7\n";
-		cout.flush();
 		lTM->TransferSubmittedTasks ();
-		cout << "Aqui 8\n";
-		cout.flush();
 		CM->SendMessages ();
-		cout << "Aqui 9\n";
-		cout.flush();
 		lTM->ExecuteDaemons();
 		//wait
 //		pthread_mutex_lock(&fExecuteMutex);
@@ -239,8 +189,6 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			cout.flush();
 			DM->SubmitAllObjects();
 		}
-		cout << "Aqui 10\n";
-		cout.flush();
 //		pthread_mutex_unlock(&fExecuteMutex)
 	}
 	//PrintTaskQueues("Depois", TaskQueueLog);
@@ -343,49 +291,21 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
 	TaskManLog << "Calling Submit on OOPTaskManager ";
-	cout << "Tryng to lock mutex on Submit PID " << getpid() << endl;
-	cout.flush();
-	//pthread_mutex_lock(&fSubmittedMutex);
-	cout << "Mutex locked Submit PID " << getpid() << endl;
-	cout.flush();
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
 	if(dmt) {
 		// lock
 		SubmitDaemon(dmt);
 		TaskManLog << "Task Submitted is a daemon\n";
-		// signal the service thread
-		// unlock
-		cout << "Signalling on SubmiteDaemon()\n";
-		cout.flush();
-		//pthread_cond_signal(&fExecuteCondition);
-		cout << "Mutex unlocking SubmiteDaemon PID " << getpid() << endl;
-		cout.flush();
-		//pthread_mutex_unlock(&fExecuteMutex);
-		cout << "Mutex unlocked SubmiteDaemon PID " << getpid() << endl;
-		cout.flush();
-		
 		return OOPObjectId();
 	}
 	OOPObjectId id = task->Id();
-	// mutex lock 
 	if(id.IsZero()) id = GenerateId ();
 	task->SetTaskId (id);
 	TaskManLog << id << endl;
 	TaskManLog.flush();
-//	id.ShortPrint(TaskManLog);
 	pthread_mutex_lock(&fSubmittedMutex);
 	fSubmittedList.push_back (task);
 	pthread_mutex_unlock(&fSubmittedMutex);
-	// signal to service thread
-	// mutex unlock
-	cout << "Signalling on Submit()\n";
-	cout.flush();
-	//pthread_cond_signal(&fExecuteCondition);
-	cout << "Mutex unlocking Submit PID " << getpid() << endl;
-	cout.flush();
-	//pthread_mutex_unlock(&fExecuteMutex);
-	cout << "Mutex unlocked Submit PID " << getpid() << endl;
-	cout.flush();
 	return id;
 }
 OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)
@@ -424,8 +344,8 @@ bool OOPTaskManager::HasWorkTodo ()
 	pthread_mutex_lock(&fFinishedMutex);
 	int numtasks = fExecutable.size () + fFinished.size () +
 		fSubmittedList.size () + fDaemon.size();
-	pthread_mutex_lock(&fSubmittedMutex);
-	pthread_mutex_lock(&fFinishedMutex);
+	pthread_mutex_unlock(&fSubmittedMutex);
+	pthread_mutex_unlock(&fFinishedMutex);
 	return numtasks != 0;
 }
 
@@ -615,18 +535,13 @@ void OOPTaskManager::TransferSubmittedTasks ()
 	int listsize = fSubmittedList.size();
 	sub = fSubmittedList.begin ();
 	OOPTask * aux = 0;
-	cout << 1;
 	if(listsize) {
 		aux = (*sub);
 		fSubmittedList.erase (sub);
 	}
-	cout << 2;
 	pthread_mutex_unlock(&fSubmittedMutex);
-	cout << 3;
 	
 	while (aux){//(fSubmittedList.begin () != fSubmittedList.end ()) {
-		cout << 4;
-		cout.flush();
 		//sub = fSubmittedList.begin ();
 		//OOPTask * aux = (*sub);
 		if (aux->GetProcID () != fProc) {
@@ -649,8 +564,6 @@ void OOPTaskManager::TransferSubmittedTasks ()
 		listsize = fSubmittedList.size();
 		sub = fSubmittedList.begin ();
 		aux = 0;
-		cout << "ListSize " << listsize << endl;
-		cout.flush();
 		if(listsize) {
 			aux = (*sub);
 			fSubmittedList.erase (sub);
@@ -658,9 +571,6 @@ void OOPTaskManager::TransferSubmittedTasks ()
 		pthread_mutex_unlock(&fSubmittedMutex);
 		
 	}
-	cout << "Saiu\n";
-	cout.flush();
-
 }
 void OOPTaskManager::TransferFinishedTasks ()
 {

@@ -69,7 +69,7 @@ OOPReceiveStorage::Restore()
   if (i==gFuncTree.end())
     {
       char str[20];
-      sprintf( str, "%d", class_id );
+      sprintf( str, "%d", (int)class_id );
       Error( 1, "Restore <class_id %s not recognized>\n", str );
     }
 

@@ -118,6 +118,7 @@ class   OOPTaskManager
 	int     ExistsTask (OOPObjectId taskid);	// returns 1 if the
 	// task
 	// exists
+	void TransferExecutingTasks();
   /**
    * Transfer the tasks which are in the fSubmittedList to the
    * fTaskList, registering their dependencies
@@ -195,7 +196,7 @@ private:
    * List of tasks which can be readily executed
    */
 	        list < OOPTaskControl * >fExecutable;
-			map <OOPObjectId,  OOPTaskControl * >fExecuting;
+			list <OOPTaskControl * >fExecuting;
 			
 	/**
    * List of daemon tasks which can be readily executed

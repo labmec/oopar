@@ -84,13 +84,13 @@ public:
 	 * Constructor based on a processor-id
 	 * @param Procid Id of processor where the object is being created
 	 */
-#warning "Gustavo, implementa o construtor vazio por favor!!"
-	OOPTask():fProc(-1){}
+//#warning "Gustavo, implementa o construtor vazio por favor!!"
+	OOPTask():fProc(-1) ,fPriority(0), fIsRecurrent(0), fLabel("non initialized"){}
 	OOPTask (int Procid);
 	OOPTask (const OOPTask & task);
 	virtual ~ OOPTask ()
 	{
-#warning "Gustavo, implementa o destrutor por favor!!"
+		fDataDepend.ReleaseAccessRequests(Id());
 	}
 	/**
 	 * Returns the Id of current object

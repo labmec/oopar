@@ -3,11 +3,27 @@
 #ifndef TPARRHS_H
 #define TPARRHS_H
 #include "oopsaveable.h"
+#include <vector>
+
 class TParVector : public OOPSaveable {
 public:    
 
     TParVector();
+	
 	long GetClassID();
+
+	int Pack(OOPSendStorage * buf);
+
+	int Unpack(OOPReceiveStorage *buf );
+	
+	void Resize(int size);
+
+	void SetVector(vector<double> data);
+private:
 	long fClassId;
+
+	vector<double> fData;
+
+
 };
 #endif //TPARRHS_H

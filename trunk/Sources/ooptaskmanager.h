@@ -151,24 +151,25 @@ private:
    */
   long fMaxId;	
   /**
-   * List of time consuming tasks
+   * List of tasks which cant be executed yet
    */
-  deque < OOPTaskControl>fTimeConsuming;
+  deque <OOPTaskControl *> fTaskList;
 	
-  /**
-   * List of instantaneous tasks.
-   */
-  deque < OOPTaskControl>fDaemon;
 
   /**
    * List of tasks which can be readily executed
    */
-  deque< OOPTaskControl> fExecutable;
+  deque< OOPTaskControl *> fExecutable;
 
   /**
    * List of tasks recently submitted
    */
   deque <OOPTask *> fSubmittedList;
+
+  /**
+   * List of finished tasks
+   */
+  deque <OOPTaskControl *> fFinished;
 };
 
 /**

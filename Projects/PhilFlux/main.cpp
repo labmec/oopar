@@ -47,23 +47,30 @@ int mpimain (int argc, char **argv)
   ::LogDM = LogDM;
   TM = new OOPTaskManager (CM->GetProcID ());
   DM = new OOPDataManager (CM->GetProcID ());
+
   //int numproc = CM->NumProcessors();//atoi(argv[argc-1]);
+  // At this point the environment will lock because it will go into a blocking receive...
   cout << "Entering execute for " << CM->GetProcID() << endl;
   TM->Execute();
   cout << "After TM->Execute\n";
   cout.flush();
-  // At this point the environment will lock because it will go into a blocking receive...
-  if(CM->IAmTheMaster())
+
+	if(CM->IAmTheMaster())
   {
     cout << "Inserting tasks\n";
     cout.flush();
-    InsertTasks(3);
+    InsertTasks(30);
   } else {
     cout << "IAmTheMaster returned " << CM->IAmTheMaster() << endl;
     cout.flush();
   }
+  
+  TM->Wait();
+  cout << "Deleting DM\n";
   delete  DM;
+  cout << "Deleting TM\n";
   delete  TM;
+  cout << "Deleting CM\n";
   delete  CM;
   delete LogDM;
 
@@ -144,11 +151,14 @@ void InsertTasks(int numtasks)
   wt->Finish();
   cout << "I GOT THROUGH\n";
   
-  
+  OOPTerminationTask * tt;
+  for(it=0;it < numproc;it++){
+	  tt = new OOPTerminationTask(it);
+	  tt->Submit();
+  }
 }
 void RegisterPhilFluxRestore() 
 {
   OOPReceiveStorage::AddClassRestore (TSMALLTASKID, TSmallTask::Restore);
   OOPReceiveStorage::AddClassRestore (TPARVECTOR_ID, TParVector::Restore);
 }
-

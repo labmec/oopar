@@ -11,6 +11,7 @@ class   OOPSaveable;
 //class TMultiTask;
 //class TMultiData;
 class   OOPObjectId;
+class	OOPTerminationTask;
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -310,8 +311,9 @@ void OOPTaskManager::Execute ()
 	// "\n";
 	// TaskManLog << "Entering task list loop" << endl;
 	//PrintTaskQueues("Antes", TaskQueueLog);
+	fKeepGoing=true;
 	ExecuteDaemons();
-	while (1) {
+	while (fKeepGoing) {
 		//pthread_mutex_lock(&fExecuteMutex);
 		CM->ReceiveMessages();
 		ExecuteDaemons();
@@ -344,7 +346,7 @@ void OOPTaskManager::Execute ()
 		ExecuteDaemons();
 		//wait
 //		pthread_mutex_lock(&fExecuteMutex);
-		if(!HasWorkTodo ()){
+		if(!HasWorkTodo () && fKeepGoing){
 			cout << "Going into Blocking receive on TM->Execute()\n";
 			cout << "PID" << getpid() << endl;
 			cout.flush();
@@ -358,6 +360,9 @@ void OOPTaskManager::Execute ()
 	}
 	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
+}
+void OOPTaskManager::SetKeepGoing(bool go){
+	fKeepGoing = go;
 }
 OOPObjectId OOPTaskManager::GenerateId ()
 {      // Generate a unique id number
@@ -507,3 +512,38 @@ void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
 		out << (*j)->Task()->Id() << endl;
 	
 }
+OOPTerminationTask::~OOPTerminationTask (){}
+OOPTerminationTask::OOPTerminationTask (int ProcId) : OOPTask(ProcId){}
+OOPTerminationTask::OOPTerminationTask (const OOPTerminationTask & term): OOPTask(term)
+{
+}
+
+OOPMReturnType OOPTerminationTask::Execute (){
+	TM->SetKeepGoing(false);
+	cout << "----------------------------------------------TM Finished\n";
+	cout.flush();
+	return ESuccess;
+}
+long OOPTerminationTask::GetClassID ()
+{
+	return TTERMINATIONTASK_ID;
+}
+
+int OOPTerminationTask::Pack(OOPSendStorage * buf){
+	OOPTask::Pack(buf);
+	return 0;
+}
+int OOPTerminationTask::Unpack(OOPReceiveStorage * buf){
+	OOPTask::Unpack(buf);
+	return 0;
+}
+
+long int OOPTerminationTask::ExecTime(){
+	return -1;
+}
+OOPSaveable *OOPTerminationTask::Restore (OOPReceiveStorage * buf){
+	OOPTerminationTask*v = new OOPTerminationTask(0);
+	v->Unpack (buf);
+	return v;
+}
+extern OOPTaskManager *TM;

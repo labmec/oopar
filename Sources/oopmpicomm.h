@@ -43,7 +43,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
 	int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v); 
 	/* Sends all messages in all buffers
 	*/
-	virtual int SendMessages () {}
+	virtual int SendMessages () {return 0;}
   /**
    * Nonblocking receive. If there is a posted message to 
    * receive, receives it and returns 1. Else, returns 0
@@ -75,6 +75,10 @@ class   OOPMPICommManager:public OOPCommunicationManager
 		return ("TMpiComManager::");
 	}
       protected:
+	/**
+	 * Terminates MPI execution
+	 */
+	 void Finish(char * msg);
   /**
    * Unpacks the received message
    * @param msg Received message to be unpacked

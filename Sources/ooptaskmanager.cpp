@@ -288,6 +288,7 @@ void OOPTaskManager::ExecuteDaemons() {
 void OOPTaskManager::Execute ()
 {
 	//Qual é o service thread ?
+	// O service thread e a linha de execucao do programa principal
 	CM->ReceiveMessages ();
 	TransferSubmittedTasks ();
 	deque < OOPTaskControl * >::iterator i;

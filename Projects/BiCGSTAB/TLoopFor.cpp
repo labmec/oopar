@@ -38,7 +38,7 @@ OOPMReturnType TLoopFor::Execute ()
   SubmitIf();
 
   /**
-   *
+   * Submits the second if on the loop instruction.
    */
   SumbmitSecondIf();
    

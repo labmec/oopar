@@ -81,6 +81,19 @@ OOPMReturnType TSecondIf::Execute (){
     }
     
     //p.Add(- beta * omega, v);
+    pversion.Increment();
+    TVecAddExtended * vecaddex;
+    OOPDataVersion omegaver = fDataDepend->Dep(5)->ObjPtr().Version();
+    
+    for(i=0;i<nproc;i++){
+      vecaddex = new TVecAddExtended(i);
+      vecaddex->AddDependentData(OOPMDataDepend(this->fDataDepend->Dep(6+3*(i+1)-3), EWrite, version));
+      vecaddex->AddDependentData(OOPMDataDepend(this->fDataDepend->Dep(6+3*(i+1)-2), ERead, version));
+      vecaddex->AddDependentData(OOPMDataDepend(this->fDataDepend->Dep(1), ERead, betaver));
+      vecaddex->AddDependentData(OOPMDataDepend(this->fDataDepend->Dep(5), ERead, omegaver));            
+      vecadd->Submit();
+    }
+    
     
   }
   

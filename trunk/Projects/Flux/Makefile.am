@@ -10,13 +10,14 @@ DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@
 
 -include $(top_srcdir)/@OOP_MK@
+#/home/pos/longhin/Projetos/NeoPZ/Util/ /home/pos/longhin/Projetos/NeoPZ/
 
 bin_PROGRAMS = main
 
 main_SOURCES = TTaskComm.cpp TLocalCompute.cpp TContribution.cpp TParAnalysis.cpp TParCompute.cpp \
-	TParMesh.cpp TParRhs.cpp TParState.cpp TPartitionRelation.cpp
+	TParMesh.cpp TParRhs.cpp TParState.cpp TPartitionRelation.cpp ooparmain.cpp
 
-main_LDADD = $(top_srcdir)/lib/liboopar.a 
+main_LDADD = $(top_srcdir)/lib/liboopar.a /home/pos/longhin/Projetos/NeoPZ/lib/libpz.a
 #@MPIDIR@/lib/libmpi.a
 
 ## --| OOPar |------------------------------------------------------------------

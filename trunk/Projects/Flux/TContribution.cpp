@@ -2,15 +2,44 @@
 
 
 #include "TContribution.h"
+#include <stdlib.h>
 
+bool TContribution::operator == (const TContribution & contr)
+{
+    if(!(fDestinationMesh == contr.fDestinationMesh)) return false;
+    if(fFrom.size() != contr.fFrom.size()) return false;
+    if(fIsEmpty != contr.fIsEmpty) return false;
+    if(fLocalIndices.size() != contr.fLocalIndices.size()) return false;
+    if(fNContributions != contr.fNContributions) return false;
+    if(fTo.size() != contr.fTo.size()) return false;
+	return true;
 
-
+}
+TContribution & TContribution::operator=(const TContribution  & contr)
+{
+    fDestinationMesh = contr.fDestinationMesh;
+    fFrom = contr.fFrom;
+    fIsEmpty = contr.fIsEmpty;
+    fLocalIndices = contr.fLocalIndices;
+    fNContributions = contr.fNContributions;
+    fTo = contr.fTo;
+	return *this;
+}
+TContribution::TContribution(){
+	fIsEmpty = 0;
+	fNContributions = 0;
+}
+int TContribution::IsEmpty(){
+	return fIsEmpty;
+}
 vector<int> & TContribution::DestinationVector(int index){
     return fLocalIndices[index];
 }
 
 
 void TContribution::InitializeRandom(int i){
-    seed();
-    int rs = rnd(10)%1;
+	srand(i);
+	int rs = rand();
+	if ((rs/10) > 2) fIsEmpty = 1;
+	
 }

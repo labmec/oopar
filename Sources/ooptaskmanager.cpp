@@ -109,21 +109,7 @@ void OOPTaskManager::TransferExecutingTasks(){
 #ifdef MPI
 #define MT
 
-void * OOPTaskManager::ReceiveMessages(void * data){
-	OOPTaskManager * lTM = static_cast<OOPTaskManager *> (data);
-	pthread_mutex_lock(&lTM->fMPIMutex);
-	OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
-	if(!MPICM) return 0;//MPICM->ReceiveBlocking();
-	// Set timer to 0.5s - Thiago M. N. Oliveira - 2003.03.17
-	struct timespec t;
-	t.tv_sec = 0; // 0 seconds
-	t.tv_nsec = 500000000;  // 0.5 * 10^6 nanoseconds
-	while(MPICM){
-		MPICM->ReceiveBlocking();
-		pthread_cond_timedwait(&lTM->fMPICond, &lTM->fMPIMutex, &t);
-	}
-	
-}
+
 void * OOPTaskManager::TriggerTask(void * data){
 	OOPTaskControl * tc = static_cast<OOPTaskControl *> (data);
 	OOPTaskManager * lTM = dynamic_cast<OOPTaskManager *> (TM);
@@ -195,19 +181,12 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			cout << "PID" << getpid() << endl;
 			cout.flush();
 			#ifdef MPI
-			//OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
-			//if(MPICM) MPICM->ReceiveBlocking();
-			if(!lTM->fReceiveThreadCreated){
-				pthread_t receivethread;
-				pthread_create(&receivethread, NULL, ReceiveMessages, lTM);
-				//Do we need to call join ?
-			}
-			//criar um thread com o recebimento não blocking.
-			//if(MPICM) MPICM->Receive();
+			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
+			if(MPICM) MPICM->ReceiveBlocking();
 			#endif
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
-			//cout << "Leaving blocking receive PID " << getpid() << endl;
-			//cout.flush();
+			cout << "Leaving blocking receive PID " << getpid() << endl;
+			cout.flush();
 			DM->SubmitAllObjects();
 		}
 //		pthread_mutex_unlock(&fExecuteMutex)
@@ -222,15 +201,12 @@ OOPTaskManager::OOPTaskManager (int proc)
 {
 	fProc = proc;
 	fLastCreated = 0;//NUMOBJECTS * fProc;
-	fReceiveThreadCreated=0;
 	fMaxId = fLastCreated + NUMOBJECTS;
 	pthread_cond_init(&fExecuteCondition, NULL);
 	pthread_cond_init(&fExecuteTaskCondition, NULL);
-	pthread_cond_init(&fMPICond, NULL);
 	pthread_mutex_init(&fExecutingMutex, NULL);
 	pthread_mutex_init(&fFinishedMutex, NULL);
 	pthread_mutex_init(&fSubmittedMutex, NULL);
-	pthread_mutex_init(&fMPIMutex, NULL);
 }
 OOPTaskManager::~OOPTaskManager ()
 {

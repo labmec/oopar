@@ -92,6 +92,10 @@ class   OOPTaskManager
    */
 	int     NumberOfTasks ();
   /**
+   * Returns true if there is a chance of finding an executable task
+   */
+	bool  HasWorkTodo ();
+  /**
    * Returns the total number of task on the environment.
    */
 	int     GlobalNumberOfTasks ();

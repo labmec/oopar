@@ -8,10 +8,10 @@
 //#include "../gnu/gnudefs.h"
 
 void OOPTask::SetRecurrence(bool recurrence){
-    fIsRecurrent = recurrence;
+  fIsRecurrent = recurrence;
 }
 int OOPTask::IsRecurrent(){
-	return fIsRecurrent;
+  return fIsRecurrent;
 }
 
 class OOPSendStorage;
@@ -25,62 +25,62 @@ class OOPSaveable;
 using namespace std;
 
 bool OOPTask::AmICompatible(){
-	bool result = true;
-	deque<OOPMDataDepend>::iterator j;
-	for(j=fDataDepend.begin();j!=fDataDepend.end();j++){
-		OOPMetaData * auxdata;
-		OOPDataVersion ver;
-		auxdata = DM->MetaData(j->fDataId);
-		ver = auxdata->Version();
-		if(!ver.AmICompatible(j->fVersion)){
-			result = false;
-			break;
-		}
-	}
-	return result;
+  bool result = true;
+  deque<OOPMDataDepend>::iterator j;
+  for(j=fDataDepend.begin();j!=fDataDepend.end();j++){
+    OOPMetaData * auxdata;
+    OOPDataVersion ver;
+    auxdata = DM->MetaData(j->fDataId);
+    ver = auxdata->Version();
+    if(!ver.AmICompatible(j->fVersion)){
+      result = false;
+      break;
+    }
+  }
+  return result;
 }
 
 void OOPTask::Print(ostream & out){
-	out << "OOPTask Id" << endl;
-	fTaskId.Print(out);
-	out << "Priority\t" << fPriority << endl;
-	out << "Processor\t" << fProc << endl;
-	out << "Data Dependence\t" << endl;
-	deque<OOPMDataDepend>::iterator i;
-	for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
-		i->Print(out);
-	}
+  out << "OOPTask Id" << endl;
+  fTaskId.Print(out);
+  out << "Priority\t" << fPriority << endl;
+  out << "Processor\t" << fProc << endl;
+  out << "Data Dependence\t" << endl;
+  deque<OOPMDataDepend>::iterator i;
+  for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
+    i->Print(out);
+  }
 }	
 
 void OOPTask::TaskFinished(){
-	//faltando
-	deque<OOPMDataDepend>::iterator i;
-	for(i=fDataDepend.begin();i!=fDataDepend.end();i++)
-		DM->ReleaseAccessRequest(fTaskId, i->fDataId, i->fVersion, i->fNeed);
+  //faltando
+  deque<OOPMDataDepend>::iterator i;
+  for(i=fDataDepend.begin();i!=fDataDepend.end();i++)
+    DM->ReleaseAccessRequest(fTaskId, i->fDataId, i->fVersion, i->fNeed);
 	
-	//Deletar da fila de tarefas.
-	//TM->
-	//ReleaseAccessRequests();
+  //Deletar da fila de tarefas.
+  //TM->
+  //ReleaseAccessRequests();
 }
 
 void OOPTask::SubmitDependentData(){
-	deque<OOPMDataDepend>::iterator i;
-	for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
-		DM->SubmitAccessRequest(fTaskId, i->fDataId, i->fVersion, i->fNeed, fProc);
-	}
+  deque<OOPMDataDepend>::iterator i;
+  for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
+    DM->SubmitAccessRequest(fTaskId, i->fDataId, i->fVersion, i->fNeed, fProc);
+  }
 }
 int OOPTask::GetNDependentData(){
-	return fDataDepend.size();
+  return fDataDepend.size();
 }
 OOPTask::OOPTask(int proc){
-	fProc=proc;
-	fPriority=0;
-    fIsRecurrent=0;
+  fProc=proc;
+  fPriority=0;
+  fIsRecurrent=0;
 }
 
-void OOPTask::AddDependentData(OOPObjectId &DataId,
-			   OOPMDataState access,
-			   OOPDataVersion &version)
+void OOPTask::AddDependentData(const OOPObjectId &DataId,
+			       OOPMDataState access,
+			       const OOPDataVersion &version)
 {
   OOPMDataDepend dd(DataId, access, version);
   deque<OOPMDataDepend>::iterator res;
@@ -95,33 +95,33 @@ void OOPTask::AddDependentData(OOPObjectId &DataId,
 	
 }
 
-void OOPTask::GrantAccess(OOPObjectId &id, OOPMDataState st, OOPSaveable *objptr){
+void OOPTask::GrantAccess(OOPObjectId &id, OOPMDataState st, OOPMetaData *objptr){
   deque<OOPMDataDepend>::iterator i;
   bool found = false;
   bool compatible = false;
   for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
     if(i->fDataId == id){
-	  #ifdef DEBUG
-	  cout << "Data found" << endl;
-	  #endif
+#ifdef DEBUG
+      cout << "Data found" << endl;
+#endif
       found = true;
       if(i->fNeed == st){
-        #ifdef DEBUG
-	    cout << "State found" << endl;
-	    #endif
-		compatible = true;
-		cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
-		if(!(i->ObjPtr())){
-		  cout << "Assigning pointer " << objptr << "-----$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$___________" << endl;
-		  i->SetObjPtr(objptr);
-		}else{
-		  cerr << "Pointer not NULL. Access already granted !"
-			   << " File:" << __FILE__
-			   << " Line:" << __LINE__ 
-			   << "Overwriteing " << endl;
-		  //i->fObjPtr = objptr;
-		  //return;
-		}
+#ifdef DEBUG
+	cout << "State found" << endl;
+#endif
+	compatible = true;
+	cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
+	if(!(i->ObjPtr())){
+	  cout << "Assigning pointer " << objptr << "-----$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$___________" << endl;
+	  i->SetObjPtr(objptr);
+	}else{
+	  cerr << "Pointer not NULL. Access already granted !"
+	       << " File:" << __FILE__
+	       << " Line:" << __LINE__ 
+	       << "Overwriteing " << endl;
+	  //i->fObjPtr = objptr;
+	  //return;
+	}
       }
     }
   }
@@ -152,14 +152,14 @@ void OOPTask::RevokeAccess(OOPObjectId &id, OOPMDataState st){
     if(i->fDataId == id){
       found = true;
       if(i->fNeed == st){
-		compatible = true;
-		if(i->ObjPtr()){
-		  i->SetObjPtr(NULL);
-		}else{
-		  cerr << "Pointer alredy NULL. Access already revoked !"
-			   << " File:" << __FILE__
-			   << " Line:" << __LINE__ << endl;
-		}
+	compatible = true;
+	if(i->ObjPtr()){
+	  i->SetObjPtr(NULL);
+	}else{
+	  cerr << "Pointer alredy NULL. Access already revoked !"
+	       << " File:" << __FILE__
+	       << " Line:" << __LINE__ << endl;
+	}
       }
     }
   }
@@ -185,8 +185,8 @@ void OOPTask::RevokeAccess(OOPObjectId &id, OOPMDataState st){
 int OOPTask::CanExecute(){
   deque<OOPMDataDepend>::iterator i;
   for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
-	cout << "Data ID ";
-	  i->fDataId.Print(cout);
+    cout << "Data ID ";
+    i->fDataId.Print(cout);
     if(!i->Status()) return 0;
   }
   return 1;
@@ -222,31 +222,31 @@ void OOPTask::ReleaseAccessRequests(){
     OOPDataVersion ver = i->fVersion;
     OOPObjectId id = Id();
     data->ReleaseAccess(id, st, ver);
-	RevokeAccess(i->fDataId, i->fNeed);
+    RevokeAccess(i->fDataId, i->fNeed);
   }
   
   /*for(i=fDataDepend.begin();i!=fDataDepend.end();i++){
     fDataDepend.erase(i);
-  }*/
+    }*/
 	
 }
 
 
 
 OOPObjectId OOPTask::Submit() {
-	fTaskId = TM->Submit(this);
-	if(!GetNDependentData()){
-		cerr << "Task submitted with no data dependency" << endl;
-		cerr << "Possible inconsistency" << endl;
-		cerr << "File:" << __FILE__ << " Line:" << __LINE__ << endl;
-	}else{
-		SubmitDependentData();
-	}
+  fTaskId = TM->Submit(this);
+  if(!GetNDependentData()){
+    cerr << "Task submitted with no data dependency" << endl;
+    cerr << "Possible inconsistency" << endl;
+    cerr << "File:" << __FILE__ << " Line:" << __LINE__ << endl;
+  }else{
+    SubmitDependentData();
+  }
 	
-	return fTaskId;
+  return fTaskId;
 }
 
-OOPMDataDepend::OOPMDataDepend(OOPObjectId &id, OOPMDataState st, OOPDataVersion &ver) {
+OOPMDataDepend::OOPMDataDepend(const OOPObjectId &id, OOPMDataState st, const OOPDataVersion &ver) {
   fDataId = id;
   fNeed = st;
   fVersion = ver;
@@ -256,11 +256,11 @@ OOPMDataDepend::OOPMDataDepend(const ::OOPMDataDepend &dd) {
   fNeed = dd.fNeed;
   fVersion = dd.fVersion;
 }
-OOPSaveable * OOPMDataDepend::ObjPtr(){
-	return fObjPtr;
+OOPMetaData * OOPMDataDepend::ObjPtr(){
+  return fObjPtr;
 }
-void OOPMDataDepend::SetObjPtr(OOPSaveable * objptr){
-	fObjPtr = objptr;
+void OOPMDataDepend::SetObjPtr(OOPMetaData * objptr){
+  fObjPtr = objptr;
 }
 
 
@@ -277,12 +277,12 @@ bool OOPMDataDepend::operator == (const OOPMDataDepend & dd){
 }
 
 void OOPMDataDepend::Print(ostream & out){
-	out << "Data Id" << endl;
-	fDataId.Print(out);
-	out << "Access State \t" << fNeed << endl;
-	out << "Object Pointer \t" << fObjPtr << endl;
-	out << "Required version " << endl;
-	fVersion.Print(out);
+  out << "Data Id" << endl;
+  fDataId.Print(out);
+  out << "Access State \t" << fNeed << endl;
+  out << "Object Pointer \t" << fObjPtr << endl;
+  out << "Required version " << endl;
+  fVersion.Print(out);
 }
 
 

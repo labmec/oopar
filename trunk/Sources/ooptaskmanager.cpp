@@ -113,7 +113,7 @@ OOPTaskManager::~OOPTaskManager() {
 
 //Passar o ID do task e do dado.
 void OOPTaskManager::NotifyAccessGranted(OOPObjectId & TaskId, OOPObjectId & DataId, OOPMDataState st,
-						OOPDataVersion &Version, OOPSaveable * objptr)
+						OOPDataVersion &Version, OOPMetaData * objptr)
 {
 	deque<OOPTask*>::iterator i;
 	bool found = false;

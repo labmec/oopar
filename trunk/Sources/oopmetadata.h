@@ -153,8 +153,12 @@ private:
 	/**
 	 * Indicates if the current data is write access mode
 	 */
-	bool fTaskWrite;
+	OOPObjectId fTaskWrite;
 	
+	/**
+	 * Indicates the id of the task with current version access
+	 */
+	OOPObjectId fTaskVersionAccess;
 	
      /**
       * Indicates in which transition state the object is
@@ -201,6 +205,11 @@ public:
 	 * Decreases the level of the data version subtracting its last level.
 	 */
 	void DecreaseVersionLevel();
+
+	/**
+	 * SetVersion is allowed if the task has read and/or version access
+	 */
+	void SetVersion(const OOPDataVersion &ver, const OOPObjectId &taskid);
 	/**
 	 * Sets the Id of current data
 	 * @param id Id to be set
@@ -305,7 +314,7 @@ public:
       * @param Procid Identifies processor id
       */
 
-	int HasWriteAccess (long Procid);
+	int HasWriteAccess (OOPObjectId &Procid);
      /**
       * Return true if it TaskId has the access no the data
 	  * @param TaskId Id of inquired task

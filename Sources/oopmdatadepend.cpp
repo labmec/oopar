@@ -235,3 +235,12 @@ int OOPMDataDependList::Unpack (OOPReceiveStorage * buf)
 	}
 	return 1;
 }
+
+OOPMDataDepend & OOPMDataDependList::Dep (OOPObjectId & Id)	{
+  deque< OOPMDataDepend >::iterator i;
+	for (i = fDependList.begin (); i != fDependList.end (); i++) {
+		if (i->Id() == Id)
+			return *(i);
+	}
+}
+

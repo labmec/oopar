@@ -261,9 +261,10 @@ void OOPTaskManager::Execute ()
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
 	// TaskManLog << "Entering task list loop" << endl;
-
+	PrintTaskQueues("Antes", TaskQueueLog);
 	while (fExecutable.size ()) {
 		while (fExecutable.size ()) {
+			DM->PrintDataQueues("Dentro do Loop ----------------------------------------",DataQueueLog);
 			i = fExecutable.begin ();
 			OOPTaskControl *tc = (*i);
 			tc->Task ()->Execute ();
@@ -288,7 +289,7 @@ void OOPTaskManager::Execute ()
 		TransferSubmittedTasks ();
 		CM->SendMessages ();
 	}
-
+	PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
 
 
@@ -423,4 +424,28 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 			break;
 		}
 	}
+}
+void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
+	out << msg << endl;
+	out << "Printing TaskManager Queues on TM:" << fProc << endl;
+	out << "Print fSubmittedList\n";
+	out << "Number of tasks :" << fSubmittedList.size() << endl;
+	deque < OOPTask * >::iterator i;
+	for(i=fSubmittedList.begin();i!=fSubmittedList.end();i++)
+		out << (*i)->Id() << endl;
+	out << "Print fTaskList\n";
+	out << "Number of tasks :" << fTaskList.size() << endl;
+	deque < OOPTaskControl * >::iterator j;
+	for(j=fTaskList.begin();j!=fTaskList.end();j++)
+		out << (*j)->Task()->Id() << endl;
+	out << "Print fExecutable\n";
+	out << "Number of tasks :" << fExecutable.size() << endl;
+	for(j=fExecutable.begin();j!=fExecutable.end();j++)
+		out << (*j)->Task()->Id() << endl;
+	out << "Print fFinished\n";
+	out << "Number of tasks :" << fFinished.size() << endl;
+	for(j=fFinished.begin();j!=fFinished.end();j++)
+		out << (*j)->Task()->Id() << endl;
+
+	
 }

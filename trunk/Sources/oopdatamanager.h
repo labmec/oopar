@@ -38,6 +38,8 @@ class   OOPDataManager
 {
 
 	friend class OOPMetaData;
+	public:
+	void PrintDataQueues(char * msg, ostream & out);
 
       public:
 	/**

@@ -139,6 +139,9 @@ class   OOPAccessInfoList
 {
 	list < OOPAccessInfo > fList;
       public:
+		 
+	  void Print(ostream & out);
+
 
 	/**
 	 * returns the number of elements in the list

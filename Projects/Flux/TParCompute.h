@@ -181,4 +181,5 @@ class   TParCompute : public OOPTask
       */
 	int     fNPartitions;
 };
+extern ofstream TaskLog;
 #endif // TPARCOMPUTE_H

@@ -17,6 +17,12 @@
 #include "TParMesh.h"
 
 #include "fluxdefs.h"
+
+ofstream TaskLog("tasklog.log");
+ofstream DataLog("datalog.log");
+ofstream DataManLog("datamanlog.log");
+ofstream TaskManLog("taskmanlog.log");
+
 const int numproc = 2;
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
@@ -68,7 +74,12 @@ int multimain ()
 	}
 
 
+	TaskLog.close();
+	DataLog.close();
+	DataManLog.close();
+	TaskManLog.close();
 	return 0;
+	
 
 }
 int mpimain (int argc, char *argv[])

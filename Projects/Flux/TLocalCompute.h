@@ -5,6 +5,7 @@
 #define TLOCALCOMPUTE_H
 #include "ooptask.h"
 #include "fluxdefs.h"
+
 class   TPartitionRelation;
 class   TContribution;
 
@@ -93,4 +94,5 @@ class   TLocalCompute:public OOPTask
 	void    InitializePartitionRelationPointer ();
 
 };
+extern ofstream TaskLog;
 #endif // TLOCALCOMPUTE_H

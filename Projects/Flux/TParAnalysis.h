@@ -11,6 +11,10 @@
 #include "oopdataversion.h"
 #include "fluxdefs.h"
 
+
+
+using namespace std;
+
 /**
  * Implements the functionalities of the Analysis classes incorporating
  * parallelization optimization.
@@ -20,6 +24,7 @@
 class   TParAnalysis:public OOPTask
 {
       public:
+	
 
 	TParAnalysis (int Procid);
 	        TParAnalysis (int Procid, int numpartitions, int numproc);
@@ -76,4 +81,6 @@ class   TParAnalysis:public OOPTask
 	vector < OOPObjectId > fMeshId;
 	vector < OOPObjectId > fStateId;
 };
+
+extern ofstream TaskLog;
 #endif // TPARANALYSIS_H

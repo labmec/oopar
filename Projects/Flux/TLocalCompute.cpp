@@ -4,6 +4,7 @@
 #include "TTaskComm.h"
 #include "oopmetadata.h"
 
+
 void TLocalCompute::InitializePartitionRelationPointer ()
 {
 	OOPMetaData *objptr = fDataDepend.Dep (0).ObjPtr ();
@@ -14,20 +15,31 @@ void TLocalCompute::InitializePartitionRelationPointer ()
 void TLocalCompute::ComputeLocalFluxes ()
 {
 	OOPMetaData *ptr = fDataDepend.Dep (3).ObjPtr ();
+	PrintLog(TaskLog, "TLocalCompute contributes to object id\n");
+	ptr->Id ().Print (TaskLog);
 	cout << "TLocalCompute contributes to object id ";
 	ptr->Id ().Print (cout);
 	OOPDataVersion ver = ptr->Version ();
 	// int nlevel = ver.GetNLevels();
 	int ncontr = fPartRelationPtr->IncomingContribution (fPartition);
 	ver.IncrementLevel (ncontr);
+	TaskLog << "After increment level ";
+	ver.Print(TaskLog);
+	
 	cout << "After increment level ";
 	ver.Print (cout);
 	++ver;
+	
+	TaskLog << "After increment ";
+	TaskLog << "TLocalCompute number of contributions " << ncontr <<
+		" new version " << endl;
+	ver.Print (TaskLog);
 	cout << "After increment ";
 	cout << "TLocalCompute number of contributions " << ncontr <<
 		" new version " << endl;
 	ver.Print (cout);
 	ptr->SetVersion (ver, Id ());
+	
 
 }
 
@@ -56,10 +68,14 @@ void TLocalCompute::TransmitFLuxes ()
 			continue;
 		TTaskComm *task = new TTaskComm (GetProcID ());
 		OOPMDataDepend depend (fRhsIds[i], EWriteAccess, rhsver);
+		PrintLog(TaskLog,"TLocalCompute::TransmitFluxes targets ");
+		fRhsIds[i].Print (TaskLog);
 		cout << "TLocalCompute::TransmitFluxes targets ";
 		fRhsIds[i].Print (cout);
+		TaskLog << " and depends on version " << endl;
 		cout << " and depends on version " << endl;
 		rhsver.Print (cout);
+		rhsver.Print (TaskLog);
 		task->AddDependentData (depend);
 		task->Submit ();
 	}
@@ -69,6 +85,7 @@ void TLocalCompute::ComputeFrontierFluxes ()
 #ifndef WIN32
 #warning "ComputeFrontierFluxes is empty"
 #endif
+	PrintLog(TaskLog,"Nothing Implemented in ComputeFrontierFluxes\n");
 	cout << "Nothing Implemented in ComputeFrontierFluxes\n";
 	cout.flush ();
 }
@@ -76,6 +93,7 @@ void TLocalCompute::ComputeFrontierFluxes ()
 OOPMReturnType TLocalCompute::Execute ()
 {
 	cout << "Executing TLocalCompute task\n";
+	PrintLog(TaskLog,"Executing TLocalCompute task\n");
 
 	this->InitializePartitionRelationPointer ();
 

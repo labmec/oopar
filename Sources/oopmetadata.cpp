@@ -143,11 +143,13 @@ void OOPMetaData::VerifyAccessRequests ()
 			}
 			DataLog << "Grant access for Obj " << fObjId << " to " << ac->fTaskId << " with depend " << depend << endl;
 			DataLog.flush();
+			LogDM->GrantAccessLog(ac->fProcessor,fObjId,ac->fState,ac->fVersion,ac->fProcessor,ac->fTaskId);
 			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
 		}
 		else {
 			DataLog << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor << endl;
 			GrantAccess (ac->fState, ac->fProcessor);
+			
 			fAccessList.ReleaseAccess (ac);
 		}
 	}

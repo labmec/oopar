@@ -17,6 +17,12 @@ public:
 						OOPMDataState mstate,
 						const OOPDataVersion & version,
 						int procorig);
+	void GrantAccessLog(int proc, 
+						const OOPObjectId & objId,
+						OOPMDataState mstate,
+						const OOPDataVersion & version,
+						int procorig,
+						OOPObjectId & taskId);
 	void SubmitAccessRequestLog(int proc, 
 								const OOPObjectId & objId,
 								OOPMDMOwnerMessageType mtype,

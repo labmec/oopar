@@ -4,6 +4,7 @@
 #define TLOCALCOMPUTE_H
 #include "ooptask.h"
 class TPartitionRelation;
+class TContribution;
 
 /**
  * Implements the local flux computation on each partition.
@@ -18,11 +19,16 @@ class TPartitionRelation;
 class TLocalCompute : public OOPTask {
 public:    
 
+	/**
+     * Simple constructor 
+     */
+    TLocalCompute(int ProcId);
+
     /**
-        	* Execute the task, verifying that all needed data acesses are satisfied.
-        	* The TParCompute is OOPTask descendent class and this method provides the access by the TaskManager.
-        	* @since 02/06/2003
-        	*/
+	* Execute the task, verifying that all needed data acesses are satisfied.
+	* The TParCompute is OOPTask descendent class and this method provides the access by the TaskManager.
+	* @since 02/06/2003
+	*/
 	virtual OOPMReturnType Execute ();    
 
     void ComputeFrontierFluxes();
@@ -36,21 +42,14 @@ public:
 private:    
 
     /**
-         * pointer to the PartitionRelation object (valid during execute)
-         */
-    TPartitionRelation *fPartRelationPtr;
+     * pointer to the PartitionRelation object (valid during execute)
+     */
+    TPartitionRelation * fPartRelationPtr;
 
     /**
      * Within the Execute Method we should be able to get the data pointer
      */
     void InitializePartitionRelationPointer();
 
-private:
-
-
-    /**
-     * Simple constructor 
-     */
-    TLocalCompute(int ProcId);
 };
 #endif //TLOCALCOMPUTE_H

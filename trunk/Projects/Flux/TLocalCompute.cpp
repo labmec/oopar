@@ -1,4 +1,7 @@
 #include "TLocalCompute.h"
+#include "TContribution.h"
+#include "TPartitionRelation.h"
+#include "TTaskComm.h"
 
 void TLocalCompute::InitializePartitionRelationPointer() {
 	OOPSaveable *objptr = fDataDepend[0].ObjPtr();
@@ -8,7 +11,7 @@ void TLocalCompute::ComputeLocalFluxes(){}
 void TLocalCompute::TransmitFLuxes(TContribution &relation){
     //Criar tarefa de comunicação
     //como fazer isso ?
-    vector<int> out = fPartRelationPtr->OutgoingContribution(fProcID);
+    vector<int> out = fPartRelationPtr->OutgoingContribution(fProc);
     //Eu preciso de mais uma classe para comunicação !!!!!
     //Preciso saber ainda o OjectId de cada fRhs para contribuir corretamente !
     //TLocalCompute terá um lista com os Ids dos objetos aos quais irá contribuir
@@ -16,15 +19,17 @@ void TLocalCompute::TransmitFLuxes(TContribution &relation){
     //referentes às contribuições externas
     int i = 0;
     int ncontr = GetNDependentData();
+	OOPDataVersion version;
     for(i = 1; i < ncontr; i++){
-        TTaskComm * task = new TTaskComm(fProcId);
+        TTaskComm * task = new TTaskComm(fProc);
         task->AddDependentData(fDataDepend[i].fDataId, EWriteAccess, version);
         task->Submit();
     }
 }
 void TLocalCompute::ComputeFrontierFluxes(){}
+
 OOPMReturnType TLocalCompute::Execute(){
-        this->InitilizePartitionRelationPointer();
+        this->InitializePartitionRelationPointer();
 
         // message #1.1 to this:TLocalCompute
         this->ComputeFrontierFluxes();

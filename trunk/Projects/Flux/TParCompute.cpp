@@ -31,7 +31,7 @@ void TParCompute::InitializeSolutionVersion(){
 
 }
 void TParCompute::CreateFluxesTasks(  ){
-    int i;
+    int i, j;
     //Pointers to LocalTasks created
     fTasks = new TLocalCompute[fPartRelationPtr->GetNPartitions()] (fProc);
     //Aten�o com DELETE !!!!
@@ -58,7 +58,7 @@ void TParCompute::CreateFluxesTasks(  ){
 
         //Contributions to each partition
         ncontributions = fPartRelationPtr->IncomingContribution(i);
-        out = fPartRelationPtr->OutgoingContribution(i);
+        
         //Passar para as subtarefas.
 		DM->IncrementLevel(aux_Id, fRhsIds[i], ncontributions, (long)fProc);
     }
@@ -66,15 +66,15 @@ void TParCompute::CreateFluxesTasks(  ){
     OOPDataVersion * version = new OOPDataVersion[fPartRelationPtr->GetNPartitions()];
     //Inserir as depend�cias de escrita sobre os fluxos de outros parti�es.
     for(i=0;i<fPartRelationPtr->GetNPartitions();i++)
-        version[i]=DM->GetVersion(fRhsId[i]);
+        version[i]=DM->GetVersion(fRhsIds[i]);
 
     //Para cada Rhs, deve-se ainda estabelecer as depend�cias referentes �comu-
     //nica�o
     for(i=0;i<fPartRelationPtr->GetNPartitions();i++){
         out = fPartRelationPtr->OutgoingContribution(i);
-        for(j=0;j<out.size();j++){
-            version[out[j]]++;
-            fTask[i].AddDependentData(fRhsIds[out[j]], st_w, version[out[j]]);
+        for(j=0;j<(signed int)out.size();j++){
+            version[out[j]].operator++();
+            fTasks[i].AddDependentData(fRhsIds[out[j]], st_w, version[out[j]]);
         }
 
     }

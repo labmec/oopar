@@ -13,7 +13,8 @@ CLEANFILES     = @OOP_CLEANFILES@
 
 bin_PROGRAMS = main
 
-main_SOURCES = main.cpp
+main_SOURCES = main.cpp oopwaittask.cpp tsmalltask.cpp TParVector.cpp TParVector.h fluxdefs.h
 
-main_LDADD = $(top_srcdir)/lib/liboopar.a ../Flux/TPartitionRelation.o ../Flux/TContribution.o $(top_srcdir)/lib/liboopar.a 
+main_LDADD = $(top_srcdir)/lib/liboopar.a $(top_srcdir)/lib/liboopar.a $(MPILIBDIR) $(MPILIB) -lpthread
 ## --| OOPar |------------------------------------------------------------------
+noinst_HEADERS =  oopwaittask.h tsmalltask.h

@@ -2,21 +2,21 @@
 
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
-#include "oopfilecomm.h"
+//#include "oopfilecomm.h"
 #include "ooperror.h"
 #include "TParVector.h"
 #include "tsmalltask.h"
 #include "oopwaittask.h"
-#include "fluxdefs.h"
+//#include "fluxdefs.h"
 #ifdef MPI
 #include "oopmpicomm.h"
 #endif
 #include <iostream>
 #include <fstream>
 using namespace std;
-class OOPCommunicationManager;
-class OOPDataManager;
-class OOPTaskManager;
+//class OOPCommunicationManager;
+//class OOPDataManager;
+//class OOPTaskManager;
 
 OOPCommunicationManager *CM;
 OOPDataManager *DM;
@@ -36,8 +36,8 @@ void RegisterPhilFluxRestore();
 int mpimain (int argc, char **argv)
 {
 
-  RegisterOOParRestore();
-  RegisterPhilFluxRestore();
+//  RegisterOOParRestore();
+//  RegisterPhilFluxRestore();
   CM = new OOPMPICommManager (argc, argv);
   CM->Initialize((char*)argv, argc);
   
@@ -157,8 +157,10 @@ void InsertTasks(int numtasks)
 	  tt->Submit();
   }
 }
+/*
 void RegisterPhilFluxRestore() 
 {
   OOPStorageBuffer::AddClassRestore (TSMALLTASKID, TSmallTask::Restore);
   OOPStorageBuffer::AddClassRestore (TPARVECTOR_ID, TParVector::Restore);
 }
+*/

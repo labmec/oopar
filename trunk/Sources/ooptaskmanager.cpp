@@ -78,6 +78,8 @@ OOPTaskManager::OOPTaskManager (int proc)
 	fProc = proc;
 	fLastCreated = 0;//NUMOBJECTS * fProc;
 	fMaxId = fLastCreated + NUMOBJECTS;
+	pthread_cond_init(&fExecuteCondition, NULL);
+	pthread_mutex_init(&fExecuteMutex, NULL);
 }
 OOPTaskManager::~OOPTaskManager ()
 {
@@ -162,21 +164,31 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
 	TaskManLog << "Calling Submit on OOPTaskManager ";
+	pthread_mutex_lock(&fExecuteMutex);
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
 	if(dmt) {
+		// lock
 		SubmitDaemon(dmt);
 		TaskManLog << "Task Submitted is a daemon\n";
+		// signal the service thread
+		// unlock
+		pthread_cond_signal(&fExecuteCondition);
+		pthread_mutex_unlock(&fExecuteMutex);
+		
 		return OOPObjectId();
 	}
-	OOPObjectId id;
+	OOPObjectId id = task->Id();
 	// mutex lock 
-	id = GenerateId ();
+	if(!id.IsZero()) id = GenerateId ();
 	task->SetTaskId (id);
 	TaskManLog << id << endl;
 	TaskManLog.flush();
 //	id.ShortPrint(TaskManLog);
 	fSubmittedList.push_back (task);
+	// signal to service thread
 	// mutex unlock
+	pthread_cond_signal(&fExecuteCondition);
+	pthread_mutex_unlock(&fExecuteMutex);
 	return id;
 }
 OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)
@@ -255,6 +267,7 @@ void OOPTaskManager::ExecuteDaemons() {
 }
 void OOPTaskManager::Execute ()
 {
+	//Qual é o service thread ?
 	CM->ReceiveMessages ();
 	TransferSubmittedTasks ();
 	deque < OOPTaskControl * >::iterator i;
@@ -263,9 +276,9 @@ void OOPTaskManager::Execute ()
 	// TaskManLog << "Entering task list loop" << endl;
 	PrintTaskQueues("Antes", TaskQueueLog);
 	ExecuteDaemons();
-	while (fExecutable.size ()) {
+	while (1) {
 		while (fExecutable.size ()) {
-			DM->PrintDataQueues("Dentro do Loop ----------------------------------------",DataQueueLog);
+			DM->PrintDataQueues("Dentro do Loop ----------------",DataQueueLog);
 			i = fExecutable.begin ();
 			OOPTaskControl *tc = (*i);
 			tc->Task ()->Execute ();
@@ -286,10 +299,18 @@ void OOPTaskManager::Execute ()
 			fExecutable.erase (i);
 		}
 		TransferFinishedTasks ();
-		CM->ReceiveMessages ();
+		//CM->ReceiveMessages ();
 		TransferSubmittedTasks ();
 		CM->SendMessages ();
 		ExecuteDaemons();
+		//wait
+		/*pthread_mutex_lock(&fExecuteMutex);
+		if(!fExecutable.size ()){
+			
+			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
+		}
+		*/
+			
 	}
 	PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();

@@ -137,12 +137,14 @@ class   OOPTaskManager
    * At least one call to one of the task managers should performed for the OOPar to start.
    */
 	void    Execute ();
-      private:
+private:
 #ifndef WIN32
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
-	        pthread_mutex_t fActOnTaskList;
+	pthread_mutex_t fActOnTaskList;
+	pthread_mutex_t fExecuteMutex;
+	pthread_cond_t fExecuteCondition;
 #endif
   /**
    * Generate a unique id number

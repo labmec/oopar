@@ -91,11 +91,13 @@ class   OOPObjectId
 	 */
 	bool    operator >= (const OOPObjectId & obj) const;
 	/**
-	 * Logical operator which compares and TObjectId against an int/long value.
+	 * Logical operator which compares and OOPObjectId against an int/long value.
 	 * The check is made only with fId.
 	 */
 	bool    operator >= (int val) const;
 	bool    operator < (int val) const;
+	bool    operator < (OOPObjectId id) const;
+	
     /**
      * Used for testing purposes 
      */

@@ -86,7 +86,8 @@ module.source.files=\
 	TParState.cpp\
 	TPartitionRelation.cpp\
 	TTaskComm.cpp\
-	ooparmain.cpp
+	ooparmain.cpp\
+	pzvecflux.cpp
 
 module.pixmap.name=.
 module.pixmap.type=
@@ -116,7 +117,10 @@ compiler.options.include.paths=\
 	.\
 	..\
 	../../../Embraer/CFDEmbraer/Compute/Data\
-	/home/longhin/Projetos/OOPar/Sources/
+	/home/longhin/Projetos/OOPar/Sources/\
+	/home/pos/longhin/Projetos/OOPar/Sources/\
+	/home/pos/longhin/Projetos/NeoPZ/Util/\
+	/home/pos/longhin/Projetos/NeoPZ/Common/
 compiler.options.library.paths=
 compiler.options.libraries=
 compiler.options.libraries.selected=
@@ -129,5 +133,8 @@ compiler.options.other.c.flags=
 compiler.options.other.l.flags=
 compiler.options.other.l.libs=
 project.source.paths=\
-	../../../Embraer/CFDEmbraer/Compute/Data
+	../../../Embraer/CFDEmbraer/Compute/Data\
+	/home/pos/longhin/Projetos/OOPar/Sources/\
+	/home/pos/longhin/Projetos/NeoPZ/Matrix/\
+	/home/pos/longhin/Projetos/NeoPZ/Util/
 

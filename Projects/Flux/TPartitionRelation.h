@@ -5,6 +5,7 @@
 
 #include "TContribution.h"
 #include "oopsaveable.h"
+#include "pzvec.h"
 
 /**
  * This class describe the relationship between the partitions of a mesh
@@ -36,7 +37,7 @@ public:
 
 private:    
     int fNumPartitions;
-    TContribution *fRelation;
+    TPZVec< TPZVec<TContribution > > fRelation;
 	long fClassId;
 };
 #endif //TPARTITIONRELATION_H

@@ -5,6 +5,7 @@
 
 #include "oopobjectid.h"
 #include <vector>
+class OOPDataVersion;
 using namespace std;
 /**
  * Implements the necessary information regarded to contribution from one parti-
@@ -36,6 +37,23 @@ public:
     TContribution();
 
     int NContributions() { return fNContributions;}
+	
+	/**
+	 * Returns true if the contribution is a empty one (nonexistent);
+	 * @author Gustavo Camargo Longhin
+	 * @since 13/06/2003
+	 */
+	int IsEmpty();
+
+	/**
+	 * Operator overloaded
+	 */
+    TContribution & operator =(const TContribution  & contr);
+
+	/**
+	 * Operator overloaded
+	 */
+	bool    operator == (const TContribution & contr);
 
 private:    
 
@@ -66,6 +84,12 @@ private:
      * This data could be obtained from the size of the vectors
      */
     int fNContributions;
+	/**
+	 * Indicates if the contribution is empty r not.
+	 * @author Gustavo Camargo Longhin
+	 * @since 13/06/2003
+	 */ 
+	 int fIsEmpty;
 
 };
 #endif //TCONTRIBUTION_H

@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.9 2004-08-09 17:58:56 longhin Exp $
+dnl $Id: configure.in,v 1.10 2004-08-09 19:11:07 longhin Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -209,64 +209,6 @@ AC_SUBST(MPILIBDIR)
 AC_SUBST(MPILIB)
 AC_SUBST(MPISOURCE)
 
-dnl ----------------------------------------------------------------------------
-dnl                              ENABLE PZ
-dnl ----------------------------------------------------------------------------
-
-AC_ARG_ENABLE(pz,
-  [  --enable-pz=yes      Enables the use of PZ [default=yes]],
-  [pz_enabled=$enableval],
-  [pz_enabled="no"])
-
-case "${pz_enabled}" in
-  yes)
-    echo "Enabling PZ code."
-  ;;
-  no)
-    echo "PZ not chosen."
-  ;;
-  *)
-    AC_MSG_ERROR(bad value ${pz_enabled} for --enable-pz)
-  ;;
-esac
-
-AM_CONDITIONAL( PZ, test x${pz_enabled} = xyes )
-
-dnl ----------------------------------------------------------------------------
-dnl                               PZ LOCATION
-dnl ----------------------------------------------------------------------------
-
-dnl PZ location
-AC_ARG_WITH(pz-dir,
-  [  --with-pz-dir=DIR    Root of PZ instalation [/usr/local/lib]],
-  [pz_dir=$withval],
-  [pz_dir=${pz_dir="/usr/local/lib"}])
-
-case "${pz_enabled}" in
-  yes)
-    PZDIR=$pz_dir
-    PZINCLUDE="-I$PZDIR/Util -I$PZDIR/Common"
-    PZLIBDIR="-L$PZDIR/lib"
-    PZLIB="-lpz"
-  ;;
-  no)
-    PZDIR=""
-    PZINCLUDE=""
-    PZLIBDIR=""
-    PZLIB=""
-  ;;
-  *)
-    AC_MSG_ERROR(bad value ${pz_enabled} for --enable-pz)
-  ;;
-esac
-
-AC_SUBST(PZDIR)
-AC_SUBST(PZINCLUDE)
-AC_SUBST(PZLIBDIR)
-AC_SUBST(PZLIB)
-dnl AC_SUBST(SOURCE)
-
-
 
 dnl ----------------------------------------------------------------------------
 dnl                              ENABLE Sloan
@@ -311,8 +253,9 @@ dnl ----------------------------------------------------------------------------
 AC_OUTPUT([ Makefile OOP.mk OOP_user.mk \
 dnl --| OOP subtree |--
 	Sources/Makefile \
-	NeoPZ/Makefile \
-	NeoPZ/Save/Makefile \
+	Save/Makefile \
+	Util/Makefile \
+	Common/Makefile \
 	lib/Makefile \
 dnl --| Projects subtree |--
 	Projects/Makefile \

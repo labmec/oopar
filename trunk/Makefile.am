@@ -3,14 +3,14 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.5 2004-08-09 17:59:19 longhin Exp $
+# $Id: Makefile.am,v 1.6 2004-08-09 19:11:07 longhin Exp $
 #
 
 usermkdir = $(prefix)
 
 usermk_DATA = OOP_user.mk
 
-SUBDIRS = Sources NeoPZ lib Projects
+SUBDIRS = Sources Save Util Common lib Projects
 
 DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@

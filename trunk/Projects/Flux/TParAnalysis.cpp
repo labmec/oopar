@@ -121,6 +121,14 @@ void TParAnalysis::CreateParCompute ()
 	cout << "TParAnalysis setting the version of rhs and state to " <<
 		endl;
 	randver.Print (cout);
+	/*while (count < fNumPartitions) {
+		int index=count*3+2;
+		fDataDepend.Dep (index).ObjPtr()->SetVersion (randver, Id ());
+		fDataDepend.Dep (index+1).ObjPtr()->SetVersion (randver, Id ());
+		count++;
+	}*/
+
+	
 	while (count < 2 * fNumPartitions) {
 		fDataDepend.Dep (count + fNumPartitions +
 				 1).ObjPtr ()->SetVersion (randver, Id ());
@@ -129,8 +137,8 @@ void TParAnalysis::CreateParCompute ()
 
 
 	// message #1.1 to pc:TParCompute
-	TParCompute *pc = new TParCompute (fNumProcessors-1-GetProcID (), fNumPartitions);
-
+	TParCompute *pc = new TParCompute (fNumProcessors-1-GetProcID(), fNumPartitions);
+	//TParCompute *pc = new TParCompute (GetProcID(), fNumPartitions);
 	OOPDataVersion ver;
 	pc->SetMeshId (fMeshId, ver);
 	pc->SetRhsId (fRhsId, taskver);

@@ -121,9 +121,9 @@ OOPDataManager::~OOPDataManager ()
 	map< OOPObjectId,  OOPMetaData * >::iterator i=fObjects.begin ();
       while(i!=fObjects.end()){
             i = fObjects.begin ();
-            OOPSaveable *dead = i->second->Ptr();
+            OOPSaveable *dead = (*i).second->Ptr();
             delete dead;
-            delete i->second;
+            delete (*i).second;
             fObjects.erase(i);
       }
 	fObjects.clear ();
@@ -143,7 +143,7 @@ void OOPDataManager::ReleaseAccessRequest (const OOPObjectId & TaskId, const OOP
       map<OOPObjectId, OOPMetaData *>::iterator it;
       it=fObjects.find(depend.Id());
       if(it!=fObjects.end()){
-            it->second->ReleaseAccess(TaskId, depend);
+            (*it).second->ReleaseAccess(TaskId, depend);
       }else{
             cerr << "Object not found\n";
       }
@@ -161,12 +161,12 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
       i=fObjects.find(depend.Id());
       if(i!=fObjects.end()){
      		if (!depend.Version ().
-     		    AmICompatible (i->second->Version ()))
+     		    AmICompatible ((*i).second->Version ()))
      			return 0;
-     		i->second->SubmitAccessRequest (TaskId, depend,
+     		(*i).second->SubmitAccessRequest (TaskId, depend,
      					   GetProcID ());
      		DataManLog << "Access request submitted" << endl;
-     		i->second->Print(DataManLog);
+     		(*i).second->Print(DataManLog);
 	}else{
 		if (depend.Id ().GetProcId () == fProcessor) {
 			DataManLog << "SubmitAccessRequest for deleted object, returning 0\n";
@@ -201,6 +201,10 @@ OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor);
 	dat->SetTrace (trace);	// Erico
 	fObjects.insert(make_pair(id, dat));	// [id] = dat;
+	map<OOPObjectId, OOPMetaData *>::iterator i;
+	cout << fObjects.size() << endl;
+	for(i=fObjects.begin();i!=fObjects.end();i++)
+		i->second->Print(cout);
 	/* 
 	 * TDMOwnerTask ms(ENotifyCreateObject,-1); //ms.fTaskId = //0;
 	 * ms.fTrace = trace;//Erico ms.fProcDestination = -1; ms.fProcOrigin 
@@ -214,7 +218,7 @@ void OOPDataManager::DeleteObject (OOPObjectId & ObjId)
 	// OOPMetaData *dat=0;
       i = fObjects.find(ObjId);
       if(i!=fObjects.end()){
-     		delete i->second;
+     		delete (*i).second;
      		fObjects.erase (i);
 	}else{
 		// Issue a sever warning message !!!
@@ -226,7 +230,7 @@ void OOPDataManager::RequestDeleteObject (OOPObjectId & ObjId)
 	map < OOPObjectId, OOPMetaData * >::iterator i;
       i=fObjects.find(ObjId);
 	if (i != fObjects.end ()) {
-            i->second->RequestDelete ();
+            (*i).second->RequestDelete ();
 	}else{
 		// Issue a sever warning message !!!
 		cerr << "OOPDataManager::DeleteObject Inconsistent object deletion File:" << __FILE__ << " Line:" << __LINE__ << endl;
@@ -238,7 +242,7 @@ void OOPDataManager::TransferObject (OOPObjectId & ObjId, int ProcId)
 	OOPMetaData *dat = 0;
       i=fObjects.find(ObjId);
 	if(i != fObjects.end ()) {
-		dat = i->second;
+		dat = (*i).second;
            	dat->TransferObject (ProcId);
 	}else{
             return;
@@ -289,14 +293,14 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 	}
 	else {
 		DataManLog << "OOPDataManager::GetUpdate fDepend.Id() found in this processor:" << id << endl;
-		if(!i->second->IamOwner()) {
+		if(!(*i).second->IamOwner()) {
 			OOPDMRequestTask *ntask = new OOPDMRequestTask(*task);
-			ntask->SetProcID(i->second->Proc());
+			ntask->SetProcID((*i).second->Proc());
 			TM->SubmitDaemon(ntask);
-		} else if(i->second->IamOwner() && task->fProcOrigin == i->second->Proc()) {
+		} else if((*i).second->IamOwner() && task->fProcOrigin == (*i).second->Proc()) {
 			cout << "Task request ignored\n";
 		} else {
-			i->second->SubmitAccessRequest (OOPObjectId(), task->fDepend,
+			(*i).second->SubmitAccessRequest (OOPObjectId(), task->fDepend,
 					   task->fProcOrigin);
 		}
 	}
@@ -314,7 +318,7 @@ OOPMetaData *OOPDataManager::Data (OOPObjectId ObjId)
 	map <OOPObjectId,  OOPMetaData * >::iterator i;
       i=fObjects.find(ObjId);
 	if(i != fObjects.end ()) {
-		return i->second;
+		return (*i).second;
 	}
 	return 0;
 }
@@ -323,7 +327,7 @@ void OOPDataManager::PrintDataQueues(char * msg, ostream & out){
 	map <OOPObjectId, OOPMetaData * >::iterator i;
 	OOPAccessInfoList auxlist;
 	for(i=fObjects.begin();i!=fObjects.end();i++){
-		i->second->PrintLog(out);
+		(*i).second->PrintLog(out);
 	}
 	
 }

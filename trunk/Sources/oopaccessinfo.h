@@ -223,7 +223,7 @@ class   OOPAccessInfoList
 	void    RevokeAccessAndCancel ();
 
  /**
- * Revokes all access requests and cancels the tasks which are not executing
+ * Revokes all access requests
  */
 	void    RevokeAccess (const OOPMetaData & obj);
 

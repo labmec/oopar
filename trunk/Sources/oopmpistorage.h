@@ -147,6 +147,8 @@ typedef OOPMPISendStorage *POOPMPISendStorage;
 */
 class   OOPMPIReceiveStorage:public OOPReceiveStorage
 {
+	
+
 private:
   /** Buffer which stores received messages */
 	TPZManVector<char,5000> f_buffr;
@@ -164,6 +166,8 @@ private:
     int     f_isreceiving;
 
 public:
+	~OOPMPIReceiveStorage();
+	void FreeRequest();
 	/**
      * Contructor which initializes the buffer
 	 */

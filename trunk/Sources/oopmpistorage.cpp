@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.15 2003-10-17 19:33:51 longhin Exp $
-// $Revision: 1.15 $
+// $Id: oopmpistorage.cpp,v 1.16 2003-11-05 00:15:16 longhin Exp $
+// $Revision: 1.16 $
 
 
 #include "oopstorage.h"
@@ -145,6 +145,13 @@ int OOPMPISendStorage::Send (int target)
 	return ret;
 }
 //       TReceiveStorageMpi
+OOPMPIReceiveStorage::~OOPMPIReceiveStorage()
+{
+	//if(f_request) MPI_Request_free(&f_request);
+}
+void OOPMPIReceiveStorage::FreeRequest(){
+	if(f_request) MPI_Request_free(&f_request);
+}
 int OOPMPIReceiveStorage::Receive ()
 {      // nonblocking!!!!
 	if(f_isreceiving) return 1;

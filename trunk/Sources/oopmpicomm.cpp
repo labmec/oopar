@@ -43,7 +43,7 @@ OOPMPICommManager::OOPMPICommManager (int argc, char **argv)
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
-	MPI_Finalize ();
+	Finish("Terminating MPICommManager");
 }
  // Diferente de PVM, o argumento Destino em mpi nao eh o endereco absoluto
  // do 
@@ -204,7 +204,8 @@ int OOPMPICommManager::ProcessMessage (OOPMPIReceiveStorage & msg)
 	return 1;
 }
 void OOPMPICommManager::Finish(char * msg){
-	cout << msg;
+	cout << msg << endl;
 	cout.flush();
+	f_receivebuffer.FreeRequest();
 	MPI_Finalize();
 }

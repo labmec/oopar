@@ -106,15 +106,15 @@ int mpimain (int argc, char **argv)
 
 	OOPReceiveStorage::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
-	OOPReceiveStorage::AddClassRestore(TPARCOMPUTE_ID,TParCompute::Restore);
-	OOPReceiveStorage::AddClassRestore(TLOCALCOMPUTE_ID,TLocalCompute::Restore);
-	OOPReceiveStorage::AddClassRestore(TTASKCOMM_ID,TTaskComm::Restore);
-	OOPReceiveStorage::AddClassRestore(TPARMESH_ID,TParMesh::Restore);
-	OOPReceiveStorage::AddClassRestore(TPARTITIONRELATION_ID,TPartitionRelation::Restore);
-	OOPReceiveStorage::AddClassRestore(TDMOWNERTASK_ID,OOPDMOwnerTask::Restore);
-	OOPReceiveStorage::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
-	OOPReceiveStorage::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
-	OOPReceiveStorage::AddClassRestore(TTERMINATIONTASK_ID,OOPTerminationTask::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARCOMPUTE_ID, TParCompute::Restore);
+	OOPReceiveStorage::AddClassRestore(TLOCALCOMPUTE_ID, TLocalCompute::Restore);
+	OOPReceiveStorage::AddClassRestore(TTASKCOMM_ID, TTaskComm::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARMESH_ID, TParMesh::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARTITIONRELATION_ID, TPartitionRelation::Restore);
+	OOPReceiveStorage::AddClassRestore(TDMOWNERTASK_ID, OOPDMOwnerTask::Restore);
+	OOPReceiveStorage::AddClassRestore(TDMREQUESTTASK_ID, OOPDMRequestTask::Restore);
+	OOPReceiveStorage::AddClassRestore(TPARVECTOR_ID, TParVector::Restore);
+	OOPReceiveStorage::AddClassRestore(TTERMINATIONTASK_ID, OOPTerminationTask::Restore);
 
 	CM = new OOPMPICommManager (argc, argv);
 	CM->Initialize((char*)argv, argc);

@@ -45,15 +45,15 @@ vector < int >&TContribution::DestinationVector (int index)
 void TContribution::InitializeRandom ()
 {
 	int rs = rand ();
-	fNContributions = rs % 5;
+	fNContributions = 1+(int) (5*rand()/(RAND_MAX+1.0));//rs % 5;
 	fLocalIndices.resize (fNContributions);
 	fFrom.resize(fNContributions);
 	fTo.resize(fNContributions);
 	int ic;
 	for (ic = 0; ic < fNContributions; ic++) {
-		fFrom[ic] = rand()%7;
-		fTo[ic] = rand()%6;
-		fLocalIndices[ic].resize (rand () % 20);
+		fFrom[ic] = 1+(int) (7*rand()/(RAND_MAX+1));//rand()%7;
+		fTo[ic] = 1+(int) (6*rand()/(RAND_MAX+1));//rand()%6;
+		fLocalIndices[ic].resize (1+(int) (20*rand()/(RAND_MAX+1)));//rand () % 10);
 		int nl = fLocalIndices[ic].size ();
 		int ind;
 		for (ind = 0; ind < nl; ind++) {

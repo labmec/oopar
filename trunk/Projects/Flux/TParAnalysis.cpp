@@ -32,7 +32,7 @@ void TParAnalysis::SetupEnvironment(){
   // message #1.5 to mesh:TParMesh
   vector<TParMesh *> MeshVec(npartitions);
   fMeshId.resize(npartitions);
-  for(ip=0; ip<npartitions; ip++) MeshVec[ip] = new TParMesh();
+  for(ip=0; ip<npartitions; ip++) MeshVec[ip] = new TParMesh(); 
 
   int i;
   // message #1.7 to ver:OOPDataVersion
@@ -53,7 +53,7 @@ void TParAnalysis::SetupEnvironment(){
   int version = 0;
   ver.SetLevelVersion(level, version);
   OOPMDataState st = EReadAccess;
-  fRelationTable = DM->SubmitObject(table, 1);
+  fRelationTable = DM->SubmitObject(table, 1); 
 
   ReleaseAccessRequests();
 
@@ -72,6 +72,10 @@ void TParAnalysis::SetupEnvironment(){
     AddDependentData(fRhsId[ip],st,ver);
   }
 
+  //MetaData dependence still needs to be submitted to the DM
+  //which is performed as follows.
+  SubmitDependentData();
+  
 }
 
 void TParAnalysis::CreateParCompute() {
@@ -98,7 +102,8 @@ void TParAnalysis::CreateParCompute() {
     count++;
   }
   count = 0;
-  // Setting the data version
+  //Setting the data version
+  //Não está funcionando aqui !!!!
   while(count < 2*fNumPartitions) {
     (*dep).ObjPtr()->SetVersion(randver,Id());
     dep ++;
@@ -138,6 +143,8 @@ void TParAnalysis::CreateParCompute() {
     dep ++;
     count++;
   }
+  //SubmitDependentData !!!
+  SubmitDependentData();
 }
 
 void TParAnalysis::SetAppropriateVersions() {
@@ -171,9 +178,13 @@ void TParAnalysis::AdaptSolutionVersion(OOPDataVersion &version) {
 
 OOPMReturnType TParAnalysis::Execute() {
 
-  if(fRelationTable.IsZero()) SetupEnvironment();
-  else if(fTaskVersion.GetNLevels() <= 1) CreateParCompute();
-  else SetAppropriateVersions();
+  if(fRelationTable.IsZero()) {
+	  SetupEnvironment();
+  }else if(fTaskVersion.GetNLevels() <= 1) {
+	  CreateParCompute();
+  }else{
+	  SetAppropriateVersions();
+  }
   return ESuccess;
 }
 
@@ -183,4 +194,3 @@ TParAnalysis::TParAnalysis(int Procid) : OOPTask(Procid) {
 TParAnalysis::TParAnalysis(int Procid, int numpartitions) : OOPTask(Procid) {
 	fNumPartitions = numpartitions;
 }
-

@@ -147,21 +147,21 @@ OOPObjectId::OOPObjectId (const::OOPObjectId & obj)
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 }
-int OOPObjectId::Pack (OOPStorageBuffer * buf)
+int OOPObjectId::Write (TPZStream * buf)
 {
 	int aux = 0;
 	aux = GetId ();
-	buf->PkInt (&aux);
+	buf->Write (&aux);
 	aux = GetProcId ();
-	buf->PkInt (&aux);
+	buf->Write (&aux);
 	return 1;
 }
-int OOPObjectId::Unpack (OOPStorageBuffer * buf)
+int OOPObjectId::Read (TPZStream * buf)
 {
 	int aux = 0;
-	buf->UpkInt (&aux);
+	buf->Read (&aux);
 	SetId (aux);
-	buf->UpkInt (&aux);
+	buf->Read (&aux);
 	SetProcId (aux);
 	return 1;
 }

@@ -2,19 +2,19 @@
 #ifndef TMETADATAH
 #define TMETADATAH
 #include "oopdataversion.h"
-#include "oopsaveable.h"
+
 //#include "longvec.h"
 //#include "oopdatamanager.h"
 #include "ooppardefs.h"
 #include "oopdataversion.h"
 #include <deque>
 #include <set>
-#include "oopsaveable.h"
 #include "ooppardefs.h"
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include "oopaccessinfo.h"
 #include "OOPDataLogger.h"
+#include "pzsave.h"
 using namespace std;
 // NOT IMPLEMENTED :
 class   OOPDataManager;
@@ -31,8 +31,10 @@ class   OOPDMOwnerTask;
  * @since Jan/2003
  * @author Gustavo Longhin
  */
-class   OOPMetaData:public OOPSaveable
+class   OOPMetaData:public TPZSaveable
 {
+public:
+	virtual ~OOPMetaData(){}		 
       private:
 	/**
 	 * List of tasks which requires specific access to this data.
@@ -42,7 +44,7 @@ class   OOPMetaData:public OOPSaveable
     /**
     * pointer to the object
     */
-	OOPSaveable *fObjPtr;
+	TPZSaveable *fObjPtr;
      /**
       * Id of the object
       */
@@ -120,7 +122,7 @@ class   OOPMetaData:public OOPSaveable
       * @param ObjId Id of object
       * @param proc Processor number which owns TData.
       */
-	        OOPMetaData (OOPSaveable * ObPtr, const OOPObjectId & ObjId,
+	        OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 			     const int proc);
 	virtual long GetClassID ();
 	/**
@@ -158,11 +160,11 @@ class   OOPMetaData:public OOPSaveable
      /**
       * Returns pointer to the TSaveable object
       */
-	OOPSaveable *Ptr ();
+	TPZSaveable *Ptr ();
      /**
       * Overloading of operator
       */
-	OOPSaveable *operator-> ();
+	TPZSaveable *operator-> ();
   /**
    * Transfer an object based on the parameters.
    * @param ProcId Identifies processor Id
@@ -330,11 +332,11 @@ inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {
 	fState = st;
 }
 */
-inline OOPSaveable *OOPMetaData::Ptr ()
+inline  TPZSaveable *OOPMetaData::Ptr ()
 {
 	return fObjPtr;
 }
-inline OOPSaveable *OOPMetaData::operator-> ()
+inline TPZSaveable *OOPMetaData::operator-> ()
 {
 	return fObjPtr;
 }

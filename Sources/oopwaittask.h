@@ -46,8 +46,8 @@ public:
 
     ~OOPWaitTask();
 
-    virtual int Pack(OOPStorageBuffer* buf);
-    virtual int Unpack(OOPStorageBuffer* buf);
+    virtual int Write(TPZStream* buf);
+    virtual int Read(TPZStream* buf);
     virtual long GetClassID();
     virtual OOPMReturnType Execute();
     void Finish();

@@ -3,7 +3,7 @@
 #ifndef TOBJECTID_H
 #define TOBJECTID_H
 #include <iostream>
-#include "oopstorage.h"
+#include "pzfilebuffer.h"
 using namespace std;
 /**
  * Implements functionalities on the identification of any entity encountered
@@ -28,12 +28,12 @@ class   OOPObjectId
 	 * Packs itself in a buffer so it can be sent through the network.
 	 * @param buf Buffer which is sent through the net.
 	 */
-	int     Pack (OOPStorageBuffer * buf);
+	int     Write (TPZStream  * buf);
 	/**
 	 * Unpacks itself from a buffer so it can be received through the network.
 	 * @param buf Buffer which is received through the net.
 	 */
-	int     Unpack (OOPStorageBuffer * buf);
+	int     Read (TPZStream  * buf);
 	/**
 	 * Assign zero to ObjectId data structure
 	 */

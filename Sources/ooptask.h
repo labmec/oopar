@@ -2,11 +2,12 @@
 #ifndef TTASKH
 #define TTASKH
 #include <deque>
-#include "oopsaveable.h"
+//#include "oopsaveable.h"
 #include "ooppardefs.h"
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include "oopmdatadepend.h"
+#include "pzsave.h"
 class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 using namespace std;
@@ -19,7 +20,7 @@ class   OOPMDataDependList;
  * Since tasks are transmitted through the network TTask is also derived from TSaveable
  * and implements Pack() and Unpack() methods.
  */
-class   OOPTask:public OOPSaveable
+class   OOPTask:public TPZSaveable
 {
 private:
 	/**
@@ -168,13 +169,13 @@ public:
 	* Defines the necessary interface for task communication along the network.
 	* @param * buf Buffer for data manipulation.
 	*/
-	virtual int Unpack (OOPStorageBuffer * buf);
+	virtual int Read (TPZStream * buf, int nel = 1);
 	/**
 	* static function defined for the Restore functionality once TTask objects arrives
 	* on destination processor
 	*/
-	static OOPSaveable *Restore (OOPStorageBuffer * buf);
-	virtual int Pack (OOPStorageBuffer * buf);
+	static TPZSaveable *Restore (TPZStream * buf);
+	virtual int Write (TPZStream * buf, int nel = 1);
 // Apenas para DEBUG.
 //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
 //  virtual void Print() { Debug( "  TSaveable::Print." ); }
@@ -236,7 +237,7 @@ class   OOPDaemonTask:public OOPTask
 	{
 		return TDAEMONTASK_ID;
 	}
-	static OOPSaveable *Restore (OOPStorageBuffer * buf);
+	static TPZSaveable *Restore (TPZStream * buf);
 };
 extern int GLogMsgCounter;
 #endif

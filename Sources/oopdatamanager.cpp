@@ -120,7 +120,7 @@ OOPDataManager::~OOPDataManager ()
 {
 	map< OOPObjectId,  OOPMetaData * >::iterator i=fObjects.begin ();
 	for(;i!=fObjects.end();i++){
-            OOPSaveable *dead = (*i).second->Ptr();
+            TPZSaveable *dead = (*i).second->Ptr();
             delete dead;
 			delete (i->second);
 		  	fObjects.erase(i);
@@ -154,18 +154,15 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 	DataManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
 	map <OOPObjectId, OOPMetaData * >::iterator i;
-#ifndef WIN32
-#warning "Wrong logical  sequence in OOPDataManager::SubmitAccessRequest"
-#endif
-      i=fObjects.find(depend.Id());
-      if(i!=fObjects.end()){
-     		if (!depend.Version ().
-     		    AmICompatible ((*i).second->Version ()))
-     			return 0;
-     		(*i).second->SubmitAccessRequest (TaskId, depend,
-     					   GetProcID ());
-     		DataManLog << "Access request submitted" << endl;
-     		(*i).second->Print(DataManLog);
+	i=fObjects.find(depend.Id());
+	if(i!=fObjects.end()){
+		if (!depend.Version ().
+			AmICompatible ((*i).second->Version ()))
+			return 0;
+		(*i).second->SubmitAccessRequest (TaskId, depend,
+					   GetProcID ());
+		DataManLog << "Access request submitted" << endl;
+		(*i).second->Print(DataManLog);
 	}else{
 		if (depend.Id ().GetProcId () == fProcessor) {
 			DataManLog << "SubmitAccessRequest for deleted object, returning 0\n";
@@ -186,14 +183,11 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 }
 OOPDataManager::OOPDataManager (int Procid)
 {
-#warning "fObjects was initialized here, with new map configuration this is not being done !"
 	fProcessor = Procid;
 	fObjId.SetProcId (Procid);
 	fLastCreated = 0;	// NUMOBJECTS * Procid;
 	fMaxId = 1000;	// fLastCreated + NUMOBJECTS;
 	pthread_mutex_init(&fDataMutex, NULL);
-
-	//DM = this;
 }
 void OOPDataManager::SubmitAllObjects(){
 	pthread_mutex_lock(&fDataMutex);
@@ -204,7 +198,7 @@ void OOPDataManager::SubmitAllObjects(){
 	fSubmittedObjects.clear();
 	pthread_mutex_unlock(&fDataMutex);
 }
-OOPObjectId OOPDataManager::SubmitObject (OOPSaveable * obj, int trace)
+OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace)
 {
 	OOPObjectId id = DM->GenerateId ();
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor);
@@ -360,6 +354,9 @@ OOPDMOwnerTask::~OOPDMOwnerTask() {
 	case ETransferOwnership:
 		if(this->fObjPtr) delete fObjPtr;
 		break;
+	
+	default:
+		return;
 	}
 }
 //***********************************************************************
@@ -379,33 +376,34 @@ OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
 {
 	fProcOrigin = -1;
 }
-int OOPDMOwnerTask::Unpack (OOPStorageBuffer * buf)
+int OOPDMOwnerTask::Read (TPZStream * buf)
 {
-	OOPDaemonTask::Unpack (buf);
-	int numitens;
+	OOPDaemonTask::Read (buf);
 	char type;
-	buf->UpkByte (&type);
+	buf->Read (&type);
 	fType = (OOPMDMOwnerMessageType) type;
 	int access;
-	buf->UpkInt (&access);
+	buf->Read (&access);
 	fState = (OOPMDataState) access;
 //      buf->UpkLong(&fVersion);
-	fVersion.Unpack (buf);
-	fObjPtr = buf->Restore ();
+	fVersion.Read (buf);
+	//fObjPtr = buf->Restore ();
+	//Atenção aqui
+	fObjPtr = TPZSaveable::Restore (*buf, 0);
 	// buf->UpkLong(&fTaskId);
-	buf->UpkInt (&fTrace);
-	buf->UpkInt (&fProcOrigin);
+	buf->Read (&fTrace);
+	buf->Read (&fProcOrigin);
 	// Não faz sentido !!!
-	fObjId.Unpack(buf);
+	fObjId.Read(buf);
 	DataLog << "Unpacking Owner task for Obj " << fObjId << " message type " <<
 		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
 		endl;
 	return 1;
 }
-OOPSaveable *OOPDMOwnerTask::Restore (OOPStorageBuffer * buf)
+TPZSaveable *OOPDMOwnerTask::Restore (TPZStream * buf)
 {
 	OOPDMOwnerTask *t = new OOPDMOwnerTask (ENoMessage, 0);
-	t->Unpack (buf);
+	t->Read (buf);
 	return t;
 }
 void OOPDMOwnerTask::LogMe(ostream & out){
@@ -534,27 +532,27 @@ void OOPDMOwnerTask::LogMeReceived(ostream & out){
 	out << "\tFrom Processor " << fProcOrigin;
 	out.flush();
 }
-int OOPDMOwnerTask::Pack (OOPStorageBuffer * buf)
+int OOPDMOwnerTask::Write (TPZStream* buf)
 {
 	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<
 		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
 		endl;
-	OOPDaemonTask::Pack (buf);
+	OOPDaemonTask::Write (buf);
 	char type = fType;
-	buf->PkByte (&type);
+	buf->Write (&type);
 	int access = fState;
-	buf->PkInt (&access);
-	fVersion.Pack (buf);	// buf->PkLong(&fVersion);
+	buf->Write (&access);
+	fVersion.Write (buf);	// buf->PkLong(&fVersion);
 	if (fObjPtr) {
-		fObjPtr->Pack (buf);
+		fObjPtr->Write (*buf);
 	}
 	else {
-		long zero = 0;
-		buf->PkLong (&zero);
+		int zero = 0;
+		buf->Write (&zero);
 	}
-	buf->PkInt (&fTrace);
-	buf->PkInt (&fProcOrigin);
-	fObjId.Pack (buf);	// buf->PkLong(&fObjId);
+	buf->Write (&fTrace);
+	buf->Write (&fProcOrigin);
+	fObjId.Write (buf);	// buf->PkLong(&fObjId);
 	return 1;
 }
 OOPMReturnType OOPDMOwnerTask::Execute ()
@@ -567,28 +565,28 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 	DM->GetUpdate (this);
 	return ESuccess;
 }
-int OOPDMRequestTask::Unpack (OOPStorageBuffer * buf)
+int OOPDMRequestTask::Read(TPZStream * buf)
 {
 	cout << "Unpacking RequestTask\n";
 	cout.flush();
-	OOPDaemonTask::Unpack (buf);
-	buf->UpkInt (&fProcOrigin);
-	fDepend.Unpack (buf);
+	OOPDaemonTask::Read(buf);
+	buf->Read (&fProcOrigin);
+	fDepend.Read (buf);
 	return 1;
 }
-OOPSaveable *OOPDMRequestTask::Restore (OOPStorageBuffer * buf)
+TPZSaveable *OOPDMRequestTask::Restore (TPZStream* buf)
 {
 	OOPDMRequestTask *t = new OOPDMRequestTask ();
-	t->Unpack (buf);
+	t->Read (buf);
 	return t;
 }
-int OOPDMRequestTask::Pack (OOPStorageBuffer * buf)
+int OOPDMRequestTask::Write (TPZStream * buf)
 {
 	cout << "Packing RequestTask\n";
 	cout.flush();
-	OOPDaemonTask::Pack (buf);
-	buf->PkInt (&fProcOrigin);
-	fDepend.Pack (buf);
+	OOPDaemonTask::Write (buf);
+	buf->Write (&fProcOrigin);
+	fDepend.Write (buf);
 	return 1;
 }
 

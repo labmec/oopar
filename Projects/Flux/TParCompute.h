@@ -106,13 +106,13 @@ class   TParCompute : public OOPTask
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual int Pack (OOPStorageBuffer * buf);
+	virtual int Write (TPZStream * buf);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	virtual int Unpack (OOPStorageBuffer * buf);
-	static OOPSaveable *Restore (OOPStorageBuffer * buf);
+	virtual int Read (TPZStream * buf);
+	static TPZSaveable *Restore (TPZStream * buf);
       private:
     /**
      * Holds all Ids from Flux objects in the parallel computation

@@ -6,34 +6,34 @@ class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 class   OOPDataVersion;
 using namespace std;
-int OOPDataVersion::Pack (OOPStorageBuffer * buf)
+int OOPDataVersion::Write (TPZStream * buf)
 {
 	int aux = fVersion.size ();
-	buf->PkInt (&aux);
+	buf->Write (&aux);
 	vector < int >::iterator ivl;
 	for (ivl = fVersion.begin (); ivl != fVersion.end (); ivl++)
-		buf->PkInt (&*ivl);
+		buf->Write (&*ivl);
 	aux = fLevelCardinality.size ();
-	buf->PkInt (&aux);
+	buf->Write (&aux);
 	for (ivl = fLevelCardinality.begin ();
 	     ivl != fLevelCardinality.end (); ivl++)
-		buf->PkInt (&*ivl);
+		buf->Write (&*ivl);
 	return 1;
 }
-int OOPDataVersion::Unpack (OOPStorageBuffer * buf)
+int OOPDataVersion::Read (TPZStream * buf)
 {
 	int aux = 0, size = 0;
-	buf->UpkInt (&size);
+	buf->Read (&size);
 	fVersion.resize (0);
 	int i;
 	for (i = 0; i < size; i++) {
-		buf->UpkInt (&aux);
+		buf->Read (&aux);
 		fVersion.push_back (aux);
 	}
-	buf->UpkInt (&size);
+	buf->Read (&size);
 	fLevelCardinality.resize (0);
 	for (i = 0; i < size; i++) {
-		buf->UpkInt (&aux);
+		buf->Read (&aux);
 		fLevelCardinality.push_back (aux);
 	}
 	// vector<int>::iterator ivc = aux_vc.begin();

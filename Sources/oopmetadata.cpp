@@ -381,7 +381,7 @@ void OOPMetaData::SetExecute (const OOPObjectId & taskId,
 {
 	fAccessList.SetExecute (taskId, depend, condition);
 }
-OOPMetaData::OOPMetaData (OOPSaveable * ObPtr, const OOPObjectId & ObjId,
+OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 			  const int ProcId)
 {
 	fProc = ProcId;

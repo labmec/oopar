@@ -50,11 +50,11 @@ class   OOPMDataDepend
   /**
    * method which will serialize the object
    */
-	void    Pack (OOPStorageBuffer * buf);
+	void    Write (TPZStream  * buf);
   /**
    * method to reconstruct the object
    */
-	int     Unpack (OOPStorageBuffer * buf);
+	int     Read (TPZStream  * buf);
       private:
   /**
    * Id of the data needed to execute the task
@@ -170,11 +170,11 @@ class   OOPMDataDependList
   /**
    * method which will serialize the object
    */
-	void    Pack (OOPStorageBuffer * buf);
+	void    Write (TPZStream * buf);
   /**
    * method to reconstruct the object
    */
-	int     Unpack (OOPStorageBuffer * buf);
+	int     Read (TPZStream * buf);
 };
 inline ostream &operator<<(ostream &out, const OOPMDataDepend &obj) {
 	return obj.ShortPrint(out);

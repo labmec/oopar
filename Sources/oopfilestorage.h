@@ -21,8 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "oopstorage.h"
-#include "oopstorage.h"
 #define FILE_NAME_SIZE  16
 /*********************/
 class   OOPSendStorageFile:public OOPSendStorage
@@ -126,6 +124,23 @@ public:
 	{
 		return ("TReceiveStorageFile::");
 	}
+
+    virtual void Write(int *p, int size);
+
+    virtual void Write(double *p, int size);
+
+    virtual void Write(const char *p, int size);
+
+    virtual void Write(string *p, int size);
+
+    virtual void Read(int *p, int size);
+
+    virtual void Read(double *p, int size);
+
+    virtual void Read(char *p, int size);
+
+    virtual void Read(string *p, int size);
+
       private:
 	int     f_myID;
 	char    f_wrote;

@@ -24,7 +24,7 @@
 
 
 
-#include "storage.h"
+
 #include "oopstorage.h"
 
 /** 
@@ -134,7 +134,7 @@ class OOPMPISendStorage : public OOPSendStorage {
   int f_target_tid;  
 
 };
-typedef TSendStorageMpi *PTSendStorageMpi;
+typedef OOPMPISendStorage *POOPMPISendStorage;
 
 /** 
  * Non abstract class, which implements the receive
@@ -229,6 +229,6 @@ class OOPMPIReceiveStorage : public OOPReceiveStorage {
   char *ClassName() { return( "TReceiveStorageMpi::" ); }
 
 };
-typedef TReceiveStorageMpi *PTReceiveStorageMpi;
+typedef OOPMPIReceiveStorage *POOPMPIReceiveStorage;
 
 #endif

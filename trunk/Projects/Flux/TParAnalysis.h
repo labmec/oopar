@@ -44,7 +44,7 @@ public:
 
     virtual OOPMReturnType Execute();
 
-    virtual void Print(ostream &out = cout);
+    void Print(ostream &out = cout);
 
 
 

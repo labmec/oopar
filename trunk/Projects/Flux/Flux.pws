@@ -6,21 +6,26 @@ RunInTerminal=true
 ShowLocals=true
 
 [filenumbers]
-0=8
-1=40
-2=33
-3=103
-4=6
-5=1
-6=14
-7=69
-8=1
-9=5
-10=11
-11=32
-12=6
-13=4
-14=14
+0=14
+1=26
+2=6
+3=62
+4=11
+5=6
+6=47
+7=44
+8=44
+9=1
+10=57
+11=107
+12=45
+13=20
+14=30
+15=5
+16=222
+17=289
+18=584
+19=143
 
 [filemarkers]
 0=
@@ -38,28 +43,48 @@ ShowLocals=true
 12=
 13=
 14=
+15=
+16=
+17=
+18=
+19=
 
 [File View]
 filter.file.unmatch=*.so *.o *.a *.la
 filter.file.ignore.hidden=0
 filter.dir.ignore.hidden=0
 
+[breakpoints]
+0=1,,1,1701994856,0,,ooparmain.cpp,26,12,0,main,,1055793399,
+1=3,,1,1701994856,0,,TPartitionRelation.cpp,63,17,0,TPartitionRelation\\3A\\3APrint\\28std\\3A\\3Aostream\\26\\29,,1055793399,
+2=5,,1,1701994856,0,,TPartitionRelation.cpp,61,18,0,TPartitionRelation\\3A\\3ACreateRandom\\28int\\29,,1055793399,
+
 [filelist]
-0=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TTaskComm.h
-1=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TPartitionRelation.h
-2=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TLocalCompute.h
-3=/home/pos/longhin/Projetos/OOPar/Projects/Flux/Makefile.in
-4=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TLocalCompute.cpp
-5=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TContribution.h
-6=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TContribution.cpp
+0=/home/pos/longhin/Projetos/OOPar/Projects/Flux/Makefile.am
+1=/home/pos/longhin/Projetos/OOPar/Projects/Flux/ooparmain.cpp
+2=/home/pos/longhin/Projetos/OOPar/Projects/Flux/pzvecflux.cpp
+3=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TPartitionRelation.cpp
+4=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParCompute.h
+5=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParAnalysis.cpp
+6=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParAnalysis.h
 7=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParCompute.cpp
-8=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParAnalysis.h
-9=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParAnalysis.cpp
-10=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TParCompute.h
-11=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TPartitionRelation.cpp
-12=/home/pos/longhin/Projetos/OOPar/Projects/Flux/pzvecflux.cpp
-13=/home/pos/longhin/Projetos/OOPar/Projects/Flux/ooparmain.cpp
-14=/home/pos/longhin/Projetos/OOPar/Projects/Flux/Makefile.am
+8=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TContribution.cpp
+9=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TContribution.h
+10=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TLocalCompute.cpp
+11=/home/pos/longhin/Projetos/OOPar/Projects/Flux/Makefile.in
+12=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TLocalCompute.h
+13=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TPartitionRelation.h
+14=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TTaskComm.h
+15=/home/pos/longhin/Projetos/OOPar/Projects/Flux/TTaskComm.cpp
+16=/home/pos/longhin/Projetos/OOPar/Sources/oopmetadata.h
+17=/usr/include/c++/3.2.2/bits/stl_vector.h
+18=/usr/include/c++/3.2.2/bits/stl_iterator.h
+19=/usr/include/c++/3.2.2/bits/stl_construct.h
 
 [find_text]
-0=TTaskComm
+0=Print
+1=TPartitionRelation(int numpart);
+2=Tran
+3=Set
+4=LDADD
+5=TTaskComm

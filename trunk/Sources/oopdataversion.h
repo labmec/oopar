@@ -130,6 +130,11 @@ public:
 	 * Sets the cardinality vector
 	 */
 	void    SetData (vector < int >&card, vector < int >&version);
+ 
+	/**
+	 * Get the cardinality vector
+	 */
+        void    GetData (vector < int >&card, vector < int >&version);
     /**
      * Sets the Cardinality depth 
      */

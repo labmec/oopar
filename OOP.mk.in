@@ -3,10 +3,10 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: OOP.mk.in,v 1.2 2003-06-13 21:08:22 longhin Exp $
+# $Id: OOP.mk.in,v 1.3 2003-06-18 20:42:59 longhin Exp $
 #
 
 CXXFLAGS = @OOP_CXXFLAGS@ @USING_MPI@ @USING_SLOAN@
-INCLUDES = -I$(top_srcdir)/Sources @MPIINCLUDE@ -I/home/pos/longhin/Projetos/NeoPZ/Util -I/home/pos/longhin/Projetos/NeoPZ/Common
+INCLUDES = -I$(top_srcdir)/Sources @MPIINCLUDE@
 
 ## --| OOPar |------------------------------------------------------------------

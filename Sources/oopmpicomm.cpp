@@ -92,6 +92,7 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
 	//MPI_Comm_size (MPI_COMM_WORLD, &local_num_procs);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
+	
 	if (f_myself == 0)
 		return f_num_proc;
 	else
@@ -139,7 +140,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 };
 int OOPMPICommManager::ReceiveMessages ()
 {
-	
+/*	
 	OOPMPICommManager * LocalCM = dynamic_cast<OOPMPICommManager * > (CM);
 	if(!fReceiveThreadExists) {
 		pthread_attr_t attr;
@@ -149,7 +150,19 @@ int OOPMPICommManager::ReceiveMessages ()
 		fReceiveThreadExists = true;
 	}
 	return 1;
-	
+*/
+    f_receivebuffer.Receive();
+	if(f_receivebuffer.TestReceive()) {
+		OOPSaveable *obj = f_receivebuffer.Restore();
+		OOPTask *task = dynamic_cast<OOPTask *> (obj);
+		if(task) {
+			TM->Submit(task);
+		} else {
+			cout << "OOPMPICommManager::ReceiveMessages received an object which isnt a task\n";
+			delete obj;
+		}
+		f_receivebuffer.Receive();
+	}		
 	/*OOPMPIReceiveStorage msg;
 	int ret = msg.Receive ();
 	// Se nao tiver mensagem, retorna.

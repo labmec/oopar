@@ -41,6 +41,9 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * @param num_of_process
    */
 	int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v); 
+	/* Sends all messages in all buffers
+	*/
+	virtual int SendMessages () {}
   /**
    * Nonblocking receive. If there is a posted message to 
    * receive, receives it and returns 1. Else, returns 0
@@ -85,6 +88,8 @@ class   OOPMPICommManager:public OOPCommunicationManager
 	int     SendTask (OOPTask * pTask);
   /** Array of send buffers */
 	OOPMPISendStorage f_sendbuffer;
+  /** Reception object for non blocking receive */
+	OOPMPIReceiveStorage f_receivebuffer;
   /** Communication argument */
 	int     f_argc;
   /** Communication argument */

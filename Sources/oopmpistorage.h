@@ -160,14 +160,20 @@ private:
 	int     f_msg_tag;
   /** request object for non-blocking receive operation */
 	MPI_Request f_request;
+  /** flag indicating whether nonblocking reception is initiated */
+    int     f_isreceiving;
 
 public:
 	/**
      * Contructor which initializes the buffer
 	 */
    OOPMPIReceiveStorage() : f_buffr(50000) {
-	   f_size = 0; f_position = 0; f_sender_tid = -1; f_msg_tag = 0;
+	   f_size = 0; f_position = 0; f_sender_tid = -1; f_msg_tag = 0; f_isreceiving = 0;
    }
+  /**
+   * Restores next object in the buffer
+   */
+	virtual OOPSaveable *Restore ();
    /**
    * Unpacks array of characteres from received buffer
    * @param p Pointer to array for which elements must be unpacked
@@ -232,6 +238,10 @@ public:
    * be received, receives it and returns 1. Else, retuns 0
    */
 	int     Receive ();
+  /**
+   * Checks on reception status
+   */
+    bool TestReceive();
   /**
    * Blocking receive. Execution stops and awaits until a 
    * posted message is received

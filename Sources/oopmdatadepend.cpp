@@ -157,8 +157,6 @@ int OOPMDataDependList::CanExecute() {
 
 bool OOPMDataDependList::AmIConsistent() {
 	deque<OOPMDataDepend>::iterator i;
-	OOPObjectId auxId;
-	OOPDataVersion auxVer;
 
 #ifndef WIN32
 #warning "Gustavo, I question the correctness of this method"
@@ -167,8 +165,6 @@ bool OOPMDataDependList::AmIConsistent() {
 		//Run through all elements in this list.
 		//Check with the DataManager the version of each object entry and
 		//According to its dependency issue a warning or error message ?
-		auxId = i->Id();
-		auxVer = i->Version();
 		OOPMetaData *objptr = i->ObjPtr();
 		if(!objptr) continue;
 		

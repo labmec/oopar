@@ -31,6 +31,7 @@ liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/oopmdatadepend.o \
 	../Sources/ooptaskcontrol.o \
 	../Sources/oopaccessinfo.o \
+	../Sources/ooppardefs.o \
 	../Sources/oopmpicomm.o \
 	../Sources/OOPDataLogger.o \
 	../Sources/oopmpistorage.o
@@ -51,6 +52,7 @@ liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/oopmdatadepend.o \
 	../Sources/ooptaskcontrol.o \
 	../Sources/OOPDataLogger.o \
-	../Sources/oopaccessinfo.o 
+	../Sources/oopaccessinfo.o \
+     	../Sources/ooppardefs.o
 endif
 ## --| OOPar |------------------------------------------------------------------

@@ -16,7 +16,7 @@ OOPObjectId::OOPObjectId(long ProcId, long Id){
     fProcId = ProcId;
     fId = Id;
 }
-void OOPObjectId::Print(ostream & out=cout){
+void OOPObjectId::Print(ostream & out=cout) const{
     out << "ObjectId: " << fId << endl;
     out << "ProcessorId: " << GetProcId() << endl;
 }
@@ -67,27 +67,27 @@ void OOPObjectId::Zero(){
 	fId=0;
 	fProcId=0;
 }
-bool OOPObjectId::operator == (const OOPObjectId & obj){
+bool OOPObjectId::operator == (const OOPObjectId & obj) const{
 	if((fId == obj.GetId()) && 
 		(fProcId == obj.GetProcId())) return true;
 	return false;
 }
 
-bool OOPObjectId::operator >= (const OOPObjectId & obj){
+bool OOPObjectId::operator >= (const OOPObjectId & obj) const {
 	if((fId>=obj.GetId()) && 
 		(fProcId >= obj.GetProcId())) return true;
 	return false;
 }
-bool OOPObjectId::operator >= (int val){
+bool OOPObjectId::operator >= (int val) const {
 	if (fId >= val) return true;
 	return false;
 }
-bool OOPObjectId::operator < (int val){
+bool OOPObjectId::operator < (int val) const {
 	if (fId<val) return true;
 	return false;
 }
 
-OOPObjectId & OOPObjectId::operator=(const OOPObjectId & obj){
+OOPObjectId & OOPObjectId::operator=(const OOPObjectId & obj) {
     fId=obj.GetId();
     fProcId=obj.GetProcId();
     return *this;

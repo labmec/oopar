@@ -1,3 +1,5 @@
+// -*- c++ -*-
+
 #ifndef TDATAMANAGERH
 #define TDATAMANAGERH
 
@@ -39,10 +41,8 @@ public:
 	 * Used only for testing purposes
 	 */
 	static void main();
-	OOPMetaData * MetaData(OOPObjectId ObjId);
 	
 	~OOPDataManager();
-	void CheckAccessRequests();
 	
 	/**
 	 * Releases the access request from TaskId on dataId and on the specifieds version and accees state
@@ -51,7 +51,7 @@ public:
 	 * @param version Version access request must match release access request.
 	 * @param access Access request must match release access request.
 	 */
-	void ReleaseAccessRequest(OOPObjectId & TaskId, OOPObjectId & dataId, OOPDataVersion & version, OOPMDataState access);
+	void ReleaseAccessRequest(const OOPObjectId & TaskId,const OOPMDataDepend &depend);
 	/**
 	* Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of 
 	* access and data version must also be specified, as well as the processor where the access should occur.
@@ -60,8 +60,20 @@ public:
 	* @param version Version the task wants the data to be.
 	* @param access Type of access.
 	* @param ProcId Id of the processor where the access should occur.
+	* @return 1 if the access request is compatible, 0 if not compatible
 	*/
-	void SubmitAccessRequest(OOPObjectId & TaskId, OOPObjectId & dataId, OOPDataVersion & version, OOPMDataState access, long ProcId);
+	int SubmitAccessRequest(const OOPObjectId & TaskId,const  OOPMDataDepend &depend,const long ProcId);
+	/**
+	* Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of 
+	* access and data version must also be specified. The processor is the current processor
+	* @param TaskId Id of the Task willing to access the data.
+	* @param depend structure which defines the type of access, version and object id
+	* @param ProcId Id of the processor where the access should occur.
+	* @return 1 if the access request is compatible, 0 if not compatible
+	*/
+	int SubmitAccessRequest(const OOPObjectId & TaskId,const  OOPMDataDepend &depend) {
+	  return SubmitAccessRequest(TaskId,depend,fProcessor);
+	}
 	/**
 	* Initialization of the DataManager on the indicated processor
 	* @param Procid : Processor where the data manager should be initialized
@@ -88,29 +100,12 @@ public:
 	/**
 	* Transfers the object identified by ObjId to the processor identified by
 	* ProcessorId.
-	* Returns 1 if the object is available with the requestes access.
-	* Returns 0 if the object is not availabe with the requested access
 	* and takes action to satisfy the request but does not follow up on the request
 	* @param ObjId : Identifier of the object to be transfered.
 	* @param ProcessorId : Identifier of processor destination.
-	* @param TaskId : Id of task which requires access state AccessRequest.
-	* @param AccessRequest : Type of access requested
-	* @param version : Versio of the data
 	*/
 	
-	int TransferObject(OOPObjectId & ObjId, int ProcessorId, OOPObjectId & TaskId,
-			 OOPMDataState AccessRequest, OOPDataVersion & version);
-	/**
-	* Indicates if Object identified by ObjId is accessible with access type AccessType.
-	* Returns 1 if the object is available with requestes access.
-	* Returns 0 if the object is not available with the requested access and takes
-	* no action to satisfy the request.
-	* @param ObjId Id of requested object
-	* @param TaskId Undocumented
-	* @param AccessType Type of access requested
-	* @param version Version of data resquested
-	*/
-	int HasAccess(OOPObjectId & ObjId, OOPObjectId & TaskId, OOPMDataState AccessType, OOPDataVersion & version);
+	void TransferObject(OOPObjectId & ObjId, int ProcessorId);
 	
 	/**
 	* Processes the updated access information from the other processors
@@ -123,42 +118,12 @@ public:
 	*/
 	void GetUpdate(OOPDMRequestTask *task);
 	
-	/**
-	* Increments version of the referred object (concerns data version)
-	* @param ObjId Object which must have its version updated
-	*/
-	void IncrementVersion(OOPObjectId & ObjId);
 	
-	/**
-	* Returns a pointer to the current object
-	* @param ObjId Object which must have a pointer returned to
-	*/
-	OOPSaveable *GetObjPtr(OOPObjectId ObjId); //{ return Data(ObjId)->Ptr(); }
 	/**
 	 * Returns true if object is found on the DM list
 	 */
-	bool FindObject(OOPObjectId id);
-	/**
-	 * Increments the cardinality of the metadata object.
-	 * @param Id Identifies the MetaData to have its cardinality altered.
-	 * @param depth New cardinality depth.
-	 * @param ProcId Processor Id where the object should be.
-	 */
-	void IncrementLevel(OOPObjectId & Id, int depth, long ProcId);
+	bool HasObject(OOPObjectId id);
 
-	/**
-	 * Increments the cardinality of the metadata object.
-	 * @param Id Identifies the MetaData to have its cardinality altered.
-	 * @param depth New cardinality depth.
-	 * @param ProcId Processor Id where the object should be.
-	 * @param TaskId Id from task which request the operation. Must have the correct access privileges*/
-	void IncrementLevel(OOPObjectId & TaskId, OOPObjectId & Id, int depth, long ProcId);
-
-	/**
-	 * Returns the current location of the object attatched to ObjectId object.
-	 * @param Id Identifies the searched object.
-	 */
-	long CurrentLocation(OOPObjectId & Id);
 private:
 	/**
 	* Processor where the processor is located.
@@ -183,10 +148,6 @@ private:
 	deque <OOPMetaData * > fObjects;
 	
 	/**
-	 * Identifies current location of MetaDatas created in this DM.
-	 */
-	deque <OOPCurrentLocation> fCurrLocation;
-	/**
 	* Generates a new object ID
 	*/
 	OOPObjectId GenerateId();
@@ -196,12 +157,6 @@ private:
 	*/
 	OOPMetaData *Data(OOPObjectId ObjId);
 	
-	/**
-	 * Sets current location of metadata object.
-	 * @param Processor Current processor where object will be held.
-	 * @param id Identifies the object being tracked.
-	 */
-	void SetCurrentLocation(long Processor, OOPObjectId & id);
 public:
 
     /**

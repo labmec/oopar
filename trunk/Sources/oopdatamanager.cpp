@@ -18,7 +18,6 @@ class OOPMetaData;
 class OOPDMRequestTask;
 class OOPDMOwnerTask;
 class OOPSaveable;
-class OOPCurrentLocation;
 
 
 using namespace std;
@@ -138,14 +137,8 @@ OOPDataManager::~OOPDataManager(){
 }
 	
 
-void OOPDataManager::CheckAccessRequests(){
-	deque<OOPMetaData *>::iterator i;
-	for(i=fObjects.begin();i!=fObjects.end();i++){
-		(*i)->VerifyAccessRequests();
-	}
-}
 
-bool OOPDataManager::FindObject(OOPObjectId id){
+bool OOPDataManager::HasObject(OOPObjectId id){
 	//Implement a search on the fObjects vector
 	deque<OOPMetaData *>::iterator i;
 	for(i=fObjects.begin();i!=fObjects.end();i++){
@@ -155,15 +148,15 @@ bool OOPDataManager::FindObject(OOPObjectId id){
 	return false;
 }
 
-void OOPDataManager::ReleaseAccessRequest(OOPObjectId & TaskId, OOPObjectId & dataId, OOPDataVersion & version, OOPMDataState access) //, long ProcId){
+void OOPDataManager::ReleaseAccessRequest(const OOPObjectId & TaskId, const OOPMDataDepend &depend) //, long ProcId){
 {
 	deque<OOPMetaData *>::iterator i;
 	bool found=false;
 	
 	for(i=fObjects.begin();i!=fObjects.end();i++){
-		if (dataId == (*i)->Id()){
+		if (depend.Id() == (*i)->Id()){
 			found = true;
-			(*i)->ReleaseAccess(TaskId, access, version);
+			(*i)->ReleaseAccess(TaskId, depend.State(), depend.Version());
 			//Talvez aqui!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			break;
 		}
@@ -179,40 +172,11 @@ void OOPDataManager::ReleaseAccessRequest(OOPObjectId & TaskId, OOPObjectId & da
 
 }
 
-void OOPDataManager::IncrementLevel(OOPObjectId & Id, int depth, long ProcId){
-	
-	deque<OOPMetaData *>::iterator i;
-	bool found=false;
-	if (fProcessor == ProcId) {
-		for(i=fObjects.begin();i!=fObjects.end();i++){
-			//OOPMetaData * dat = (OOPMetaData *)(*i);
-			if (Id == (*i)->Id()){
-				found = true;
-				(*i)->IncrementVersionLevel(depth);
-				break;
-			}
-		}
-		if(!found){
-			//Erro, alguma coisa errada, dado supostamente deveria estar aqui.
-			//Submeter pedido de acesso ao processador que criou o dado.
-			
-			return;
-		}
-	}else{
-		/*ENoAccess,
-		EReadAccess,
-		EWriteAccess*/
-		//Encontrar onde se encontra o OOPMetaData especificado.
-		//Enviar recado para quem o criou !
-		//Enviar mensagem pedindo a alteração do cardinalidade no processador owner do metadata.
-	}
-			
-}
 
-void OOPDataManager::SubmitAccessRequest(OOPObjectId & TaskId, OOPObjectId & dataId, OOPDataVersion & version, OOPMDataState access, long ProcId){
+int OOPDataManager::SubmitAccessRequest(const OOPObjectId & TaskId, const OOPMDataDepend &depend, const long ProcId){
 	//Access the specified data object and append an willing task.
 	OOPDMRequestMessageType req;
-	switch (access)
+	switch (depend.State())
 	{
 		case  EReadAccess:
 		{
@@ -236,12 +200,14 @@ void OOPDataManager::SubmitAccessRequest(OOPObjectId & TaskId, OOPObjectId & dat
 	
 	deque<OOPMetaData *>::iterator i;
 	bool found=false;
+#warning "Wrong logical  sequence in OOPDataManager::SubmitAccessRequest"
 	if (fProcessor == ProcId) {
 		for(i=fObjects.begin();i!=fObjects.end();i++){
 			//OOPMetaData * dat = (OOPMetaData *)(*i);
-			if (dataId == (*i)->Id()){
+			if (depend.Id() == (*i)->Id()){
 				found = true;
-				(*i)->SubmitAccessRequest(TaskId, version, access, ProcId);
+				if(! depend.Version().AmICompatible((*i)->Version())) return 0;
+				(*i)->SubmitAccessRequest(TaskId, depend.Version(), depend.State(), ProcId);
 				cout << "Access request submitted" << endl;
 				(*i)->Print(cout);
 				break;
@@ -251,16 +217,16 @@ void OOPDataManager::SubmitAccessRequest(OOPObjectId & TaskId, OOPObjectId & dat
 			//Erro, alguma coisa errada, dado supostamente deveria estar aqui.
 			//Submeter pedido de acesso ao processador que criou o dado.
 			OOPObjectId id;
-			id = dataId.Id();
+			id = depend.Id();
 			
-			OOPDMRequestTask ms(req,id.GetProcId());
-			ms.fProcDestination = id.GetProcId();
-			ms.fProcOrigin = fProcessor;
+			OOPDMRequestTask *ms = new OOPDMRequestTask(req,id.GetProcId());
+			ms->fProcDestination = id.GetProcId();
+			ms->fProcOrigin = fProcessor;
 			//Id , como passar ?
 	//		ms.fObjId = id;
-			CM->SendTask(&ms);
+			ms->Submit();
 			
-			return;
+			return 1;
 		}
 	}else{
 		/*ENoAccess,
@@ -268,15 +234,16 @@ void OOPDataManager::SubmitAccessRequest(OOPObjectId & TaskId, OOPObjectId & dat
 		EWriteAccess*/
 		//Encontrar onde se encontra o OOPMetaData especificado.
 		//Enviar recado para quem o criou !
-		OOPDMRequestTask ms(req,ProcId);
-		ms.fProcDestination = ProcId;
-		ms.fProcOrigin = fProcessor;
+		OOPDMRequestTask *ms = new OOPDMRequestTask(req,ProcId);
+		ms->fProcDestination = ProcId;
+		ms->fProcOrigin = fProcessor;
 		//Id , como passar ?
 //		ms.fObjId = id;
-		CM->SendTask(&ms);
+		ms->Submit();
 		
 		
 	}
+	return 1;
 			
 }
 
@@ -289,13 +256,12 @@ OOPDataManager::OOPDataManager(int Procid) : fObjects(0) {
 	 DM = this;
 }
 
-OOPSaveable *OOPDataManager::GetObjPtr(OOPObjectId ObjId) {
-	return Data(ObjId)->Ptr();
-}
+
 /**
  * HELP ....
  */
 //Precisamos conversar !!!
+// Nao sei porque, esta tudo certo
 //.........
 OOPObjectId OOPDataManager::SubmitObject(OOPSaveable *obj, int trace) {
 	//como fazer ?? 
@@ -303,7 +269,6 @@ OOPObjectId OOPDataManager::SubmitObject(OOPSaveable *obj, int trace) {
 	OOPMetaData * dat = new OOPMetaData(obj, id, fProcessor);
 	dat->SetTrace(trace);//Erico
 	fObjects.push_back(dat);//[id] = dat;
-	SetCurrentLocation(fProcessor, id);
 	/*
 	TDMOwnerTask ms(ENotifyCreateObject,-1);
 	//ms.fTaskId = //0;
@@ -314,30 +279,6 @@ OOPObjectId OOPDataManager::SubmitObject(OOPSaveable *obj, int trace) {
 	CM->SendTask(&ms);*/
 	//cout << "Object submitted." << endl;
 	return id;
-}
-/**
- * Novamente operações com fObjects ... não tenho certeza
- */
-void OOPDataManager::IncrementVersion(OOPObjectId & ObjId) {
-	deque<OOPMetaData *>::iterator i;
-	//	OOPMetaData *dat;
-	bool found = false;
-	for(i = fObjects.begin(); i!=fObjects.end();i++){
-		//dat = (OOPMetaData*) (*i);
-		if ((*i)->Id() == ObjId){
-			found = true;
-			(*i)->IncrementVersion();
-			#ifdef DEBUG
-			cout << "Data version incremented" << endl;
-			#endif
-			break;
-		}
-	}
-	if(!found){
-		//Enviar mensagem para datamanager que contem o metadado
-		//Buscar no DataId o processador no qual foi criado e viabilizar a busca
-		//do objeto.
-	}
 }
 int OOPDataManager::DeleteObject(OOPObjectId & ObjId) {
 	deque<OOPMetaData *>::iterator i;
@@ -385,8 +326,7 @@ int OOPDataManager::DeleteObject(OOPObjectId & ObjId) {
 	return 1;
 }
 
-int OOPDataManager::TransferObject(OOPObjectId & ObjId, int ProcId, OOPObjectId & TaskId,
-				OOPMDataState AccessRequest, OOPDataVersion & version) {
+void OOPDataManager::TransferObject(OOPObjectId & ObjId, int ProcId) {
 	deque<OOPMetaData *>::iterator i;
 	OOPMetaData *dat=0;
 	for(i = fObjects.begin(); i!=fObjects.end();i++){
@@ -397,36 +337,15 @@ int OOPDataManager::TransferObject(OOPObjectId & ObjId, int ProcId, OOPObjectId 
 	
 
 	// Something very strange is happening!
-	if(!dat) return 0;  // issue a sever warning message
+	if(!dat) return;  // issue a sever warning message
 
 	/**
 		Identificar se o objeto foi criado neste nó, se sim alterar
 		a informação de sua localização
 	 */
-	OOPObjectId auxId = dat->Id();
-	if(auxId.GetProcId()==fProcessor){
-		SetCurrentLocation(ProcId, auxId);
-	}else{
-		//Criar uma mensagem ?
-	}
-	/* Retirar isso ?
-	if(dat->HasAccess(ProcId,TaskId,AccessRequest,version)) return 1;*/
-	return dat->TransferObject(ProcId, TaskId, AccessRequest, version);
+	dat->TransferObject(ProcId);
 }
 
-int OOPDataManager::HasAccess(OOPObjectId & ObjId, OOPObjectId & TaskId, OOPMDataState AccessType, OOPDataVersion & version){
-	deque<OOPMetaData *>::iterator i;
-	//	OOPMetaData *dat=0;
-	for(i = fObjects.begin(); i!=fObjects.end();i++){
-		//dat = (OOPMetaData*) (*i);
-		if ((*i)->Id() == ObjId) {
-			return (*i)->HasAccess(TaskId, AccessType, version);
-		}
-		//dat = 0;
-	}
-	return 0;
-	//if(!dat) return 0;  // issue a sever warning message
-}
 
 
 void OOPDataManager::GetUpdate(OOPDMOwnerTask *task){
@@ -474,8 +393,7 @@ void OOPDataManager::GetUpdate(OOPDMRequestTask *task){
 			break;
 		case ERequestReadAccess :
 		case ERequestWriteAccess :
-			TransferObject(task->fObjId,task->fProcOrigin,task->fTaskId,
-													task->fAccessState,task->fVersion);
+			TransferObject(task->fObjId,task->fProcOrigin);
 			break;
 		case ERequestDelete :
 			DeleteObject(task->fObjId);
@@ -494,15 +412,6 @@ OOPObjectId OOPDataManager::GenerateId() {
 	return *obj;//fLastCreated;
 }
 
-OOPMetaData *OOPDataManager::MetaData(OOPObjectId ObjId) {
-	deque<OOPMetaData *>::iterator i;
-	for(i = fObjects.begin(); i!=fObjects.end();i++){
-		if ((*i)->Id() == ObjId) {
-			return (*i);
-		}
-	}
-	return 0;
-}
 
 OOPMetaData *OOPDataManager::Data(OOPObjectId ObjId) {
 	deque<OOPMetaData *>::iterator i;
@@ -512,37 +421,6 @@ OOPMetaData *OOPDataManager::Data(OOPObjectId ObjId) {
 		}
 	}
 	return 0;
-}
-
-long OOPDataManager::CurrentLocation(OOPObjectId & Id){
-	deque<OOPCurrentLocation>::iterator i;
-	for(i=fCurrLocation.begin();i!=fCurrLocation.end();i++){
-		if (i->fObjectId==Id) {
-			return i->fProcessor;
-		}
-	}
-	return -1;
-}
-void OOPDataManager::SetCurrentLocation(long Processor, OOPObjectId & Id){
-	if (fProcessor != Processor) {
-		/**
-			Criar uma mensagem para atualização de localidade do objeto ?
-		 */
-		
-		return;
-	}
-	bool found = false;
-	deque<OOPCurrentLocation>::iterator i;
-	for(i=fCurrLocation.begin();i!=fCurrLocation.end();i++){
-		if (i->fObjectId==Id) {
-			found = true;
-			i->fProcessor = Processor;
-		}
-	}
-	if(!found){
-		OOPCurrentLocation location(Processor, Id);
-		fCurrLocation.push_back(location);
-	}
 }
 
 
@@ -714,38 +592,4 @@ int OOPDMRequestTask::DerivedFrom(long Classid) {
 int OOPDMRequestTask::DerivedFrom(char *classname) {
 	if(!strcmp(ClassName(),classname)) return 1;
 	return OOPDaemonTask::DerivedFrom(classname);
-}
-void OOPDataManager::IncrementLevel(OOPObjectId & TaskId, OOPObjectId & Id, int depth, long ProcId){
-	
-	deque<OOPMetaData *>::iterator i;
-	bool found=false;
-	if (fProcessor == ProcId) {
-		for(i=fObjects.begin();i!=fObjects.end();i++){
-			//OOPMetaData * dat = (OOPMetaData *)(*i);
-			if (Id == (*i)->Id()){
-				found = true;
-				(*i)->IncrementVersionLevel(depth);
-				break;
-			}
-		}
-		if(!found){
-			//Erro, alguma coisa errada, dado supostamente deveria estar aqui.
-			//Submeter pedido de acesso ao processador que criou o dado.
-			
-			return;
-		}
-	}else{
-		/*ENoAccess,
-		EReadAccess,
-		EWriteAccess*/
-		//Encontrar onde se encontra o OOPMetaData especificado.
-		//Enviar recado para quem o criou !
-		//Enviar mensagem pedindo a alteração do cardinalidade no processador owner do metadata.
-	}
-			
-}
-OOPDataVersion OOPDataManager::GetDataVersion(OOPObjectId & Id){
-    OOPMetaData * md;
-    md = MetaData(Id);
-	return md->Version();
 }

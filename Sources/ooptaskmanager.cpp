@@ -77,12 +77,17 @@ void OOPTaskManager::main ()
 	 * TM->Execute(); */
 }
 #ifdef MPI
+#define MT
 void * OOPTaskManager::ExecuteMT(void * data){
 
 	OOPTaskManager * lTM = (OOPTaskManager *)data;
 
 	//lock execute mutex
-	pthread_mutex_lock(&lTM->fExecuteMutex);
+	cout << "locking mutex on ExecuteMT\n";
+	cout.flush();
+	//pthread_mutex_lock(&lTM->fExecuteMutex);
+	cout << "locked mutex on ExecuteMT\n";
+	cout.flush();
 	DM->SubmitAllObjects();
 	
 	CM->ReceiveMessages ();
@@ -141,14 +146,16 @@ void * OOPTaskManager::ExecuteMT(void * data){
 			cout << "Going into Blocking receive on TM->Execute()\n";
 			cout << "PID" << getpid() << endl;
 			cout.flush();
+			//pthread_cond_wait(&lTM->fExecuteCondition, &lTM->fExecuteMutex);
 			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 			if(MPICM) MPICM->ReceiveBlocking();
-//			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
 			cout << "Leaving blocking receive PID " << getpid() << endl;
 			cout.flush();
 			DM->SubmitAllObjects();
 		}
-//		pthread_mutex_unlock(&fExecuteMutex);	
+		cout << "Unlocking mutex on ExecuteMT\n";
+		cout.flush();
+		//pthread_mutex_unlock(&lTM->fExecuteMutex);	
 	}
 	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
@@ -382,6 +389,7 @@ void OOPTaskManager::ExecuteDaemons() {
 }
 void OOPTaskManager::Execute ()
 {
+#ifndef MT	
 	//Qual é o service thread ?
 	// O service thread e a linha de execucao do programa principal
 	DM->SubmitAllObjects();
@@ -444,10 +452,24 @@ void OOPTaskManager::Execute ()
 			cout.flush();
 			DM->SubmitAllObjects();
 		}
-//		pthread_mutex_unlock(&fExecuteMutex);	
+//		pthread_mutex_unlock(&fExecuteMutex)
 	}
 	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
+#else
+	pthread_t execute_thread;
+	cout << "Creating service thread\n";
+	cout.flush();
+	if(pthread_create(&execute_thread, NULL, ExecuteMT, this)){
+		cerr << "Fail to create service thread\n";
+		cerr << "Going out\n";
+		cerr.flush();
+	}
+	cout << "Created succesfuly\n";
+	cout.flush();
+		
+	pthread_join(execute_thread,NULL);
+#endif
 }
 void OOPTaskManager::SetKeepGoing(bool go){
 	fKeepGoing = go;

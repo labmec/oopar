@@ -7,7 +7,7 @@
 class TPZStream;
 class   TParMesh:public TPZSaveable
 {
-      public:
+public:
 	TParMesh ();
 	virtual ~TParMesh();
 	/**
@@ -22,7 +22,7 @@ class   TParMesh:public TPZSaveable
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual void Write (TPZStream & buf);
+	virtual void Write (TPZStream & buf, int withclassid=0);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.

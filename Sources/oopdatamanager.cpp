@@ -326,6 +326,14 @@ void OOPDataManager::PrintDataQueues(char * msg, ostream & out){
 	}
 	
 }
+OOPDMOwnerTask::OOPDMOwnerTask() :OOPDaemonTask(-1) {
+	fObjPtr = 0;
+	fState = ENoAccess;
+	fProcOrigin = DM->GetProcID ();
+//      fObjId = 0;
+	fTrace = 0;	// Erico
+
+}
 OOPDMOwnerTask::OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc):OOPDaemonTask
 	(proc),fVersion(), fObjId()
 	/* , fAccessProcessors(0), fBlockingReadProcesses(0) */
@@ -389,7 +397,7 @@ void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 	fVersion.Read (buf);
 	//fObjPtr = buf->Restore ();
 	//Atenção aqui
-	fObjPtr = TPZSaveable::Restore (buf, 0);
+	fObjPtr = TPZSaveable::Restore (buf,0);//, 0);
 	// buf->UpkLong(&fTaskId);
 	buf.Read (&fTrace);
 	buf.Read (&fProcOrigin);
@@ -402,7 +410,7 @@ void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 }
 TPZSaveable *OOPDMOwnerTask::Restore (TPZStream & buf, void * context)
 {
-	OOPDMOwnerTask *t = new OOPDMOwnerTask (ENoMessage, 0);
+	OOPDMOwnerTask *t = new OOPDMOwnerTask;// (ENoMessage, 0);
 	t->Read (buf);
 	return t;
 }
@@ -442,7 +450,7 @@ void OOPDMOwnerTask::LogMe(ostream & out){
 		case  ENotifyDeleteObject:
 			out << "ENotifyDeleteObject\t";
 			break;
-		defaults:
+		default:
 			out << "Uninitialized fType property\t";
 			break;
 	}
@@ -507,7 +515,7 @@ void OOPDMOwnerTask::LogMeReceived(ostream & out){
 		case  ENotifyDeleteObject:
 			out << "ENotifyDeleteObject\t";
 			break;
-		defaults:
+		default:
 			out << "Uninitialized fType property\t";
 			break;
 	}
@@ -532,7 +540,7 @@ void OOPDMOwnerTask::LogMeReceived(ostream & out){
 	out << "\tFrom Processor " << fProcOrigin;
 	out.flush();
 }
-void OOPDMOwnerTask::Write (TPZStream& buf)
+void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 {
 	DataLog << "Packing Owner task for Obj " << fObjId << " message type " <<
 		fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion <<
@@ -547,7 +555,7 @@ void OOPDMOwnerTask::Write (TPZStream& buf)
 		fObjPtr->Write (buf);
 	}
 	else {
-		int zero = 0;
+		int zero = -1;
 		buf.Write (&zero);
 	}
 	buf.Write (&fTrace);
@@ -567,7 +575,6 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 }
 void OOPDMRequestTask::Read(TPZStream & buf, void * context)
 {
-	cout << "Unpacking RequestTask\n";
 	cout.flush();
 	OOPDaemonTask::Read(buf);
 	buf.Read (&fProcOrigin);
@@ -582,7 +589,6 @@ TPZSaveable *OOPDMRequestTask::Restore (TPZStream & buf, void * context)
 }
 void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
 {
-	cout << "Packing RequestTask\n";
 	cout.flush();
 	OOPDaemonTask::Write (buf);
 	buf.Write (&fProcOrigin);
@@ -608,7 +614,7 @@ void OOPDMRequestTask::LogMe(ostream & out){
 		case  EVersionAccess:
 			out << "EVersionAccess To processor " << fProc ;
 			break;
-		defaults:
+		default:
 			out << "Uninitialized fNeed attribute\t";
 			break;
 	}

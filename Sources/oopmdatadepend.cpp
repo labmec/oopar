@@ -69,7 +69,7 @@ void OOPMDataDepend::LogMe(ostream &out) {
 		case  EVersionAccess:
 			out << "EVersionAccess\t";
 			break;
-		defaults:
+		default:
 			out << "Uninitialized fNeed attribute\t";
 			break;
 	}
@@ -243,4 +243,7 @@ OOPMDataDepend & OOPMDataDependList::Dep (OOPObjectId & Id)	{
 		if (i->Id() == Id)
 			return *(i);
 	}
+	cerr << "Wrong Dependency information\n"
+		 << __FILE__ << " line " << __LINE__ << endl;
+	return * new OOPMDataDepend;
 }

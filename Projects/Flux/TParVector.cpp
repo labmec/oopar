@@ -5,7 +5,7 @@ class TPZStream;
 TParVector::TParVector ()
 {
 }
-void TParVector::Write (TPZStream & buf)
+void TParVector::Write (TPZStream & buf, int withclassid)
 {
 	TPZSaveable::Write(buf);
 	vector < double >::iterator i = fData.begin ();
@@ -39,7 +39,7 @@ void TParVector::Resize (int size)
 	fData.resize (size);
 }
 TPZSaveable *TParVector::Restore (TPZStream & buf, void * context) {
-	TParVector *loc = new TParVector();
+	TParVector *loc = new TParVector;//();
 	loc->Read(buf);
 	return loc;
 }

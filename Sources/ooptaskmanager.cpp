@@ -14,7 +14,7 @@ class	OOPTerminationTask;
 //#include <sys/types.h>
 //#include <unistd.h>
 
-int OOPTaskManager::main ()
+void OOPTaskManager::main ()
 {
 	/* 
 	 * OOPObjectId Rhs_id[4], State_id[4], Mesh_id[4], task_id;
@@ -122,7 +122,7 @@ void * OOPTaskManager::TriggerTask(void * data){
 	pthread_mutex_lock(&lTM->fExecutingMutex);
 	tc->Task()->SetExecuting(false);
 	pthread_mutex_unlock(&lTM->fExecutingMutex);
-	
+	return NULL;
 }
 /**
 	disparar o thread de execução da tarefa.
@@ -186,7 +186,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	//PrintTaskQueues("Depois", TaskQueueLog);
 	CM->SendMessages ();
 	
-
+	return NULL;
 }
 #endif
 OOPTaskManager::OOPTaskManager (int proc)
@@ -642,12 +642,13 @@ void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
 		out << (*j)->Task()->Id() << endl;
 	
 }
-OOPTMTask::OOPTMTask(){
+OOPTMTask::OOPTMTask(): OOPDaemonTask() {
 	cerr << "Should Never be Called\n";
 }
 OOPTMTask::~OOPTMTask(){}
 OOPMReturnType OOPTMTask::Execute (){
 	cerr << "Should never called\n";
+	return EContinue;
 }
 
 

@@ -131,7 +131,7 @@ int mpimain (int argc, char **argv)
 	if(!CM->GetProcID()){
 		cout << "Create ParAnalysis on processor " << CM->GetProcID() << endl;
 		cout.flush();
-		TParAnalysis *partask = new TParAnalysis (0, numproc, numproc);
+		TParAnalysis *partask = new TParAnalysis (1, numproc, numproc);
 		TM->Submit (partask);
 	}
 	TM->Execute();

@@ -103,7 +103,7 @@ OOPObjectId OOPTask::Id ()
 }
 TPZSaveable *OOPTask::Restore (TPZStream & buf, void * context)
 {
-	OOPTask *v = new OOPTask (0);
+	OOPTask *v = new OOPTask;// (0);
 	v->Read (buf);
 	return v;
 }

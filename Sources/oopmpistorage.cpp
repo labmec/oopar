@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.22 2004-08-05 12:44:35 longhin Exp $
-// $Revision: 1.22 $
+// $Id: oopmpistorage.cpp,v 1.23 2004-08-09 18:00:22 longhin Exp $
+// $Revision: 1.23 $
 
 
 
@@ -155,8 +155,8 @@ int OOPMPIStorageBuffer::Receive ()
 {      // nonblocking!!!!
 	//f_buffr.Resize(50000);
 	if(f_isreceiving) return 1;
-	MPI_Status status;
-	int test_flag;
+	//MPI_Status status;
+	//int test_flag;
 	// recebe (nonblocking) primeros 10^6 bytes
 	MPI_Irecv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 		   MPI_ANY_TAG, MPI_COMM_WORLD, &f_request);
@@ -200,7 +200,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 		return 1;
 		
 	}
-	MPI_Status status;
+	//MPI_Status status;
 #ifdef VERBOSE
 	cout << "Going to MPI_Wait\n";
 	cout << "PID" << getpid() << endl;

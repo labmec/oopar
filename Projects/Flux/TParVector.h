@@ -14,7 +14,7 @@ public:
 	virtual int    ClassId () const{
 		return TPARVECTOR_ID;
 	}
-	virtual void Write (TPZStream & buf);
+	virtual void Write (TPZStream & buf, int withclassid=0);
 	virtual void Read (TPZStream & buf, void * context = 0);
 	void    Resize (int size);
 	void    SetVector (vector < double >data);

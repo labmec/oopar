@@ -67,7 +67,7 @@ void TContribution::InitializeRandom ()
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-void TContribution::Write (TPZStream & buf){
+void TContribution::Write (TPZStream & buf, int withclassid){
 	fDestinationMesh.Write(buf);
 	int i,sz;
 	sz = fFrom.size();

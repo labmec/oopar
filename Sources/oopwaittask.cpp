@@ -28,7 +28,7 @@ OOPWaitTask::~OOPWaitTask()
 }
 
 
-void OOPWaitTask::Write(TPZStream & buf)
+void OOPWaitTask::Write(TPZStream & buf, int withclassid)
 {
   OOPTask::Write(buf);
   cout << "OOPWaitTask should never be packed\n";

@@ -1,0 +1,16 @@
+#
+# PZ_user.mk options makefile for NeoPZ.
+#
+# It will be processed by GNU automake to produce Makefile.in
+#
+# $Id: OOP_user.mk.in,v 1.1 2003-05-31 11:02:27 phil Exp $
+#
+
+OOP_INCLUDES = -I@prefix@/Sources @MPIINCLUDE@
+
+OOP_LIBDIR = -L@prefix@/lib @MPILIBDIR@
+OOP_LIB = -loopar @MPILIB@
+
+OOP_CXXFLAGS = @OOP_CXXFLAGS@ @USING_MPI@ @USING_SLOAN@
+
+## --| NeoPZ |------------------------------------------------------------------

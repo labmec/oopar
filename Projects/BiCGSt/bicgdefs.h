@@ -14,7 +14,17 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#define TPARCOMPUTE_ID  4000
-#define BICGDOUBLE      4001
+
+#define BICGDOUBLE_ID   4001
 #define TTASKCOMM_ID    4003
 #define TPARVECTOR_ID   4006
+#define TLOOPFOR_ID     4007
+#define TDISTNORM_ID    4008
+#define TDISTPRODUCT_ID 4009
+#define TMULTADD_ID     4010
+#define TUPDATERESIDUE_ID 4011
+#define BICGINT_ID      4012
+#define TPARMATRIX_ID   4013
+#define TPARTITIONRELATION_ID 4014
+#define TCONTRIBUTION_ID  4015
+

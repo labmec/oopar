@@ -3,9 +3,10 @@
 #ifndef TUPDATERESIDUE_H
 #define TUPDATERESIDUE_H
 #include <ooptask.h>
-class OOPMReturnType;
+#include <bicgdefs.h>
 class TUpdateResidue : public OOPTask {
 public:
+  TUpdateResidue(int nproc);
   /**
    * Returns the estimated execution time.
    * returns 0 if the task is instantaneous

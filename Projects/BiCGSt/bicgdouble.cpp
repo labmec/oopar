@@ -17,15 +17,13 @@
 
 #include "bicgdouble.h"
 
-BiCGDouble::BiCGDouble(){
+BiCGDouble::BiCGDouble() : OOPSaveable() {
 }
 BiCGDouble::~BiCGDouble(){
 }
 int BiCGDouble::Pack (OOPSendStorage * buf)
 {
   OOPSaveable::Pack(buf);
-	long class_id = GetClassID ();
-	buf->PkLong (&class_id);
   buf->PkDouble(&value);
 	return 1;
 }

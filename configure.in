@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.8 2004-08-09 11:35:17 longhin Exp $
+dnl $Id: configure.in,v 1.9 2004-08-09 17:58:56 longhin Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -311,6 +311,7 @@ dnl ----------------------------------------------------------------------------
 AC_OUTPUT([ Makefile OOP.mk OOP_user.mk \
 dnl --| OOP subtree |--
 	Sources/Makefile \
+	NeoPZ/Makefile \
 	NeoPZ/Save/Makefile \
 	lib/Makefile \
 dnl --| Projects subtree |--

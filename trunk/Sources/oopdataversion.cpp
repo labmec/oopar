@@ -137,13 +137,13 @@ bool OOPDataVersion::AmICompatible (const OOPDataVersion & version) const
 	// true;
 	// if(version.GetLevelCardinality(fLevelCardinality.size()-1) == -1)
 	// return true;
-	if (GetNLevels () != version.GetNLevels ())
-	{
-		cerr << "Inconsistent version comparisson\n";
-		cerr << "Different number of levels on OOPDataVersion objects\n";
-		cerr << "File:" << __FILE__ << " Line:" << __LINE__ << endl;
+  //	if (GetNLevels () != version.GetNLevels ())
+  //	{
+  //		cerr << "Inconsistent version comparisson\n";
+  //		cerr << "Different number of levels on OOPDataVersion objects\n";
+  //		cerr << "File:" << __FILE__ << " Line:" << __LINE__ << endl;
 		//return false;
-	}
+  //	}
 	unsigned int i = 0;
 	for (i = 0; i < fVersion.size (); i++)
 	{
@@ -151,10 +151,17 @@ bool OOPDataVersion::AmICompatible (const OOPDataVersion & version) const
 		// requested.
 		// cout << "Local Version " << GetLevelVersion (i) << endl;
 		// cout << "Checked Version " << version.GetLevelVersion (i) << endl;
-		if (version.GetLevelCardinality (i) != -1){
-			if (GetLevelVersion (i) > version.GetLevelVersion (i)){
+		if (GetLevelVersion (i) != -1){
+			if (GetLevelVersion (i) < version.GetLevelVersion (i)){
+			  cout << "OOPDataVersion::AmICompatible returned false\n";
+			  cout << "My version ";
+			  Print(cout);
+			  cout << "Other version ";
+			  version.Print(cout);
 				return false;
 			}
+		} else {
+		  break;
 		}
 		// Returns false if in any common level, the cardinality is
 		// not the same
@@ -295,7 +302,7 @@ void OOPDataVersion::Increment ()
 	// Checks whether fVersion grows indefinetely 
 
 #ifdef DEBUG
-	Print ();
+	//	Print ();
 #endif
 	if (fLevelCardinality[fVersion.size () - 1] == -1)
 		return;

@@ -183,6 +183,7 @@ int OOPTaskManager::CancelTask(OOPObjectId taskid){
     OOPTaskControl * tc =  *i;
     if (tc->Task()->Id() == taskid){
       cout << "Task erased" << endl;
+      cout << "Task ID "; tc->Task()->Id().Print(cout);
       delete tc;
       fTaskList.erase(i);
       return 1;
@@ -200,8 +201,8 @@ void OOPTaskManager::Execute(){
   CM->ReceiveMessages();
   TransferSubmittedTasks();
   deque<OOPTaskControl *>::iterator i;
-  cout << "TTaskManager.Execute Queued task ids proc = " << fProc << "\n";
-  cout << "Entering task list loop" << endl;
+  //  cout << "TTaskManager.Execute Queued task ids proc = " << fProc << "\n";
+  //  cout << "Entering task list loop" << endl;
 
   while(fExecutable.size()) {
 	  while(fExecutable.size()){
@@ -212,9 +213,9 @@ void OOPTaskManager::Execute(){
 		id = (*i)->Task()->Id();
  		(*i)->Depend().ReleaseAccessRequests((*i)->Task()->Id());
 #ifdef DEBUG		  
-		cout << "Executing task on processor " << fProc << endl;
-		id.Print(cout);
-		cout.flush();
+		//		cout << "Executing task on processor " << fProc << endl;
+		//		id.Print(cout);
+		//		cout.flush();
 #endif		  
 		fFinished.push_back(*i);
 		fExecutable.erase(i);
@@ -299,6 +300,7 @@ void OOPTaskManager::TransferFinishedTasks() {
 			fFinished.erase(sub);
 		} else if((*sub)->Task()->IsRecurrent()) {
 			(*sub)->Depend() = (*sub)->Task()->GetDependencyList();
+			(*sub)->Depend().ClearPointers();
 			fTaskList.push_back(*sub);
 
 			if((*sub)->Depend().SubmitDependencyList((*sub)->Task()->Id())) {

@@ -5,6 +5,7 @@
 OOPTaskControl::OOPTaskControl(OOPTask *task): fTask(task) {
   if(task) {
     fDepend = task->GetDependencyList();
+    fDepend.ClearPointers();
   }
 }
 

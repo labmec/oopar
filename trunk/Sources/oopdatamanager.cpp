@@ -210,8 +210,8 @@ int OOPDataManager::SubmitAccessRequest(const OOPObjectId & TaskId, const OOPMDa
 				found = true;
 				if(! depend.Version().AmICompatible((*i)->Version())) return 0;
 				(*i)->SubmitAccessRequest(TaskId, depend.Version(), depend.State(), ProcId);
-				cout << "Access request submitted" << endl;
-				(*i)->Print(cout);
+				//				cout << "Access request submitted" << endl;
+				//				(*i)->Print(cout);
 				break;
 			}
 		}

@@ -40,6 +40,8 @@ OOPMReturnType TTaskComm::Execute(){
 	        //dat->IncrementVersion();
 	        //DM->GetObjPtr(i->fDataId)->IncrementVersion();
 	        fDataDepend.Dep(i).ObjPtr()->IncrementVersion();
+		cout << "TTaskComm::Execute the new version is " << endl;
+		fDataDepend.Dep(i).ObjPtr()->Version().Print(cout);
 	    }
 	    
 	}

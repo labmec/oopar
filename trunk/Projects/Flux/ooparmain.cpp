@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 	TM = new OOPTaskManager(CM->GetProcID());
 	DM = new OOPDataManager(CM->GetProcID());
 
-	TParAnalysis * paranalysis = new TParAnalysis(DM->GetProcID(), 5);
+	TParAnalysis * paranalysis = new TParAnalysis(DM->GetProcID(), 2);
 	paranalysis->Submit();
 
 	TM->Execute();

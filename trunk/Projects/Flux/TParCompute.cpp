@@ -15,10 +15,15 @@ OOPMReturnType TParCompute::Execute(){
       ltask->AddDependentData(OOPMDataDepend(fStateIds[i],EWriteAccess,fDataVersions));
       ltask->AddDependentData(OOPMDataDepend(fRhsIds[i],EWriteAccess,fDataVersions));
       ltask->SetRhsIds(fRhsIds,fDataVersions);
+      ltask->SetRecurrence(true);
       ltask->Submit();
     }
-	cout << "Executing TParCompute\n";
+	cout << "TParCompute::Execute\n";
 	cout << "Submiting TLocalCompute tasks\n";
+	cout << "fPartVersion ";
+	fPartRelationVersion.Print(cout);
+	cout << "Mesh Version "; fMeshVersions.Print(cout);
+	cout << "State and Rhs Version "; fDataVersions.Print(cout);
 	cout.flush();
     return ESuccess;
 }

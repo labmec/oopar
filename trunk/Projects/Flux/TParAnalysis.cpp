@@ -223,8 +223,9 @@ int TParAnalysis::Pack(OOPSendStorage * buf) {
   buf->PkInt(&fNumPartitions);
   fRelationTable.Pack(buf);
   fTaskVersion.Pack(buf);
-  int ip;
-  for(ip=0; ip<fNumPartitions; ip++) {
+  int ip, np = fRhsId.size();
+  buf->PkInt(&np);
+  for(ip=0; ip<np; ip++) {
     fRhsId[ip].Pack(buf);
     fMeshId[ip].Pack(buf);
     fStateId[ip].Pack(buf);
@@ -240,8 +241,12 @@ int TParAnalysis::Unpack( OOPReceiveStorage *buf ) {
   buf->UpkInt(&fNumPartitions);
   fRelationTable.Unpack(buf);
   fTaskVersion.Unpack(buf);
-  int ip;
-  for(ip=0; ip<fNumPartitions; ip++) {
+  int ip,np;
+  buf->UpkInt(&np);
+  fRhsId.resize(np);
+  fMeshId.resize(np);
+  fStateId.resize(np);
+  for(ip=0; ip<np; ip++) {
     fRhsId[ip].Unpack(buf);
     fMeshId[ip].Unpack(buf);
     fStateId[ip].Unpack(buf);

@@ -246,20 +246,6 @@ public:
 	//  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
 	//  virtual void Print() { Debug( "  TSaveable::Print." ); }
 	
-	virtual char *ClassName()    { return( "TDMOwnerTask" ); }
-	/**
-	* Returns  true if the object
-	* belongs to a class which is derived from a class
-	* with id classid
-	*/
-	virtual int DerivedFrom(long Classid);
-	/**
-	* Returns  true if the object
-	* belongs to a class which is derived from a class
-	* with name classname
-	*/
-	virtual int DerivedFrom(char *classname);
-	
 	
 };
 
@@ -314,17 +300,6 @@ public:
 	
 	virtual int Pack( OOPSendStorage *buf );
 	
-	// Apenas para DEBUG.
-	//  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
-	//  virtual void Print() { Debug( "  TSaveable::Print." ); }
-	
-	virtual char *ClassName()    { return( "TDMRequestTask" ); }
-	
-	virtual int DerivedFrom(long Classid); // returns  true if the object
-	/**
-	 * Belongs to a class which is derived from a class with id classid.
-	 */
-	virtual int DerivedFrom(char *classname); // a class with name classname
 
 };
 

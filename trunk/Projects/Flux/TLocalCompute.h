@@ -68,10 +68,6 @@ private:
      * Within the Execute Method we should be able to get the data pointer
      */
     void InitializePartitionRelationPointer();
-  /**
-   * Computes the version upon which the communication tasks will depend
-   */
-  OOPDataVersion GetCommunicationVersion();
 
 };
 #endif //TLOCALCOMPUTE_H

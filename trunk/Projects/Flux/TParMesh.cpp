@@ -5,7 +5,28 @@ TParMesh::TParMesh ()
 {
 }
 
-long TParMesh::GetClassID ()
-{
-	return fClassId;
+TParMesh::~TParMesh() {
+}
+
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+int TParMesh::Pack (OOPSendStorage * buf) {
+	return OOPSaveable::Pack(buf);
+}
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+int TParMesh::Unpack (OOPReceiveStorage * buf) {
+	return OOPSaveable::Unpack(buf);
+}
+
+OOPSaveable *TParMesh::Restore (OOPReceiveStorage * buf) {
+	TParMesh *pm = new TParMesh();
+	pm->Unpack(buf);
+	return pm;
 }

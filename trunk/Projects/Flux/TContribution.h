@@ -64,6 +64,18 @@ class   TContribution
 	{
 		fDestinationMesh = id;
 	}
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+	int Pack (OOPSendStorage * buf);
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+	int Unpack (OOPReceiveStorage * buf);
 
       private:
 

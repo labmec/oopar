@@ -66,3 +66,59 @@ void TContribution::InitializeRandom ()
 		}
 	}
 }
+
+  /**
+   * Packs the object in on the buffer so it can be transmitted through the network.
+   * The Pack function  packs the object's class_id while function Unpack() doesn't,
+   * allowing the user to identify the next object to be unpacked.
+   * @param *buff A pointer to TSendStorage class to be packed.
+   */
+int TContribution::Pack (OOPSendStorage * buf){
+	fDestinationMesh.Pack(buf);
+	int i,sz;
+	sz = fFrom.size();
+	buf->PkInt(&sz);
+	for(i=0; i<sz; i++) buf->PkInt(&fFrom[i]);
+	sz = fTo.size();
+	buf->PkInt(&sz);
+	for(i=0; i<sz; i++) buf->PkInt(&fTo[i]);
+	sz = fLocalIndices.size();
+	buf->PkInt(&sz);
+	for(i=0; i<sz; i++) {
+		int lsz = fLocalIndices[i].size();
+		int il;
+		buf->PkInt(&lsz);
+		for(il=0; il<lsz; il++) {
+			buf->PkInt(&fLocalIndices[i][il]);
+		}
+	}
+	buf->PkInt(&fNContributions);
+	return 0;
+}
+  /**
+   * Unpacks the object class_id
+   * @param *buff A pointer to TSendStorage class to be unpacked.
+   */
+int TContribution::Unpack (OOPReceiveStorage * buf){
+
+	fDestinationMesh.Unpack(buf);
+	int i,sz;
+	buf->UpkInt(&sz);
+	fFrom.resize(sz);
+	for(i=0; i<sz; i++) buf->UpkInt(&fFrom[i]);
+	buf->UpkInt(&sz);
+	fTo.resize(sz);
+	for(i=0; i<sz; i++) buf->UpkInt(&fTo[i]);
+	buf->UpkInt(&sz);
+	fLocalIndices.resize(sz);
+	for(i=0; i<sz; i++) {
+		int lsz,il;
+		buf->UpkInt(&lsz);
+		fLocalIndices[i].resize(lsz);
+		for(il=0; il<lsz; il++) {
+			buf->UpkInt(&fLocalIndices[i][il]);
+		}
+	}
+	buf->UpkInt(&fNContributions);
+	return 0;
+}

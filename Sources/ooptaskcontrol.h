@@ -99,5 +99,7 @@ static void *ThreadExec(void *tcobject);
       pthread_mutex_unlock(&fStateMutex);
       return res;
     }
+    
+    void Join();
 };
 #endif

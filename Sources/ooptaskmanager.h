@@ -21,6 +21,7 @@ class   OOPObjectId;
  */
 class   OOPTaskManager
 {
+  friend class OOPTask;
       public: 
 	void Wait();		  
 	/**
@@ -75,7 +76,9 @@ class   OOPTaskManager
    * Assigns to that task a unique Id on the environment.
    * @param task Pointer to the submitted task.
    */
+      protected:
 	OOPObjectId Submit (OOPTask * task);
+      public:
   /**
    * Submits a daemon task to the TaskManager.
    * @param task Pointer to the submitted task.
@@ -144,7 +147,7 @@ private:
   /**
   thread which is the main execution loop of the task manager
   */
-	pthread_t fexecute_thread;
+	pthread_t fExecuteThread;
 
 	/**
 	 * Indicates if TM must continue its processing
@@ -158,19 +161,24 @@ private:
 	 * Mutual exclusion lock for the fSubmittedList queue
 	 */
 	pthread_mutex_t fSubmittedMutex;
+  
+  /**
+  * Condition variable to put the taskmanager thread to sleep
+  */
+  pthread_cond_t fExecuteCondition;
 	/**
 	 * Mutual exclusion lock for the setting changing the IsExecuting state of a
 	 * task.
 	 */
-	pthread_mutex_t fExecutingMutex;
+//	pthread_mutex_t fExecutingMutex;
 	/**
 	 * Mutual exclusion lock for accessing the fFinished queue
 	 */
-	pthread_mutex_t fFinishedMutex;
+//	pthread_mutex_t fFinishedMutex;
 
 
 #endif
-	static void * TriggerTask(void * data);
+//	static void * TriggerTask(void * data);
 
   /**
    * Generate a unique id number
@@ -196,7 +204,7 @@ private:
   /**
    * Maximum number of generated Id.
    */
-	long    fMaxId;
+//	long    fMaxId;
 	int fReceiveThreadCreated;
   /**
    * List of tasks which can't be executed yet

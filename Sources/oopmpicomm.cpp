@@ -74,7 +74,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	
 	//pthread_mutex_lock(&fCommunicate);
 //#warning "Nao tem necessidade do mutex neste ponto"
-#ifdef DEBUG
+#ifdef DEBUGALL
 	cout <<  __PRETTY_FUNCTION__ << " Sending task " << pTask->ClassId() << 
          " to proc " << pTask->GetProcID () << endl;
 	cout.flush();
@@ -98,17 +98,17 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 		return -1;
 	}
 	//Attention here
-#ifdef DEBUG
+#ifdef DEBUGALL
 	cout << __PRETTY_FUNCTION__ <<" Packing the task in a buffer\n";
 	cout.flush();
 #endif
 	pTask->Write (f_buffer, 1);
-#ifdef DEBUG
+#ifdef DEBUGALL
 	cout <<  __PRETTY_FUNCTION__ << " Sending the buffer\n";
 	cout.flush();
 #endif
 	f_buffer.Send(process_id);
-#ifdef DEBUG
+#ifdef DEBUGALL
 	cout <<  __PRETTY_FUNCTION__ << " Message Sent\n";
 	cout.flush();
 #endif
@@ -118,19 +118,21 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 };
 int OOPMPICommManager::ReceiveMessages ()
 {
-	
+//    if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID() <<   "\n";
+
     f_buffer.Receive();
-	if(f_buffer.TestReceive()) {
-		ProcessMessage(f_buffer);
-		f_buffer.Receive();
-	}		
+	  while(f_buffer.TestReceive()) {
+		  ProcessMessage(f_buffer);
+		  f_buffer.Receive();
+    }
+//  if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID() <<   "\n";
 	return 1;
 };
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	//OOPMPICommManager *CM=(OOPMPICommManager *)(t);
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
 #ifdef DEBUG
-	cout << "ReceiveMsgBlocking \n";
+	cout << __PRETTY_FUNCTION__ << "ReceiveMsgBlocking \n";
 	cout.flush();
 #endif
 	while (1){
@@ -144,7 +146,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	 		LocalCM->Finish("ReceiveBlocking <receive error>");
 		}
 #ifdef DEBUG
-		cout << "Calling ProcessMessage\n";
+		cout << __PRETTY_FUNCTION__ << "Calling ProcessMessage\n";
 		cout.flush();
 #endif
 		LocalCM->ProcessMessage (msg);
@@ -181,6 +183,7 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 
 int OOPMPICommManager::ReceiveBlocking ()
 {
+  if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID() <<   "\n";
 	
 	f_buffer.ReceiveBlocking();
 	if(f_buffer.TestReceive()) {
@@ -190,8 +193,9 @@ int OOPMPICommManager::ReceiveBlocking ()
 //		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
 	}
 #ifdef DEBUG
-  sleep(1);
+//  sleep(1);
 #endif
+  if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID() <<   "\n";
 	return 1;
 };
 int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
@@ -205,7 +209,7 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 	// Trace( obj->GetClassId() << ".\n" );
 	OOPTask *task = dynamic_cast<OOPTask *> (obj);
 	if(task) {
-		TM->Submit (task);
+		task->Submit();
 	} else {
 		cout << "OOPMPICommManager::ProcessMessage received an object which is not a task\n";
 		delete obj;

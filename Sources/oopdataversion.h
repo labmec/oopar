@@ -24,12 +24,12 @@ public:
 	 * Packs the object in buffer so it can be sent through the network.
 	 * @param buf Buffer which implements the communication.
 	 */
-	void     Write (TPZStream & buf);
+	void     Write (TPZStream & buf, int withclassid = 0);
 	/**
 	 * Unpacks the object in buffer so it can be received through the network.
 	 * @param buf Buffer which implements the communication.
 	 */
-	void     Read (TPZStream & buf);
+	void     Read (TPZStream & buf, void * context = NULL);
 	/**
 	 * Returns class names
 	 */

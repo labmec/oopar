@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.12 2004-11-07 19:24:05 phil Exp $
+dnl $Id: configure.in,v 1.13 2005-01-28 17:50:25 phil Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -168,7 +168,7 @@ case "${mpi_enabled}" in
   ;;
 esac
 
-AM_CONDITIONAL( MPI, test x${mpi_enabled} = xyes )
+AM_CONDITIONAL( MPI, test ${mpi_enabled} = yes )
 AM_CONDITIONAL(OOPMPI, test "$mpi_enabled" = yes)
 AC_SUBST(USING_MPI)
 

@@ -6,6 +6,16 @@
 #include "oopcommmanager.h"
 #include <map>
 #include <stdlib.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <sstream>
+#include <iostream>
 //#include "../gnu/gnudefs.h"
 //Includes for testing
 //#include "tmultidata.h"
@@ -156,18 +166,20 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 	map <OOPObjectId, OOPMetaData * >::iterator i;
 	i=fObjects.find(depend.Id());
 	if(i!=fObjects.end()){
-		if (!depend.Version ().
-			AmICompatible ((*i).second->Version ()))
-			return 0;
-		(*i).second->SubmitAccessRequest (TaskId, depend,
-					   GetProcID ());
-		DataManLog << "Access request submitted" << endl;
-		(*i).second->Print(DataManLog);
+    if (!depend.Version ().AmICompatible ((*i).second->Version ()))
+    {
+      DataManLog << "AmICompatible returned false " << endl;
+      return 0;
+    }
+    (*i).second->SubmitAccessRequest (TaskId, depend, GetProcID ());
+    DataManLog << "Access request submitted" << endl;
+    (*i).second->Print(DataManLog);
 	}else{
-		if (depend.Id ().GetProcId () == fProcessor) {
-			DataManLog << "SubmitAccessRequest for deleted object, returning 0\n";
+    if (depend.Id ().GetProcId () == fProcessor) {
+      DataManLog << "SubmitAccessRequest for deleted object, returning 0\n";
+      cout << "SubmitAccessRequest for deleted object, returning 0 size of submitted list " << fSubmittedObjects.size() << "\n";
 			return 0;
-		}
+    }
 		else {
 			OOPMetaData *dat =
 				new OOPMetaData (0, depend.Id (),
@@ -186,7 +198,7 @@ OOPDataManager::OOPDataManager (int Procid)
 	fProcessor = Procid;
 	fObjId.SetProcId (Procid);
 	fLastCreated = 0;	// NUMOBJECTS * Procid;
-	fMaxId = 1000;	// fLastCreated + NUMOBJECTS;
+//	fMaxId = 1000;	// fLastCreated + NUMOBJECTS;
 	pthread_mutex_init(&fDataMutex, NULL);
 }
 void OOPDataManager::SubmitAllObjects(){
@@ -200,16 +212,57 @@ void OOPDataManager::SubmitAllObjects(){
 }
 OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace)
 {
-	OOPObjectId id = DM->GenerateId ();
-	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor);
-	dat->SetTrace (trace);	// Erico
-	pthread_mutex_lock(&fDataMutex);
-	fSubmittedObjects.push_back(dat);
-	pthread_mutex_unlock(&fDataMutex);
-	return id;
+  OOPDataVersion ver;
+  return SubmitObject(obj,trace,ver);
 }
 OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace, OOPDataVersion & ver)
 {
+#ifdef DEBUG
+  if(!CM->GetProcID())
+  {
+      std::ostringstream FileName, FileName2,command,subdir1,subdir2,subdir3;
+      subdir1 << "dataman" << CM->GetProcID();
+      subdir2 << "dataman" << CM->GetProcID() << "/orig";
+      subdir3 << "dataman" << CM->GetProcID() << "/copy";
+      mkdir(subdir1.str().c_str() , S_IRWXU | S_IXGRP | S_IRGRP| S_IXOTH | S_IROTH );
+      mkdir(subdir2.str().c_str(), S_IRWXU | S_IXGRP | S_IRGRP| S_IXOTH | S_IROTH );
+      mkdir(subdir3.str().c_str(), S_IRWXU | S_IXGRP | S_IRGRP| S_IXOTH | S_IROTH );
+      FileName << subdir2.str() << "/" << obj->ClassId() << ".sav";
+      FileName2 << subdir3.str() << "/" << obj->ClassId() << ".sav";
+     {
+      TPZFileStream PZFS;
+      PZFS.OpenWrite(FileName.str());
+      obj->Write(PZFS,1);
+    }
+     {
+      TPZFileStream PZFS;
+      PZFS.OpenRead(FileName.str());
+      TPZSaveable *test =  TPZSaveable::Restore(PZFS,0);
+      TPZFileStream PZFS2;
+      PZFS2.OpenWrite(FileName2.str());
+      test->Write(PZFS2,1);
+      delete test;
+    }
+    command << "diff --brief " << FileName.str() << " " << FileName2.str() << endl;
+    FILE *pipe = popen(command.str().c_str(),"r");
+#ifdef DEBUGALL
+    cout << "Command executed " << command.str() << endl;
+#endif
+    char *compare = new char[256];
+    compare[0] = '\0';
+    char **compptr = &compare;
+    size_t size = 256;
+    getline(compptr,&size,pipe);
+//    fscanf(pipe,"%s",compare);
+    pclose(pipe);
+    if(strlen(compare))
+    {
+      cout << __PRETTY_FUNCTION__ << compare << endl;
+    }
+    delete []compare;    
+  }
+#endif
+
 	OOPObjectId id = DM->GenerateId ();
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor, ver);
 	
@@ -262,7 +315,9 @@ void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 	OOPMetaData *dat = Data (task->fObjId);
 	if (!dat) {
 		DataManLog << "TDataManager:GetUpdate called with invalid ojbid:";
+		cout << "TDataManager:GetUpdate called with invalid ojbid:";
 		task->fObjId.Print (DataManLog);
+		task->fObjId.Print (cout);
 		exit (-1);
 		return;
 	}
@@ -314,8 +369,8 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 OOPObjectId OOPDataManager::GenerateId ()
 {
 	fLastCreated++;
-	if (fLastCreated >= fMaxId)
-		exit (-1);	// the program ceases to function
+//	if (fLastCreated >= fMaxId)
+//		exit (-1);	// the program ceases to function
 	OOPObjectId *obj = new OOPObjectId (GetProcID (), fLastCreated);
 	return *obj;	// fLastCreated;
 }
@@ -407,7 +462,9 @@ void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 //      buf->UpkLong(&fVersion);
 	fVersion.Read (buf);
 	//fObjPtr = buf->Restore ();
+#ifdef DEBUGALL
 	cout << "Restoring fObjPtr\n";
+#endif
 	fObjPtr = TPZSaveable::Restore (buf,0);//, 0);
 	// buf->UpkLong(&fTaskId);
 	buf.Read (&fTrace);
@@ -431,7 +488,10 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 	buf.Write (&access);
 	fVersion.Write (buf);	// buf->PkLong(&fVersion);
 	if (fObjPtr) {
-		fObjPtr->Write (buf);
+#ifdef DEBUGALL
+    cout << __PRETTY_FUNCTION__ << " writing object of type " << fObjPtr->ClassId() << endl;
+#endif
+		fObjPtr->Write (buf,1);
 	}
 	else {
 		int zero = -1;

@@ -181,14 +181,14 @@ void CreateTaskFromFile(string &file) {
       lasttask = task;
       if(st) 
       {
-        OOPObjectId id = TM->Submit(st);
+        OOPObjectId id = st->Submit();
         cout << __PRETTY_FUNCTION__ << " submitted task id " << id << " task " << lasttask << endl;
       }
       st = new TSmallTask((*it).fProcid);
     }
     st->AddDependentData(depend[counter]);
   }
-  OOPObjectId id = TM->Submit(st);
+  OOPObjectId id = st->Submit();
   cout << __PRETTY_FUNCTION__ << " submitted task id " << id << " task " << lasttask << endl;
 
   // build a task such that the current thread has access to internal OOP data
@@ -199,7 +199,7 @@ void CreateTaskFromFile(string &file) {
     wt->AddDependentData(depend);      
   }  
   cout << "Before sumitting the wait task" << endl;
-  TM->Submit(wt);
+  wt->Submit();
   // This will put the current thread to wait till the data is available
   cout << "Before waiting\n";
   wt->Wait();
@@ -315,7 +315,7 @@ void InsertTasks(int numtasks)
   OOPDataVersion ver;
   wt->AddDependentData(OOPMDataDepend(vicid,EWriteAccess,ver));
   cout << "Before sumitting the wait task" << endl;
-  TM->Submit(wt);
+  wt->Submit();
   // This will put the current thread to wait till the data is available
   cout << "Before waiting\n";
   wt->Wait();
@@ -348,14 +348,14 @@ void InsertTasks(int numtasks)
       st->AddDependentData(dp);
     }
     cout << "Submitting the small task\n";
-    TM->Submit(st);
+    st->Submit();
   }
   cout << "Before another wait task\n";
   wt = new OOPWaitTask(CM->GetProcID());
   ver = OOPDataVersion();
   ver.Increment();
   wt->AddDependentData(OOPMDataDepend(vicid,EWriteAccess,ver));
-  TM->Submit(wt);
+  wt->Submit();
   // This will put the current thread to wait till the data is available
   wt->Wait();
   wt->Finish();

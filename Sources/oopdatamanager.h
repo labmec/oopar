@@ -149,7 +149,7 @@ public:
 	/**
 	* Maximum Id number that can be created
 	*/
-	long    fMaxId;
+//	long    fMaxId;
 	/**
 	* Collections of objects
 	*/

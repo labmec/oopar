@@ -160,7 +160,7 @@ public:
 	/**
 	* Submits the task to the TM, TaskId is returned.
 	*/
-	OOPObjectId Submit ();
+	virtual OOPObjectId Submit ();
 	/**
 	* Returns last created Id.
 	*/

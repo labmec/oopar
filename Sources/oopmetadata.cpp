@@ -809,9 +809,9 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		town->fObjId = this->fObjId;
 		town->fVersion = this->fVersion;
 		town->fProcOrigin = DM->GetProcID();
+		LogDM->SendGrantAccessLog(town,processor);
 		TM->SubmitDaemon(town);
 		fProcVersionAccess = processor;
-		LogDM->SendGrantAccessLog(town,processor);
 		break;
 	}
 	case EReadAccess : {
@@ -822,8 +822,8 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		town->fObjPtr = this->fObjPtr;
 		town->fVersion = this->fVersion;
 		town->fProcOrigin = DM->GetProcID();
-		TM->SubmitDaemon(town);
 		LogDM->SendGrantAccessLog(town,processor);
+		TM->SubmitDaemon(town);
 		this->fReadAccessProcessors.push_back(processor);
 		break;
 	}

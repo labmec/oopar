@@ -7,8 +7,11 @@
 
 class OOPDouble : public TPZSaveable {
 public:    
+  
     double fValue;
 
+    OOPDouble();
+    
     void Write(TPZStream & buf, int withclassid);
 
     void Read(TPZStream & buf, void * context);

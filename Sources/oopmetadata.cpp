@@ -141,7 +141,7 @@ bool OOPMetaData::HasReadAccess(const int Procid) const {
   if(i== fAccessProcessors.end()) return false;
   return true;
 #else
-  vector<long>::const_iterator i = fAccessProcessors.begin();
+  list<int>::const_iterator i = fAccessProcessors.begin();
   i=find(fAccessProcessors.begin(), fAccessProcessors.end(), Procid);
   if(i==fAccessProcessors.end()){
     return false;

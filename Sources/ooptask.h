@@ -21,7 +21,12 @@ class   OOPMDataDependList;
  */
 class   OOPTask:public OOPSaveable
 {
+private:
+	bool fIsExecuting;
 public:
+	void SetExecuting(bool value = true){
+		fIsExecuting = value;
+	}
 	/**
 	 * Sets the label property
 	 */

@@ -40,6 +40,14 @@ public:
 	/**
 	 * Checks wheter two versions are compatible
 	 * @param version : object TDataVersion to checked against
+	 * The checked parameter is mostly the current version of
+	 * the MetaData on the DM. In a scenario where a Task requires a MetaData with
+	 * a version which is newer than the actual MetaData version, false will be 
+	 * returned.
+	 * This is due to the fact that a version will NEVER decrease (i.e. The
+	 * version I am needing will never be reached (again).
+	 * @return Returns true if the checked parameter is older than me. Returns
+	 * false otherwise.
 	 */
 	bool    AmICompatible (const OOPDataVersion & version) const;
 

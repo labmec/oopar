@@ -2,12 +2,13 @@
 #include <iostream>
 #include <typeinfo>
 #include "oopdataversion.h"
-class OOPSendStorage;
-class OOPReceiveStorage;
-class OOPDataVersion;
+class   OOPSendStorage;
+class   OOPReceiveStorage;
+class   OOPDataVersion;
 using namespace std;
 
-int OOPDataVersion::Pack (OOPSendStorage * buf)
+int OOPDataVersion::Pack (
+	OOPSendStorage * buf)
 {
 	int aux = fVersion.size ();
 	buf->PkInt (&aux);
@@ -20,11 +21,12 @@ int OOPDataVersion::Pack (OOPSendStorage * buf)
 	for (ivl = fLevelCardinality.begin ();
 	     ivl != fLevelCardinality.end (); ivl++)
 		buf->PkInt (&*ivl);
-	
+
 	return 1;
 }
 
-int OOPDataVersion::Unpack (OOPReceiveStorage * buf)
+int OOPDataVersion::Unpack (
+	OOPReceiveStorage * buf)
 {
 	int aux = 0, size = 0;
 	buf->UpkInt (&size);
@@ -49,17 +51,20 @@ int OOPDataVersion::Unpack (OOPReceiveStorage * buf)
 	return 1;
 }
 
-void OOPDataVersion::SetData (vector < int >&card,
-			    vector < int >&version)
+void OOPDataVersion::SetData (
+	vector < int >&card,
+	vector < int >&version)
 {
 	fVersion = version;
 	fLevelCardinality = card;
 }
 
-void OOPDataVersion::main ()
+void OOPDataVersion::main (
+	)
 {
 	int i = 0;
-	OOPDataVersion version (4);
+	OOPDataVersion version (
+	4);
 	version.Print ();
 	version.IncrementLevel (8);
 	version.Print ();
@@ -67,7 +72,8 @@ void OOPDataVersion::main ()
 	version.Print ();
 
 	cin >> i;
-	OOPDataVersion v (version);
+	OOPDataVersion v (
+	version);
 
 	v.DecreaseLevel ();
 	v.Print ();
@@ -108,83 +114,73 @@ void OOPDataVersion::main ()
 
 	OOPDataVersion vers2;
 	vers2 = version;
-	OOPDataVersion vers3 (vers2);
+	OOPDataVersion vers3 (
+	vers2);
 	vers2.Print ();
 }
 
 
-void OOPDataVersion::SetLevelVersion (int level,
-				   int version)
+void OOPDataVersion::SetLevelVersion (
+	int level,
+	int version)
 {
-	if (!(level < (int)fVersion.size ()))
+	if (!(level < (int) fVersion.size ()))
 		exit (-1);
 	fVersion[level] = version;
 }
-void OOPDataVersion::SetLevelCardinality (int level,
-					int depth)
+
+void OOPDataVersion::SetLevelCardinality (
+	int level,
+	int depth)
 {
-	if (!(level < (int)fLevelCardinality.size ()))
+	if (!(level < (int) fLevelCardinality.size ()))
 		exit (-1);
 	fLevelCardinality[level] = depth;
 }
 
-bool OOPDataVersion::AmICompatible (const OOPDataVersion & version) const
+bool OOPDataVersion::AmICompatible (
+	const OOPDataVersion & version) const 
 {
-	// checks for level compatibility
-	// assumes versions must have same depth
-	// Is this true ?
-	// if(fLevelCardinality[fLevelCardinality.size()-1] == -1) return
-	// true;
-	// if(version.GetLevelCardinality(fLevelCardinality.size()-1) == -1)
-	// return true;
-  //	if (GetNLevels () != version.GetNLevels ())
-  //	{
-  //		cerr << "Inconsistent version comparisson\n";
-  //		cerr << "Different number of levels on OOPDataVersion objects\n";
-  //		cerr << "File:" << __FILE__ << " Line:" << __LINE__ << endl;
-		//return false;
-  //	}
 	unsigned int i = 0;
 	for (i = 0; i < fVersion.size (); i++)
 	{
-		// Returns false if my version is older than the one
-		// requested.
-		// cout << "Local Version " << GetLevelVersion (i) << endl;
-		// cout << "Checked Version " << version.GetLevelVersion (i) << endl;
-		if (GetLevelVersion (i) != -1){
-			if (GetLevelVersion (i) < version.GetLevelVersion (i)){
-			  cout << "OOPDataVersion::AmICompatible returned false\n";
-			  cout << "My version ";
-			  Print(cout);
-			  cout << "Other version ";
-			  version.Print(cout);
+		if (GetLevelVersion (i) != -1)
+		{
+			if (GetLevelVersion (i) < version.GetLevelVersion (i))
+			{
+				cout << "OOPDataVersion::AmICompatible returned false\n";
+				cout << "My version ";
+				Print (cout);
+				cout << "Other version ";
+				version.Print (cout);
 				return false;
 			}
-		} else {
-		  break;
 		}
-		// Returns false if in any common level, the cardinality is
-		// not the same
-		// if(GetLevelCardinality(i)!=version.GetLevelCardinality(i)) 
-		// return false;
+		else
+		{
+			break;
+		}
 	}
 
 	return true;
 }
 
 
-const char *OOPDataVersion::MyName ()
+const char *OOPDataVersion::MyName (
+	)
 {
 	return typeid (this).name ();
 }
 
 
-void OOPDataVersion::operator ++ ()
+void OOPDataVersion::operator ++ (
+	)
 {
 	this->Increment ();
 }
 
-bool OOPDataVersion::operator == (const OOPDataVersion & version) const
+bool OOPDataVersion::operator == (
+	const OOPDataVersion & version) const 
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
@@ -206,7 +202,8 @@ bool OOPDataVersion::operator == (const OOPDataVersion & version) const
 
 }
 
-bool OOPDataVersion::operator < (const OOPDataVersion & version) 
+bool OOPDataVersion::operator < (
+	const OOPDataVersion & version)
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
@@ -228,7 +225,8 @@ bool OOPDataVersion::operator < (const OOPDataVersion & version)
 
 }
 
-bool OOPDataVersion::operator > (const OOPDataVersion & version) 
+bool OOPDataVersion::operator > (
+	const OOPDataVersion & version)
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;
@@ -250,7 +248,8 @@ bool OOPDataVersion::operator > (const OOPDataVersion & version)
 
 }
 
-void OOPDataVersion::Print (ostream & out) const
+void OOPDataVersion::Print (
+	ostream & out) const 
 {
 	out << "Number of levels " << GetNLevels () << endl;
 	int i = 0;
@@ -270,26 +269,29 @@ OOPDataVersion & OOPDataVersion::operator= (const OOPDataVersion & version)
 	return *this;
 }
 
-OOPDataVersion::OOPDataVersion (const ::OOPDataVersion & version)
+OOPDataVersion::OOPDataVersion (const::OOPDataVersion & version)
 {
 	fLevelCardinality = version.GetLevelCardinality ();
 	fVersion = version.GetLevelVersion ();
 }
 
-void OOPDataVersion::IncrementLevel (int cardinality)
+void OOPDataVersion::IncrementLevel (
+	int cardinality)
 {
 	fVersion.push_back (0);
 	fLevelCardinality.push_back (cardinality);
 }
 
 
-void OOPDataVersion::DecreaseLevel ()
+void OOPDataVersion::DecreaseLevel (
+	)
 {
 	fVersion.pop_back ();
 	fLevelCardinality.pop_back ();
 }
 
-void OOPDataVersion::Increment ()
+void OOPDataVersion::Increment (
+	)
 {
 	if (!fVersion.size ())
 	{
@@ -302,7 +304,7 @@ void OOPDataVersion::Increment ()
 	// Checks whether fVersion grows indefinetely 
 
 #ifdef DEBUG
-	//	Print ();
+	// Print ();
 #endif
 	if (fLevelCardinality[fVersion.size () - 1] == -1)
 		return;
@@ -327,46 +329,51 @@ void OOPDataVersion::Increment ()
 	}
 }
 
-vector < int >OOPDataVersion::GetLevelCardinality () const
+vector < int >OOPDataVersion::GetLevelCardinality (
+	) const 
 {
 	return fLevelCardinality;
 }
-vector < int >OOPDataVersion::GetLevelVersion () const
+vector < int >OOPDataVersion::GetLevelVersion (
+	) const 
 {
 	return fVersion;
 }
 
-int OOPDataVersion::GetLevelCardinality (int level) const
+int OOPDataVersion::GetLevelCardinality (
+	int level) const 
 {
-	if (!(level < (int)fVersion.size ()))
+	if (!(level < (int) fVersion.size ()))
 	{
 		cerr << "FILE: " << __FILE__ << " LINE:" << __LINE__
 			<< " Accessing level out of range" << endl;
 		cerr << "Maximum:" << GetNLevels () -
 			1 << " Trying:" << level << endl;
-		//exit(-1);
+		// exit(-1);
 		return -1;
 	}
 
 	return fLevelCardinality[level];
 }
 
-int OOPDataVersion::GetLevelVersion (int level) const
+int OOPDataVersion::GetLevelVersion (
+	int level) const 
 {
-	if (!(level < (int)fVersion.size ()))
+	if (!(level < (int) fVersion.size ()))
 	{
 		cerr << "FILE: " << __FILE__ << " LINE:" << __LINE__
 			<< " Accessing level out of range" << endl;
 		cerr << "Maximum:" << GetNLevels () -
 			1 << " Trying:" << level << endl;
-		//exit (-1);
+		// exit (-1);
 		return -1;
 	}
 
 	return fVersion[level];
 }
 
-int OOPDataVersion::GetNLevels () const
+int OOPDataVersion::GetNLevels (
+	) const 
 {
 	return fVersion.size ();
 }
@@ -392,14 +399,20 @@ OOPDataVersion::OOPDataVersion ()
 
 }
 
-bool OOPDataVersion::CanExecute(const OOPDataVersion &dataversion) const {
-	if(fVersion.size() != dataversion.fVersion.size()) return false;
-  bool can_I = true;
-  int i;
-  for(i=0;i < dataversion.GetNLevels();i++){
-    if(GetLevelVersion(i)!=dataversion.GetLevelVersion(i) && GetLevelVersion(i)!=-1){
-      can_I = false;
-    }
-  }
-  return can_I;
+bool OOPDataVersion::CanExecute (
+	const OOPDataVersion & dataversion) const 
+{
+	if (fVersion.size () != dataversion.fVersion.size ())
+		return false;
+	bool can_I = true;
+	int i;
+	for (i = 0; i < dataversion.GetNLevels (); i++)
+	{
+		if (GetLevelVersion (i) != dataversion.GetLevelVersion (i)
+		    && GetLevelVersion (i) != -1)
+		{
+			can_I = false;
+		}
+	}
+	return can_I;
 }

@@ -389,6 +389,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 	switch(ms.fType) {
 	case ESuspendAccess:
 		fTrans = ESuspendReadTransition;
+		fProc = ms.fProcOrigin;
 		CheckTransitionState();
 		break;
 	case ESuspendAccessConfirmation: {
@@ -402,6 +403,16 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 		while(is != fSuspendAccessProcessors.end() && *is != ms.fProcOrigin) is++;
 		if(is != fSuspendAccessProcessors.end()) fSuspendAccessProcessors.push_back(ms.fProcOrigin);
 		CheckTransitionState();
+		this->VerifyAccessRequests();
+		break;
+	}
+	case EGrantReadAccess: {
+		fObjPtr = ms.fObjPtr;
+		ms.fObjPtr = 0;
+		fProc = ms.fProcOrigin;
+		fVersion = ms.fVersion;
+		fReadAccessProcessors.push_back(DM->GetProcID());
+		this->VerifyAccessRequests();
 		break;
 	}
 	default:
@@ -560,8 +571,21 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 	switch(state) {
 	case EVersionAccess: {
 		OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantVersionAccess,processor);
+		town->fObjId = this->fObjId;
+		town->fVersion = this->fVersion;
+		town->fProcOrigin = DM->GetProcID();
 		TM->Submit(town);
 		fProcVersionAccess = processor;
+		break;
+	}
+	case EReadAccess : {
+		OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantReadAccess,processor);
+		town->fObjId = this->fObjId;
+		town->fObjPtr = this->fObjPtr;
+		town->fVersion = this->fVersion;
+		town->fProcOrigin = DM->GetProcID();
+		TM->Submit(town);
+		this->fReadAccessProcessors.push_back(processor);
 		break;
 	}
 	default:

@@ -17,6 +17,9 @@ OOPMReturnType TParCompute::Execute(){
       ltask->SetRhsIds(fRhsIds,fDataVersions);
       ltask->Submit();
     }
+	cout << "Executing TParCompute\n";
+	cout << "Submiting TLocalCompute tasks\n";
+	cout.flush();
     return ESuccess;
 }
 

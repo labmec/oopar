@@ -19,8 +19,8 @@
 //
 
 // $Author: phil $
-// $Id: oopmpistorage.cpp,v 1.10 2003-10-11 19:21:34 phil Exp $
-// $Revision: 1.10 $
+// $Id: oopmpistorage.cpp,v 1.11 2003-10-12 15:44:22 phil Exp $
+// $Revision: 1.11 $
 
 
 #include "oopstorage.h"
@@ -141,13 +141,32 @@ int OOPMPISendStorage::Send (int target)
 //       TReceiveStorageMpi
 int OOPMPIReceiveStorage::Receive ()
 {      // nonblocking!!!!
+	if(f_isreceiving) return 1;
 	MPI_Status status;
 	int test_flag;
 	// recebe (nonblocking) primeros 10^6 bytes
 	MPI_Irecv (&f_buffr[0], f_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 		   MPI_ANY_TAG, MPI_COMM_WORLD, &f_request);
-	MPI_Test (&f_request, &test_flag, &status);
+	f_isreceiving = 1;
+	return 1;
 }
+
+bool OOPMPIReceiveStorage::TestReceive() {
+	if(!f_isreceiving) return false;
+	MPI_Status status;
+	int test_flag;
+	MPI_Test (&f_request, &test_flag, &status);
+	return test_flag;
+}
+  /**
+   * Restores next object in the buffer
+   */
+OOPSaveable *OOPMPIReceiveStorage::Restore () {
+	f_isreceiving = 0;
+	OOPSaveable *obj = OOPReceiveStorage::Restore();
+	return obj;
+}
+
 int OOPMPIReceiveStorage::ReceiveBlocking ()
 {
 	MPI_Status status;

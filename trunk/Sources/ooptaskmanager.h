@@ -21,6 +21,7 @@ class   OOPObjectId;
 class   OOPTaskManager
 {
       public: 
+	void Wait();		  
 	/**
 	 * Sets the KeepGoing flag which will control the TM Execute method
 	 */

@@ -64,6 +64,8 @@ void OOPTask::AddDependentData (const OOPMDataDepend & depend)
 }
 
 void OOPTask::PrintLog(ostream & out, char * message){
+	out << GLogMsgCounter << endl;
+	GLogMsgCounter++;
 	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message << endl;
 	out.flush();
 }

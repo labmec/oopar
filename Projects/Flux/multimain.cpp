@@ -23,6 +23,8 @@ ofstream DataLog("datalog.log");
 ofstream DataManLog("datamanlog.log");
 ofstream TaskManLog("taskmanlog.log");
 
+int GLogMsgCounter;
+
 const int numproc = 2;
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
@@ -35,6 +37,7 @@ void    Load (int iproc);
 int multimain ()
 {
 
+	GLogMsgCounter=0;
 	int     iproc;
 	for (iproc = 0; iproc < numproc; iproc++) {
 #ifndef MPI

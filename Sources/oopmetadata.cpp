@@ -98,6 +98,10 @@ TRANSITION STATES
 
 void OOPMetaData::VerifyAccessRequests ()
 {
+	DataLog << GLogMsgCounter << endl;
+	DataLog << "Calling VerifyAccessRequests\n";
+	GLogMsgCounter++;
+	
 	OOPObjectId taskid;
 	while (fAccessList.HasIncompatibleTask (fVersion, taskid)) {
 		DataLog << "OOPMetaData::Verify.. task canceled " << taskid << endl;
@@ -204,6 +208,10 @@ bool OOPMetaData::IamOwner () const
 void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 				 const OOPMDataDepend & depend)
 {
+	DataLog << GLogMsgCounter << endl;
+	DataLog << "Calling ReleaseAccess\n";
+	GLogMsgCounter++;
+
 	fAccessList.ReleaseAccess (taskid, depend);
 	if (depend.State () == EVersionAccess) {
 		this->fProcVersionAccess = -1;
@@ -245,6 +253,10 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 
 void OOPMetaData::CheckTransitionState ()
 {
+	DataLog << GLogMsgCounter << endl;
+	DataLog << "Calling CheckTransitionState\n";
+	GLogMsgCounter++;
+	
 	if(fToDelete) {
 		fAccessList.RevokeAccessAndCancel ();
 		if (!fAccessList.HasExecutingTasks ()) {
@@ -342,6 +354,9 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
 				       const OOPMDataDepend & depend,
 				       int processor)
 {
+	DataLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
+	
 	DataLog << "SubmitAccessRequest task " << taskId << " depend " << depend << " proc " << processor << endl;
 	fAccessList.AddAccessRequest (taskId, depend, processor);
 	VerifyAccessRequests ();
@@ -386,6 +401,9 @@ void OOPMetaData::SetId (OOPObjectId & id)
 */
 void OOPMetaData::TransferObject (int ProcId)
 {
+	DataLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
+	
 	OOPDMOwnerTask *town = new OOPDMOwnerTask(ETransferOwnership,ProcId);
 	TM->Submit(town);
 	fAccessList.TransferAccessRequests(fObjId,ProcId);
@@ -395,6 +413,10 @@ void OOPMetaData::TransferObject (int ProcId)
 
 void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 {
+	DataLog << GLogMsgCounter << endl;
+	DataLog << "Calling HandleMessage\n";
+	GLogMsgCounter++;
+	
 	switch(ms.fType) {
 	case ESuspendAccess:
 		fTrans = ESuspendReadTransition;
@@ -547,6 +569,9 @@ bool OOPMetaData::HasWriteAccess (const OOPObjectId & taskid) const
 
 void OOPMetaData::DeleteObject ()
 {
+	DataLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
+	
 	this->fToDelete = 1;
 	DataLog << "deleting object " << fObjId << endl;
 	if (IamOwner()) {
@@ -577,6 +602,10 @@ void OOPMetaData::DeleteObject ()
 
 void OOPMetaData::RequestDelete ()
 {
+	DataLog << GLogMsgCounter << endl;
+	DataLog << "Calling RequestDelete";
+	GLogMsgCounter++;
+	
 	if (this->fProc == DM->GetProcID ()) {
 		DeleteObject ();
 	}
@@ -622,6 +651,9 @@ void OOPMetaData::CancelReadAccess ()
 
 void OOPMetaData::SuspendReadAccess ()
 {
+	DataLog << GLogMsgCounter << endl;
+	DataLog << "Calling SuspendReadAccess\n";
+	GLogMsgCounter++;
 
 	// send suspend messages to all processors and revoke the access
 	// granted
@@ -655,6 +687,8 @@ void OOPMetaData::GrantReadAccess (OOPObjectId TaskId, int ProcId,
 				   OOPMDataState AccessRequest,
 				   OOPDataVersion version)
 {
+	DataLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
 	DataLog << "grant read access for obj " << fObjId << " is used?\n";
 }
 void OOPMetaData::GrantVersionAccess (OOPObjectId TaskId, int ProcId,
@@ -665,6 +699,8 @@ void OOPMetaData::GrantVersionAccess (OOPObjectId TaskId, int ProcId,
 
 void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 {
+	DataLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
 	switch(state) {
 	case EVersionAccess: {
 		DataLog << "Sending grant version access for obj " << fObjId << " to proc " << processor << endl;
@@ -688,6 +724,7 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		break;
 	}
 	case EWriteAccess: 
+		DataLog << "OOPMetaData::GrantAccess Granting writting access" << fObjId << " State " << state << endl;
 		TransferObject(processor);
 		break;
 	default:
@@ -762,8 +799,12 @@ void OOPMetaData::Print (ostream & out)
 void OOPMetaData::SetVersion (const OOPDataVersion & ver,
 			      const OOPObjectId & taskid)
 {
+	DataLog << GLogMsgCounter << endl;
+	
+	GLogMsgCounter++;
 	if (fTaskWrite == taskid || fTaskVersion == taskid) {
 		fVersion = ver;
+		DataLog << "Setting Version\n";
 	}
 	else {
 		DataLog << "OOPMetaData::SetVersion not executed "<< fObjId << "\n";

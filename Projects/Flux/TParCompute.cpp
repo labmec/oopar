@@ -5,7 +5,6 @@
 
 OOPMReturnType TParCompute::Execute ()
 {
-
 	// submit subtasks to the Task Manager
 	int i;
 	// increment the level of the state and rhs objects with appropriate
@@ -85,6 +84,11 @@ void TParCompute::SetMeshId (vector < OOPObjectId > &Id,
    */
 int TParCompute::Pack (OOPSendStorage * buf)
 {
+
+	if (GLogMsgCounter == 68) {
+		int eu;
+		eu=0;
+	}
 	PrintLog(TaskLog, "Packing TParCompute object");
 
 	OOPTask::Pack (buf);

@@ -275,4 +275,5 @@ class   OOPTMTask:public OOPDaemonTask
 
 extern OOPTaskManager *TM;
 extern ofstream TaskManLog;
+extern int GLogMsgCounter;
 #endif

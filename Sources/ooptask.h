@@ -245,4 +245,5 @@ class   OOPDaemonTask:public OOPTask
 
 };
 
+extern int GLogMsgCounter;
 #endif

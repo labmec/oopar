@@ -107,6 +107,8 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 					  const OOPMDataDepend & depend,
 					  OOPMetaData * objptr)
 {
+	TaskManLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
 	deque < OOPTaskControl * >::iterator i;
 	bool found = false;
 
@@ -143,6 +145,8 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 				   const OOPMDataDepend & depend)
 {
+	TaskManLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
 	deque < OOPTaskControl * >::iterator i;
 	bool found = false;
 
@@ -171,12 +175,15 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 
 OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 {
-
+	TaskManLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
+	TaskManLog << "Calling Submit on OOPTaskManager\n";
+	TaskManLog.flush();
 	OOPObjectId id;
 	// mutex lock 
 	id = GenerateId ();
 	task->SetTaskId (id);
-
+	id.Print(TaskManLog);
 	fSubmittedList.push_back (task);
 	// mutex unlock
 	return id;
@@ -220,6 +227,8 @@ int OOPTaskManager::ChangePriority (OOPObjectId & taskid, int newpriority)
 
 int OOPTaskManager::CancelTask (OOPObjectId taskid)
 {
+	TaskManLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
 	deque < OOPTaskControl * >::iterator i;	// , iprev, atual;
 
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {

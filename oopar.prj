@@ -1,9 +1,8 @@
-# Anjuta Version 1.0.2 
+# Anjuta Version 1.2.0 
 Compatibility Level: 1 
 
 <PROJECT_DESCRIPTION_START>
-
-<PROJECT_DESCRIPTION_END>
+Object Oriented parallelism package<PROJECT_DESCRIPTION_END>
 <CONFIG_PROGS_START>
 <CONFIG_PROGS_END>
 <CONFIG_LIBS_START>
@@ -23,18 +22,19 @@ Compatibility Level: 1
 
 props.file.type=project
 
-anjuta.version=1.0.2
+anjuta.version=1.2.0
 anjuta.compatibility.level=1
 
 project.name=oopar
 project.type=GENERIC
-project.target.type=STATIC_LIB
+project.target.type=EXECUTABLE
 project.version=$OOP_VERSION.$OOP_REV
 project.author=Gustavo Camargo Longhin
-project.source.target=liboopar
+project.source.target=liboopar.a
 project.has.gettext=0
-project.programming.language=C++
-project.excluded.modules=intl Projects
+project.gui.command=
+project.programming.language=C_C++
+project.excluded.modules=intl
 
 project.config.extra.modules.before=
 project.config.extra.modules.after=
@@ -49,134 +49,213 @@ project.menu.need.terminal=0
 
 project.configure.options=
 anjuta.program.arguments=
+preferences.build.option.jobs=0
+preferences.build.option.silent=0
+preferences.build.option.autosave=0
+preferences.anjuta.make.options=-k
+preferences.make=make
+preferences.build.option.keep.going=1
+preferences.build.option.warn.undef=0
+preferences.autoformat.custom.style= -i8 -sc -bli0 -bl0 -cbi0 -ss
+preferences.indent.opening=0
+preferences.autoformat.disable=1
 preferences.indent.automatic=1
 preferences.use.tabs=1
-preferences.indent.opening=0
-preferences.indent.closing=0
-preferences.tabsize=4
 preferences.indent.size=4
-preferences.autoformat.style=Custom style
-preferences.autoformat.custom.style= -i8 -sc -bli0 -bl0 -cbi0 -ss -bfda -nbad -npsl -di8 -c8 -fca
-preferences.autoformat.disable=0
-preferences.debugger.command=gdb
-preferences.ui.designer=glade '$(project.name).glade'
-preferences.help.browser=devhelp -s '$(current.file.selection)'
+preferences.tabsize=4
+preferences.indent.closing=0
 
 module.include.name=.
 module.include.type=
-module.include.expanded=1
 module.include.files=\
-	Projects/Flux/TLocalCompute.h\
-	Projects/Flux/TContribution.h\
-	Projects/Flux/TParAnalysis.h\
-	Projects/Flux/TParCompute.h\
-	Projects/Flux/TParMesh.h\
-	Projects/Flux/TParRhs.h\
-	Projects/Flux/TParState.h\
-	Projects/Flux/TPartitionRelation.h\
-	Projects/Trivial/TTaskTest.h\
-	Projects/Trivial/tmultidata.h\
-	Projects/Trivial/tmultitask.h\
-	Projects/Trivial/tresultdata.h\
-	Sources/cmdefs.h\
-	Sources/oopcommmanager.h\
-	Sources/oopdatamanager.h\
-	Sources/oopdataversion.h\
-	Sources/ooperror.h\
-	Sources/oopfilecomm.h\
-	Sources/oopfilestorage.h\
-	Sources/oopmetadata.h\
 	Sources/oopobjectid.h\
+	Sources/Save/pzbfilestream.h\
+	Sources/Save/pzfilebuffer.h\
+	Sources/Save/pzsave.h\
+	Sources/cmdefs.h\
+	Sources/oopdataversion.h\
 	Sources/ooppardefs.h\
-	Sources/ooppartask.h\
-	Sources/oopsaveable.h\
-	Sources/oopstorage.h\
-	Sources/ooptask.h\
-	Sources/ooptaskmanager.h\
-	Sources/ooptaskcontrol.h\
+	Sources/oopmpistorage.h\
 	Sources/oopmdatadepend.h\
-	Sources/oopwaittask.h
+	Sources/oopfilecomm.h\
+	Sources/pzmanvector.h\
+	Sources/oopfilestorage.h\
+	Sources/oopstorage.h\
+	Sources/oopmetadata.h\
+	Sources/oopsaveable.h\
+	Sources/oopwaittask.h\
+	Sources/OOPDataLogger.h\
+	Sources/oopaccessinfo.h\
+	Sources/oopdatamanager.h\
+	Sources/oopcommmanager.h\
+	Sources/ooptaskmanager.h\
+	Sources/ooperror.h\
+	Sources/ooppartask.h\
+	Sources/ooptaskcontrol.h\
+	Sources/pzvec.h\
+	Sources/oopmpicomm.h\
+	Sources/ooptask.h\
+	Projects/Flux/TParAnalysis.h\
+	Projects/Flux/TContribution.h\
+	Projects/Flux/TParMesh.h\
+	Projects/Flux/TTaskComm.h\
+	Projects/Flux/TParCompute.h\
+	Projects/Flux/TLocalCompute.h\
+	Projects/Flux/TParVector.h\
+	Projects/Flux/TPartitionRelation.h\
+	Projects/Flux/fluxdefs.h\
+	Projects/Trivial/tresultdata.h\
+	Projects/Trivial/TTaskTest.h\
+	Projects/Trivial/tmultitask.h\
+	Projects/Trivial/tmultidata.h\
+	Projects/BiCGSt/bicgdouble.h\
+	Projects/BiCGSt/TDotProduct.h\
+	Projects/BiCGSt/TBiCGStab.h\
+	Projects/BiCGSt/tbicg_one.h\
+	Projects/BiCGSt/TContribution.h\
+	Projects/BiCGSt/tparmatrix.h\
+	Projects/BiCGSt/TTaskComm.h\
+	Projects/BiCGSt/bicgdefs.h\
+	Projects/BiCGSt/TMultAdd.h\
+	Projects/BiCGSt/tbicgfor_one.h\
+	Projects/BiCGSt/TParVector.h\
+	Projects/BiCGSt/TUpdateResidue.h\
+	Projects/BiCGSt/BiCGInt.h\
+	Projects/BiCGSt/TLoopFor.h\
+	Projects/BiCGSt/TPartitionRelation.h\
+	Projects/BiCGSt/TDistNorm.h\
+	Projects/BiCGSTAB/TDotProduct.h\
+	Projects/BiCGSTAB/tvecaddextended.h\
+	Projects/BiCGSTAB/TBiCGStab.h\
+	Projects/BiCGSTAB/TMultAdd.h\
+	Projects/BiCGSTAB/tupdatep.h\
+	Projects/BiCGSTAB/tsecondif.h\
+	Projects/BiCGSTAB/tcomputebeta.h\
+	Projects/BiCGSTAB/TIfConditional.h\
+	Projects/BiCGSTAB/TUpdateResidue.h\
+	Projects/BiCGSTAB/tsetvectovec.h\
+	Projects/BiCGSTAB/TLoopFor.h\
+	Projects/BiCGSTAB/tvecadd.h\
+	Projects/BiCGSTAB/TDistNorm.h\
+	Projects/PhilFlux/TParVector.h\
+	Projects/PhilFlux/tsmalltask.h\
+	Projects/PhilFlux/fluxdefs.h
 
 module.source.name=.
 module.source.type=
-module.source.expanded=1
 module.source.files=\
+	Sources/ooptaskmanager.cpp\
+	Sources/oopmetadata.cpp\
+	Sources/ooptask.cpp\
+	Sources/ooppardefs.cpp\
+	Sources/oopparclass.cpp\
+	Sources/oopdatamanager.cpp\
+	Sources/Save/pzbfilestream.cpp\
+	Sources/Save/pzfilebuffer.cpp\
+	Sources/Save/pzsave.cpp\
+	Sources/oopwaittask.cpp\
+	Sources/oopmpicomm.cpp\
+	Sources/ooperror.cpp\
+	Sources/ooptaskcontrol.cpp\
+	Sources/oopfilecomm.cpp\
+	Sources/oopmpistorage.cpp\
+	Sources/oopsaveable.cpp\
+	Sources/oopdataversion.cpp\
+	Sources/OOPDataLogger.cpp\
+	Sources/oopmdatadepend.cpp\
+	Sources/oopfilestorage.cpp\
+	Sources/oopstorage.cpp\
+	Sources/oopstore.cpp\
+	Sources/oopaccessinfo.cpp\
+	Sources/oopobjectid.cpp\
 	Projects/Flux/TParAnalysis.cpp\
+	Projects/Flux/TParMesh.cpp\
+	Projects/Flux/TTaskComm.cpp\
 	Projects/Flux/TLocalCompute.cpp\
+	Projects/Flux/multimain.cpp\
+	Projects/Flux/pzvecflux.cpp\
 	Projects/Flux/TContribution.cpp\
 	Projects/Flux/TParCompute.cpp\
-	Projects/Flux/TParMesh.cpp\
-	Projects/Flux/TParRhs.cpp\
-	Projects/Flux/TParState.cpp\
+	Projects/Flux/TParVector.cpp\
+	Projects/Flux/ooparmain.cpp\
 	Projects/Flux/TPartitionRelation.cpp\
+	Projects/Trivial/tmultitask.cpp\
+	Projects/Trivial/tresultdata.cpp\
 	Projects/Trivial/TTaskTest.cpp\
 	Projects/Trivial/ooparmain.cpp\
 	Projects/Trivial/tmultidata.cpp\
-	Projects/Trivial/tmultitask.cpp\
-	Projects/Trivial/tresultdata.cpp\
+	Projects/BiCGSt/bicgdouble.cpp\
+	Projects/BiCGSt/tparmatrix.cpp\
+	Projects/BiCGSt/tbicg_one.cpp\
+	Projects/BiCGSt/TMultAdd.cpp\
+	Projects/BiCGSt/TTaskComm.cpp\
+	Projects/BiCGSt/tbicgfor_one.cpp\
+	Projects/BiCGSt/TUpdateResidue.cpp\
+	Projects/BiCGSt/BiCGInt.cpp\
+	Projects/BiCGSt/TContribution.cpp\
+	Projects/BiCGSt/TDistNorm.cpp\
+	Projects/BiCGSt/TLoopFor.cpp\
+	Projects/BiCGSt/TParVector.cpp\
+	Projects/BiCGSt/TBiCGStab.cpp\
+	Projects/BiCGSt/TPartitionRelation.cpp\
+	Projects/BiCGSt/TDotProduct.cpp\
+	Projects/BiCGSTAB/TIfConditional.cpp\
+	Projects/BiCGSTAB/tcomputebeta.cpp\
+	Projects/BiCGSTAB/TMultAdd.cpp\
+	Projects/BiCGSTAB/TUpdateResidue.cpp\
+	Projects/BiCGSTAB/tupdatep.cpp\
+	Projects/BiCGSTAB/tsecondif.cpp\
+	Projects/BiCGSTAB/TDistNorm.cpp\
+	Projects/BiCGSTAB/TLoopFor.cpp\
+	Projects/BiCGSTAB/TBiCGStab.cpp\
+	Projects/BiCGSTAB/TDotProduct.cpp\
+	Projects/BiCGSTAB/tsetvectovec.cpp\
+	Projects/BiCGSTAB/tvecaddextended.cpp\
+	Projects/BiCGSTAB/tvecadd.cpp\
+	Projects/BiCGSTAB/bicgstaboopar.cpp\
 	Projects/PhilFlux/main.cpp\
-	Sources/oopdatamanager.cpp\
-	Sources/oopdataversion.cpp\
-	Sources/ooperror.cpp\
-	Sources/oopfilecomm.cpp\
-	Sources/oopfilestorage.cpp\
-	Sources/oopmetadata.cpp\
-	Sources/oopobjectid.cpp\
-	Sources/oopparclass.cpp\
-	Sources/oopsaveable.cpp\
-	Sources/oopstorage.cpp\
-	Sources/oopstore.cpp\
-	Sources/ooptask.cpp\
-	Sources/ooptaskmanager.cpp\
-	Sources/ooptaskcontrol.cpp\
-	Sources/oopmdatadepend.cpp\
-	Sources/oopwaittask.cpp
+	Projects/PhilFlux/TParVector.cpp\
+	Projects/PhilFlux/tsmalltask.cpp
 
 module.pixmap.name=.
 module.pixmap.type=
-module.pixmap.expanded=0
 module.pixmap.files=
 
 module.data.name=.
 module.data.type=
-module.data.expanded=0
 module.data.files=
 
 module.help.name=.
 module.help.type=
-module.help.expanded=0
 module.help.files=
 
 module.doc.name=.
 module.doc.type=
-module.doc.expanded=1
 module.doc.files=\
+	NEWS\
 	ChangeLog\
 	AUTHORS\
-	COPYING\
 	INSTALL\
-	NEWS\
+	COPYING\
 	README
 
-module.po.expanded=0
 module.po.files=
 
 compiler.options.supports=
 compiler.options.include.paths=\
 	.\
-	..\
-	/compile/longhin/mpich-1.2.5/include/.
+	..
 compiler.options.library.paths=
 compiler.options.libraries=
 compiler.options.libraries.selected=
 compiler.options.defines=\
-	HAVE_CONFIG_H\
-	MPI
-compiler.options.warning.buttons=0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+	HAVE_CONFIG_H
+compiler.options.defines.selected=
+compiler.options.warning.buttons=0 0 1 1 0 1 0 0 0 0 0 0 0 1 0 0 
 compiler.options.optimize.buttons=0 0 1 0 
 compiler.options.other.buttons=1 0 
 compiler.options.other.c.flags=
 compiler.options.other.l.flags=
 compiler.options.other.l.libs=
-project.source.paths=
 
+project.src.paths=

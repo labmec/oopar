@@ -2,21 +2,28 @@
 [executer]
 RunInTerminal=true
 
-[Project DBase]
-ShowLocals=true
+[Project State]
+clean before build=false
 
 [filenumbers]
-0=31
-1=1
+0=166
+1=14
 
 [filemarkers]
 0=
 1=
 
-[filelist]
-0=/home/longhin/Projetos/OOPar/Sources/ooppardefs.h
-
 [File View]
 filter.file.unmatch=*.so *.o *.a *.la
 filter.file.ignore.hidden=0
 filter.dir.ignore.hidden=0
+
+[filelist]
+0=/home/longhin/Projetos/OOPar/Sources/Save/pzsave.h
+1=/home/longhin/Projetos/OOPar/Sources/Save/pzsave.cpp
+
+[Project Tree]
+0=0
+
+[File Tree]
+0=0

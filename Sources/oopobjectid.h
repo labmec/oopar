@@ -103,7 +103,7 @@ public:
     /**
      * Used for testing purposes 
      */
-    static void main();
+    static int main();
 
     /**
      * Prints TObjectId data 

@@ -102,9 +102,9 @@ public:
 	* @param access Access state on the identified data
 	* @param version Version on the identified data
 	*/
-	void AddDependentData(OOPObjectId &DataId,
+	void AddDependentData(const OOPObjectId &DataId,
 			    OOPMDataState access ,
-			    OOPDataVersion &version);
+			    const OOPDataVersion &version);
 
 	/**
 	* Returns the estimated execution time.
@@ -192,7 +192,7 @@ public:
 	/**
 	* Grant access to an object
 	*/
-    void GrantAccess(OOPObjectId &id, OOPMDataState st, OOPSaveable *objptr);
+    void GrantAccess(OOPObjectId &id, OOPMDataState st, OOPMetaData *objptr);
 
 	/**
 	* Revoke access to an object
@@ -275,10 +275,10 @@ private:
 	/**
 	 * Pointer to the required object itself
 	 */
-	OOPSaveable *fObjPtr;
+	OOPMetaData *fObjPtr;
 public:	
-	OOPSaveable * ObjPtr();
-	void SetObjPtr(OOPSaveable * objptr);
+	OOPMetaData * ObjPtr();
+	void SetObjPtr(OOPMetaData * objptr);
 	/**
 	 * Empty constructor
 	 */
@@ -287,9 +287,9 @@ public:
 	/**
 	 * Constructor with initial parameters
 	 */
-	OOPMDataDepend (OOPObjectId &id, 
+	OOPMDataDepend (const OOPObjectId &id, 
 		   OOPMDataState st,
-		   OOPDataVersion &ver);
+		   const OOPDataVersion &ver);
 	/**
 	 * Returns 1 if the data is accessible
 	 */

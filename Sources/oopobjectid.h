@@ -30,6 +30,13 @@ public:
 	 * Assign zero to ObjectId data structure
 	 */
 	void Zero();
+
+	/**
+	 * returns true if the id is zero
+	 */
+	bool IsZero() {
+	  return fId == 0 && fProcId == 0;
+	}
     /**
      * Simple construtor 
      */

@@ -53,7 +53,7 @@ public:
 				     OOPObjectId & DataId,
 				     OOPMDataState st,
 				     OOPDataVersion & Version,
-				     OOPSaveable * objptr);
+				     OOPMetaData * objptr);
 	/**
 	 * Constructor passing processor id as parameter.
 	 * @param proc Processor where the TM is created.

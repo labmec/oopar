@@ -156,6 +156,7 @@ int OOPFileComManager::SendTask (OOPTask * pObject)
 	}
 
 	int ipr;
+	//Alguma coisa estranha aqui !!!!
 	for (ipr = iprmin; ipr < iprmax; ipr++) {
 		if (ipr == f_myself)
 			continue;

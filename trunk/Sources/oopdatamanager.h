@@ -315,4 +315,5 @@ class   OOPCurrentLocation
 
 extern OOPDataManager *DM;
 extern ofstream DataManLog;
+extern int GLogMsgCounter;
 #endif

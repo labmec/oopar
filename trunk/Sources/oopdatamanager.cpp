@@ -183,6 +183,8 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 					 const OOPMDataDepend & depend,
 					 const long ProcId)
 {
+	DataManLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
 
 	deque < OOPMetaData * >::iterator i;
 	bool found = false;
@@ -198,8 +200,8 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 				return 0;
 			(*i)->SubmitAccessRequest (TaskId, depend,
 						   GetProcID ());
-			// DataManLog << "Access request submitted" << endl;
-			// (*i)->Print(DataManLog);
+			DataManLog << "Access request submitted" << endl;
+			(*i)->Print(DataManLog);
 			break;
 		}
 	}
@@ -327,7 +329,10 @@ void OOPDataManager::TransferObject (OOPObjectId & ObjId, int ProcId)
 
 void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 {
+	DataManLog << GLogMsgCounter << endl;
+	GLogMsgCounter++; 
 
+	DataManLog << "Calling GetUpdate(OOPDMOwnerTask)\n"; 
 	OOPMetaData *dat = Data (task->fObjId);
 	if (!dat) {
 		DataManLog << "TDataManager:GetUpdate called with invalid ojbid:";
@@ -336,15 +341,22 @@ void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 		return;
 	}
 	if (task->fType == ENotifyDeleteObject) {
+		DataManLog << "TDataManager:GetUpdate calling DeleteObject:";
+		task->fObjId.Print(DataManLog);
 		dat->DeleteObject ();
 	}
 	else {
+		DataManLog << "TDataManager:GetUpdate Message Handled:";
+		task->fObjId.Print(DataManLog);
 		dat->HandleMessage (*task);
 	}
 }
 
 void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 {
+	DataManLog << GLogMsgCounter << endl;
+	GLogMsgCounter++;
+	DataManLog << "Calling GetUpdate(OOPDMRequestTask):\n";
 
 	OOPObjectId id = task->fDepend.Id ();
 	deque < OOPMetaData * >::iterator i;
@@ -354,17 +366,21 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 	}
 	if (i == fObjects.end ()) {
 		if (id.GetProcId () == this->GetProcID ()) {
-			DataManLog << "OOPDataManager send a delete object message to the original processor\n";
+			DataManLog << "OOPDataManager::GetUpdate send a delete object message to the original processor\n";
 		}
 		else {
 			OOPDMRequestTask *ntask =
 				new OOPDMRequestTask (*task);
+			DataManLog << "OOPDataManager::GetUpdate Submitting received task\n";
 			ntask->SetProcID (id.GetProcId ());
 			TM->Submit (ntask);
 		}
 	}
 	else {
+		DataManLog << "OOPDataManager::GetUpdate fDepend.Id() not found in this prcessor:";
+		id.Print(DataManLog);
 		OOPObjectId taskid;
+		
 		(*i)->SubmitAccessRequest (taskid, task->fDepend,
 					   task->fProcOrigin);
 	}

@@ -351,6 +351,7 @@ class   OOPMetaData:public OOPSaveable
  *log file for MetaData objects
  */
 extern ofstream DataLog;
+extern int GLogMsgCounter;
 
 /*
 inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {

@@ -10,7 +10,7 @@
 #endif
 #include "TParAnalysis.h"
 #include "fluxdefs.h"
-const int numproc = 3;
+const int numproc = 2;
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
 vector < OOPTaskManager * >TMList (numproc);
@@ -41,7 +41,7 @@ int multimain ()
 					    TParAnalysis::Restore);
 
 	Load (0);
-	TParAnalysis *partask = new TParAnalysis (1, 2);
+	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);
 	TM->Submit (partask);
 
 
@@ -77,7 +77,7 @@ int mpimain (int argc, char *argv[])
 					    TParAnalysis::Restore);
 
 	Load (0);
-	TParAnalysis *partask = new TParAnalysis (1, 2);
+	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);
 	TM->Submit (partask);
 
 

@@ -124,7 +124,7 @@ void TParAnalysis::CreateParCompute ()
 
 
 	// message #1.1 to pc:TParCompute
-	TParCompute *pc = new TParCompute (GetProcID (), fNumPartitions);
+	TParCompute *pc = new TParCompute (fNumProcessors-1-GetProcID (), fNumPartitions);
 
 	OOPDataVersion ver;
 	pc->SetMeshId (fMeshId, ver);
@@ -233,10 +233,12 @@ OOPMReturnType TParAnalysis::Execute ()
 TParAnalysis::TParAnalysis (int Procid):OOPTask (Procid)
 {
 	fNumPartitions = 0;
+	fNumProcessors = -1;
 }
-TParAnalysis::TParAnalysis (int Procid, int numpartitions):OOPTask (Procid)
+TParAnalysis::TParAnalysis (int Procid, int numpartitions, int numproc):OOPTask (Procid)
 {
 	fNumPartitions = numpartitions;
+	fNumProcessors = numproc;
 	SetRecurrence ();
 }
 
@@ -251,6 +253,7 @@ int TParAnalysis::Pack (OOPSendStorage * buf)
 
 	OOPTask::Pack (buf);
 	buf->PkInt (&fNumPartitions);
+	buf->PkInt (&fNumProcessors);
 	fRelationTable.Pack (buf);
 	fTaskVersion.Pack (buf);
 	int ip, np = fRhsId.size ();
@@ -271,6 +274,7 @@ int TParAnalysis::Unpack (OOPReceiveStorage * buf)
 {
 	OOPTask::Unpack (buf);
 	buf->UpkInt (&fNumPartitions);
+	buf->UpkInt (&fNumProcessors);
 	fRelationTable.Unpack (buf);
 	fTaskVersion.Unpack (buf);
 	int ip, np;

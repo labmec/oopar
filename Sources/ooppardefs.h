@@ -50,6 +50,7 @@ enum OOPMReturnType
 };
 
 //#define NUMOBJECTS  0x100000
+
 #define NUMOBJECTS  1000
 
 #define TTASK_ID 3000

@@ -15,6 +15,9 @@
 #include "TParMesh.h"
 #include "TParVector.h"
 #include "fluxdefs.h"
+
+#include "OOPDataLogger.h"
+
 ofstream TaskLog("tasklog.log");
 ofstream DataLog("datalog.log");
 ofstream DataManLog("datamanlog.log");
@@ -22,6 +25,7 @@ ofstream TransferDataLog("transferdatalog.log");
 ofstream TaskQueueLog("taskqueue.log");
 ofstream TaskManLog("taskmanlog.log");
 ofstream DataQueueLog("dataqueuelog.log");
+
 int GLogMsgCounter;
 const int numproc = 2;
 vector < OOPCommunicationManager * >CMList (numproc);
@@ -58,6 +62,9 @@ int multimain ()
 	OOPReceiveStorage::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
 	OOPReceiveStorage::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
 	Load (0);
+	
+	
+	
 	TParAnalysis *partask = new TParAnalysis (1, 2, numproc);
 	TM->Submit (partask);
 	int nsteps=500;
@@ -76,6 +83,7 @@ int multimain ()
 	TransferDataLog.close();
 	TaskQueueLog.close();
 	DataQueueLog.close();
+	delete LogDM;
 	return 0;
 }
 int mpimain (int argc, char *argv[])

@@ -199,7 +199,9 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,this->fProc);
 			town->fObjId = fObjId;
 			town->fVersion = fVersion;
+			LogDM->SendOwnTask(town);
 			TM->SubmitDaemon(town);
+			
 		} else {
 			list < int >::iterator i = fSuspendAccessProcessors.begin ();
 			while (i != fSuspendAccessProcessors.end ()) {
@@ -210,6 +212,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
 					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
 					town->fObjId = fObjId;
 					town->fVersion = fVersion;
+					LogDM->SendOwnTask(town);
 					TM->SubmitDaemon(town);
 				}
 				i++;
@@ -268,6 +271,7 @@ void OOPMetaData::CheckTransitionState ()
 						town->fObjPtr = this->fObjPtr;
 						town->fVersion = this->fVersion;
 						town->fProcOrigin = DM->GetProcID();
+						LogDM->SendOwnTask(town);
 						TM->SubmitDaemon(town);
 						delete this->fObjPtr;
 						fObjPtr = 0;
@@ -298,6 +302,7 @@ void OOPMetaData::CheckTransitionState ()
 					town->fObjId=fObjId;
 					town->fObjPtr = this->fObjPtr;
 					town->fVersion = this->fVersion;
+					LogDM->SendOwnTask(town);
 					TM->SubmitDaemon(town);
 				}
 			}
@@ -406,7 +411,7 @@ void OOPMetaData::TransferObject (int ProcId)
 	town->fVersion = this->fVersion;
 	this->fProc = ProcId;
 	this->fObjPtr = 0;
-	
+	LogDM->SendOwnTask(town);
 	TM->SubmitDaemon(town);
 	fAccessList.TransferAccessRequests(fObjId,ProcId);
 	DataLog << "Transfer object " << fObjId << " to proc " << ProcId << "\n";
@@ -507,6 +512,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
 					town->fProcOrigin = DM->GetProcID();
 					town->fObjId = fObjId;
+					LogDM->SendOwnTask(town);
 					TM->SubmitDaemon(town);
 				}
 				i++;
@@ -545,6 +551,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,fProc);
 			town->fProcOrigin = DM->GetProcID();
 			town->fObjId = fObjId;
+			LogDM->SendOwnTask(town);
 			TM->SubmitDaemon(town);
 			fSuspendAccessProcessors.clear();
 		}
@@ -613,6 +620,7 @@ void OOPMetaData::DeleteObject ()
 			if(*i != DM->GetProcID()) {
 				OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,*i);
 				town->fObjId = fObjId;
+				LogDM->SendOwnTask(town);
 				TM->SubmitDaemon(town);
 			}
 			i++;
@@ -623,6 +631,7 @@ void OOPMetaData::DeleteObject ()
 	if (!(fProcVersionAccess != -1)) {
 		OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,fProcVersionAccess);
 		town->fObjId = fObjId;
+		LogDM->SendOwnTask(town);
 		TM->SubmitDaemon(town);
 	}
 	CheckTransitionState();
@@ -656,6 +665,7 @@ void OOPMetaData::CancelReadAccess ()
 		if(*i != DM->GetProcID()) {
 			OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccess,*i);
 			town->fObjId = fObjId;
+			LogDM->SendOwnTask(town);
 			TM->SubmitDaemon(town);
 		}
 		i++;
@@ -705,7 +715,7 @@ void OOPMetaData::SuspendReadAccess ()
 			town->fObjId=fObjId;
 			town->fObjPtr = this->fObjPtr;
 			town->fVersion = this->fVersion;
-			
+			LogDM->SendOwnTask(town);
 			TM->SubmitDaemon(town);
 		}
 		ir++;
@@ -744,6 +754,7 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		town->fProcOrigin = DM->GetProcID();
 		TM->SubmitDaemon(town);
 		fProcVersionAccess = processor;
+		LogDM->GrantAccessLog(town);
 		break;
 	}
 	case EReadAccess : {
@@ -755,6 +766,7 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		town->fVersion = this->fVersion;
 		town->fProcOrigin = DM->GetProcID();
 		TM->SubmitDaemon(town);
+		LogDM->GrantAccessLog(town);
 		this->fReadAccessProcessors.push_back(processor);
 		break;
 	}
@@ -767,7 +779,8 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 	default:
 		DataLog << "OOPMetaData::GrantAccess " << fObjId << " unhandled state " << state << endl;
 		DataLog.flush();
-		break;
+		
+	break;
 	}
 }
 OOPDataVersion OOPMetaData::Version () const

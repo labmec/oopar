@@ -3,7 +3,10 @@
 #ifndef OOPDATALOGGER_H
 #define OOPDATALOGGER_H
 #include "oopsaveable.h"
-class OOPDataLogger : public OOPSaveable {
+#include "oopdatamanager.h"
+
+class OOPDMOwnerTask;
+class OOPDataLogger {//: public OOPSaveable {
 public:    
 
     /**
@@ -15,20 +18,35 @@ public:
      * Constructor with ofstream object
      * @param out output object 
      */
-    OOPDataLogger(ostream & out);
+    OOPDataLogger(ofstream & out);
 
     /**
      * Constructor which takes the filename parameter
      * @param outfilename Logger will be generated on that file 
      */
-    OOPDataLogger(string &logfilename);    
+    OOPDataLogger(char * logfilename);
+	~OOPDataLogger();
+
+	/**
+ 	 * Generates logs on the GrantAccess method of the OOPMetaData class
+	 * @param town OOPDMOwnerTask object upon which the logging information will
+	 * be obtained
+	 * @since 16/09/2003
+	 * @author longhin
+ 	 */
+	void GrantAccessLog(OOPDMOwnerTask *town);
+
 
     void SendOwnTask(OOPDMOwnerTask *town);
     void ReceiveOwnTask(OOPDMOwnerTask *town);
 
     void CancelTask(OOPMetaData &data);
+	ostream GetStream();
 
 private:    
-    ostream * fLogger;
+    ofstream fLogger;
 };
+extern OOPDataLogger * LogDM;
 #endif //OOPDATALOGGER_H
+
+

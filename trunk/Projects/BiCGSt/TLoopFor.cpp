@@ -103,6 +103,13 @@ void TLoopFor::SubmitPartOne(){
 }
 TLoopFor::TLoopFor(int proc) : OOPTask(proc) {}
 
+void TLoopFor::SubmiPartTwo(){
+      #warning "not implemented"
+}
+void TLoopFor::SubmitMultiply(vector<OOPObjectId> & IdMatrix, vector<OOPObjectId> & vecx, vector<OOPObjectId> & vecb){
+      #warning "Not implemented"
+}
+
 OOPMReturnType TLoopFor::Execute ()
 {
   /**
@@ -111,10 +118,23 @@ OOPMReturnType TLoopFor::Execute ()
   SubmitDistDotProduct();
 
   /**
-   * Submit the if conditional.
-   * fId_tol incremented.
+   * Submit the first set of instructions on the bicgstab loop before the necessary synchronization
    */
   SubmitPartOne();
+
+  
+  /**
+   * Submit the multiply instructions on the bicgstab loop for the necessary synchronization.
+   */
+  SubmitMultiply(f_lId_A, f_lId_phat, f_lId_v);
+
+  /**
+   * Submit the second set of instructions on the bicgstab loop
+   */
+  SubmiPartTwo();
+  
+
+  
 
 
   return ESuccess;
@@ -197,7 +217,7 @@ void TLoopFor::SetupVersions(){
 
   int nproc = CM->NumProcessors();
   for(i=0;i<nproc;i++){
-		auxver = fDataDepend.Dep(f_lId_p[i]).ObjPtr()->Version();
+	auxver = fDataDepend.Dep(f_lId_p[i]).ObjPtr()->Version();
   	auxver.IncrementLevel(-1);
   	fDataDepend.Dep(f_lId_p[i]).ObjPtr()->SetVersion(auxver, Id());
 	}

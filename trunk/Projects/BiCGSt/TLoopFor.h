@@ -88,7 +88,32 @@ private:
    * Submits the distributed dot prodocuct involving Id1 and Id2.
    */
   void SubmitDistDotProduct();
-
+  /**
+   * Submits the first set of instruction on the bicgstab loop.
+   * Those instructions are condensed in a singla class.
+   * This is possible since there are no synchronizations among nodes on those calls
+   * @author Gustavo C. Longhin
+   * @since 02/2004
+   */
   void SubmitPartOne();
+  /**
+   * Submits the second set of instructions on the bicgloop.
+   * Those instructions are executed before the synchronization on the loop.
+   * Those are again condensed in a single class, similar to SubimitPartOne
+   */
+  void SubmiPartTwo();
+  /**
+   * Submits a multiply operation on the bicgstab loop.
+   * It requires the synchronization among all nodes on the multiply process.
+   * The necessary synchronization is due to the contributions among subdomains on the parallel process.
+   * @param IdMatrix Holds the Id of the Matrix being multiplied.
+   * @param vecx Holds the id of the vector being multiplied
+   * @param vecb holds the id of the resulting multiplication vector.
+   * @author Gustavo C Longhin
+   * since 02/2004
+   */
+  void SubmitMultiply(vector<OOPObjectId> & IdMatrix, vector<OOPObjectId> & vecx, vector<OOPObjectId> & vecb);
+
+  
 };
 #endif //TLOOPFOR_H

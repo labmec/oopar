@@ -5,17 +5,12 @@
 #include <pthread.h>
 #endif
 #include "ooptask.h"
-#include <deque>
-#include <vector>
-//#include "ooptask.h"
+#include <list>
 class   OOPDataVersion;
-//class OOPMReturnType;
-//class OOPMDataState;
 class   OOPSaveable;
 class   OOPTaskControl;
 using namespace std;
 class   OOPObjectId;
-//class   OOPTMMessageTask;
 /**
  * Implements the manager of tasks on the environment.
  * All parallelized task are submitted to environment through the TaskManager.
@@ -187,23 +182,23 @@ private:
   /**
    * List of tasks which can't be executed yet
    */
-   deque < OOPTaskControl * >fTaskList;
+   list < OOPTaskControl * >fTaskList;
   /**
    * List of tasks which can be readily executed
    */
-	        deque < OOPTaskControl * >fExecutable;
+	        list < OOPTaskControl * >fExecutable;
 	/**
    * List of daemon tasks which can be readily executed
    */
-	        deque < OOPDaemonTask * >fDaemon;
+	        list < OOPDaemonTask * >fDaemon;
   /**
    * List of tasks recently submitted
    */
-	        deque < OOPTask * >fSubmittedList;
+	        list < OOPTask * >fSubmittedList;
   /**
    * List of finished tasks
    */
-	        deque < OOPTaskControl * >fFinished;
+	        list < OOPTaskControl * >fFinished;
 };
 /**
  * Implements a task which will be registered as a daemon

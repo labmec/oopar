@@ -1,17 +1,11 @@
 #include "ooptaskmanager.h"
 #include "oopcommmanager.h"
-#ifdef MPI
 #include "oopmpicomm.h"
-#endif
 #include "oopdatamanager.h"
 #include "ooptaskcontrol.h"
-//#include "tmultidata.h"
-//#include "tmultitask.h"
 class   OOPTask;
 class   OOPDataVersion;
 class   OOPSaveable;
-//class TMultiTask;
-//class TMultiData;
 class   OOPObjectId;
 class	OOPTerminationTask;
 #include <sys/types.h>
@@ -91,10 +85,10 @@ OOPTaskManager::OOPTaskManager (int proc)
 }
 OOPTaskManager::~OOPTaskManager ()
 {
-	deque < OOPTask * >::iterator i;
+	list < OOPTask * >::iterator i;
 	for (i = fSubmittedList.begin (); i != fSubmittedList.end (); i++)
 		delete *i;
-	deque < OOPTaskControl * >::iterator itc;
+	list < OOPTaskControl * >::iterator itc;
 	for (itc = fExecutable.begin (); itc != fExecutable.end (); itc++)
 		delete *itc;
 	for (itc = fFinished.begin (); itc != fFinished.end (); itc++)
@@ -109,7 +103,7 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 {
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-	deque < OOPTaskControl * >::iterator i;
+	list < OOPTaskControl * >::iterator i;
 	bool found = false;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = (*i);
@@ -142,7 +136,7 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 {
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-	deque < OOPTaskControl * >::iterator i;
+	list < OOPTaskControl * >::iterator i;
 	bool found = false;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = (*i);
@@ -172,15 +166,11 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
 	TaskManLog << "Calling Submit on OOPTaskManager ";
-#ifdef VERBOSE
 	cout << "Tryng to lock mutex on Submit PID " << getpid() << endl;
 	cout.flush();
-#endif
 	pthread_mutex_lock(&fExecuteMutex);
-#ifdef VERBOSE
 	cout << "Mutex locked Submit PID " << getpid() << endl;
 	cout.flush();
-#endif
 	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(task);
 	if(dmt) {
 		// lock
@@ -188,20 +178,15 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 		TaskManLog << "Task Submitted is a daemon\n";
 		// signal the service thread
 		// unlock
-#ifdef VERBOSE
 		cout << "Signalling on SubmiteDaemon()\n";
 		cout.flush();
-#endif
 		pthread_cond_signal(&fExecuteCondition);
-#ifdef VERBOSE
 		cout << "Mutex unlocking SubmiteDaemon PID " << getpid() << endl;
 		cout.flush();
-#endif
 		pthread_mutex_unlock(&fExecuteMutex);
-#ifdef VERBOSE
 		cout << "Mutex unlocked SubmiteDaemon PID " << getpid() << endl;
 		cout.flush();
-#endif		
+		
 		return OOPObjectId();
 	}
 	OOPObjectId id = task->Id();
@@ -214,20 +199,14 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 	fSubmittedList.push_back (task);
 	// signal to service thread
 	// mutex unlock
-#ifdef VERBOSE
 	cout << "Signalling on Submit()\n";
 	cout.flush();
-#endif
 	pthread_cond_signal(&fExecuteCondition);
-#ifdef VERBOSE
 	cout << "Mutex unlocking Submit PID " << getpid() << endl;
 	cout.flush();
-#endif
 	pthread_mutex_unlock(&fExecuteMutex);
-#ifdef VERBOSE
 	cout << "Mutex unlocked Submit PID " << getpid() << endl;
 	cout.flush();
-#endif
 	return id;
 }
 OOPObjectId OOPTaskManager::ReSubmit (OOPTask * task)
@@ -284,7 +263,7 @@ int OOPTaskManager::CancelTask (OOPObjectId taskid)
 {
 	TaskManLog << GLogMsgCounter << endl;
 	GLogMsgCounter++;
-	deque < OOPTaskControl * >::iterator i;	// , iprev, atual;
+	list < OOPTaskControl * >::iterator i;	// , iprev, atual;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = *i;
 		if (tc->Task ()->Id () == taskid) {
@@ -307,14 +286,16 @@ void OOPTaskManager::CleanUpTasks ()
 #endif
 }
 void OOPTaskManager::ExecuteDaemons() {
+	list < OOPDaemonTask * >::iterator i;
 	while(fDaemon.size()) {
-		if(fDaemon[0]->GetProcID() != DM->GetProcID()) {
-			CM->SendTask(fDaemon[0]);
+		i = fDaemon.begin();
+		if((*i)->GetProcID() != DM->GetProcID()) {
+			CM->SendTask((*i));
 		} else {
-			fDaemon[0]->Execute();
-			delete fDaemon[0];
+			(*i)->Execute();
+			delete (*i);
 		}
-		fDaemon.erase(fDaemon.begin());
+		fDaemon.erase(i);
 	}
 }
 void OOPTaskManager::Execute ()
@@ -323,7 +304,7 @@ void OOPTaskManager::Execute ()
 	// O service thread e a linha de execucao do programa principal
 	CM->ReceiveMessages ();
 	TransferSubmittedTasks ();
-	deque < OOPTaskControl * >::iterator i;
+	list < OOPTaskControl * >::iterator i;
 	// TaskManLog << "TTaskManager.Execute Queued task ids proc = " << fProc << 
 	// "\n";
 	// TaskManLog << "Entering task list loop" << endl;
@@ -367,15 +348,11 @@ void OOPTaskManager::Execute ()
 			cout << "Going into Blocking receive on TM->Execute()\n";
 			cout << "PID" << getpid() << endl;
 			cout.flush();
-#ifdef MPI			
 			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 			if(MPICM) MPICM->ReceiveBlocking();
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
 			cout << "Leaving blocking receive PID " << getpid() << endl;
 			cout.flush();
-#else
-			CM->ReceiveBlocking();
-#endif
 		}
 //		pthread_mutex_unlock(&fExecuteMutex);	
 	}
@@ -395,7 +372,7 @@ OOPObjectId OOPTaskManager::GenerateId ()
 }
 OOPTask *OOPTaskManager::FindTask (OOPObjectId taskid)
 {      // find the task with the given id
-	deque < OOPTaskControl * >::iterator i;
+	list < OOPTaskControl * >::iterator i;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTask *t = (*i)->Task ();
 		if (t->Id () == taskid)
@@ -420,14 +397,14 @@ void OOPTaskManager::Print (ostream & out)
 	out << "Queued Time Consuming tasks ---------" << endl;
 	out << "Number of Time Consuming tasks \t" << fTaskList.
 		size () << endl;
-	deque < OOPTaskControl * >::iterator i;
+	list < OOPTaskControl * >::iterator i;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		(*i)->Task ()->Print (out);
 	}
 }
 void OOPTaskManager::TransferSubmittedTasks ()
 {
-	deque < OOPTask * >::iterator sub;
+	list < OOPTask * >::iterator sub;
 	while (fSubmittedList.begin () != fSubmittedList.end ()) {
 		sub = fSubmittedList.begin ();
 		OOPTask * aux = (*sub);
@@ -453,7 +430,7 @@ void OOPTaskManager::TransferSubmittedTasks ()
 }
 void OOPTaskManager::TransferFinishedTasks ()
 {
-	deque < OOPTaskControl * >::iterator sub;
+	list < OOPTaskControl * >::iterator sub;
 	while (fFinished.size ()) {
 		sub = fFinished.begin ();
 		OOPTaskControl * auxtc=(*sub);
@@ -487,7 +464,7 @@ void OOPTaskManager::TransferFinishedTasks ()
 }
 void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 {
-	deque < OOPTaskControl * >::iterator i;
+	list < OOPTaskControl * >::iterator i;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = (*i);
 		if (tc->Task ()->Id () == taskid) {
@@ -515,12 +492,12 @@ void OOPTaskManager::PrintTaskQueues(char * msg, ostream & out){
 	out << "Printing TaskManager Queues on TM:" << fProc << endl;
 	out << "Print fSubmittedList\n";
 	out << "Number of tasks :" << fSubmittedList.size() << endl;
-	deque < OOPTask * >::iterator i;
+	list < OOPTask * >::iterator i;
 	for(i=fSubmittedList.begin();i!=fSubmittedList.end();i++)
 		out << (*i)->Id() << endl;
 	out << "Print fTaskList\n";
 	out << "Number of tasks :" << fTaskList.size() << endl;
-	deque < OOPTaskControl * >::iterator j;
+	list < OOPTaskControl * >::iterator j;
 	for(j=fTaskList.begin();j!=fTaskList.end();j++)
 		out << (*j)->Task()->Id() << endl;
 	out << "Print fExecutable\n";

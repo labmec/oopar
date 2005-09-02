@@ -5,7 +5,7 @@
 #include "ooptaskmanager.h"
 //#include "oopfilecomm.h"
 #include "ooperror.h"
-#ifdef MPI
+#ifdef OOP_MPI
 #include "oopmpicomm.h"
 #endif
 #include "TParAnalysis.h"
@@ -48,7 +48,7 @@ int multimain ()
 	GLogMsgCounter=0;
 	int     iproc;
 	for (iproc = 0; iproc < numproc; iproc++) {
-#ifndef MPI
+#ifndef OOP_MPI
 		CMList[iproc] =
 			new OOPFileComManager ("filecom", numproc, iproc);
 #else
@@ -101,7 +101,7 @@ int multimain ()
 	delete LogDM;
 	return 0;
 }
-#ifdef MPI
+#ifdef OOP_MPI
 int mpimain (int argc, char **argv)
 {
 /*

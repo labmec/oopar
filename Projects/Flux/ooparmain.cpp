@@ -18,7 +18,7 @@ using namespace std;
 void    ParAddClass ();
 int     multimain ();
 int     singlemain ();
-#ifdef MPI
+#ifdef OOP_MPI
 int     mpimain (int argc, char *argv[]);
 #endif
 
@@ -33,7 +33,7 @@ int main (int argc, char **argv)
 	OOPStorageBuffer::AddClassRestore (TTASKCOMM_ID, TTaskComm::Restore);
 	*/
 	// return multimain();
-#ifdef MPI
+#ifdef OOP_MPI
 	return mpimain (argc, argv);
 #else
 	return multimain();

@@ -9,7 +9,7 @@
 DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@
 
--include $(top_srcdir)/@OOP_MK@
+-include $(top_builddir)/@OOP_MK@
 
 SUBDIRS = PhilFlux TestTask
 #PhilFlux Flux Trivial BiCGSt

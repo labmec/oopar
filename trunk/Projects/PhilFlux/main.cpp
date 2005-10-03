@@ -1,5 +1,11 @@
 // -*- c++ -*-
 
+
+
+#include "mpi.h"
+#ifdef OOP_MPI
+#include "oopmpicomm.h"
+#endif
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 //#include "oopfilecomm.h"
@@ -8,9 +14,6 @@
 #include "tsmalltask.h"
 #include "oopwaittask.h"
 //#include "fluxdefs.h"
-#ifdef MPI
-#include "oopmpicomm.h"
-#endif
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -223,7 +226,7 @@ void CreateTaskFromFile(string &file) {
 
 
 
-#ifdef MPI
+#ifdef OOP_MPI
 int mpimain (int argc, char **argv)
 {
 
@@ -292,7 +295,7 @@ int main(int argc, char **argv) {
 
   cout << "Entering main program \n";
   cout.flush();
-#ifdef MPI
+#ifdef OOP_MPI
   cout << "Entering mpimain program \n";
   cout.flush();
   return mpimain(argc,argv);

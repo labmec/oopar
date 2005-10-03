@@ -1,5 +1,5 @@
 //
-// Autor: Fábio Amaral de Castro, RA: 991722
+// Autor: Fï¿½io Amaral de Castro, RA: 991722
 //
 // E-mail: facastro99@yahoo.com
 //
@@ -49,13 +49,13 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 	f_num_proc = 0;
 	fReceiveThreadExists=false;
 	// f_proc = (int *) NULL; 
-  LOG4CXX_DEBUG(logger, "Before calling MPI_Init");
+  cout << "Before calling MPI_Init\n";
 	cout.flush();
 	MPI_Init(&argc,&argv); 
 	Initialize((char*)argv, argc);
 	f_argc = argc;
 	f_argv = argv;
-  LOG4CXX_DEBUG(logger, "After calling MPI_Init");
+  cout << "After calling MPI_Init";
 	cout.flush();
 }
 OOPMPICommManager::~OOPMPICommManager ()
@@ -67,15 +67,13 @@ OOPMPICommManager::~OOPMPICommManager ()
   // destino, mas o relativo. ou seja, o comando MPI_INIT inicializa os
   // processos e para cada um destina um numero inteiro diferente, a partir
   // de 0,
-  // que é o processo que inicializa os demais.
+  // que ï¿½o processo que inicializa os demais.
   // Para inicializar, necessita de variaveis int argc e char **argv.
 int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **arg_v)
 {
 	MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
 	MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
-  stringstream sout;
-	sout << "MPIComm Initialize f_myself " << f_myself << " f_num_proc " << f_num_proc;
-  LOG4CXX_INFO(logger,sout.str());
+	cout << "MPIComm Initialize f_myself " << f_myself << " f_num_proc " << f_num_proc << std::endl;
 	if (f_myself == 0)
 		return f_num_proc;
 	else

@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: phil $
-// $Id: oopmpistorage.cpp,v 1.29 2005-03-03 19:10:19 phil Exp $
-// $Revision: 1.29 $
+// $Author: cesar $
+// $Id: oopmpistorage.cpp,v 1.30 2005-10-03 18:12:16 cesar Exp $
+// $Revision: 1.30 $
 
 
 
@@ -55,7 +55,7 @@ int OOPMPIStorageBuffer::ResetBuffer (int size)
 	f_send_buffr.Resize(0);
 	return 1;
 }
-int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, int mpitype)
+int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
 {
 	int nbytes;
 	MPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
@@ -74,6 +74,13 @@ int OOPMPIStorageBuffer::Send (int target)
     LOG4CXX_DEBUG(logger,sout.str()):
   }
 #endif
+  if(f_send_position >= MAXSIZE)
+  {
+    std::stringstream st;
+    st << __PRETTY_FUNCTION__ << " Sending a message of size " << f_send_position << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
+    LOG4CXX_ERROR(logger,st.str());
+    std::cout << st.str() << endl;
+  }
 	int ret;
 	int tag = 0;
 	ret = MPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,

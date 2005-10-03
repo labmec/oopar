@@ -25,7 +25,7 @@ void OOPDouble::Read(TPZStream & buf, void * context){
     int clsid=0;
     buf.Read(&clsid);
     if(clsid!=ClassId()){
-      stringstream sout;
+      std::stringstream sout;
       sout << "ClassId missmatch on OOPDouble::Read";
       LOG4CXX_ERROR(logger,sout.str());
     }

@@ -6,7 +6,7 @@
 //#include "oopfilecomm.h"
 #include "ooperror.h"
 #include "oopwaittask.h"
-#ifdef MPI
+#ifdef OOP_MPI
 #include "oopmpicomm.h"
 #endif
 

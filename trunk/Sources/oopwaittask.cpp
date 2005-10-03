@@ -23,6 +23,8 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
 
 class OOPStorageBuffer;
 
+int OOPWaitTask::gCounter = 0;
+
 OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
 {
   pthread_cond_init(&fExecCond, NULL);
@@ -63,7 +65,8 @@ OOPMReturnType OOPWaitTask::Execute()
   pthread_cond_wait(&fExecCond, &fExecMutex);
   stringstream sout;
   sout << "Wait task is leaving execute id " << Id();
-  LOG4CXX_WARN(logger,sout.str());
+  LOG4CXX_DEBUG(logger,sout.str());
+  this->IncrementWriteDependentData();
   return ESuccess;
 }
 
@@ -72,6 +75,7 @@ OOPMReturnType OOPWaitTask::Execute()
  */
 void OOPWaitTask::Finish()
 {
+  gCounter--;
   pthread_mutex_lock(&fExecMutex);
   pthread_cond_signal(&fExecCond);
   pthread_mutex_unlock(&fExecMutex);
@@ -83,6 +87,13 @@ void OOPWaitTask::Finish()
  */
 void OOPWaitTask::Wait()
 {
+  if(gCounter) 
+  {
+    std::stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Recursive call of wait task " << Id();
+    LOG4CXX_ERROR(logger,sout.str());
+  }
+  gCounter++;
 //  pthread_mutex_lock(&fExtMutex);
   pthread_cond_wait(&fExtCond,&fExtMutex);
 }

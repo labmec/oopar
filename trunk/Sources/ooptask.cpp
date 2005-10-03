@@ -92,10 +92,11 @@ int OOPDaemonTask::CanExecute ()
 }
 OOPMReturnType OOPTask::Execute ()
 {
-  stringstream sout;
+  IncrementWriteDependentData();
+/*  stringstream sout;
   sout << "OOPTask::Execute should never be called!\n";
   sout << "Called from ClassId " << ClassId() << endl;
-  LOG4CXX_ERROR(logger, sout.str());
+  LOG4CXX_ERROR(logger, sout.str());*/
   return ESuccess;	// execute the task, verifying that
 }
 int OOPTask::GetProcID ()
@@ -147,7 +148,7 @@ TPZSaveable *OOPTask::GetDepObjPtr(int idepend)
 	if(idepend < 0 || idepend >= numdep) 
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " << idepend << " " << numdep << endl;
+    sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " << idepend << " " << numdep;
     LOG4CXX_WARN(logger, sout.str());
     return 0;
   }
@@ -162,7 +163,7 @@ void OOPTask::IncrementDepObjVersion(int idepend)
 	int numdep = fDataDepend.NElements();
 	if(idepend < 0 || idepend >= numdep) {
     stringstream sout;
-		sout << "Dpendency Id is bigger then number of objects\n";
+		sout << "Dpendency Id is bigger then number of objects";
     LOG4CXX_WARN(logger, sout.str());
 		return;
 	}
@@ -181,14 +182,14 @@ void OOPTask::IncrementWriteDependentData()
       {
         meta->IncrementVersion(Id());
         stringstream sout;
-        sout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id() << "\n";
+        sout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id();
         LOG4CXX_INFO(logger, sout.str());
       }
       else
       {
         stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " meta is NULL!!!\n";
-        LOG4CXX_WARN(logger, sout.str());
+        sout << __PRETTY_FUNCTION__ << " meta is NULL!!!";
+        LOG4CXX_ERROR(logger, sout.str());
       }
 		}
 	}

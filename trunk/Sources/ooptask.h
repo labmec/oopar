@@ -29,15 +29,17 @@ private:
 	 * @since March 2004
 	 */
 	bool fIsExecuting;
-public:
+
+protected:
 	void IncrementWriteDependentData();
+
+public:	
 	/**
 	 * Returns true if task is currently being executed
 	 * @author : Gustavo Longhin
 	 * @since March 2004
 	 */
-
-	bool IsExecuting(){return fIsExecuting;}
+        bool IsExecuting(){return fIsExecuting;}
 	/**
 	 * Sets the state of the task executed or not.
 	 * @param value : Holds the state to be settled.

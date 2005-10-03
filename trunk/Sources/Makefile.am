@@ -9,14 +9,18 @@
 DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@
 #Acredito que aqui tb precisamos de um include de mpi
--include $(top_builddir)/@OOP_MK@
+-include  $(top_builddir)/OOP.mk
+
+# set the include path found by configure
+INCLUDES = $(all_includes) @LOG4CXX_INCLUDE@ $(PZ_INCLUDES) @MPIINCLUDE@
 
 oopardir = $(prefix)/Sources $(prefix)/NeoPZ/Save
 
-oopar_HEADERS = $(wildcard *.h)
+#oopar_HEADERS = $(wildcard *.h)
+ooparincdir = $(includedir)/oopar
+ooparinc_HEADERS= $(top_srcdir)/Sources/*.h
 
 noinst_LIBRARIES = liboopar.a
-
 
 
 #AM_CONDITIONAL(MPI, test "$enable_mpi" = yes)
@@ -39,7 +43,15 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	oopwaittask.cpp \
 	OOPInt.cpp \
 	OOPDouble.cpp \
-	OOPVector.cpp
+	OOPVector.cpp \
+  oopstorage.cpp \
+  oopstore.cpp \
+  oopsaveable.cpp 
+#  oopfilecomm.cpp 
+#  oopfilestorage.cpp
+
+
+#  ooppardefs.cpp
 else
 liboopar_a_SOURCES = oopdatamanager.cpp \
 	ooptaskmanager.cpp \

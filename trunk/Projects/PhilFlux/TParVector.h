@@ -17,10 +17,10 @@ public:
 	virtual void Write (TPZStream & buf, int withclassid=0);
 	virtual void Read (TPZStream & buf, void * context = 0);
 	void    Resize (int size);
-	void    SetVector (vector < double >data);
+	void    SetVector (std::vector < double >data);
 	static TPZSaveable * Restore(TPZStream & buf, void * context = 0);
 private:
-	vector < double >fData;
+	std::vector < double >fData;
 };
 
 template class TPZRestoreClass<TParVector, TPARVECTOR_ID>;

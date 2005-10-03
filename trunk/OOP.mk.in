@@ -3,10 +3,14 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: OOP.mk.in,v 1.6 2004-08-09 19:11:07 longhin Exp $
+# $Id: OOP.mk.in,v 1.7 2005-10-03 18:11:47 cesar Exp $
 #
 
-CXXFLAGS = @OOP_CXXFLAGS@ @USING_MPI@ @USING_SLOAN@
-INCLUDES = -I$(top_srcdir)/Sources -I$(top_srcdir)/Save -I$(top_srcdir)/Util -I$(top_srcdir)/Common @MPIINCLUDE@
+-include @PZ_DIR@/PZ_user.mk
+CXXFLAGS = @OOP_CXXFLAGS@ @USING_MPI@ @USING_MPILAM@ @USING_SLOAN@
+INCLUDES = -I$(top_srcdir)/Sources @MPIINCLUDE@ @MPILAMINCLUDE@ @LOG4CXX_INCLUDE@ $(PZ_INCLUDES)
+LDFLAGS = -L$(top_builddir)/lib @LOG4CXX_LIBDIR@ @PZ_LIBDIR@
+LDADD =  -loopar $(PZ_LIB) @LOG4CXX_LIB@ -lpthread
+
 
 ## --| OOPar |------------------------------------------------------------------

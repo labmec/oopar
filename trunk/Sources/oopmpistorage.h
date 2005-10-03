@@ -30,14 +30,17 @@
  * buffer using MPI (Message Passing Interface) library 
  * for communication.
 */
+
+const int MAXSIZE = 50000000;
+
 class   OOPMPIStorageBuffer:public OOPError
 {
 	
 
 private:
   /** Buffer which stores received messages */
-	TPZManVector<char,5000> f_recv_buffr;
-	TPZManVector<char,5000> f_send_buffr;
+	TPZManVector<char,MAXSIZE> f_recv_buffr;
+	TPZManVector<char,MAXSIZE> f_send_buffr;
   /** Dimension of received message */
 	int     f_recv_size;
 	int     f_send_size;
@@ -63,7 +66,7 @@ public:
 	/**
      * Contructor which initializes the buffer
 	 */
-   OOPMPIStorageBuffer() : f_recv_buffr(50000) {
+   OOPMPIStorageBuffer() : f_recv_buffr(50000000) {
        //Receiveing related initialization
 	   f_recv_size = 0; f_recv_position = 0; f_sender_tid = -1; f_msg_tag = 0; f_isreceiving = 0;
 	   f_send_size = 0;
@@ -239,7 +242,7 @@ private:
     /**
      * Generic method to pach data into an MPI buffer
      */
-    int PackGeneric(void *ptr, int n, int mpitype);  
+    int PackGeneric(void *ptr, int n, MPI_Datatype mpitype);  
 
     /**
        * Clears send buffer 
@@ -268,7 +271,7 @@ public:
 
     virtual void Write(const char *p, int size = 1);
 
-    virtual void Write(string *p, int size = 1);
+    virtual void Write(std::string *p, int size = 1);
 
     virtual void Read(int *p, int size = 1);
 
@@ -276,7 +279,7 @@ public:
 
     virtual void Read(char *p, int size = 1);
 
-    virtual void Read(string *p, int size = 1);
+    virtual void Read(std::string *p, int size = 1);
 };
 typedef OOPMPIStorageBuffer *POOPMPIStorageBuffer;
 #endif

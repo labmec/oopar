@@ -95,20 +95,21 @@ void OOPMetaData::VerifyAccessRequests ()
     sout << __PRETTY_FUNCTION__ << " Entering VerifyAccessRequests for Obj " << this->fObjId;
     LOG4CXX_DEBUG(logger,sout.str());
   }
-	//Isso ta errado
-	OOPObjectId taskid;
-	while (fAccessList.HasIncompatibleTask (fVersion, taskid)) {
+  //Isso ta errado
+  OOPObjectId taskid;
+  while (fAccessList.HasIncompatibleTask (fVersion, taskid))
+  {
     stringstream sout;
-		sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << taskid;
+    sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << taskid;
     LOG4CXX_ERROR(logger,sout.str());
-		TM->CancelTask (taskid);
-	}
-	if (fTrans != ENoTransition && fTrans != ECancelReadTransition) {
+    TM->CancelTask (taskid);
+  }
+  if (fTrans != ENoTransition && fTrans != ECancelReadTransition) {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Verify leaving because fTrans = " << fTrans ;
     LOG4CXX_DEBUG(logger,sout.str());
     return;
-	}
+  }
 /*
 	How do we know the state of the object??
 	If any executing task is accessing the object for write or version access
@@ -131,79 +132,94 @@ void OOPMetaData::VerifyAccessRequests ()
 	  MESSAGES SHOULD BE SENT FROM HERE
 */
 
-	
 
-	list < OOPAccessInfo >::iterator ac;
-	//Check for ReadAccessRequests
-	if(fAccessList.HasWriteAccessGranted()
-		&& fAccessList.HasReadAccessRequests (fVersion)
-	    && !fAccessList.HasReadAccessGranted()
-		&& !fAccessList.HasExecutingOrReadGrantedTasks()/*fTaskWrite.IsZeroOOP()*/) 
-	{
+  list < OOPAccessInfo >::iterator ac;
+  //Check for ReadAccessRequests
+  if(fAccessList.HasWriteAccessGranted() && fAccessList.HasReadAccessRequests (fVersion)
+    && !fAccessList.HasReadAccessGranted()
+    && !fAccessList.HasExecutingOrReadGrantedTasks() )
+  {
     stringstream sout;
-		sout << __PRETTY_FUNCTION__ << " Revoked write access to task "<< fTaskWrite;
+    sout << __PRETTY_FUNCTION__ << " Revoked write access to task "<< fTaskWrite << " for object id " << this->fObjId << " fTaskWrite zeroed ";
     LOG4CXX_DEBUG(logger,sout.str());
-		fAccessList.RevokeWriteAccess(*this);
-		fTaskWrite = OOPObjectId();
-		fReadAccessProcessors.push_back(DM->GetProcID());
-		//CancelReadAccess();
-	}
-	else if (fAccessList.HasVersionAccessRequests (fVersion)
-	    && fTrans == ENoTransition 
-		&& !fAccessList.HasReadAccessRequests(fVersion)
-		&& IamOwner()) {
-		SuspendReadAccess ();
-		// we should invoke a procedure to revoke all access requests
-//		if(IamOwner() && fReadAccessProcessors.size() == fSuspendAccessProcessors.size()) this->fProcVersionAccess = fProc;
-	}
-	else if (DM->GetProcID () == fProc
-		 && fAccessList.HasWriteAccessRequests (fVersion)
-                 && !fAccessList.HasReadAccessRequests(fVersion)
-		 && fTrans == ENoTransition) {
+    fAccessList.RevokeWriteAccess(*this);
+    fTaskWrite = OOPObjectId();
+    fReadAccessProcessors.insert(DM->GetProcID());
+    //CancelReadAccess();
+  }
+  else if (fAccessList.HasVersionAccessRequests (fVersion)
+    && fTrans == ENoTransition
+    && !fAccessList.HasReadAccessRequests(fVersion)
+    && IamOwner())
+  {
+    SuspendReadAccess ();
+    // we should invoke a procedure to revoke all access requests
+    // if(IamOwner() && fReadAccessProcessors.size() == fSuspendAccessProcessors.size()) this->fProcVersionAccess = fProc;
+  }
+  else if (DM->GetProcID () == fProc
+    && fAccessList.HasWriteAccessRequests (fVersion)
+    && !fAccessList.HasReadAccessRequests(fVersion)
+    && fTrans == ENoTransition)
+  {
     stringstream sout;
-		sout << __PRETTY_FUNCTION__ << " Performing CancelReadAccess in order to grant a write access";
+    sout << __PRETTY_FUNCTION__ << " Performing CancelReadAccess in order to grant a write access";
     LOG4CXX_DEBUG(logger,sout.str());
-		CancelReadAccess ();
-		// we should invoke a procedure to revoke all read access
-		// requests
-	}
-	// We need to put verification if there is a valid version access
-	// request
-	// or valid write access request
-	// In these cases all read access must be either suspended or revoked
-	while (fAccessList.VerifyAccessRequests (*this, ac)) {
-		OOPAccessInfo *access = ac.operator->();
-		if (access->fProcessor == DM->GetProcID ()) {
-			ac->fIsGranted = 1;
-			OOPMDataDepend depend (this->Id (), ac->fState,
-					       ac->fVersion);
-			if (ac->fState == EWriteAccess) {
-				fTaskWrite = ac->fTaskId;
-			}
-			if (ac->fState == EVersionAccess) {
-				fTaskVersion = ac->fTaskId;
-				fProcVersionAccess = ac->fProcessor;
-			}
+    CancelReadAccess ();
+    // we should invoke a procedure to revoke all read access
+    // requests
+  }
+  // We need to put verification if there is a valid version access
+  // request
+  // or valid write access request
+  // In these cases all read access must be either suspended or revoked
+  while (fAccessList.VerifyAccessRequests (*this, ac)) {
+    OOPAccessInfo *access = ac.operator->();
+    if (access->fProcessor == DM->GetProcID ()) {
+      ac->fIsGranted = 1;
+      OOPMDataDepend depend (this->Id (), ac->fState, ac->fVersion);
+      if (ac->fState == EWriteAccess)
+      {
+        stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " Grant access for Obj " << fObjId << " to task " << ac->fTaskId << " setting fTaskWrite ";
+        LOG4CXX_DEBUG(logger,sout.str());
+        fTaskWrite = ac->fTaskId;
+      }
+      if (ac->fState == EVersionAccess)
+      {
+        stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " Grant access for Obj " << fObjId << " to task " << ac->fTaskId << " setting fTaskVersion ";
+        LOG4CXX_DEBUG(logger,sout.str());
+        fTaskVersion = ac->fTaskId;
+        fProcVersionAccess = ac->fProcessor;
+      }
       {  
         stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " Grant access for Obj " << fObjId << " to " << ac->fTaskId << " with depend " << depend;
+        sout << __PRETTY_FUNCTION__ << " Grant access for Obj " << fObjId << " to task " << ac->fTaskId << " with depend " << depend;
         LOG4CXX_DEBUG(logger,sout.str());
       }
       LogDM->GrantAccessLog(DM->GetProcID(),fObjId,ac->fState,ac->fVersion,ac->fProcessor,ac->fTaskId, State());
-			TM->NotifyAccessGranted (ac->fTaskId, depend, this);
-		}
-		else {
-      stringstream sout;
-      sout << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor;
-      LOG4CXX_DEBUG(logger,sout.str());
-			GrantAccess (ac->fState, ac->fProcessor);
-			
-			fAccessList.ReleaseAccess (ac);
-			if(fAccessList.HasWriteAccessRequests (fVersion)){
-				CancelReadAccess();
-			}
-		}
-	}
+      TM->NotifyAccessGranted (ac->fTaskId, depend, this);
+    }
+    else
+    {
+      if((ac->fState == EReadAccess && ! this->HasReadAccess(ac->fProcessor)) || ac->fState != EReadAccess)
+      {
+        stringstream sout;
+        sout << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor;
+        LOG4CXX_DEBUG(logger,sout.str());
+        GrantAccess (ac->fState, ac->fProcessor);
+      } else
+      {
+        stringstream sout;
+        sout << "No need to send grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor;
+        LOG4CXX_DEBUG(logger,sout.str());
+      }
+      fAccessList.ReleaseAccess (ac);
+      if(fAccessList.HasWriteAccessRequests (fVersion)){
+        CancelReadAccess();
+      }
+    }
+  }
 }
 OOPObjectId OOPMetaData::Id () const
 {
@@ -230,194 +246,220 @@ bool OOPMetaData::IamOwner () const
 	return Proc () == DM->GetProcID ();
 }
 void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
-				 const OOPMDataDepend & depend)
+  const OOPMDataDepend & depend)
 {
-	fAccessList.ReleaseAccess (taskid, depend);
-	if (depend.State () == EVersionAccess) {
-		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProcVersionAccess, fTaskVersion, State(),fVersion);
-		this->fProcVersionAccess = -1;
-		this->fTaskVersion.Zero ();
-		// remove this processor from the list of suspended read
-		// access
-		if(!IamOwner()) {
+  fAccessList.ReleaseAccess (taskid, depend);
+  if (depend.State () == EVersionAccess)
+  {
+    LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProcVersionAccess, fTaskVersion, State(),fVersion);
+    this->fProcVersionAccess = -1;
+    this->fTaskVersion.Zero ();
+    // remove this processor from the list of suspended read
+    // access
+    if(!IamOwner())
+    {
       {
         stringstream sout;
         sout << "Sending suspend suspend read access for obj " << fObjId << " from task " << taskid << " at processor "<< DM->GetProcID();
         LOG4CXX_DEBUG(logger,sout.str());
       }
-			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,this->fProc);
-			town->fObjId = fObjId;
-			town->fVersion = fVersion;
-			LogDM->SendOwnTask(town); 
-			TM->SubmitDaemon(town);
-			
-		} else {
-			list < int >::iterator i = fSuspendAccessProcessors.begin ();
-			while (i != fSuspendAccessProcessors.end ()) {
-				if (*i != DM->GetProcID ()) {
-					OOPObjectId auxId;
-					LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), *i, auxId, State(), fVersion);
+      OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,this->fProc);
+      town->fObjId = fObjId;
+      town->fVersion = fVersion;
+      LogDM->SendOwnTask(town);
+      TM->SubmitDaemon(town);
+      
+    } else
+    {
+      set < int >::iterator i = fSuspendAccessProcessors.begin ();
+      while (i != fSuspendAccessProcessors.end ())
+      {
+        if (*i != DM->GetProcID ())
+        {
+          OOPObjectId auxId;
+          LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), *i, auxId, State(), fVersion);
           {
             stringstream sout;
-					  sout << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
-					  sout << ":suspend read access " << fObjId << " to processor "<< *i ;
+            sout << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
+            sout << ":suspend read access " << fObjId << " to processor "<< *i ;
             LOG4CXX_DEBUG(logger,sout.str());
           }
-					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
-					town->fObjId = fObjId;
-					town->fVersion = fVersion;
-					LogDM->SendOwnTask(town);
-					TM->SubmitDaemon(town);
-				}
-				i++;
-			}
-		}
-		fSuspendAccessProcessors.clear();
-	}
-	else if (depend.State () == EWriteAccess) {
-		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, fTaskWrite, State(), fVersion);
-		fTaskWrite.Zero ();
-		// grant read access to the owning processor
+          OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
+          town->fObjId = fObjId;
+          town->fVersion = fVersion;
+          LogDM->SendOwnTask(town);
+          TM->SubmitDaemon(town);
+        }
+        i++;
+      }
+    }
+    fSuspendAccessProcessors.clear();
+  }
+  else if (depend.State () == EWriteAccess)
+  {
+    LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, fTaskWrite, State(), fVersion);
+
+    fTaskWrite.Zero ();
+    // grant read access to the owning processor
     {
       stringstream sout;
-      sout << " granting read access for obj " << fObjId << " to processor " << fProc;
+      sout << " granting read access for obj " << fObjId << " to processor " << fProc << " Zeroed fTaskWrite ";
       LOG4CXX_DEBUG(logger,sout.str());
     }
-		fReadAccessProcessors.push_back (fProc);
-	}
-	else if(depend.State () == EReadAccess) {
-		OOPDataVersion locver(depend.Version());
-		OOPObjectId locid(taskid);
-		LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, locid, State(), locver);
-	}
-	
-	if(fToDelete) {
-		CheckTransitionState ();
-	} else {
-		CheckTransitionState ();
-		VerifyAccessRequests ();
-	}
+    fReadAccessProcessors.insert (fProc);
+  }
+  else if(depend.State () == EReadAccess)
+  {
+    OOPDataVersion locver(depend.Version());
+    OOPObjectId locid(taskid);
+    LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, locid, State(), locver);
+  }
+      
+  if(fToDelete)
+  {
+    CheckTransitionState ();
+  } else
+  {
+    CheckTransitionState ();
+    VerifyAccessRequests ();
+  }
 }
 void OOPMetaData::CheckTransitionState ()
 {
   {
     stringstream sout;
-    sout << "Calling CheckTransitionState";
+    sout << "Calling CheckTransitionState for obj " << fObjId;
     LOG4CXX_DEBUG(logger,sout.str());
   }
-	if(fToDelete) {
-		fAccessList.RevokeAccessAndCancel ();
-		if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
+  if(fToDelete)
+  {
+    fAccessList.RevokeAccessAndCancel ();
+    if (!fAccessList.HasExecutingOrReadGrantedTasks ())
+    {
       {
         stringstream sout;
-			  sout << "Deleting object " << fObjId;
+        sout << "Deleting object " << fObjId;
         LOG4CXX_DEBUG(logger,sout.str());
       }
-			LogDM->LogGeneric(DM->GetProcID(), fObjId, "Deleting Object");
-			DM->DeleteObject (fObjId);
-			return;
-		}
-	}
-	if (fTrans == ENoTransition) {
-		return;
-	}
-	//if(fTrans == ECancelReadTransition) fAccessList.ResendGrantedAccessRequests(fObjId,this->fProc);
-	//fAccessList.RevokeWriteAccess(*this);
-	if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
-		if (fTrans == ECancelReadTransition) {
-			list < int >::iterator i =
-				fReadAccessProcessors.begin ();
-#warning "isto é um simples find"
-			while (i != fReadAccessProcessors.end ()) {
-				if (*i == DM->GetProcID ()) {
-					fReadAccessProcessors.erase (i);
-					if (!IamOwner ()) {
-						OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccessConfirmation,fProc);
-						//alterei aqui!!!
-						town->fObjId=fObjId;
-						town->fObjPtr = 0;
-						town->fVersion = this->fVersion;
-						town->fProcOrigin = DM->GetProcID();
-						LogDM->SendOwnTask(town);
-						TM->SubmitDaemon(town);
-						delete this->fObjPtr;
-						fObjPtr = 0;
-            {
-              stringstream sout;
-						  sout << "sending CancelReadAccessConfirmation for obj " << this->fObjId << "from proc " << DM->GetProcID() << " to proc " << fProc ;
-						  LOG4CXX_DEBUG(logger,sout.str());
-            }
-					}
-					break;
-				}
-				i++;
-			}
-		}
-		else if (fTrans == ESuspendReadTransition) {
-			list < int >::iterator i =
-				fSuspendAccessProcessors.begin ();
-#warning "isto é um simples find"			
-			while (i != fSuspendAccessProcessors.end ()) {
-				if (*i == DM->GetProcID ()) {
-					break;
-				}
-				i++;
-			}
-			if (i == fSuspendAccessProcessors.end ()) {
-				fSuspendAccessProcessors.push_back (DM->GetProcID());
-				if (!IamOwner ()) {
+      LogDM->LogGeneric(DM->GetProcID(), fObjId, "Deleting Object");
+      DM->DeleteObject (fObjId);
+      return;
+    }
+  }
+  if (fTrans == ENoTransition)
+  {
+    stringstream sout;
+    sout << "No transition for obj " << fObjId;
+    LOG4CXX_DEBUG(logger,sout.str());
+    return;
+  }
+  //if(fTrans == ECancelReadTransition) fAccessList.ResendGrantedAccessRequests(fObjId,this->fProc);
+  //fAccessList.RevokeWriteAccess(*this);
+  if (!fAccessList.HasExecutingOrReadGrantedTasks ())
+  {
+    if (fTrans == ECancelReadTransition)
+    {
+      if (fReadAccessProcessors.find(DM->GetProcID()) != fReadAccessProcessors.end ())
+      {
+        fReadAccessProcessors.erase(DM->GetProcID());
+        if (!IamOwner ())
+        {
+          OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccessConfirmation,fProc);
+          //alterei aqui!!!
+          town->fObjId=fObjId;
+          town->fObjPtr = 0;
+          town->fVersion = this->fVersion;
+          town->fProcOrigin = DM->GetProcID();
+          LogDM->SendOwnTask(town);
+          TM->SubmitDaemon(town);
+          delete this->fObjPtr;
+          fObjPtr = 0;
+          {
+            stringstream sout;
+            sout << "sending CancelReadAccessConfirmation for obj " << this->fObjId << "from proc " << DM->GetProcID() << " to proc " << fProc ;
+            LOG4CXX_DEBUG(logger,sout.str());
+          }
+          fReadAccessProcessors.clear();
+        }
+      }
+    }
+    else if (fTrans == ESuspendReadTransition)
+    {
+      if(fSuspendAccessProcessors.find(DM->GetProcID()) == fSuspendAccessProcessors.end())
+      {
+        fSuspendAccessProcessors.insert(DM->GetProcID());
+        if (!IamOwner ())
+        {
           {
             stringstream sout;
             sout << "Sending suspend access confirmation for obj " << fObjId << " to processor " << fProc;
             LOG4CXX_DEBUG(logger,sout.str());
           }
-					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccessConfirmation,fProc);
-					//alterei aqui!!!!
-					town->fObjId=fObjId;
-					town->fObjPtr = this->fObjPtr;
-					town->fVersion = this->fVersion;
-					LogDM->SendOwnTask(town);
-					TM->SubmitDaemon(town);
-				}
-			}
-		}
-	}
-	if (fTrans == ECancelReadTransition) {
-		if (!fReadAccessProcessors.size ()) {
+          OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccessConfirmation,fProc);
+          //alterei aqui!!!!
+          town->fObjId=fObjId;
+          town->fObjPtr = this->fObjPtr;
+          town->fVersion = this->fVersion;
+          LogDM->SendOwnTask(town);
+          TM->SubmitDaemon(town);
+        }
+      }
+    }
+    if (fTrans == ECancelReadTransition)
+    {
+      if (!fReadAccessProcessors.size ())
+      {
+        {
+          stringstream sout;
+          sout << "all read accesses have been canceled " << fObjId << " on proc " << DM->GetProcID();
+          LOG4CXX_DEBUG(logger,sout.str());
+        }
+        fTrans = ENoTransition;
+      }
+      else
       {
         stringstream sout;
-        sout << "all read accesses have been canceled " << fObjId << " on proc " << DM->GetProcID();
+        sout << "CancelReadTransition these processors remain for obj " << fObjId << " on proc " << DM->GetProcID();
+        set < int >::iterator i;
+        for (i = this->fReadAccessProcessors.begin(); i != fReadAccessProcessors.end(); i++)
+        {
+          sout << *i << ' ';
+        }
         LOG4CXX_DEBUG(logger,sout.str());
       }
-			fTrans = ENoTransition;
-		}
-	}
-	else if (fTrans == ESuspendReadTransition) {
-		if (fSuspendAccessProcessors.size () && fSuspendAccessProcessors.size () ==
-      fReadAccessProcessors.size ()) {
+    }
+    else if (fTrans == ESuspendReadTransition)
+    {
+      if (fSuspendAccessProcessors.size () && fSuspendAccessProcessors.size () == fReadAccessProcessors.size ())
       {
-        stringstream sout;
-        sout << "All read access have been suspended " << fObjId << " on proc " << DM->GetProcID();
-        LOG4CXX_DEBUG(logger,sout.str());
+        {
+          stringstream sout;
+          sout << "All read access have been suspended " << fObjId << " on proc " << DM->GetProcID();
+          LOG4CXX_DEBUG(logger,sout.str());
+        }
+        fTrans = ENoTransition;
       }
-			fTrans = ENoTransition;
-		}
-	}
+    }
+  }
 }
+
 OOPMDataState OOPMetaData::State () const
 {
-	#warning "IsZero !!!"
-	if (!fTaskWrite.IsZeroOOP ()) {
-		return EWriteAccess;
-	}
-	else {
-		if (fReadAccessProcessors.size () > 0) {
-			return EReadAccess;
-		}
-		else {
-			return ENoAccess;
-		}
-	}
+  if (!fTaskWrite.IsZeroOOP ())
+  {
+    return EWriteAccess;
+  }
+  else
+  {
+    if (fReadAccessProcessors.size () > 0)
+    {
+      return EReadAccess;
+    }
+    else
+    {
+      return ENoAccess;
+    }
+  }
 }
 /*
   I own the object : 
@@ -432,7 +474,7 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
 {
   {
     stringstream sout;
-    sout << "SubmitAccessRequest task " << taskId << " depend " << depend << " proc " << processor;
+    sout << "SubmitAccessRequest objid " << fObjId << " task " << taskId << " depend " << depend << " proc " << processor;
     LOG4CXX_DEBUG(logger,sout.str());
   }
   LogDM->SubmitAccessRequestLog(DM->GetProcID(),Id(),ENoMessage,depend.State(),State(),depend.Version(),processor,taskId);
@@ -469,7 +511,7 @@ OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 	fProcVersionAccess = -1;
 	fTaskVersion.Zero ();
 	fTaskWrite.Zero ();
-	if(IamOwner()) fReadAccessProcessors.push_back(ProcId);
+	if(IamOwner()) fReadAccessProcessors.insert(ProcId);
 }
 	
 OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
@@ -484,7 +526,7 @@ OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 	fProcVersionAccess = -1;
 	fTaskVersion.Zero ();
 	fTaskWrite.Zero ();
-	if(IamOwner()) fReadAccessProcessors.push_back(ProcId);
+	if(IamOwner()) fReadAccessProcessors.insert(ProcId);
 }
 void OOPMetaData::SetId (OOPObjectId & id)
 {
@@ -520,196 +562,211 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     sout << "Calling HandleMessage for obj " << fObjId;
     LOG4CXX_DEBUG(logger,sout.str());
   }
-	LogDM->ReceiveOwnTask(&ms);
-	switch(ms.fType) {
-	case ESuspendAccess:{
+  LogDM->ReceiveOwnTask(&ms);
+  switch(ms.fType) {
+    case ESuspendAccess:
     {
-      stringstream sout;
-      sout << "Suspend access coming from " << ms.fProcOrigin;
-      LOG4CXX_DEBUG(logger,sout.str());
-    }
-		fTrans = ESuspendReadTransition;
-		fProc = ms.fProcOrigin;
-		CheckTransitionState();
-		break;
-  }
-	case ESuspendAccessConfirmation: {
-	//Receiving a confirmation message from a processor
-		if(IamOwner() && ms.fProcOrigin != fProcVersionAccess) {
-      stringstream sout;
-      sout << "suspend access confirmation coming from proc " << ms.fProcOrigin << " and different from proc-version-acc " << fProcVersionAccess ;
-      LOG4CXX_ERROR(logger,sout.str());
-		}
-		fProcVersionAccess = -1;
-		if(!IamOwner() || !HasReadAccess(ms.fProcOrigin)) {
       {
         stringstream sout;
-        sout << "OOPMetaData::HandleMessage " << fObjId << " SuspendReadAccess at a processor which isnt owner or which for a processor without read access";
-        LOG4CXX_ERROR(logger,sout.str());
+        sout << "Suspend access coming from " << ms.fProcOrigin;
+        LOG4CXX_DEBUG(logger,sout.str());
       }
-			break;
-		}
-		// insert the processor in the list of processors with suspended access
-		list<int>::iterator is = fSuspendAccessProcessors.begin();
-		while(is != fSuspendAccessProcessors.end() && *is != ms.fProcOrigin) is++;
-		if(is != fSuspendAccessProcessors.end()) fSuspendAccessProcessors.push_back(ms.fProcOrigin);
-		CheckTransitionState();
-		this->VerifyAccessRequests();
-		break;
-	}
-	case EGrantReadAccess: {
-		if(fObjPtr && ms.fObjPtr) {
-      LOG4CXX_ERROR(logger, "Receives the pointer to the object again!");
-			delete ms.fObjPtr;
-			ms.fObjPtr = 0;
-		}
-		if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
-		ms.fObjPtr = 0;
-		fProc = ms.fProcOrigin;
-		fVersion = ms.fVersion;
-		fReadAccessProcessors.push_back(DM->GetProcID());
-    {
-      stringstream sout;
-      sout << "Grant read access received from proc " << ms.fProcOrigin;
-      LOG4CXX_DEBUG(logger,sout.str());
+      fTrans = ESuspendReadTransition;
+      fProc = ms.fProcOrigin;
+      CheckTransitionState();
+      break;
     }
-		this->VerifyAccessRequests();
-		break;
-	}
-	case ECancelReadAccess: {
+    case ESuspendAccessConfirmation:
     {
-      stringstream sout;
-      sout << "Cancel read access received from " << ms.fProcOrigin ;
-      LOG4CXX_DEBUG(logger,sout.str());
-    }
-    fTrans = ECancelReadTransition;
-		// fProc ja deveria ser igual ms.fProcOrigin
-		fProc = ms.fProcOrigin;
-		CheckTransitionState();
-		break;
-	}
-	case ECancelReadAccessConfirmation: {
-		if(!IamOwner()) {
+      //Receiving a confirmation message from a processor
+      if(IamOwner() && ms.fProcOrigin != fProcVersionAccess)
       {
         stringstream sout;
-        sout << "HandleMessage cancel read access confirmation received by not owning proc " 
-             << "obj " << fObjId << " proc " << DM->GetProcID() ;
+        sout << "suspend access confirmation coming from proc " << ms.fProcOrigin << " and different from proc-version-acc " << fProcVersionAccess ;
         LOG4CXX_ERROR(logger,sout.str());
       }
-			break;
-		}
-    {
-      stringstream sout;
-      sout << "Cancel read access confirmation received from " << ms.fProcOrigin;
-      LOG4CXX_DEBUG(logger,sout.str());
+      fProcVersionAccess = -1;
+      if(!IamOwner() || !HasReadAccess(ms.fProcOrigin))
+      {
+        {
+          stringstream sout;
+          sout << "OOPMetaData::HandleMessage " << fObjId << " SuspendReadAccess at a processor which isnt owner or which for a processor without read access";
+          LOG4CXX_ERROR(logger,sout.str());
+        }
+        break;
+      }
+      // insert the processor in the list of processors with suspended access
+      fSuspendAccessProcessors.insert(ms.fProcOrigin);
+      CheckTransitionState();
+      this->VerifyAccessRequests();
+      break;
     }
-		list<int>::iterator i = fReadAccessProcessors.begin();
-		while(i != fReadAccessProcessors.end()) {
-			if(*i == ms.fProcOrigin) {
-				fReadAccessProcessors.erase(i);
-				break;
-			}
-		}
-		CheckTransitionState();
-		VerifyAccessRequests();
-		break;
-	}
-	case ESuspendSuspendAccess: {
+    case EGrantReadAccess:
     {
-      stringstream sout;
-      sout << "Receiving Suspend Suspend Access from processor " << ms.fProcOrigin ;
-      LOG4CXX_DEBUG(logger,sout.str());
-    }
-		fVersion = ms.fVersion;
-		list<int>::iterator i = fSuspendAccessProcessors.begin();
-		while(i != fSuspendAccessProcessors.end()) {
-			if(*i == DM->GetProcID()) {
-				fSuspendAccessProcessors.erase(i);
-				break;
-			}
-		}
-		fProcVersionAccess = -1;
-		fTaskVersion = OOPObjectId();
-		if(IamOwner()) {
-			i = fSuspendAccessProcessors.begin();
-			while(i != fSuspendAccessProcessors.end()) {
-				if(*i != this->fProc) {
-					OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
-					town->fProcOrigin = DM->GetProcID();
-					town->fObjId = fObjId;
-					LogDM->SendOwnTask(town);
-					TM->SubmitDaemon(town);
-				}
-				i++;
-			}
-		}
-		fSuspendAccessProcessors.clear();
-		VerifyAccessRequests();
-		break;
-	}
-	case ETransferOwnership: {
-		if(fObjPtr) {
-      LOG4CXX_ERROR(logger, "Receiving transfer ownership with pointer !");
-		}
-    {
-      stringstream sout;
-      sout << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fProcOrigin;
-      LOG4CXX_INFO(logger,sout.str());
-    }
-		// isto deveria pelo menos gerar um log...
-		if(fObjPtr && ms.fObjPtr) delete fObjPtr;
-		if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
-		ms.fObjPtr = 0;
-		fVersion = ms.fVersion;
-		fProc = DM->GetProcID();
-		if(!HasReadAccess(fProc)) fReadAccessProcessors.push_back(fProc);
-		this->VerifyAccessRequests();
-		break;
-	}
-	case EGrantVersionAccess: {
-    {
-      stringstream sout;
-      sout << "Grant version access received from proc " << ms.fProcOrigin;
-      LOG4CXX_DEBUG(logger,sout.str());
-    }
-		fVersion = ms.fVersion;
-		fProcVersionAccess = DM->GetProcID();
-		fProc = ms.fProcOrigin;
-		VerifyAccessRequests();
-		if(fTaskVersion.IsZeroOOP()) {
+      if(fObjPtr && ms.fObjPtr)
+      {
+        LOG4CXX_WARN(logger, "Receives the pointer to the object again!");
+        delete ms.fObjPtr;
+        ms.fObjPtr = 0;
+        if(ms.fProcOrigin != fProc || !(fVersion == ms.fVersion))
+        {
+          stringstream sout;
+          sout << __PRETTY_FUNCTION__ << "incompatible ownertask for obj " << fObjId << " version " << fVersion <<
+              " ms.fVersion " << ms.fVersion << " fProc " << fProc << " ms.fProcOrigin " << ms.fProcOrigin;
+          LOG4CXX_ERROR(logger,sout.str());
+        }
+      }
+      if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
+      ms.fObjPtr = 0;
+      fProc = ms.fProcOrigin;
+      fVersion = ms.fVersion;
+      fReadAccessProcessors.insert(DM->GetProcID());
       {
         stringstream sout;
-        sout << "grantversion access for obj " << fObjId << " did not find corresponding task";
-        LOG4CXX_ERROR(logger,sout.str());
+        sout << "Grant read access received from proc " << ms.fProcOrigin;
+        LOG4CXX_DEBUG(logger,sout.str());
       }
-			VerifyAccessRequests();
-			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,fProc);
-			town->fProcOrigin = DM->GetProcID();
-			town->fObjId = fObjId;
-			LogDM->SendOwnTask(town);
-			TM->SubmitDaemon(town);
-			fSuspendAccessProcessors.clear();
-		}
-		break;
-	}
-	case ENotifyDeleteObject:{
-    {
-      stringstream sout;
-      sout << "Notify delete object received";
-      LOG4CXX_DEBUG(logger,sout.str());
+      this->VerifyAccessRequests();
+      break;
     }
-		this->DeleteObject();
-		break;
-  }
-	default:
+    case ECancelReadAccess:
+    {
+      {
+        stringstream sout;
+        sout << "Cancel read access received from " << ms.fProcOrigin ;
+        LOG4CXX_DEBUG(logger,sout.str());
+      }
+      fTrans = ECancelReadTransition;
+      // fProc ja deveria ser igual ms.fProcOrigin
+      fProc = ms.fProcOrigin;
+      CheckTransitionState();
+      break;
+    }
+    case ECancelReadAccessConfirmation:
+    {
+      if(!IamOwner())
+      {
+        {
+          stringstream sout;
+          sout << "HandleMessage cancel read access confirmation received by not owning proc " 
+              << "obj " << fObjId << " proc " << DM->GetProcID() ;
+          LOG4CXX_ERROR(logger,sout.str());
+        }
+        break;
+      }
+      {
+        stringstream sout;
+        sout << "Cancel read access confirmation received from " << ms.fProcOrigin;
+        LOG4CXX_DEBUG(logger,sout.str());
+      }
+      if(!fReadAccessProcessors.count(ms.fProcOrigin))
+      {
+        stringstream sout;
+        sout << "Cancel read access confirmation for obj " << fObjId << " received from " << ms.fProcOrigin <<
+          " but read access was already canceled ";
+        LOG4CXX_WARN(logger,sout.str());
+      }
+      fReadAccessProcessors.erase(ms.fProcOrigin);
+      CheckTransitionState();
+      VerifyAccessRequests();
+      break;
+    }
+    case ESuspendSuspendAccess:
+    {
+      {
+        stringstream sout;
+        sout << "Receiving Suspend Suspend Access from processor " << ms.fProcOrigin ;
+        LOG4CXX_DEBUG(logger,sout.str());
+      }
+      fVersion = ms.fVersion;
+      fSuspendAccessProcessors.erase(DM->GetProcID());
+      fProcVersionAccess = -1;
+      fTaskVersion = OOPObjectId();
+      if(IamOwner())
+      {
+        std::set<int>::iterator i;
+        for(i = fSuspendAccessProcessors.begin(); i != fSuspendAccessProcessors.end(); i++)
+        {
+          OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
+          town->fProcOrigin = DM->GetProcID();
+          town->fObjId = fObjId;
+          LogDM->SendOwnTask(town);
+          TM->SubmitDaemon(town);
+        }
+      }
+      fSuspendAccessProcessors.clear();
+      VerifyAccessRequests();
+      break;
+    }
+    case ETransferOwnership:
+    {
+      if(fObjPtr)
+      {
+        LOG4CXX_ERROR(logger, "Receiving transfer ownership with pointer !");
+      }
+      {
+        stringstream sout;
+        sout << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fProcOrigin;
+        LOG4CXX_INFO(logger,sout.str());
+      }
+      // isto deveria pelo menos gerar um log...
+      if(fObjPtr && ms.fObjPtr) delete fObjPtr;
+      if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
+      ms.fObjPtr = 0;
+      fVersion = ms.fVersion;
+      fProc = DM->GetProcID();
+      if(!HasReadAccess(fProc)) fReadAccessProcessors.insert(fProc);
+      this->VerifyAccessRequests();
+      break;
+    }
+    case EGrantVersionAccess:
+    {
+      {
+        stringstream sout;
+        sout << "Grant version access received from proc " << ms.fProcOrigin;
+        LOG4CXX_DEBUG(logger,sout.str());
+      }
+      fVersion = ms.fVersion;
+      fProcVersionAccess = DM->GetProcID();
+      fProc = ms.fProcOrigin;
+      VerifyAccessRequests();
+      if(fTaskVersion.IsZeroOOP())
+      {
+        {
+          stringstream sout;
+          sout << "grantversion access for obj " << fObjId << " did not find corresponding task";
+          LOG4CXX_ERROR(logger,sout.str());
+        }
+        VerifyAccessRequests();
+        OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,fProc);
+        town->fProcOrigin = DM->GetProcID();
+        town->fObjId = fObjId;
+        LogDM->SendOwnTask(town);
+        TM->SubmitDaemon(town);
+        fSuspendAccessProcessors.clear();
+      }
+      break;
+    }
+    case ENotifyDeleteObject:
+    {
+      {
+        stringstream sout;
+        sout << "Notify delete object received";
+        LOG4CXX_DEBUG(logger,sout.str());
+      }
+      this->DeleteObject();
+      break;
+    }
+    default:
     {
       stringstream sout;
       sout << "OOPMetaData::HandleMessage "<< fObjId << " unhandled message type " << ms.fType;
       LOG4CXX_ERROR(logger,sout.str());
     }
-		break;
-	}
+    break;
+  }
 }
+
 bool OOPMetaData::HasReadAccess () const
 {
 	return (fReadAccessProcessors.size () != 0);
@@ -722,26 +779,16 @@ bool OOPMetaData::HasVersionAccess () const
 }
 bool OOPMetaData::HasReadAccess (const int Procid) const
 {
-	if(fTrans != ENoTransition) return false;
-	if(fSuspendAccessProcessors.size()) return false;
-#ifdef WIN32
-	list < int >::const_iterator i = fReadAccessProcessors.begin ();
-	while (i != fReadAccessProcessors.end () && *i != Procid)
-		i++;
-	if (i == fReadAccessProcessors.end ())
-		return false;
-	return true;
-#else
-	list < int >::const_iterator i = fReadAccessProcessors.begin ();
-	i = find (fReadAccessProcessors.begin (),
-		  fReadAccessProcessors.end (), Procid);
-	if (i == fReadAccessProcessors.end ()) {
-		return false;
-	}
-	else {
-		return true;
-	}
-#endif
+  if(fTrans != ENoTransition) return false;
+  if(fSuspendAccessProcessors.size()) return false;
+  if(fReadAccessProcessors.count(Procid))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 bool OOPMetaData::HasWriteAccess (const OOPObjectId & taskid) const
 {
@@ -752,41 +799,39 @@ bool OOPMetaData::HasWriteAccess (const OOPObjectId & taskid) const
 void OOPMetaData::DeleteObject ()
 {
 
-	this->fToDelete = 1;
+  this->fToDelete = 1;
   {
     stringstream sout;
     sout << "deleting object " << fObjId ;
     LOG4CXX_DEBUG(logger,sout.str());
   }
   
-//  LogDM->LogGeneric(DM->GetProcID(), fObjId, "deleting object");
+  //  LogDM->LogGeneric(DM->GetProcID(), fObjId, "deleting object");
 
-	if (IamOwner()) {
-		list<int>::iterator i = fReadAccessProcessors.begin();
-		while(i != fReadAccessProcessors.end()) {
-			if(*i != DM->GetProcID()) {
-				OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,*i);
-				town->fObjId = fObjId;
-				LogDM->SendOwnTask(town);
-				TM->SubmitDaemon(town);
-			}
-			i++;
-		}
-		fReadAccessProcessors.clear();
-		fSuspendAccessProcessors.clear();
-	}
-	if (!(fProcVersionAccess != -1)) {
-		OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,fProcVersionAccess);
-		town->fObjId = fObjId;
-		LogDM->SendOwnTask(town);
-		TM->SubmitDaemon(town);
-	}
-	CheckTransitionState();
-//	fAccessList.RevokeAccessAndCancel ();
-//	if (!fAccessList.HasExecutingTasks ()) {
-//		DM->DeleteObject (fObjId);
-//	}
+  if (IamOwner())
+  {
+    fReadAccessProcessors.erase(DM->GetProcID());
+    set<int>::iterator i;
+    for(i = fReadAccessProcessors.begin(); i != fReadAccessProcessors.end(); i++)
+    {
+      OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,*i);
+      town->fObjId = fObjId;
+      LogDM->SendOwnTask(town);
+      TM->SubmitDaemon(town);
+    }
+    fSuspendAccessProcessors.clear();
+    if (!(fProcVersionAccess != -1) && ! fReadAccessProcessors.count(fProcVersionAccess))
+    {
+      OOPDMOwnerTask *town = new OOPDMOwnerTask(ENotifyDeleteObject,fProcVersionAccess);
+      town->fObjId = fObjId;
+      LogDM->SendOwnTask(town);
+      TM->SubmitDaemon(town);
+    }
+    fReadAccessProcessors.clear();
+  }
+  CheckTransitionState();
 }
+
 void OOPMetaData::RequestDelete ()
 {
   {
@@ -803,7 +848,7 @@ void OOPMetaData::RequestDelete ()
     {
       stringstream sout;
       sout << "OOPMetaData::RequestDelete should send an owner message " << fObjId ;
-      LOG4CXX_WARN(logger,sout.str());
+      LOG4CXX_ERROR(logger,sout.str());
     }
 #ifndef WIN32
 #warning "mandar um recado para o processador dono do dado"
@@ -812,71 +857,74 @@ void OOPMetaData::RequestDelete ()
 }
 void OOPMetaData::CancelReadAccess ()
 {
-	list < int >::iterator i = fReadAccessProcessors.begin ();
-	while(i != fReadAccessProcessors.end()) {
-		if(*i != DM->GetProcID()) {
-			OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccess,*i);
-			town->fObjId = fObjId;
-			LogDM->SendOwnTask(town);
-			TM->SubmitDaemon(town);
-		}
-		i++;
-	}
-	// send suspend messages to all processors and revoke the access
-	// granted
-/*	fAccessList.RevokeWriteAccess (*this);*/
-	if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
-		i = fReadAccessProcessors.begin ();
-		while (i != fReadAccessProcessors.end ()) {
-			if (*i == DM->GetProcID ()) {
-				fReadAccessProcessors.erase (i);
-				break;
-			}
-			i++;
-		}
-	}
-	if (HasReadAccess ())
-		fTrans = ECancelReadTransition;
+  if(!this->IamOwner())
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " obj " << fObjId << " should only be called for owning process";
+    LOG4CXX_ERROR(logger,sout.str());
+  }
+  else
+  {
+    set < int >::iterator i;
+    for(i = fReadAccessProcessors.begin (); i != fReadAccessProcessors.end(); i++)
+    {
+      if(*i != DM->GetProcID())
+      {
+        OOPDMOwnerTask *town = new OOPDMOwnerTask(ECancelReadAccess,*i);
+        town->fObjId = fObjId;
+        LogDM->SendOwnTask(town);
+        TM->SubmitDaemon(town);
+      }
+    }
+    if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
+      fReadAccessProcessors.erase(fProc);
+    }
+    if (HasReadAccess ()) fTrans = ECancelReadTransition;
+  }
 }
 void OOPMetaData::SuspendReadAccess ()
 {
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__;
+    sout << __PRETTY_FUNCTION__ << " for obj " << fObjId;
     LOG4CXX_DEBUG(logger,sout.str());
   }
-	// send suspend messages to all processors and revoke the access
-	// granted
-	fAccessList.RevokeWriteAccess (*this);
-	if (!fAccessList.HasExecutingOrReadGrantedTasks ()) {
+  // send suspend messages to all processors and revoke the access
+  // granted
+  fAccessList.RevokeWriteAccess (*this);
+  if (!fAccessList.HasExecutingOrReadGrantedTasks ())
+  {
     {
       stringstream sout;
       sout << "suspending read access for obj " << fObjId << " at proc " << DM->GetProcID();
       LOG4CXX_WARN(logger,sout.str());
     }
-		fSuspendAccessProcessors.push_back (DM->GetProcID ());
-	}
-	if (fReadAccessProcessors.size () != fSuspendAccessProcessors.size ()) {
-		fTrans = ESuspendReadTransition;
-	}
-	list<int>::const_iterator ir = fReadAccessProcessors.begin();
-	while(ir != fReadAccessProcessors.end()) {
-		if(*ir != DM->GetProcID()) {
+    fSuspendAccessProcessors.insert (DM->GetProcID ());
+  }
+  if (fReadAccessProcessors.size () != fSuspendAccessProcessors.size ())
+  {
+    fTrans = ESuspendReadTransition;
+  }
+  set<int>::const_iterator ir;
+  for(ir = fReadAccessProcessors.begin(); ir != fReadAccessProcessors.end(); ir++)
+  {
+    if(*ir != DM->GetProcID())
+    {
       {
         stringstream sout;
         sout << "Sending suspend read access for obj " << fObjId << " to proc " << *ir;
         LOG4CXX_WARN(logger,sout.str());
       }
-			OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccess, *ir);
-			town->fObjId=fObjId;
-			town->fObjPtr = this->fObjPtr;
-			town->fVersion = this->fVersion;
-			LogDM->SendOwnTask(town);
-			TM->SubmitDaemon(town);
-		}
-		ir++;
-	}
+      OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccess, *ir);
+      town->fObjId=fObjId;
+      town->fObjPtr = this->fObjPtr;
+      town->fVersion = this->fVersion;
+      LogDM->SendOwnTask(town);
+      TM->SubmitDaemon(town);
+    }
+  }
 }
+
 void OOPMetaData::GrantWriteAccess (OOPObjectId & TaskId, OOPMDataState st,
 				    OOPDataVersion & version)
 {
@@ -917,22 +965,23 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
 		fProcVersionAccess = processor;
 		break;
 	}
-	case EReadAccess : {
+	case EReadAccess :
     {
-      stringstream sout;
-      sout << "Sending grant read access for obj " << fObjId << " to proc " << processor;
-      LOG4CXX_DEBUG(logger,sout.str());
+      {
+        stringstream sout;
+        sout << "Sending grant read access for obj " << fObjId << " to proc " << processor;
+        LOG4CXX_DEBUG(logger,sout.str());
+      }
+      OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantReadAccess,processor);
+      town->fObjId = this->fObjId;
+      town->fObjPtr = this->fObjPtr;
+      town->fVersion = this->fVersion;
+      town->fProcOrigin = DM->GetProcID();
+      LogDM->SendGrantAccessLog(town,processor);
+      TM->SubmitDaemon(town);
+      this->fReadAccessProcessors.insert(processor);
+      break;
     }
-		OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantReadAccess,processor);
-		town->fObjId = this->fObjId;
-		town->fObjPtr = this->fObjPtr;
-		town->fVersion = this->fVersion;
-		town->fProcOrigin = DM->GetProcID();
-		LogDM->SendGrantAccessLog(town,processor);
-		TM->SubmitDaemon(town);
-		this->fReadAccessProcessors.push_back(processor);
-		break;
-	}
 	case EWriteAccess: 
     {
       stringstream sout;
@@ -970,8 +1019,8 @@ void OOPMetaData::IncrementVersion (const OOPObjectId &taskid)
 	else {
     {
       stringstream sout;
-      sout << "OOPMetaData::IncrementVersion not executed for Obj "<< fObjId ;
-      LOG4CXX_DEBUG(logger,sout.str());
+      sout << "OOPMetaData::IncrementVersion not executed for Obj "<< fObjId << " fTaskWrite " << fTaskWrite << " taskid " << taskid;
+      LOG4CXX_ERROR(logger,sout.str());
     }
 	}
 }

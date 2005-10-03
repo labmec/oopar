@@ -39,6 +39,10 @@ class OOPWaitTask : public OOPTask
   Condition variable to put the execution thread to sleep
   */
   pthread_cond_t fExecCond;
+  /**
+  Some "idiot" may want to call a wait task while another wait task is executing
+  */
+  static int gCounter;
 
     void LockExternal();
 public:

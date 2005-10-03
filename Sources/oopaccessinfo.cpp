@@ -395,19 +395,23 @@ void OOPAccessInfoList::RevokeAccessAndCancel ()
  */
 void OOPAccessInfoList::RevokeWriteAccess (const OOPMetaData & obj)
 {
-	list < OOPAccessInfo >::iterator i = fList.begin ();
-	while (i != fList.end ()) {
-		if (i->fIsAccessing) {
-		}
-		else if (i->fIsGranted && !(i->fState == EReadAccess)) {
-			OOPMDataDepend depend (i->fTaskId, i->fState,
-					       i->fVersion);
-			TM->RevokeAccess (i->fTaskId, depend);
-			i->fIsGranted=0;
-
-		}
-		i++;
-	}
+  list < OOPAccessInfo >::iterator i = fList.begin ();
+  while (i != fList.end ())
+  {
+    if (i->fIsAccessing)
+    {
+      stringstream sout;
+      sout << __PRETTY_FUNCTION__ << "cant revoke access for an executing task taskid " << i->fTaskId << " obj " << obj.Id();
+      LOG4CXX_ERROR(logger,sout.str());
+    }
+    else if (i->fIsGranted && !(i->fState == EReadAccess))
+    {
+      OOPMDataDepend depend (obj.Id(), i->fState, i->fVersion);
+      TM->RevokeAccess (i->fTaskId, depend);
+      i->fIsGranted=0;
+    }
+    i++;
+  }
 }
  /**
   * Returns true if a task is accessing the data

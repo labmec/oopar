@@ -15,7 +15,7 @@ void TParVector::Read (TPZStream & buf, void * context)
 	TPZSaveable::Read(buf,context);
   ReadObjects(buf,fData);
 }
-void TParVector::SetVector (vector < double >data)
+void TParVector::SetVector (std::vector < double >data)
 {
 	fData = data;
 }

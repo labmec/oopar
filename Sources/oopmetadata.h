@@ -86,13 +86,13 @@ public:
 	  * 
 	  * Whenever the data has read access, the vector contains only the id of that processor
       */
-	        list < int >fReadAccessProcessors;
+	        set < int >fReadAccessProcessors;
      /**
       * Processors accessing current data with access.
 	  * 
 	  * Whenever the data has suspended read access, the vector contains only the id of that processor
       */
-	        list < int >fSuspendAccessProcessors;
+	        set < int >fSuspendAccessProcessors;
      /**
       * Indicates trace of the data.
       * It is mostly used for debugging purposes

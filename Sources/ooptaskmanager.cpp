@@ -1,6 +1,6 @@
 #include "ooptaskmanager.h"
 #include "oopcommmanager.h"
-#ifdef MPI
+#ifdef OOP_MPI
 #include "oopmpicomm.h"
 #endif
 #include "oopdatamanager.h"
@@ -48,17 +48,18 @@ void OOPTaskManager::TransferExecutingTasks(){
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOG4CXX_DEBUG (logger,sout.str());
+    LOG4CXX_ERROR (logger,sout.str());
   }
-	list < OOPTaskControl * >::iterator sub;
-//	int listsize = fExecuting.size();
-	sub = fExecuting.begin();
-	OOPTaskControl * auxtc=0;
-	while (sub != fExecuting.end()){
-		bool isfinished=false;
+  list < OOPTaskControl * >::iterator sub;
+  //int listsize = fExecuting.size();
+  sub = fExecuting.begin();
+  OOPTaskControl * auxtc=0;
+  while (sub != fExecuting.end())
+  {
+    bool isfinished=false;
     auxtc = (*sub);
-//		pthread_mutex_lock(&fExecutingMutex);
-		if(auxtc) 
+    //pthread_mutex_lock(&fExecutingMutex);
+    if(auxtc)
     {
       isfinished = auxtc->TaskFinished();
     } else
@@ -68,31 +69,31 @@ void OOPTaskManager::TransferExecutingTasks(){
       LOG4CXX_DEBUG (logger,sout.str());
     }
   
-//		pthread_mutex_unlock(&fExecutingMutex);
-		if (isfinished){
+    //pthread_mutex_unlock(&fExecutingMutex);
+    if (isfinished){
       auxtc->Join();
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << "Task finished " << auxtc->Task()->Id() << " classid " << auxtc->Task()->ClassId();
       LOG4CXX_DEBUG (logger,sout.str());
-			OOPObjectId id;
-			id = auxtc->Task ()->Id ();
-			auxtc->Depend ().SetExecuting (id, false);
-			auxtc->Depend ().ReleaseAccessRequests (id);
+      OOPObjectId id;
+      id = auxtc->Task ()->Id ();
+      auxtc->Depend ().SetExecuting (id, false);
+      auxtc->Depend ().ReleaseAccessRequests (id);
       auxtc->Task()->Depend().ClearPointers();
-			fFinished.push_back(auxtc);
-    	list < OOPTaskControl * >::iterator keep;
+      fFinished.push_back(auxtc);
+      list < OOPTaskControl * >::iterator keep;
       keep = sub;
       sub++;
-			fExecuting.erase(keep);
-		} else
+      fExecuting.erase(keep);
+    } else
     {
       sub++;
     }
-	}
+  }
 
 }
 
-#ifdef MPI
+#ifdef OOP_MPI
 #define MT
 
 /*
@@ -108,11 +109,11 @@ void * OOPTaskManager::TriggerTask(void * data){
 */
 
 /**
-	disparar o thread de execução da tarefa.
+	disparar o thread de execuï¿½o da tarefa.
 */
 void * OOPTaskManager::ExecuteMT(void * data){
 	OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
-	//Qual é o service thread ?
+	//Qual ï¿½o service thread ?
 	// O service thread e a linha de execucao do programa principal
 	DM->SubmitAllObjects();
 	CM->ReceiveMessages ();
@@ -460,7 +461,8 @@ void OOPTaskManager::ExecuteDaemons() {
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread fExecuteThread " << fExecuteThread
+    << " thread_self " << pthread_self();
     LOG4CXX_DEBUG (logger,sout.str());
   }
 	list < OOPDaemonTask * >::iterator i;
@@ -478,8 +480,8 @@ void OOPTaskManager::ExecuteDaemons() {
 void OOPTaskManager::Execute ()
 {
   stringstream sout;
-#ifndef MT	
-	//Qual é o service thread ?
+#ifndef MT
+	//Qual ï¿½o service thread ?
 	// O service thread e a linha de execucao do programa principal
 	DM->SubmitAllObjects();
 	CM->ReceiveMessages ();
@@ -520,7 +522,7 @@ void OOPTaskManager::Execute ()
 //			cout << "Going into Blocking receive on TM->Execute()\n";
 //			cout << "PID" << getpid() << endl;
 			cout.flush();
-			#ifdef MPI
+			#ifdef OOP_MPI
 			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 			if(MPICM) MPICM->ReceiveBlocking();
 			#endif

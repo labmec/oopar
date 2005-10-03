@@ -44,7 +44,10 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
 {
   stringstream sout;
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
-  sout << "Task " << tc->fTask->Id() << " started";
+  {
+    sout << "Task " << tc->fTask->Id() << " started";
+    LOG4CXX_DEBUG(logger,sout.str());
+  }
   
   tc->fExecStarted = 1;
   tc->fTask->Execute();
@@ -52,8 +55,10 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   pthread_mutex_lock(&(tc->fStateMutex));
   tc->fExecFinished =1;
   pthread_mutex_unlock(&(tc->fStateMutex));
-  sout << "Task " << tc->fTask->Id() << " finished";
-  LOG4CXX_DEBUG(logger,sout.str());
+  {
+    sout << "Task " << tc->fTask->Id() << " finished";
+    LOG4CXX_DEBUG(logger,sout.str());
+  }
   return 0;
 }
 

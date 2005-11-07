@@ -15,7 +15,7 @@
   <kdevautoproject>
     <general>
       <activetarget>src/oopar</activetarget>
-      <useconfiguration>debug_CFD</useconfiguration>
+      <useconfiguration>debug</useconfiguration>
     </general>
     <run>
       <mainprogram>src/oopar</mainprogram>
@@ -35,12 +35,21 @@
         <cxxflags>-O2 -g0</cxxflags>
       </optimized>
       <debug>
-        <configargs>--enable-debug=full</configargs>
+        <configargs>--prefix=/home/cluster/proj/proj076/ecrylo/installDIR/std6_dbg_64 --enable-debug=full --with-mpi-dir=/home/cluster/proj/proj076/ecrylo/installDIR/std6_dbg_64 --with-pz-dir=/home/cluster/proj/proj076/ecrylo/installDIR/std6_dbg_64 --enable-mpi=yes</configargs>
         <builddir>debug</builddir>
-        <ccompiler>GccOptions</ccompiler>
-        <cxxcompiler>GppOptions</cxxcompiler>
-        <f77compiler>G77Options</f77compiler>
+        <ccompiler>kdevgccoptions</ccompiler>
+        <cxxcompiler>kdevgppoptions</cxxcompiler>
+        <f77compiler>kdevpgf77options</f77compiler>
         <cxxflags>-O0 -g3</cxxflags>
+        <envvars/>
+        <topsourcedir/>
+        <cppflags/>
+        <ldflags>-m64</ldflags>
+        <ccompilerbinary/>
+        <cxxcompilerbinary/>
+        <f77compilerbinary/>
+        <cflags/>
+        <f77flags/>
       </debug>
       <default>
         <envvars/>

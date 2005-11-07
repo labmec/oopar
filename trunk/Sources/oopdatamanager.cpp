@@ -52,6 +52,8 @@ OOPDataManager::~OOPDataManager ()
   stringstream sout;
   sout << "Terminating DM";
   LOG4CXX_INFO(logger,sout.str());
+  if (LogDM) delete LogDM;
+  LogDM = 0;
 }
 bool OOPDataManager::HasObject (OOPObjectId & id)
 {

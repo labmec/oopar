@@ -20,16 +20,16 @@ class   OOPDataVersion;
 
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPSaveable"));
-
+#endif
 
 /************/
 /*** Pack ***/
@@ -38,13 +38,13 @@ int OOPSaveable::Pack (OOPStorageBuffer * buf)
   {
     stringstream sout;
     sout << "PID" << getpid() << " Packing class ID " << GetClassID() ;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
 	long class_id = GetClassID ();
   if(class_id == -1) {
     stringstream sout;
     sout << "Packing class with uninitialized classid expect trouble";
-    LOG4CXX_ERROR(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str());
   }
 	buf->PkLong (&class_id);
 	return 1;

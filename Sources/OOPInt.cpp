@@ -3,15 +3,16 @@
 #include "OOPInt.h"
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPInt"));
+#endif
 
 OOPInt::OOPInt() : TPZSaveable() , fValue(0) 
 {
@@ -23,7 +24,7 @@ void OOPInt::Read(TPZStream & buf, void * context){
     int clsid = 0;
     buf.Read(&clsid);
     if(clsid!=ClassId()){
-      LOG4CXX_ERROR(logger, "ClassId missmatch on OOPInt::Read");
+      LOGPZ_ERROR(logger, "ClassId missmatch on OOPInt::Read");
     }
 
 }

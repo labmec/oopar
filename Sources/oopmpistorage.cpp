@@ -19,8 +19,8 @@
 //
 
 // $Author: cesar $
-// $Id: oopmpistorage.cpp,v 1.30 2005-10-03 18:12:16 cesar Exp $
-// $Revision: 1.30 $
+// $Id: oopmpistorage.cpp,v 1.31 2005-11-09 12:59:23 cesar Exp $
+// $Revision: 1.31 $
 
 
 
@@ -29,18 +29,19 @@
 #include "mpi.h"
 #include <iostream>
 #include <sys/types.h>
-      #include <unistd.h>
+#include <unistd.h>
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMPIStorageBuffer"));
+#endif
       
 void OOPMPIStorageBuffer::ExpandBuffer (int more_dimension)
 {
@@ -71,14 +72,14 @@ int OOPMPIStorageBuffer::Send (int target)
   {
     stringstream sout;
     sout << "PID" << getpid() << " Called MPI_Send ret = ";
-    LOG4CXX_DEBUG(logger,sout.str()):
+    LOGPZ_DEBUG(logger,sout.str()):
   }
 #endif
   if(f_send_position >= MAXSIZE)
   {
     std::stringstream st;
     st << __PRETTY_FUNCTION__ << " Sending a message of size " << f_send_position << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
-    LOG4CXX_ERROR(logger,st.str());
+    LOGPZ_ERROR(logger,st.str());
     std::cout << st.str() << endl;
   }
 	int ret;
@@ -90,22 +91,22 @@ int OOPMPIStorageBuffer::Send (int target)
 		case MPI_SUCCESS:
       stringstream sout;
       sout <<" - No error; MPI routine completed successfully";
-      LOG4CXX_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_COMM:
       stringstream sout;
       sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).";
-      LOG4CXX_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_COUNT:
       stringstream sout;
       sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid";
-      LOG4CXX_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_TYPE:
       stringstream sout;
       sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).";      
-      LOG4CXX_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_TAG:
       stringstream sout;
@@ -113,11 +114,11 @@ int OOPMPIStorageBuffer::Send (int target)
             << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
             << "be MPI_ANY_TAG .  The largest tag value is available through the\n"
             << "the attribute MPI_TAG_UB .";
-      LOG4CXX_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str()):
 			break;
 		case MPI_ERR_RANK:
       sout << "-  Invalid  source  or  destination rank.";
-      LOG4CXX_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str()):
 			break;
 	}
 	cout.flush();
@@ -214,7 +215,7 @@ bool OOPMPIStorageBuffer::TestReceive() {
    */
 TPZSaveable *OOPMPIStorageBuffer::Restore () {
 	if(!TestReceive()) {
-    LOG4CXX_WARN(logger,"Restore called at the wrong moment\n");
+    LOGPZ_WARN(logger,"Restore called at the wrong moment\n");
     return NULL;
 	}
 	f_isreceiving = 0;
@@ -223,7 +224,7 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 #ifdef DEBUGALL
   stringstream sout;
   sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId();
-  LOG4CXX_DEBUG(logger,sout.str()):
+  LOGPZ_DEBUG(logger,sout.str()):
 #endif
 	//MPI_Request_free(&f_request);
 	return obj;

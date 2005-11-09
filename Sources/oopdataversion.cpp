@@ -8,15 +8,16 @@ class   OOPDataVersion;
 using namespace std;
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDataVersion"));
+#endif
 
 
 void OOPDataVersion::Write (TPZStream & buf, int)
@@ -82,22 +83,22 @@ void OOPDataVersion::main ()
 	if (v.AmICompatible (version)) {
     stringstream sout;
 		sout << " Versions compatible ";
-    LOG4CXX_DEBUG (logger,sout.str());
+    LOGPZ_DEBUG (logger,sout.str());
 	}
 	else {
     stringstream sout;
 		sout << "Versions are not compatible";
-    LOG4CXX_DEBUG (logger,sout.str());
+    LOGPZ_DEBUG (logger,sout.str());
 	}
 	if (version.AmICompatible (v)) {
     stringstream sout;
 		sout << " Versions compatible ";
-    LOG4CXX_DEBUG (logger,sout.str());
+    LOGPZ_DEBUG (logger,sout.str());
 	}
 	else {
     stringstream sout;
 		sout << "Versions are not compatible";
-    LOG4CXX_DEBUG (logger,sout.str());
+    LOGPZ_DEBUG (logger,sout.str());
 	}
 	while (version.GetNLevels () != 1) {
 		version.Increment ();
@@ -137,12 +138,12 @@ void OOPDataVersion::SetLevelCardinality (int level, int depth)
 			     if (GetLevelVersion (i) <
 				     version.GetLevelVersion (i)) {
              stringstream sout;
-             LOG4CXX_WARN(logger, "AmICompatible returned false");
+             LOGPZ_WARN(logger, "AmICompatible returned false");
 				     sout << "My version ";
 				     Print (sout);
 				     sout << "Other version ";
 				     version.Print (sout);
-             LOG4CXX_DEBUG(logger,sout.str());         
+             LOGPZ_DEBUG(logger,sout.str());
 				     return false;
 			     }
 		     }
@@ -259,7 +260,7 @@ void OOPDataVersion::DecreaseLevel ()
 void OOPDataVersion::Increment ()
 {
 	if (!fVersion.size ()) {
-    LOG4CXX_ERROR(logger, "Something wrong - fVersion.size() = 0");
+    LOGPZ_ERROR(logger, "Something wrong - fVersion.size() = 0");
 		return;
 	}
 	fVersion[fVersion.size () - 1]++;
@@ -274,7 +275,7 @@ void OOPDataVersion::Increment ()
     stringstream sout;
 		sout << "Inconsistent data version incrementation" <<
 			__FILE__ << __LINE__;
-    LOG4CXX_ERROR(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str());
 		return;
 	}
 	if (fVersion[fVersion.size () - 1] ==
@@ -303,7 +304,7 @@ void OOPDataVersion::Increment ()
 			     << " Accessing level out of range" << endl;
 		     sout << "Maximum:" << GetNLevels () -
 			     1 << " Trying:" << level;
-         LOG4CXX_ERROR(logger,sout.str());
+         LOGPZ_ERROR(logger,sout.str());
 		     // exit(-1);
 		     return -1;
 	     }
@@ -316,7 +317,7 @@ void OOPDataVersion::Increment ()
          stringstream sout;
 		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__ << " Accessing level out of range" << endl;
 		     sout << "Maximum:" << GetNLevels () - 1 << " Trying:" << level;
-		     LOG4CXX_ERROR(logger,sout.str());
+		     LOGPZ_ERROR(logger,sout.str());
          // exit (-1);
 		     return -1;
 	     }

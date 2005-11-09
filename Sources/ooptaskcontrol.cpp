@@ -2,15 +2,17 @@
 #include "ooptask.h"
 
 #include <sstream>
+
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
+#endif
 
 OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 {
@@ -36,7 +38,7 @@ void OOPTaskControl::Execute()
     stringstream sout;
     sout << "Fail to create service thread -- ";
     sout << "Going out";
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
 }
 
@@ -46,7 +48,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
   {
     sout << "Task " << tc->fTask->Id() << " started";
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
   
   tc->fExecStarted = 1;
@@ -57,7 +59,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   pthread_mutex_unlock(&(tc->fStateMutex));
   {
     sout << "Task " << tc->fTask->Id() << " finished";
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
   return 0;
 }
@@ -68,7 +70,7 @@ void OOPTaskControl::Join()
   {
     stringstream sout;
     sout << __FUNCTION__ << " called by the taskcontrol object itself";
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
     return;
   }
   void *execptr;
@@ -78,6 +80,6 @@ void OOPTaskControl::Join()
   {
     stringstream sout;
     sout << __FUNCTION__ << __LINE__ << " join operation failed with result " << result;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
 }

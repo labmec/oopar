@@ -12,16 +12,16 @@ class   OOPObjectId;
 
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMetaData"));
-
+#endif
 
 /*
 SEQUENCES
@@ -93,7 +93,7 @@ void OOPMetaData::VerifyAccessRequests ()
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Entering VerifyAccessRequests for Obj " << this->fObjId;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
   //Isso ta errado
   OOPObjectId taskid;
@@ -101,13 +101,13 @@ void OOPMetaData::VerifyAccessRequests ()
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << taskid;
-    LOG4CXX_ERROR(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str());
     TM->CancelTask (taskid);
   }
   if (fTrans != ENoTransition && fTrans != ECancelReadTransition) {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Verify leaving because fTrans = " << fTrans ;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
     return;
   }
 /*
@@ -141,7 +141,7 @@ void OOPMetaData::VerifyAccessRequests ()
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Revoked write access to task "<< fTaskWrite << " for object id " << this->fObjId << " fTaskWrite zeroed ";
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
     fAccessList.RevokeWriteAccess(*this);
     fTaskWrite = OOPObjectId();
     fReadAccessProcessors.insert(DM->GetProcID());
@@ -163,7 +163,7 @@ void OOPMetaData::VerifyAccessRequests ()
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Performing CancelReadAccess in order to grant a write access";
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
     CancelReadAccess ();
     // we should invoke a procedure to revoke all read access
     // requests
@@ -181,21 +181,21 @@ void OOPMetaData::VerifyAccessRequests ()
       {
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << " Grant access for Obj " << fObjId << " to task " << ac->fTaskId << " setting fTaskWrite ";
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
         fTaskWrite = ac->fTaskId;
       }
       if (ac->fState == EVersionAccess)
       {
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << " Grant access for Obj " << fObjId << " to task " << ac->fTaskId << " setting fTaskVersion ";
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
         fTaskVersion = ac->fTaskId;
         fProcVersionAccess = ac->fProcessor;
       }
       {  
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << " Grant access for Obj " << fObjId << " to task " << ac->fTaskId << " with depend " << depend;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       LogDM->GrantAccessLog(DM->GetProcID(),fObjId,ac->fState,ac->fVersion,ac->fProcessor,ac->fTaskId, State());
       TM->NotifyAccessGranted (ac->fTaskId, depend, this);
@@ -206,13 +206,13 @@ void OOPMetaData::VerifyAccessRequests ()
       {
         stringstream sout;
         sout << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
         GrantAccess (ac->fState, ac->fProcessor);
       } else
       {
         stringstream sout;
         sout << "No need to send grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       fAccessList.ReleaseAccess (ac);
       if(fAccessList.HasWriteAccessRequests (fVersion)){
@@ -261,7 +261,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
       {
         stringstream sout;
         sout << "Sending suspend suspend read access for obj " << fObjId << " from task " << taskid << " at processor "<< DM->GetProcID();
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,this->fProc);
       town->fObjId = fObjId;
@@ -282,7 +282,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
             stringstream sout;
             sout << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
             sout << ":suspend read access " << fObjId << " to processor "<< *i ;
-            LOG4CXX_DEBUG(logger,sout.str());
+            LOGPZ_DEBUG(logger,sout.str());
           }
           OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
           town->fObjId = fObjId;
@@ -304,7 +304,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
     {
       stringstream sout;
       sout << " granting read access for obj " << fObjId << " to processor " << fProc << " Zeroed fTaskWrite ";
-      LOG4CXX_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str());
     }
     fReadAccessProcessors.insert (fProc);
   }
@@ -329,7 +329,7 @@ void OOPMetaData::CheckTransitionState ()
   {
     stringstream sout;
     sout << "Calling CheckTransitionState for obj " << fObjId;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
   if(fToDelete)
   {
@@ -339,7 +339,7 @@ void OOPMetaData::CheckTransitionState ()
       {
         stringstream sout;
         sout << "Deleting object " << fObjId;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       LogDM->LogGeneric(DM->GetProcID(), fObjId, "Deleting Object");
       DM->DeleteObject (fObjId);
@@ -350,7 +350,7 @@ void OOPMetaData::CheckTransitionState ()
   {
     stringstream sout;
     sout << "No transition for obj " << fObjId;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
     return;
   }
   //if(fTrans == ECancelReadTransition) fAccessList.ResendGrantedAccessRequests(fObjId,this->fProc);
@@ -377,7 +377,7 @@ void OOPMetaData::CheckTransitionState ()
           {
             stringstream sout;
             sout << "sending CancelReadAccessConfirmation for obj " << this->fObjId << "from proc " << DM->GetProcID() << " to proc " << fProc ;
-            LOG4CXX_DEBUG(logger,sout.str());
+            LOGPZ_DEBUG(logger,sout.str());
           }
           fReadAccessProcessors.clear();
         }
@@ -393,7 +393,7 @@ void OOPMetaData::CheckTransitionState ()
           {
             stringstream sout;
             sout << "Sending suspend access confirmation for obj " << fObjId << " to processor " << fProc;
-            LOG4CXX_DEBUG(logger,sout.str());
+            LOGPZ_DEBUG(logger,sout.str());
           }
           OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccessConfirmation,fProc);
           //alterei aqui!!!!
@@ -412,7 +412,7 @@ void OOPMetaData::CheckTransitionState ()
         {
           stringstream sout;
           sout << "all read accesses have been canceled " << fObjId << " on proc " << DM->GetProcID();
-          LOG4CXX_DEBUG(logger,sout.str());
+          LOGPZ_DEBUG(logger,sout.str());
         }
         fTrans = ENoTransition;
       }
@@ -425,7 +425,7 @@ void OOPMetaData::CheckTransitionState ()
         {
           sout << *i << ' ';
         }
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
     }
     else if (fTrans == ESuspendReadTransition)
@@ -435,7 +435,7 @@ void OOPMetaData::CheckTransitionState ()
         {
           stringstream sout;
           sout << "All read access have been suspended " << fObjId << " on proc " << DM->GetProcID();
-          LOG4CXX_DEBUG(logger,sout.str());
+          LOGPZ_DEBUG(logger,sout.str());
         }
         fTrans = ENoTransition;
       }
@@ -475,7 +475,7 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
   {
     stringstream sout;
     sout << "SubmitAccessRequest objid " << fObjId << " task " << taskId << " depend " << depend << " proc " << processor;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
   LogDM->SubmitAccessRequestLog(DM->GetProcID(),Id(),ENoMessage,depend.State(),State(),depend.Version(),processor,taskId);
 	fAccessList.AddAccessRequest (taskId, depend, processor);
@@ -485,7 +485,7 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
       {
         stringstream sout;
         sout << "Sending access request from proc " << DM->GetProcID() << " with depend " << depend << " to proc " << fProc;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
 			this->SendAccessRequest (depend);
 		}
@@ -552,7 +552,7 @@ void OOPMetaData::TransferObject (int ProcId)
   {
     stringstream sout; 
     sout << "Transfer object " << fObjId << " to proc " << ProcId;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
 }
 void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
@@ -560,7 +560,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
   {
     stringstream sout;
     sout << "Calling HandleMessage for obj " << fObjId;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
   LogDM->ReceiveOwnTask(&ms);
   switch(ms.fType) {
@@ -569,7 +569,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         stringstream sout;
         sout << "Suspend access coming from " << ms.fProcOrigin;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       fTrans = ESuspendReadTransition;
       fProc = ms.fProcOrigin;
@@ -583,7 +583,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         stringstream sout;
         sout << "suspend access confirmation coming from proc " << ms.fProcOrigin << " and different from proc-version-acc " << fProcVersionAccess ;
-        LOG4CXX_ERROR(logger,sout.str());
+        LOGPZ_ERROR(logger,sout.str());
       }
       fProcVersionAccess = -1;
       if(!IamOwner() || !HasReadAccess(ms.fProcOrigin))
@@ -591,7 +591,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
         {
           stringstream sout;
           sout << "OOPMetaData::HandleMessage " << fObjId << " SuspendReadAccess at a processor which isnt owner or which for a processor without read access";
-          LOG4CXX_ERROR(logger,sout.str());
+          LOGPZ_ERROR(logger,sout.str());
         }
         break;
       }
@@ -605,7 +605,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     {
       if(fObjPtr && ms.fObjPtr)
       {
-        LOG4CXX_WARN(logger, "Receives the pointer to the object again!");
+        LOGPZ_WARN(logger, "Receives the pointer to the object again!");
         delete ms.fObjPtr;
         ms.fObjPtr = 0;
         if(ms.fProcOrigin != fProc || !(fVersion == ms.fVersion))
@@ -613,7 +613,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
           stringstream sout;
           sout << __PRETTY_FUNCTION__ << "incompatible ownertask for obj " << fObjId << " version " << fVersion <<
               " ms.fVersion " << ms.fVersion << " fProc " << fProc << " ms.fProcOrigin " << ms.fProcOrigin;
-          LOG4CXX_ERROR(logger,sout.str());
+          LOGPZ_ERROR(logger,sout.str());
         }
       }
       if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
@@ -624,7 +624,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         stringstream sout;
         sout << "Grant read access received from proc " << ms.fProcOrigin;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       this->VerifyAccessRequests();
       break;
@@ -634,7 +634,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         stringstream sout;
         sout << "Cancel read access received from " << ms.fProcOrigin ;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       fTrans = ECancelReadTransition;
       // fProc ja deveria ser igual ms.fProcOrigin
@@ -650,21 +650,21 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
           stringstream sout;
           sout << "HandleMessage cancel read access confirmation received by not owning proc " 
               << "obj " << fObjId << " proc " << DM->GetProcID() ;
-          LOG4CXX_ERROR(logger,sout.str());
+          LOGPZ_ERROR(logger,sout.str());
         }
         break;
       }
       {
         stringstream sout;
         sout << "Cancel read access confirmation received from " << ms.fProcOrigin;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       if(!fReadAccessProcessors.count(ms.fProcOrigin))
       {
         stringstream sout;
         sout << "Cancel read access confirmation for obj " << fObjId << " received from " << ms.fProcOrigin <<
           " but read access was already canceled ";
-        LOG4CXX_WARN(logger,sout.str());
+        LOGPZ_WARN(logger,sout.str());
       }
       fReadAccessProcessors.erase(ms.fProcOrigin);
       CheckTransitionState();
@@ -676,7 +676,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         stringstream sout;
         sout << "Receiving Suspend Suspend Access from processor " << ms.fProcOrigin ;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       fVersion = ms.fVersion;
       fSuspendAccessProcessors.erase(DM->GetProcID());
@@ -702,12 +702,12 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     {
       if(fObjPtr)
       {
-        LOG4CXX_ERROR(logger, "Receiving transfer ownership with pointer !");
+        LOGPZ_ERROR(logger, "Receiving transfer ownership with pointer !");
       }
       {
         stringstream sout;
         sout << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fProcOrigin;
-        LOG4CXX_INFO(logger,sout.str());
+        LOGPZ_INFO(logger,sout.str());
       }
       // isto deveria pelo menos gerar um log...
       if(fObjPtr && ms.fObjPtr) delete fObjPtr;
@@ -724,7 +724,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         stringstream sout;
         sout << "Grant version access received from proc " << ms.fProcOrigin;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       fVersion = ms.fVersion;
       fProcVersionAccess = DM->GetProcID();
@@ -735,7 +735,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
         {
           stringstream sout;
           sout << "grantversion access for obj " << fObjId << " did not find corresponding task";
-          LOG4CXX_ERROR(logger,sout.str());
+          LOGPZ_ERROR(logger,sout.str());
         }
         VerifyAccessRequests();
         OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,fProc);
@@ -752,7 +752,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         stringstream sout;
         sout << "Notify delete object received";
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       this->DeleteObject();
       break;
@@ -761,7 +761,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     {
       stringstream sout;
       sout << "OOPMetaData::HandleMessage "<< fObjId << " unhandled message type " << ms.fType;
-      LOG4CXX_ERROR(logger,sout.str());
+      LOGPZ_ERROR(logger,sout.str());
     }
     break;
   }
@@ -803,7 +803,7 @@ void OOPMetaData::DeleteObject ()
   {
     stringstream sout;
     sout << "deleting object " << fObjId ;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
   
   //  LogDM->LogGeneric(DM->GetProcID(), fObjId, "deleting object");
@@ -837,7 +837,7 @@ void OOPMetaData::RequestDelete ()
   {
     stringstream sout;
     sout << "Calling " << __PRETTY_FUNCTION__;
-    LOG4CXX_DEBUG (logger,sout.str()); 
+    LOGPZ_DEBUG (logger,sout.str());
   }
 	LogDM->LogGeneric(DM->GetProcID(),fObjId,"Calling RequestDelete");
 	
@@ -848,7 +848,7 @@ void OOPMetaData::RequestDelete ()
     {
       stringstream sout;
       sout << "OOPMetaData::RequestDelete should send an owner message " << fObjId ;
-      LOG4CXX_ERROR(logger,sout.str());
+      LOGPZ_ERROR(logger,sout.str());
     }
 #ifndef WIN32
 #warning "mandar um recado para o processador dono do dado"
@@ -861,7 +861,7 @@ void OOPMetaData::CancelReadAccess ()
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " obj " << fObjId << " should only be called for owning process";
-    LOG4CXX_ERROR(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str());
   }
   else
   {
@@ -887,7 +887,7 @@ void OOPMetaData::SuspendReadAccess ()
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " for obj " << fObjId;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
   // send suspend messages to all processors and revoke the access
   // granted
@@ -897,7 +897,7 @@ void OOPMetaData::SuspendReadAccess ()
     {
       stringstream sout;
       sout << "suspending read access for obj " << fObjId << " at proc " << DM->GetProcID();
-      LOG4CXX_WARN(logger,sout.str());
+      LOGPZ_WARN(logger,sout.str());
     }
     fSuspendAccessProcessors.insert (DM->GetProcID ());
   }
@@ -913,7 +913,7 @@ void OOPMetaData::SuspendReadAccess ()
       {
         stringstream sout;
         sout << "Sending suspend read access for obj " << fObjId << " to proc " << *ir;
-        LOG4CXX_WARN(logger,sout.str());
+        LOGPZ_WARN(logger,sout.str());
       }
       OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendAccess, *ir);
       town->fObjId=fObjId;
@@ -935,7 +935,7 @@ void OOPMetaData::GrantReadAccess (OOPObjectId TaskId, int ProcId,
 {
   stringstream sout;
   sout << "grant read access for obj " << fObjId << " is used?";
-  LOG4CXX_WARN(logger,sout.str());
+  LOGPZ_WARN(logger,sout.str());
 }
 void OOPMetaData::GrantVersionAccess (OOPObjectId TaskId, int ProcId,
 				      OOPMDataState AccessRequest,
@@ -947,14 +947,14 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << "Entering GrantAccess for Object " << this->fObjId;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
 	switch(state) {
 	case EVersionAccess: {
     {
       stringstream sout;
       sout << "Sending grant version access for obj " << fObjId << " to proc " << processor;
-      LOG4CXX_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str());
     }
 		OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantVersionAccess,processor);
 		town->fObjId = this->fObjId;
@@ -970,7 +970,7 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
       {
         stringstream sout;
         sout << "Sending grant read access for obj " << fObjId << " to proc " << processor;
-        LOG4CXX_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str());
       }
       OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantReadAccess,processor);
       town->fObjId = this->fObjId;
@@ -987,14 +987,14 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
       stringstream sout;
       sout << "OOPMetaData::GrantAccess transferring object" << fObjId << " State "
            << state << " to proc " << processor ;
-      LOG4CXX_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str());
     }
 		TransferObject(processor);
 		break;
 	default:
     stringstream sout;
     sout << "OOPMetaData::GrantAccess " << fObjId << " unhandled state " << state ;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
     break;
 	}
 }
@@ -1012,7 +1012,7 @@ void OOPMetaData::IncrementVersion (const OOPObjectId &taskid)
       stringstream sout;
       sout << "Incrementing Version for Obj " << this->fObjId << " to version "
            << ver;
-      LOG4CXX_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str());
     }
 		++fVersion;
 	}
@@ -1020,7 +1020,7 @@ void OOPMetaData::IncrementVersion (const OOPObjectId &taskid)
     {
       stringstream sout;
       sout << "OOPMetaData::IncrementVersion not executed for Obj "<< fObjId << " fTaskWrite " << fTaskWrite << " taskid " << taskid;
-      LOG4CXX_ERROR(logger,sout.str());
+      LOGPZ_ERROR(logger,sout.str());
     }
 	}
 }
@@ -1100,13 +1100,13 @@ void OOPMetaData::SetVersion (const OOPDataVersion & ver,
       stringstream sout;
       sout << "Setting Version for Obj " << this->fObjId << " to version "
            << ver;
-      LOG4CXX_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str());
     }
 	}
 	else {
     stringstream sout;
     sout << "OOPMetaData::SetVersion not executed for Obj "<< fObjId ;
-    LOG4CXX_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
 	}
 }
 void OOPMetaData::SendAccessRequest (const OOPMDataDepend & depend)

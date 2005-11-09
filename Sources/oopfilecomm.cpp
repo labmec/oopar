@@ -25,16 +25,16 @@ class   OOPTask;
 OOPError Err;
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPFileComManager"));
-
+#endif
 
 /************************** Public *************************/
 /*******************/
@@ -56,7 +56,7 @@ OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 	// Cria novos buffers.
 	f_buffer = new (PTFileStorageBuffer[f_num_proc]);
 	if (f_buffer == NULL) {
-    LOG4CXX_ERROR(logger, "Constructor <can't alloc buffers>\n");
+    LOGPZ_ERROR(logger, "Constructor <can't alloc buffers>\n");
 		Err.Error (1, "Constructor <can't alloc buffers>\n");
 	}
 	// Inicializa os novos buffers.
@@ -89,13 +89,13 @@ int OOPFileComManager::SendTaskVrt (OOPTask * pObject)
 	// Se "process_id" nao for valido.
 	if ((process_id < -1) || (process_id >= f_num_proc)) {
 		Err.Error (1, "SendObject <process ID out of range>\n");
-    LOG4CXX_ERROR(logger, "SendObject <process ID out of range>\n");
+    LOGPZ_ERROR(logger, "SendObject <process ID out of range>\n");
 		return 0;
 	}
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
 		Err.Error (1, "SendObject <I canot send to myself>\n");
-    LOG4CXX_ERROR(logger, "SendObject <I canot send to myself>\n");
+    LOGPZ_ERROR(logger, "SendObject <I canot send to myself>\n");
 		return 0;
 	}
 	int iprmin = process_id;
@@ -129,13 +129,13 @@ int OOPFileComManager::SendTask (OOPTask * pObject)
 	// Se "process_id" nao for valido.
 	if ((process_id < -1) || (process_id >= f_num_proc)) {
 		Err.Error (1, "SendObject <process ID out of range>\n");
-    LOG4CXX_ERROR(logger, "SendObject <process ID out of range>\n");
+    LOGPZ_ERROR(logger, "SendObject <process ID out of range>\n");
 		return 0;
 	}
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
 		Err.Error (1, "SendObject <I canot send to myself>\n");
-    LOG4CXX_ERROR(logger, "SendObject <I canot send to myself>\n");
+    LOGPZ_ERROR(logger, "SendObject <I canot send to myself>\n");
 		return 0;
 	}
 	int iprmin = process_id;
@@ -178,7 +178,7 @@ int OOPFileComManager::ReceiveMessages ()
 		if ((recv = fopen (rcv_file, "w")) == NULL) {
 			Err.Error (1,
 				   "ReceiveMessages <error open receive file>\n");
-     LOG4CXX_ERROR(logger, "ReceiveMessages <error open receive file>\n");
+     LOGPZ_ERROR(logger, "ReceiveMessages <error open receive file>\n");
 		}
 		else {
 			fclose (recv);
@@ -212,7 +212,7 @@ int OOPFileComManager::ReceiveMessages ()
 			if (new_object == NULL) {
 				Err.Error (1,
 					   "ReceiveMessages <Erro em Restore() do objeto>.\n");
-        LOG4CXX_ERROR(logger, "ReceiveMessages <Erro em Restore() do objeto>.\n");
+        LOGPZ_ERROR(logger, "ReceiveMessages <Erro em Restore() do objeto>.\n");
 			}
 			//TM->ReSubmit ((OOPTask *) new_object);
 			TM->Submit((OOPTask *) new_object);
@@ -225,7 +225,7 @@ int OOPFileComManager::ReceiveMessages ()
 	if ((recv = fopen (rcv_file, "w")) == NULL) {
 		Err.Error (1,
 			   "ReceiveMessages <error truncating receive file>\n");
-    LOG4CXX_ERROR(logger, "ReceiveMessages <error truncating receive file>\n");    
+    LOGPZ_ERROR(logger, "ReceiveMessages <error truncating receive file>\n");
 	}
 	fclose (recv);
 	return (leu_msg);
@@ -252,7 +252,7 @@ int OOPFileComManager::SendMessages ()
 			if ((dest = fopen (dst_file, "a")) == NULL) {
 				Err.Error (1,
 					   "SendMessages <error open dest file>\n");
-        LOG4CXX_ERROR(logger, "SendMessages <error open dest file>\n");    
+        LOGPZ_ERROR(logger, "SendMessages <error open dest file>\n");
 			}
 			fprintf (dest, "%s\n", file_to_send);
 			fclose (dest);

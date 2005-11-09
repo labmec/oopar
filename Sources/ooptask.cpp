@@ -8,16 +8,16 @@
 //#include "../gnu/gnudefs.h"
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTask"));
-
+#endif
 
 void OOPTask::SetRecurrence (bool recurrence)
 {
@@ -96,7 +96,7 @@ OOPMReturnType OOPTask::Execute ()
 /*  stringstream sout;
   sout << "OOPTask::Execute should never be called!\n";
   sout << "Called from ClassId " << ClassId() << endl;
-  LOG4CXX_ERROR(logger, sout.str());*/
+  LOGPZ_ERROR(logger, sout.str());*/
   return ESuccess;	// execute the task, verifying that
 }
 int OOPTask::GetProcID ()
@@ -149,7 +149,7 @@ TPZSaveable *OOPTask::GetDepObjPtr(int idepend)
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " << idepend << " " << numdep;
-    LOG4CXX_WARN(logger, sout.str());
+    LOGPZ_WARN(logger, sout.str());
     return 0;
   }
   OOPMDataDepend &dep = fDataDepend.Dep(idepend);
@@ -164,7 +164,7 @@ void OOPTask::IncrementDepObjVersion(int idepend)
 	if(idepend < 0 || idepend >= numdep) {
     stringstream sout;
 		sout << "Dpendency Id is bigger then number of objects";
-    LOG4CXX_WARN(logger, sout.str());
+    LOGPZ_WARN(logger, sout.str());
 		return;
 	}
 	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
@@ -183,13 +183,13 @@ void OOPTask::IncrementWriteDependentData()
         meta->IncrementVersion(Id());
         stringstream sout;
         sout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id();
-        LOG4CXX_INFO(logger, sout.str());
+        LOGPZ_INFO(logger, sout.str());
       }
       else
       {
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << " meta is NULL!!!";
-        LOG4CXX_ERROR(logger, sout.str());
+        LOGPZ_ERROR(logger, sout.str());
       }
 		}
 	}

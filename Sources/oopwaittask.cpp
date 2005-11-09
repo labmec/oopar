@@ -11,15 +11,16 @@
 //
 #include "oopwaittask.h"
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
+#endif
 
 class OOPStorageBuffer;
 
@@ -42,7 +43,7 @@ OOPWaitTask::~OOPWaitTask()
 void OOPWaitTask::Write(TPZStream & buf, int withclassid)
 {
   OOPTask::Write(buf, withclassid);
-  LOG4CXX_WARN(logger,"OOPWaitTask should never be packed\n");
+  LOGPZ_WARN(logger,"OOPWaitTask should never be packed\n");
 }
 
 void OOPWaitTask::Read(TPZStream & buf, void * context)
@@ -65,7 +66,7 @@ OOPMReturnType OOPWaitTask::Execute()
   pthread_cond_wait(&fExecCond, &fExecMutex);
   stringstream sout;
   sout << "Wait task is leaving execute id " << Id();
-  LOG4CXX_DEBUG(logger,sout.str());
+  LOGPZ_DEBUG(logger,sout.str());
   this->IncrementWriteDependentData();
   return ESuccess;
 }
@@ -91,7 +92,7 @@ void OOPWaitTask::Wait()
   {
     std::stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Recursive call of wait task " << Id();
-    LOG4CXX_ERROR(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str());
   }
   gCounter++;
 //  pthread_mutex_lock(&fExtMutex);

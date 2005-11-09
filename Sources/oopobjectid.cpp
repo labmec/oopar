@@ -7,15 +7,17 @@ class   OOPStorageBuffer;
 //class OOPObjectId;
  
 #include <sstream>
+
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPObjectId"));
+#endif
 
 
 OOPObjectId::OOPObjectId ()
@@ -65,7 +67,7 @@ int OOPObjectId::main ()
 	}
  
 	sout << TestDeQue.size () ;
-  LOG4CXX_DEBUG(logger,sout.str());
+  LOGPZ_DEBUG(logger,sout.str());
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		(*i)->Print ();
 	}

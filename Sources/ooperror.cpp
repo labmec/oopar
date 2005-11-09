@@ -13,15 +13,16 @@
 #include "ooperror.h"
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPError"));
+#endif
 
 char OOPError::f_global[128] = "errofile.log";
 /************************ Private ************************/
@@ -37,7 +38,7 @@ void OOPError::ClearErrorFile ()
 			fprintf (stderr,
 				 "OOPError::ClearErrorFile <can't open %s>.\n",
 				 fname);
-      LOG4CXX_FATAL(logger,"OOPError::ClearErrorFile <can't open %s>.\n");
+      LOGPZ_FATAL(logger,"OOPError::ClearErrorFile <can't open %s>.\n");
 			exit (1);
 		}
 		fprintf (file, "\n");
@@ -60,7 +61,7 @@ void OOPError::Debug (char *msg1, char *msg2)
 		if (file == NULL) {
 			fprintf (stderr, "OOPError::Error <error open %s>.\n",
 				 fname);
-      LOG4CXX_FATAL(logger,"OOPError::Error <error open %s>.\n");
+      LOGPZ_FATAL(logger,"OOPError::Error <error open %s>.\n");
 			exit (1);
 		}
 		fprintf (file, msg, msg2);
@@ -83,7 +84,7 @@ void OOPError::Debug (char *msg1, int msg2)
 		if (file == NULL) {
 			fprintf (stderr, "TError::Error <error open %s>.\n",
 				 fname);
-      LOG4CXX_FATAL(logger,"TError::Error <error open %s>.\n");
+      LOGPZ_FATAL(logger,"TError::Error <error open %s>.\n");
 			exit (1);
 		}
 		fprintf (file, msg, msg2);
@@ -106,7 +107,7 @@ void OOPError::Debug (char *msg1, float msg2)
 		if (file == NULL) {
 			fprintf (stderr, "TError::Error <error open %s>.\n",
 				 fname);
-      LOG4CXX_FATAL(logger,"TError::Error <error open %s>.\n");
+      LOGPZ_FATAL(logger,"TError::Error <error open %s>.\n");
 			exit (1);
 		}
 		fprintf (file, msg, msg2);

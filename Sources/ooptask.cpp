@@ -147,9 +147,11 @@ TPZSaveable *OOPTask::GetDepObjPtr(int idepend)
 	int numdep = fDataDepend.NElements();
 	if(idepend < 0 || idepend >= numdep) 
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " << idepend << " " << numdep;
     LOGPZ_WARN(logger, sout.str());
+#endif    
     return 0;
   }
   OOPMDataDepend &dep = fDataDepend.Dep(idepend);
@@ -162,9 +164,11 @@ void OOPTask::IncrementDepObjVersion(int idepend)
 {
 	int numdep = fDataDepend.NElements();
 	if(idepend < 0 || idepend >= numdep) {
+#ifdef LOGPZ    
     stringstream sout;
 		sout << "Dpendency Id is bigger then number of objects";
     LOGPZ_WARN(logger, sout.str());
+#endif    
 		return;
 	}
 	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
@@ -181,15 +185,19 @@ void OOPTask::IncrementWriteDependentData()
 			if(meta)
       {
         meta->IncrementVersion(Id());
+#ifdef LOGPZ          
         stringstream sout;
         sout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id();
         LOGPZ_INFO(logger, sout.str());
+#endif        
       }
       else
       {
+#ifdef LOGPZ        
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << " meta is NULL!!!";
         LOGPZ_ERROR(logger, sout.str());
+#endif        
       }
 		}
 	}

@@ -123,17 +123,21 @@ int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
    {
+#ifdef LOGPZ     
      stringstream sout;
      sout << __PRETTY_FUNCTION__ << " task id " << taskid << " submitting " << *i;
      LOGPZ_DEBUG(tasklogger,sout.str());
+#endif     
    }
 		if (!DM->SubmitAccessRequest (taskid, *i)) {
+#ifdef LOGPZ      
       stringstream sout;
       sout << "SubmitDependencyList failed for task id ";
       taskid.Print (sout);
       sout << "With dependency ";
       (*i).Print (sout);
       LOGPZ_ERROR(logger,sout.str());
+#endif      
 			deque < OOPMDataDepend >::iterator j;
 			for (j = fDependList.begin (); j != i; j++) {
 				DM->ReleaseAccessRequest (taskid, *j);
@@ -156,9 +160,11 @@ void OOPMDataDependList::ReleaseAccessRequests (const OOPObjectId & taskid)
 {
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
+#ifdef LOGPZ    
           std::stringstream sout;
           sout << __PRETTY_FUNCTION__ << " taskid " << taskid << " releasing depend " << *i;
           LOGPZ_DEBUG(tasklogger,sout.str());
+#endif          
           DM->ReleaseAccessRequest (taskid, *i);
 	}
 }
@@ -186,9 +192,11 @@ void OOPMDataDependList::AppendDependency (const OOPMDataDepend & depend)
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		if (*i == depend) {
+#ifdef LOGPZ      
       stringstream sout;
-			sout << "OOPMDataDependList::AppendDependency duplicate dependency ";
+      sout << "OOPMDataDependList::AppendDependency duplicate dependency ";
       LOGPZ_WARN(logger,sout.str());
+#endif      
 		}
 	}
 	fDependList.push_back (depend);
@@ -206,10 +214,12 @@ void OOPMDataDependList::GrantAccess (const OOPMDataDepend & depend, OOPMetaData
   }
   if (i == fDependList.end ())
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << "OOPMDataDepend::GrantAccess didn't find the corresponding dependency : ";
     depend.ShortPrint (sout);
     LOGPZ_ERROR(logger,sout.str());
+#endif    
   }
 }
 void OOPMDataDependList::RevokeAccess (const OOPMDataDepend & depend)
@@ -225,6 +235,7 @@ void OOPMDataDependList::RevokeAccess (const OOPMDataDepend & depend)
   }
   if (i == fDependList.end ())
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << "OOPMDataDepend::RevokeAccess didn't find the corresponding dependency, dependencies";
     for(i = fDependList.begin(); i!= fDependList.end(); i++)
@@ -234,6 +245,7 @@ void OOPMDataDependList::RevokeAccess (const OOPMDataDepend & depend)
     sout << " dependency not found : ";
     depend.ShortPrint (sout);
     LOGPZ_ERROR(logger,sout.str());
+#endif    
   }
 }
 void OOPMDataDependList::Clear ()
@@ -280,8 +292,10 @@ OOPMDataDepend & OOPMDataDependList::Dep (OOPObjectId & Id)	{
 		if (i->Id() == Id)
 			return *(i);
 	}
+#ifdef LOGPZ    
   stringstream sout;
   sout << __PRETTY_FUNCTION__ << " Wrong Dependency information";
   LOGPZ_WARN(logger,sout.str());
+#endif  
 	return * new OOPMDataDepend;
 }

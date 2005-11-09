@@ -64,9 +64,11 @@ OOPMReturnType OOPWaitTask::Execute()
   pthread_mutex_unlock(&fExtMutex);
   //sleep(10);
   pthread_cond_wait(&fExecCond, &fExecMutex);
+#ifdef LOGPZ    
   stringstream sout;
   sout << "Wait task is leaving execute id " << Id();
   LOGPZ_DEBUG(logger,sout.str());
+#endif  
   this->IncrementWriteDependentData();
   return ESuccess;
 }
@@ -90,9 +92,11 @@ void OOPWaitTask::Wait()
 {
   if(gCounter) 
   {
+#ifdef LOGPZ    
     std::stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Recursive call of wait task " << Id();
     LOGPZ_ERROR(logger,sout.str());
+#endif    
   }
   gCounter++;
 //  pthread_mutex_lock(&fExtMutex);

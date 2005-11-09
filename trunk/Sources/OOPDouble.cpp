@@ -2,15 +2,16 @@
 #include "OOPDouble.h"
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDouble"));
+#endif
 
 OOPDouble::OOPDouble() : TPZSaveable(), fValue(0.)
 {
@@ -27,7 +28,7 @@ void OOPDouble::Read(TPZStream & buf, void * context){
     if(clsid!=ClassId()){
       std::stringstream sout;
       sout << "ClassId missmatch on OOPDouble::Read";
-      LOG4CXX_ERROR(logger,sout.str());
+      LOGPZ_ERROR(logger,sout.str());
     }
 }
 void OOPDouble::Write(TPZStream & buf, int withclassid){

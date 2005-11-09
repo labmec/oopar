@@ -34,16 +34,16 @@ using namespace std;
 class   OOPSaveable;
 
 #include <sstream>
+#include <pzlog.h>
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPStorageBuffer"));
-
+#endif
 
 /************************ TSendStorage ************************/
 /************************ TReceiveStorage ************************/
@@ -65,13 +65,13 @@ OOPSaveable *OOPStorageBuffer::Restore ()
   {
     stringstream sout;
     sout << "PID" << getpid() << " Restorig object of class Id " << class_id;
-    LOG4CXX_DEBUG (logger,sout.str());
+    LOGPZ_DEBUG (logger,sout.str());
   }
 #endif
 	if (!class_id) {
     stringstream sout;
     sout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore";
-    LOG4CXX_DEBUG (logger,sout.str());
+    LOGPZ_DEBUG (logger,sout.str());
 		return (0);
 	}
 	map < long, TRestFunction >::iterator i;

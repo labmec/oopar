@@ -35,32 +35,39 @@ void OOPTaskControl::Execute()
   static int numthreads = 0;
 //  cout << __FUNCTION__ << " creating trhead number " << numthreads++ << " max threads " << PTHREAD_THREADS_MAX << endl;
   if(pthread_create(&fExecutor, NULL, ThreadExec, this)){
+#ifdef LOGPZ  
     stringstream sout;
     sout << "Fail to create service thread -- ";
     sout << "Going out";
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 }
 
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
+#ifdef LOGPZ
   stringstream sout;
+#endif  
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
+#ifdef LOGPZ  
   {
     sout << "Task " << tc->fTask->Id() << " started";
     LOGPZ_DEBUG(logger,sout.str());
   }
-  
+#endif  
   tc->fExecStarted = 1;
   tc->fTask->Execute();
   tc->fTask->SetExecuting(false);
   pthread_mutex_lock(&(tc->fStateMutex));
   tc->fExecFinished =1;
   pthread_mutex_unlock(&(tc->fStateMutex));
+#ifdef LOGPZ  
   {
     sout << "Task " << tc->fTask->Id() << " finished";
     LOGPZ_DEBUG(logger,sout.str());
   }
+#endif  
   return 0;
 }
 
@@ -68,9 +75,11 @@ void OOPTaskControl::Join()
 {
   if(fExecutor == pthread_self())
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << __FUNCTION__ << " called by the taskcontrol object itself";
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
     return;
   }
   void *execptr;
@@ -78,8 +87,10 @@ void OOPTaskControl::Join()
   int result = pthread_join(fExecutor,executorresultptr);
   if(result)
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << __FUNCTION__ << __LINE__ << " join operation failed with result " << result;
     LOGPZ_DEBUG(logger,sout.str());
+#endif
   }
 }

@@ -63,15 +63,19 @@ OOPSaveable *OOPStorageBuffer::Restore ()
 	UpkLong (&class_id);
 #ifdef DEBUG
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << "PID" << getpid() << " Restorig object of class Id " << class_id;
     LOGPZ_DEBUG (logger,sout.str());
+#endif    
   }
 #endif
 	if (!class_id) {
+#ifdef LOGPZ    
     stringstream sout;
     sout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore";
     LOGPZ_DEBUG (logger,sout.str());
+#endif    
 		return (0);
 	}
 	map < long, TRestFunction >::iterator i;

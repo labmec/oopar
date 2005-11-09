@@ -19,9 +19,11 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPAccessInfo"));
 bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 {
   if (fIsGranted || fIsAccessing) {
+#ifdef LOGPZ  
     stringstream sout;
     sout << "OOPAccessInfo::CanExecute should not be called for an object which is being accessed\n";
     LOGPZ_WARN(logger, sout.str());
+#endif    
     return false;
   }
 	// if the version is not right, don't even consider granting access
@@ -59,9 +61,11 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		break;
 	default:
     {
+#ifdef LOGPZ    
       stringstream sout;
       sout << "OOPAccessInfo::CanExecute inconsistent\n";
       LOGPZ_WARN(logger, sout.str());
+#endif      
     }
 		break;
 	}
@@ -87,13 +91,17 @@ void OOPAccessInfoList::AddAccessRequest (const OOPObjectId & taskid,
 bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
                                               list <OOPAccessInfo >::iterator & ac)
 {
+#ifdef LOGPZ
   stringstream sout;
+#endif  
 	ac = fList.end ();
 	if (!object.CanGrantAccess ())
 	{
+#ifdef LOGPZ  
     stringstream sout;  
     sout <<  __PRETTY_FUNCTION__ << "VerifyAccessRequests object returned CanGrantAccess false\n";
     LOGPZ_WARN (logger, sout.str());
+#endif    
     return false;
 	}
 	list < OOPAccessInfo >::iterator i;
@@ -180,10 +188,12 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
     if(!i->fIsAccessing) AmICompatibleResult = (i->fVersion).AmICompatible (version);
     if(!AmICompatibleResult) 
     {
+#ifdef LOGPZ    
       stringstream sout;
       sout << "False AmICompatible from " << __PRETTY_FUNCTION__ 
            << " IsAccessing returns " << i->fIsAccessing << std::endl;
       LOGPZ_WARN(logger, sout.str());
+#endif      
     }
 		if (!AmICompatibleResult
 		    && !i->fIsAccessing) {
@@ -266,9 +276,11 @@ void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 		i++;
 	}
 	if(i == fList.end()) {
+#ifdef LOGPZ  
     stringstream sout;
     sout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend <<endl;
     LOGPZ_INFO(logger, sout.str());
+#endif    
 		Print(cout);
 		cout.flush();
 	}
@@ -400,9 +412,11 @@ void OOPAccessInfoList::RevokeWriteAccess (const OOPMetaData & obj)
   {
     if (i->fIsAccessing)
     {
+#ifdef LOGPZ    
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << "cant revoke access for an executing task taskid " << i->fTaskId << " obj " << obj.Id();
       LOGPZ_ERROR(logger,sout.str());
+#endif      
     }
     else if (i->fIsGranted && !(i->fState == EReadAccess))
     {

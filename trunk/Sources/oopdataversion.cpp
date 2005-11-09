@@ -81,24 +81,32 @@ void OOPDataVersion::main ()
 	v.IncrementLevel (17);
 	// v.IncrementLevel(3);
 	if (v.AmICompatible (version)) {
+#ifdef LOGPZ    
     stringstream sout;
 		sout << " Versions compatible ";
     LOGPZ_DEBUG (logger,sout.str());
+#endif    
 	}
 	else {
+#ifdef LOGPZ    
     stringstream sout;
 		sout << "Versions are not compatible";
     LOGPZ_DEBUG (logger,sout.str());
+#endif    
 	}
 	if (version.AmICompatible (v)) {
+#ifdef LOGPZ    
     stringstream sout;
 		sout << " Versions compatible ";
     LOGPZ_DEBUG (logger,sout.str());
+#endif    
 	}
 	else {
+#ifdef LOGPZ    
     stringstream sout;
 		sout << "Versions are not compatible";
     LOGPZ_DEBUG (logger,sout.str());
+#endif    
 	}
 	while (version.GetNLevels () != 1) {
 		version.Increment ();
@@ -137,6 +145,7 @@ void OOPDataVersion::SetLevelCardinality (int level, int depth)
 				 if(i>=version.fVersion.size()) return true;
 			     if (GetLevelVersion (i) <
 				     version.GetLevelVersion (i)) {
+#ifdef LOGPZ               
              stringstream sout;
              LOGPZ_WARN(logger, "AmICompatible returned false");
 				     sout << "My version ";
@@ -144,6 +153,7 @@ void OOPDataVersion::SetLevelCardinality (int level, int depth)
 				     sout << "Other version ";
 				     version.Print (sout);
              LOGPZ_DEBUG(logger,sout.str());
+#endif             
 				     return false;
 			     }
 		     }
@@ -272,10 +282,12 @@ void OOPDataVersion::Increment ()
 		return;
 	if (fVersion[fVersion.size () - 1] >
 	    fLevelCardinality[fVersion.size () - 1]) {
+#ifdef LOGPZ        
     stringstream sout;
 		sout << "Inconsistent data version incrementation" <<
 			__FILE__ << __LINE__;
     LOGPZ_ERROR(logger,sout.str());
+#endif    
 		return;
 	}
 	if (fVersion[fVersion.size () - 1] ==
@@ -299,12 +311,14 @@ void OOPDataVersion::Increment ()
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
+#ifdef LOGPZ         
          stringstream sout;
 		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__
 			     << " Accessing level out of range" << endl;
 		     sout << "Maximum:" << GetNLevels () -
 			     1 << " Trying:" << level;
          LOGPZ_ERROR(logger,sout.str());
+#endif         
 		     // exit(-1);
 		     return -1;
 	     }
@@ -314,10 +328,12 @@ void OOPDataVersion::Increment ()
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
+#ifdef LOGPZ         
          stringstream sout;
 		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__ << " Accessing level out of range" << endl;
 		     sout << "Maximum:" << GetNLevels () - 1 << " Trying:" << level;
 		     LOGPZ_ERROR(logger,sout.str());
+#endif         
          // exit (-1);
 		     return -1;
 	     }

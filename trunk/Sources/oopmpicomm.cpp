@@ -88,10 +88,12 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 //#warning "Nao tem necessidade do mutex neste ponto"
 #ifdef DEBUGALL
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout <<  __PRETTY_FUNCTION__ << " Sending task " << pTask->ClassId() << 
            " to proc " << pTask->GetProcID ();
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 #endif
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
@@ -113,25 +115,31 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	//Attention here
 #ifdef DEBUGALL
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ <<" Packing the task in a buffer";
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 #endif
 	pTask->Write (f_buffer, 1);
 #ifdef DEBUGALL
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout <<  __PRETTY_FUNCTION__ << " Sending the buffer";
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 #endif
 	f_buffer.Send(process_id);
 #ifdef DEBUGALL
   {
+#ifdef LOGPZ
     stringstream sout;
     sout <<  __PRETTY_FUNCTION__ << " Message Sent";
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 #endif
 	delete pTask;
@@ -155,9 +163,11 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
 #ifdef DEBUG
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << "ReceiveMsgBlocking ";
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 #endif
 	while (1){
@@ -172,9 +182,11 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 		}
 #ifdef DEBUG
   {
+#ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << "Calling ProcessMessage";
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 #endif
 		LocalCM->ProcessMessage (msg);
@@ -210,9 +222,11 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 int OOPMPICommManager::ReceiveBlocking ()
 {
   if(!CM->GetProcID()){
+#ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID();
     LOGPZ_DEBUG(logger,sout.str());
+#endif
   }
 	
 	f_buffer.ReceiveBlocking();
@@ -226,9 +240,11 @@ int OOPMPICommManager::ReceiveBlocking ()
 //  sleep(1);
 #endif
   if(!CM->GetProcID()){
+#ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID();
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 
 	return 1;
@@ -245,9 +261,11 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 	if(task) {
 		task->Submit();
 	} else {
+#ifdef LOGPZ    
     std::stringstream sout;
 		sout << "OOPMPICommManager::ProcessMessage received an object which is not a task";
     LOGPZ_DEBUG(logger,sout.str());
+#endif    
 		delete obj;
 	}
 	return 1;

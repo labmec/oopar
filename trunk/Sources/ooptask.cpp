@@ -180,14 +180,14 @@ void OOPTask::IncrementWriteDependentData()
 	int i;
 	
 	for(i=0;i<numdep;i++){
-		if(fDataDepend.Dep(i).State()==EWriteAccess){
+		if(fDataDepend.Dep(i).State()==EWriteAccess || fDataDepend.Dep(i).State()==EVersionAccess){
       OOPMetaData *meta = fDataDepend.Dep(i).ObjPtr();
 			if(meta)
       {
         meta->IncrementVersion(Id());
 #ifdef LOGPZ          
         stringstream sout;
-        sout << "Automatically Incrementing Write Dependent Data Versions of object id " << Id();
+        sout << "Automatically Incrementing Write Dependent Data Versions of object id " << meta->Id();
         LOGPZ_INFO(logger, sout.str());
 #endif        
       }

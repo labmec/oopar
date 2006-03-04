@@ -218,14 +218,17 @@ void OOPMetaData::VerifyAccessRequests ()
     }
     else
     {
-      if((ac->fState == EReadAccess && ! this->HasReadAccess(ac->fProcessor)) || ac->fState != EReadAccess)
+      OOPAccessInfo tmp(*ac);
+      // Deleting the iterator, because grant access will transfer access requests and delete them
+      fAccessList.ReleaseAccess (ac);
+      if((tmp.fState == EReadAccess && ! this->HasReadAccess(tmp.fProcessor)) || tmp.fState != EReadAccess)
       {
 #ifdef LOGPZ        
         stringstream sout;
         sout << "Sending grant access for obj " << fObjId << " with state " << ac->fState << " to processor" << ac->fProcessor;
         LOGPZ_DEBUG(logger,sout.str());
 #endif        
-        GrantAccess (ac->fState, ac->fProcessor);
+        GrantAccess (tmp.fState, tmp.fProcessor);
       } else
       {
 #ifdef LOGPZ        
@@ -234,8 +237,16 @@ void OOPMetaData::VerifyAccessRequests ()
         LOGPZ_DEBUG(logger,sout.str());
 #endif        
       }
-      fAccessList.ReleaseAccess (ac);
       if(fAccessList.HasWriteAccessRequests (fVersion)){
+        if(tmp.fState == EWriteAccess)
+        {
+          stringstream sout;
+          sout << "AccessList found write access request ";
+          fAccessList.Print(sout);
+          sout << "The granted access is ";
+          tmp.Print(sout);
+          LOG4CXX_WARN(logger,sout.str());
+        }
         CancelReadAccess();
       }
     }
@@ -937,9 +948,6 @@ void OOPMetaData::RequestDelete ()
       LOGPZ_ERROR(logger,sout.str());
 #endif      
     }
-#ifndef WIN32
-#warning "mandar um recado para o processador dono do dado"
-#endif
 	}
 }
 void OOPMetaData::CancelReadAccess ()

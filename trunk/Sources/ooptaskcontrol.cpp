@@ -1,5 +1,6 @@
 #include "ooptaskcontrol.h"
 #include "ooptask.h"
+#include "ooperror.h"
 
 #include <sstream>
 
@@ -32,7 +33,7 @@ OOPTaskControl::~OOPTaskControl ()
 
 void OOPTaskControl::Execute()
 {
-  static int numthreads = 0;
+//  static int numthreads = 0;
 //  cout << __FUNCTION__ << " creating trhead number " << numthreads++ << " max threads " << PTHREAD_THREADS_MAX << endl;
   if(pthread_create(&fExecutor, NULL, ThreadExec, this)){
 #ifdef LOGPZ  

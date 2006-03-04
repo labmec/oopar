@@ -70,7 +70,7 @@ void OOPDataLogger::LogSetVersion(int proc, OOPObjectId & Id, OOPDataVersion & o
 //OK
 
 void OOPDataLogger::LogGeneric(int proc, OOPObjectId & Id, char * msg){
-#warning "Still can be enriched"
+//#warning "Still can be enriched"
 	fLogger << proc;
 	fLogger << "\tId " << Id << "\t";
 	fLogger << msg << endl;

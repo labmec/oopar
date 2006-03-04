@@ -2,6 +2,7 @@
 #include "oopmetadata.h"
 #include "ooptaskmanager.h"
 #include "oopdatamanager.h"
+#include "ooperror.h"
 
 #include <sstream>
 
@@ -79,7 +80,29 @@ void OOPAccessInfoList::AddAccessRequest (const OOPObjectId & taskid,
 					  const OOPMDataDepend & depend,
 					  int processor)
 {
-	fList.push_back (OOPAccessInfo (taskid, depend, processor));
+  OOPAccessInfo tmp(taskid,depend,processor);
+  if(taskid.IsZeroOOP() && processor == DM->GetProcID())
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " taskid is zero and request is for my processor dependency "
+        << depend << " processor " << processor;
+    LOG4CXX_ERROR(logger,sout.str());
+    return;
+  }
+  
+  if(find(fList.begin(),fList.end(),(tmp)) != fList.end())
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " repeated access request ";
+    tmp.Print(sout);
+    sout << "Existing list ";
+    Print(sout);
+    LOG4CXX_ERROR(logger, sout.str());
+  }
+  else
+  {
+    fList.push_back (OOPAccessInfo (taskid, depend, processor));
+  }
 }
 /**
  * Verifies whether there is an access request can be granted for the given
@@ -181,39 +204,36 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
 					     OOPObjectId & taskid)
 {
-	list < OOPAccessInfo >::iterator i = fList.begin ();
-	while (i != fList.end ()) {
+  list < OOPAccessInfo >::iterator i = fList.begin ();
+  while (i != fList.end ())
+  {
 		// can't cancel executing tasks
     bool AmICompatibleResult = true;
     if(!i->fIsAccessing) AmICompatibleResult = (i->fVersion).AmICompatible (version);
-    if(!AmICompatibleResult) 
-    {
-#ifdef LOGPZ    
-      stringstream sout;
-      sout << "False AmICompatible from " << __PRETTY_FUNCTION__ 
-           << " IsAccessing returns " << i->fIsAccessing << std::endl;
-      LOGPZ_WARN(logger, sout.str());
-#endif      
+    if (!AmICompatibleResult && !i->fIsAccessing) {
+      if (i->fTaskId.IsZeroOOP ())
+      {
+        // This is a different processor requesting
+        // access
+        stringstream sout;
+        sout << "Deleting access request ";
+        i->Print(sout);
+        LOGPZ_ERROR(logger, sout.str());
+        fList.erase (i);
+        i = fList.begin ();
+        continue;
+      }
+      else
+      {
+        // no need to erase, the task will be
+        // canceled
+        taskid = i->fTaskId;
+        return true;
+      }
     }
-		if (!AmICompatibleResult
-		    && !i->fIsAccessing) {
-			if (i->fTaskId.IsZeroOOP ()) {
-				// This is a different processor requesting
-				// access
-				fList.erase (i);
-				i = fList.begin ();
-				continue;
-			}
-			else {
-				// no need to erase, the task will be
-				// canceled
-				taskid = i->fTaskId;
-				return true;
-			}
-		}
-		i++;
-	}
-	return false;
+    i++;
+  }
+  return false;
 }
 /**
  * Indicates whether any access request of type ReadAccess has been granted
@@ -458,12 +478,23 @@ void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
 	}
 	i = fList.begin();
 	while(i != fList.end()) {
-		if(i->fProcessor == processor || i->fProcessor == DM->GetProcID()) {
+		if(i->fProcessor == DM->GetProcID()) {
 			i++;
 		// Send the requests which came from other processors to be filed at
 		// the target processor
 		// delete the requests from the current object because the ownership was
 		// transferred
+                }
+                else if(i->fProcessor == processor)
+                {
+                  {
+                    std::stringstream sout;
+                    sout << __PRETTY_FUNCTION__ << " erasing ";
+                    (*i).Print(sout);
+                    LOG4CXX_DEBUG(logger,sout.str());
+                  }
+                  fList.erase(i);
+                  i=fList.begin();
 		} else {
 			OOPMDataDepend depend(id,i->fState,i->fVersion);
 			OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);

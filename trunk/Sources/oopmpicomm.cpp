@@ -276,3 +276,15 @@ void OOPMPICommManager::Finish(char * msg){
 	f_buffer.FreeRequest();
 	MPI_Finalize();
 }
+
+int OOPMPICommManager::IAmTheMaster(){
+  return (f_myself == 0);
+}
+
+char * OOPMPICommManager::ClassName(){
+  return ("OOPMpiCommManager::");
+}
+
+int OOPMPICommManager::SendMessages(){
+  return 0;
+}

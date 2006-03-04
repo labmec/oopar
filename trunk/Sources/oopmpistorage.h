@@ -66,7 +66,7 @@ public:
 	/**
      * Contructor which initializes the buffer
 	 */
-   OOPMPIStorageBuffer() : f_recv_buffr(50000000) {
+   OOPMPIStorageBuffer() : f_recv_buffr(500000000) {
        //Receiveing related initialization
 	   f_recv_size = 0; f_recv_position = 0; f_sender_tid = -1; f_msg_tag = 0; f_isreceiving = 0;
 	   f_send_size = 0;

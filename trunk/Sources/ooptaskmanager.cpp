@@ -44,6 +44,15 @@ static LoggerPtr tasklogger(Logger::getLogger("OOPAR.OOPTaskManager.task"));
 void OOPTaskManager::main ()
 {
 }
+
+void OOPTaskManager::SetNumberOfThreads(const int n){
+  OOPTaskManager::fNumberOfThreads = n;
+}
+
+int OOPTaskManager::NumberOfThreads(){
+  return OOPTaskManager::fNumberOfThreads;
+}
+        
 void OOPTaskManager::TransferExecutingTasks(){
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
@@ -101,7 +110,7 @@ void OOPTaskManager::TransferExecutingTasks(){
 }
 
 #ifdef OOP_MPI
-#define MT
+//#define MT
 
 /*
 void * OOPTaskManager::TriggerTask(void * data){
@@ -138,7 +147,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	while (lTM->fKeepGoing) {
 		CM->ReceiveMessages();
 		lTM->ExecuteDaemons();
-		while (lTM->fExecutable.size () && lTM->fExecuting.size() < 5) {
+                while ( lTM->fExecutable.size () && lTM->fExecuting.size() < lTM->fNumberOfThreads ) {
 			i = lTM->fExecutable.begin ();
 			OOPTaskControl *tc = (*i);
 			lTM->fExecutable.erase(i);
@@ -194,7 +203,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
 	return NULL;
 }
 #endif
-OOPTaskManager::OOPTaskManager (int proc)
+OOPTaskManager::OOPTaskManager (int proc) : fNumberOfThreads(2)
 {
 	fProc = proc;
 	fLastCreated = 0;//NUMOBJECTS * fProc;

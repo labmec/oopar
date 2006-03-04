@@ -46,7 +46,8 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	OOPVector.cpp \
   oopstorage.cpp \
   oopstore.cpp \
-  oopsaveable.cpp 
+  oopsaveable.cpp \
+  oopcommmanager.cpp 
 #  oopfilecomm.cpp 
 #  oopfilestorage.cpp
 
@@ -65,7 +66,8 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	ooptaskcontrol.cpp \
 	oopaccessinfo.cpp \
 	OOPDataLogger.cpp \
-	oopwaittask.cpp
+	oopwaittask.cpp \
+	oopcommmanager.cpp
 endif
 
 ## --| OOPar |------------------------------------------------------------------

@@ -346,20 +346,28 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
       LOGPZ_DEBUG(logger,sout.str());
 #endif      
     }
-    if(!(*i).second->IamOwner())
+    
+    if(!(*i).second->IamOwner() && task->fProcOrigin != (*i).second->Proc())
     {
+      // I will reroute the task only if the processor to which the request refers
+      // is not the owner of the object
+      {
+        stringstream sout;
+        sout << "OOPDataManager::GetUpdate rerouting request task:";
+        task->LogMe(sout);
+        LOG4CXX_WARN(logger,sout.str());
+      }
       OOPDMRequestTask *ntask = new OOPDMRequestTask(*task);
       ntask->SetProcID((*i).second->Proc());
       TM->SubmitDaemon(ntask);
 
-    } else if((*i).second->IamOwner() && task->fProcOrigin == (*i).second->Proc())
+    } else if(task->fProcOrigin == (*i).second->Proc())
     {
+      
       {
 #ifdef LOGPZ        
         stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " Object Id " << id << "\nMeta data ";
-        (*i).second->PrintLog(sout);
-        sout << "Request task is ";
+        sout << __PRETTY_FUNCTION__ << " Ignoring the request, not rerouting the task to its owning object";
         task->LogMe(sout);
         LOGPZ_WARN(logger,sout.str());
 #endif        
@@ -444,11 +452,16 @@ OOPDMOwnerTask::~OOPDMOwnerTask() {
 }
 //***********************************************************************
 OOPDMRequestTask::OOPDMRequestTask (int proc,
-				    const OOPMDataDepend &
-				    depend):OOPDaemonTask (proc),
-fDepend (depend)
+  const OOPMDataDepend & depend):OOPDaemonTask (proc), fDepend (depend)
 {
-	fProcOrigin = DM->GetProcID ();
+  fProcOrigin = DM->GetProcID ();
+
+  {
+    std::stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " RequestTask constructed with depend " << depend << " target proc " << proc <<
+        " origin proc " << fProcOrigin;
+    LOG4CXX_DEBUG(logger,sout.str());
+  }
 }
 OOPDMRequestTask::
 OOPDMRequestTask (const OOPDMRequestTask & task):OOPDaemonTask (task),
@@ -664,11 +677,14 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 }
 void OOPDMRequestTask::Read(TPZStream & buf, void * context)
 {
-	cout.flush();
 	OOPDaemonTask::Read(buf, context);
 	buf.Read (&fProcOrigin);
 	fDepend.Read (buf);
-
+        {
+          std::stringstream sout;
+          sout << __PRETTY_FUNCTION__ << " Reading request task proc origin " << fProcOrigin << " depend " << fDepend << " fProc " << fProc;
+          LOG4CXX_DEBUG(logger,sout.str());
+        }
 }
 TPZSaveable *OOPDMRequestTask::Restore (TPZStream & buf, void * context)
 {
@@ -678,7 +694,9 @@ TPZSaveable *OOPDMRequestTask::Restore (TPZStream & buf, void * context)
 }
 void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
 {
-	cout.flush();
+  std::stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Writing request task proc origin " << fProcOrigin << " depend " << fDepend << " fProc " << fProc;
+  LOG4CXX_DEBUG(logger,sout.str());
 	OOPDaemonTask::Write (buf, withclassid);
 	buf.Write (&fProcOrigin);
 	fDepend.Write (buf);
@@ -686,29 +704,7 @@ void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
 }
 
 void OOPDMRequestTask::LogMe(std::ostream & out){
-	out << fProc << "\t";
-	out << "Id " << fDepend.Id();
-	out << "\tRequesting ";
-	switch (fDepend.State())
-	{
-		case  ENoAccess:
-			out << "ENoAccess To processor " << fProc ;
-			break;
-		case  EReadAccess:
-			out << "EReadAccess To processor " << fProc ;
-			break;
-		case  EWriteAccess:
-			out << "EWriteAccess To processor " << fProc ;
-			break;
-		case  EVersionAccess:
-			out << "EVersionAccess To processor " << fProc ;
-			break;
-		default:
-			out << "Uninitialized fNeed attribute\t";
-			break;
-	}
-
-	out << "\t\tVersion " << fDepend.Version();
-	out << "\tTo processor " << fProc << "\n";
-	out.flush();
+  out << "OOPDMRequestTask fProcOrigin " << fProcOrigin;
+	out << " Depend " << fDepend;
+	out << " fProc " << fProc;
 }

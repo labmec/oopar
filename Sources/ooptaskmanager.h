@@ -22,7 +22,16 @@ class   OOPObjectId;
 class   OOPTaskManager
 {
   friend class OOPTask;
-      public: 
+      public:
+
+        /** Set max number of simultaneous threads.
+         */
+        void SetNumberOfThreads(const int n);
+
+        /** Get max number of simultaneous threads.
+         */
+        int NumberOfThreads();
+         
 	void Wait();		  
 	/**
 	 * Sets the KeepGoing flag which will control the TM Execute method
@@ -143,6 +152,10 @@ class   OOPTaskManager
 	
 	static void * ExecuteMT(void * data);
 private:
+
+  /** Max number of threads
+   */
+  int fNumberOfThreads;
   
   /**
   thread which is the main execution loop of the task manager

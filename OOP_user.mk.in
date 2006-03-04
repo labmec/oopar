@@ -3,14 +3,14 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: OOP_user.mk.in,v 1.2 2005-10-03 18:11:47 cesar Exp $
+# $Id: OOP_user.mk.in,v 1.3 2006-03-04 20:53:27 cesar Exp $
 #
 
-OOP_INCLUDES = -I@prefix@/include/oopar @MPIINCLUDE@ @MPILAMINCLUDE@
+OOP_INCLUDES = -I@prefix@/include/oopar @MPIINCLUDE@ @MPILAMINCLUDE@ -I@LOG4CXX_INCLUDE@
 
-OOP_LIBDIR = -L@prefix@/lib @MPILIBDIR@ @MPILAMLIBDIR@
-OOP_LIB = -loopar @MPILIB@ @MPILAMLIB@
+OOP_LIBDIR = -L@prefix@/lib @MPILIBDIR@ @MPILAMLIBDIR@ -L@LOG4CXX_LIBDIR@
+OOP_LIB = -loopar @MPILIB@ @MPILAMLIB@ @LOG4CXX_LIB@ 
 
-OOP_CXXFLAGS = @OOP_CXXFLAGS@ @USING_MPI@ @USING_MPILAM@ @USING_SLOAN@
+OOP_CXXFLAGS = @OOP_CXXFLAGS@ @USING_MPI@ @USING_MPILAM@ @USING_SLOAN@ @LOG4CXX_DEF@ 
 
 ## --| NeoPZ |------------------------------------------------------------------

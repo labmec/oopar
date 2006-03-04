@@ -33,7 +33,7 @@ OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
   pthread_mutex_init(&fExtMutex, NULL);
   pthread_mutex_init(&fExecMutex, NULL);
   LockExternal();
-}
+} 
 
 OOPWaitTask::~OOPWaitTask()
 {

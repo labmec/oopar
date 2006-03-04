@@ -1,5 +1,5 @@
 //
-// Autor: Fábio Amaral de Castro, RA: 991722
+// Autor: Fï¿½io Amaral de Castro, RA: 991722
 //
 // E-mail: facastro99@yahoo.com
 //
@@ -45,7 +45,7 @@ private:
 public:
 	/* Sends all messages in all buffers
 	*/
-	virtual int SendMessages () {return 0;}
+  virtual int SendMessages ();
   /**
    * Nonblocking receive. If there is a posted message to 
    * receive, receives it and returns 1. Else, returns 0
@@ -62,20 +62,15 @@ public:
 	static void * ReceiveMsgBlocking (void *t);
 	static void * ReceiveMsgNonBlocking (void *t);
   /**
-   * Retorna 0 se o processo não tiver sido disparado 
+   * Retorna 0 se o processo nï¿½ tiver sido disparado 
    * pelo console. What does it really mean?
    */
-	int     IAmTheMaster ()
-	{
-		return (f_myself == 0);
-	}
+        int     IAmTheMaster ();
   /**
    * Used for error management
    */
-	char   *ClassName ()
-	{
-		return ("OOPMpiCommManager::");
-	}
+        char   *ClassName ();
+        
       protected:
 	/**
 	 * Terminates MPI execution

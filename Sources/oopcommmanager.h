@@ -35,16 +35,12 @@ class   OOPCommunicationManager
 	/**
 	* Simple constructor
 	*/
-	OOPCommunicationManager ()
-	{
-		f_num_proc = f_myself = 0;
-	}
+        OOPCommunicationManager ();
 	/**
 	* Destructor
 	*/
-	virtual ~ OOPCommunicationManager ()
-	{
-	}
+        virtual ~ OOPCommunicationManager ();
+        
 	/**
 	* If this process was created by the user, all remaining processes are
 	* intialized and !=0 is returned. If this process was created by another
@@ -52,24 +48,18 @@ class   OOPCommunicationManager
 	* ignored) and zero is returned.
 	* This method must be called before any communication activity
 	*/
-	virtual int Initialize (char *process_name, int num_of_process)
-	{
-		return 0;
-	}
+        virtual int Initialize (char *process_name, int num_of_process);
+
 	/**
 	* Returns the processor number in which this object is running
 	*/
-	int     GetProcID ()
-	{
-		return f_myself;
-	}
+        int     GetProcID ();
+        
 	/**
 	* Returns the total number of processors
 	*/
-	int     NumProcessors ()
-	{
-		return f_num_proc;
-	}
+        int     NumProcessors ();
+        
 	// Armazena "*pObject" no buffer enderecado para o processo
 	// "processID". O buffer so' e' enviado atraves de "SendMessage".
 	// Como "TSavable" e' uma classe base para varias outras,
@@ -104,17 +94,13 @@ class   OOPCommunicationManager
 	* Returns 1 if I am the master !
 	* Must be implemented in derived classes otherwize I am NOT the master
 	*/
-	virtual int IAmTheMaster ()
-	{
-		return 0;
-	}
+        virtual int IAmTheMaster ();
+        
 	/**
 	* Returns the name of the class
 	*/
-	char   *ClassName ()
-	{
-		return ("");
-	}
+        char   *ClassName ();
+
       protected:
 	/**
 	* Indicates the number of processors in the oopar environment.

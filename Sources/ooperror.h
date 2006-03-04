@@ -16,6 +16,16 @@
 //
 #ifndef _ERRORHH_
 #define _ERRORHH_
+
+#ifndef LOG4CXX
+#define LOG4CXX_DEBUG(A,B) {}
+#define LOG4CXX_INFO(A,B) {}
+#define LOG4CXX_WARN(A,B) {}
+#define LOG4CXX_ERROR(A,B) {}
+#define LOG4CXX_FATAL(A,B) {}
+#endif
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

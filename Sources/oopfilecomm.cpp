@@ -204,9 +204,9 @@ int OOPFileComManager::ReceiveMessages ()
 		has_more_objects = 0;
 		msg.UpkByte (&has_more_objects);
 		while (has_more_objects) {
-			// Restore para o corrente objeto não está definido
+			// Restore para o corrente objeto nï¿½ estï¿½definido
 			// Era alguma coisa global ?
-			// Não sei.
+			// Nï¿½ sei.
 			OOPSaveable *new_object = 0;
 			new_object = msg.Restore ();
 			if (new_object == NULL) {

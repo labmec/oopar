@@ -5,7 +5,8 @@
 class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 //class OOPObjectId;
- 
+
+#include "ooperror.h" 
 #include <sstream>
 
 #include <pzlog.h>

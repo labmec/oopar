@@ -210,15 +210,28 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
 		// can't cancel executing tasks
     bool AmICompatibleResult = true;
     if(!i->fIsAccessing) AmICompatibleResult = (i->fVersion).AmICompatible (version);
+#ifdef PZLOG    
+    if(!AmICompatibleResult) 
+    {
+      stringstream sout;
+      sout << "False AmICompatible from " << __PRETTY_FUNCTION__ 
+          << " Access request is ";
+      i->Print(sout);
+      sout << "Version = " << version << " taskid " << taskid;
+      LOG4CXX_ERROR(logger, sout.str());
+    }
+#endif
     if (!AmICompatibleResult && !i->fIsAccessing) {
       if (i->fTaskId.IsZeroOOP ())
       {
         // This is a different processor requesting
         // access
-        stringstream sout;
+#ifdef PZLOG        
+	stringstream sout;
         sout << "Deleting access request ";
         i->Print(sout);
         LOGPZ_ERROR(logger, sout.str());
+#endif
         fList.erase (i);
         i = fList.begin ();
         continue;

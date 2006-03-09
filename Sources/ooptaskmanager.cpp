@@ -1,8 +1,8 @@
-#include "ooptaskmanager.h"
-#include "oopcommmanager.h"
 #ifdef OOP_MPI
 #include "oopmpicomm.h"
 #endif
+#include "ooptaskmanager.h"
+#include "oopcommmanager.h"
 #include "oopdatamanager.h"
 #include "ooptaskcontrol.h"
 
@@ -60,7 +60,9 @@ void OOPTaskManager::TransferExecutingTasks(){
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
     LOGPZ_ERROR (logger,sout.str());
-#endif    
+    
+#endif
+    return;
   }
   list < OOPTaskControl * >::iterator sub;
   //int listsize = fExecuting.size();
@@ -79,7 +81,7 @@ void OOPTaskManager::TransferExecutingTasks(){
 #ifdef LOGPZ      
       stringstream sout;
       sout << __FUNCTION__ << " I dont understand \n";
-      LOGPZ_DEBUG (logger,sout.str());
+      LOGPZ_ERROR (logger,sout.str());
 #endif      
     }
   
@@ -94,13 +96,15 @@ void OOPTaskManager::TransferExecutingTasks(){
       OOPObjectId id;
       id = auxtc->Task ()->Id ();
       auxtc->Depend ().SetExecuting (id, false);
+      // this method may want to grab the mutex!!!
       auxtc->Depend ().ReleaseAccessRequests (id);
       auxtc->Task()->Depend().ClearPointers();
       fFinished.push_back(auxtc);
       list < OOPTaskControl * >::iterator keep;
       keep = sub;
-      sub++;
       fExecuting.erase(keep);
+      // a finished task may have sneeked in during the unlock/lock sequence
+      sub = fExecuting.begin();
     } else
     {
       sub++;
@@ -128,13 +132,16 @@ void * OOPTaskManager::TriggerTask(void * data){
 	disparar o thread de execu�o da tarefa.
 */
 void * OOPTaskManager::ExecuteMT(void * data){
-	OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
-	//Qual �o service thread ?
-	// O service thread e a linha de execucao do programa principal
-	DM->SubmitAllObjects();
-	CM->ReceiveMessages ();
-	lTM->TransferSubmittedTasks ();
-	list < OOPTaskControl * >::iterator i;
+  OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
+  //Qual �o service thread ?
+  // O service thread e a linha de execucao do programa principal
+  
+  pthread_mutex_lock(&lTM->fSubmittedMutex);
+  DM->SubmitAllObjects();
+  CM->ReceiveMessages ();
+  // this method needs to grab the lock
+  lTM->TransferSubmittedTasks ();
+  list < OOPTaskControl * >::iterator i;
 #ifdef LOGPZ    
   {
     std::stringstream sout;
@@ -142,17 +149,18 @@ void * OOPTaskManager::ExecuteMT(void * data){
     LOGPZ_DEBUG (logger,sout.str());
   }
 #endif  
-	lTM->fKeepGoing=true;
-	lTM->ExecuteDaemons();
-	while (lTM->fKeepGoing) {
-		CM->ReceiveMessages();
-		lTM->ExecuteDaemons();
-                while ( lTM->fExecutable.size () && lTM->fExecuting.size() < lTM->fNumberOfThreads ) {
-			i = lTM->fExecutable.begin ();
-			OOPTaskControl *tc = (*i);
-			lTM->fExecutable.erase(i);
-			lTM->fExecuting.push_back(tc);
-			tc->Task()->SetExecuting(true);
+  lTM->fKeepGoing=true;
+  lTM->ExecuteDaemons();
+  while (lTM->fKeepGoing) {
+    CM->ReceiveMessages();
+    lTM->ExecuteDaemons();
+    while ( lTM->fExecutable.size () && (int)lTM->fExecuting.size() < lTM->fNumberOfThreads )
+    {
+      i = lTM->fExecutable.begin ();
+      OOPTaskControl *tc = (*i);
+      lTM->fExecutable.erase(i);
+      lTM->fExecuting.push_back(tc);
+      tc->Task()->SetExecuting(true);
 #ifdef LOGPZ        
       {
         stringstream sout;
@@ -161,49 +169,50 @@ void * OOPTaskManager::ExecuteMT(void * data){
       }
 #endif      
       tc->Execute();
-			lTM->TransferExecutingTasks();
-			DM->SubmitAllObjects();
-		}
-		lTM->TransferExecutingTasks();
-		lTM->TransferFinishedTasks ();
-//    if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << " before receive " << CM->GetProcID() <<   "\n";
-		CM->ReceiveMessages ();
-//    if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << " after receive " << CM->GetProcID() <<   "\n";
-		lTM->TransferSubmittedTasks ();
-		CM->SendMessages ();
-		lTM->ExecuteDaemons();
-		//wait
-//		pthread_mutex_lock(&fExecuteMutex);
-		if(!lTM->HasWorkTodo () && lTM->fKeepGoing){
-//			cout << "PID" << getpid() << endl;
-      pthread_mutex_lock(&lTM->fSubmittedMutex);
-      if(lTM->fSubmittedList.size())
+      lTM->TransferExecutingTasks();
+      DM->SubmitAllObjects();
+    }
+    lTM->TransferExecutingTasks();
+    lTM->TransferFinishedTasks ();
+    //    if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << " before receive " << CM->GetProcID() <<   "\n";
+    CM->ReceiveMessages ();
+    //    if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << " after receive " << CM->GetProcID() <<   "\n";
+    
+    // give a chance to waiting threads
+    pthread_mutex_unlock(&lTM->fSubmittedMutex);
+    pthread_mutex_lock(&lTM->fSubmittedMutex);
+    lTM->TransferSubmittedTasks ();
+    CM->SendMessages ();
+    lTM->ExecuteDaemons();
+    //wait
+    if(!lTM->HasWorkTodo () && lTM->fKeepGoing)
+    {
+      timeval now;
+      gettimeofday(&now,0);
+      now.tv_usec += 1;
+      now.tv_sec += now.tv_usec/1000000;
+      now.tv_usec %= 1000000;
+      timespec next;
+      next.tv_sec = now.tv_sec;
+      next.tv_nsec = now.tv_usec*1000;
+      //        cout << __PRETTY_FUNCTION__ << " TaskManager going to sleep\n";
+      cout.flush();
+      if(CM->NumProcessors() > 1)
       {
-        pthread_mutex_unlock(&lTM->fSubmittedMutex);
-      }
-      else
-      {
-        timeval now;
-        gettimeofday(&now,0);
-        now.tv_usec += 1;
-        now.tv_sec += now.tv_usec/1000000;
-        now.tv_usec %= 1000000;
-        timespec next;
-        next.tv_sec = now.tv_sec;
-        next.tv_nsec = now.tv_usec*1000;
-//        cout << __PRETTY_FUNCTION__ << " TaskManager going to sleep\n";
-        cout.flush();
         pthread_cond_timedwait(&lTM->fExecuteCondition, &lTM->fSubmittedMutex,&next);
-        pthread_mutex_unlock(&lTM->fSubmittedMutex);
+      } else
+      {
+        pthread_cond_wait(&lTM->fExecuteCondition, &lTM->fSubmittedMutex);
       }
-		}
-	}
-	CM->SendMessages ();
-	
-	return NULL;
+    }
+  }
+  CM->SendMessages ();
+  pthread_mutex_unlock(&lTM->fSubmittedMutex);
+  return NULL;
 }
 #endif
-OOPTaskManager::OOPTaskManager (int proc) : fNumberOfThreads(2)
+OOPTaskManager::OOPTaskManager (int proc) : fNumberOfThreads(2),
+  fLockThread(0), fLock(0)
 {
 	fProc = proc;
 	fLastCreated = 0;//NUMOBJECTS * fProc;
@@ -424,11 +433,19 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
     delete []compare;    
   }
 #endif
-	pthread_mutex_lock(&fSubmittedMutex);
-	fSubmittedList.push_back (task);
-  pthread_cond_signal(&fExecuteCondition);
-	pthread_mutex_unlock(&fSubmittedMutex);
-	return id;
+  // I dont need to lock if I am the service thread
+  // (in that case I already have the lock)
+  if(!pthread_equal(fExecuteThread,pthread_self()))
+  { 
+    pthread_mutex_lock(&fSubmittedMutex);
+  }
+  fSubmittedList.push_back (task);
+  if(!pthread_equal(fExecuteThread,pthread_self()))
+  {
+    pthread_cond_signal(&fExecuteCondition);
+    pthread_mutex_unlock(&fSubmittedMutex);
+  }
+  return id;
 }
 int OOPTaskManager::NumberOfTasks ()
 {
@@ -440,12 +457,8 @@ int OOPTaskManager::NumberOfTasks ()
     LOGPZ_DEBUG (logger,sout.str());
 #endif    
   }
-	pthread_mutex_lock(&fSubmittedMutex);
-//	pthread_mutex_lock(&fFinishedMutex);
 	int numtasks = fExecutable.size () + fFinished.size () +
 		fSubmittedList.size () + fTaskList.size () + fDaemon.size();
-//	pthread_mutex_unlock(&fFinishedMutex);
-	pthread_mutex_unlock(&fSubmittedMutex);
 	return numtasks;
 }
 bool OOPTaskManager::HasWorkTodo ()
@@ -456,15 +469,11 @@ bool OOPTaskManager::HasWorkTodo ()
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
     LOGPZ_DEBUG (logger,sout.str());
-#endif    
+#endif
+    return false;
   }
-	pthread_mutex_lock(&fSubmittedMutex);
-//	pthread_mutex_lock(&fFinishedMutex);
-	int numtasks = fExecutable.size () + fFinished.size () +
-		fSubmittedList.size () + fDaemon.size();
-	pthread_mutex_unlock(&fSubmittedMutex);
-//	pthread_mutex_unlock(&fFinishedMutex);
-	return numtasks != 0;
+  int numtasks = fExecutable.size () + fFinished.size () + fSubmittedList.size () + fDaemon.size();
+  return numtasks != 0;
 }
 
 
@@ -487,6 +496,7 @@ int OOPTaskManager::ChangePriority (OOPObjectId & taskid, int newpriority)
 }
 int OOPTaskManager::CancelTask (OOPObjectId taskid)
 {
+  // I assume that I already have the lock!!
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
 #ifdef LOGPZ    
@@ -496,23 +506,25 @@ int OOPTaskManager::CancelTask (OOPObjectId taskid)
 #endif    
   }
   
-	list < OOPTaskControl * >::iterator i;	// , iprev, atual;
-	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
-		OOPTaskControl *tc = *i;
-		if (tc->Task ()->Id () == taskid) {
+  list < OOPTaskControl * >::iterator i;	// , iprev, atual;
+  for (i = fTaskList.begin (); i != fTaskList.end (); i++)
+  {
+    OOPTaskControl *tc = *i;
+    if (tc->Task ()->Id () == taskid)
+    {
 #ifdef LOGPZ      
       stringstream sout;
       sout << "Task erased ";
       sout << "Task ID " << tc->Task()->Id() << " classid " << tc->Task()->ClassId();
       LOGPZ_DEBUG (logger,sout.str());
 #endif      
-			tc->Depend ().ReleaseAccessRequests (tc->Task ()->Id ());
-			delete tc;
-			fTaskList.erase (i);
-			return 1;
-		}
-	}
-	return 0;
+      tc->Depend ().ReleaseAccessRequests (tc->Task ()->Id ());
+      delete tc;
+      fTaskList.erase (i);
+      return 1;
+    }
+  }
+  return 0;
 }
 void OOPTaskManager::ExecuteDaemons() {
   
@@ -576,24 +588,26 @@ void OOPTaskManager::Execute ()
 		CM->SendMessages ();
 		ExecuteDaemons();
 		//wait
-//		pthread_mutex_lock(&fExecuteMutex);
+		pthread_mutex_lock(&fSubmittedMutex);
 		if(!HasWorkTodo () && fKeepGoing){
 //			cout << "Going into Blocking receive on TM->Execute()\n";
 //			cout << "PID" << getpid() << endl;
 			cout.flush();
-			#ifdef OOP_MPI
+                        pthread_mutex_unlock(&fSubmittedMutex);
+#ifdef OOP_MPI
 			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
 			if(MPICM) MPICM->ReceiveBlocking();
 			#endif
 //			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
 #ifdef LOGPZ  
-      stringstream sout;
+                        stringstream sout;
 			sout << "Leaving blocking receive PID " << getpid();
-      LOGPZ_DEBUG (logger,sout.str());
+                        LOGPZ_DEBUG (logger,sout.str());
 #endif      
 			DM->SubmitAllObjects();
-		}
-//		pthread_mutex_unlock(&fExecuteMutex)
+                        pthread_mutex_lock(&fSubmittedMutex);
+                }
+                pthread_mutex_unlock(&fSubmittedMutex);
 	}
 	CM->SendMessages ();
 #else
@@ -671,64 +685,74 @@ void OOPTaskManager::Print (std::ostream & out)
 		(*i)->Task ()->Print (out);
 	}
 }
+
 void OOPTaskManager::TransferSubmittedTasks ()
 {
-	list < OOPTask * >::iterator sub;
-	pthread_mutex_lock(&fSubmittedMutex);
+  if(!pthread_equal(fExecuteThread,pthread_self()))
+  {
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOGPZ_DEBUG (logger,sout.str());
+#endif    
+  }
+  list < OOPTask * >::iterator sub;
   DM->SubmitAllObjects();
 
-	int listsize = fSubmittedList.size();
-	sub = fSubmittedList.begin ();
-	OOPTask * aux = 0;
-	if(listsize) {
-		aux = (*sub);
-		fSubmittedList.erase (sub);
-	}
-	pthread_mutex_unlock(&fSubmittedMutex);
+  int listsize = fSubmittedList.size();
+  sub = fSubmittedList.begin ();
+  OOPTask * aux = 0;
+  if(listsize)
+  {
+    aux = (*sub);
+    fSubmittedList.erase (sub);
+  }
 	
-	while (aux){//(fSubmittedList.begin () != fSubmittedList.end ()) {
-		//sub = fSubmittedList.begin ();
-		//OOPTask * aux = (*sub);
-               	OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(aux);
-		if (aux->GetProcID () != fProc) {
+  while (aux)
+  {
+    //(fSubmittedList.begin () != fSubmittedList.end ()) {
+    //sub = fSubmittedList.begin ();
+    //OOPTask * aux = (*sub);
+    OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(aux);
+    if (aux->GetProcID () != fProc)
+    {
 #ifdef LOGPZ      
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << "Transferring task " << aux->Id() << " from " << fProc <<
            " to proc " <<  aux->GetProcID();
       LOGPZ_DEBUG(tasklogger,sout.str())
 #endif      
-			CM->SendTask (aux);
-		}
-                else if(dmt)
-                {
-                  SubmitDaemon(dmt);
-                }
-		else 
-                {
-			OOPTaskControl *tc = new OOPTaskControl (aux);
-			fTaskList.push_back (tc);
-			if (tc->Depend ().
-			    SubmitDependencyList (tc->Task ()->Id ())) {
-				// their is no incompatibility between
-				// versions
-			}
-			else {
-				// there is an incompatibility of versions
-				CancelTask (tc->Task ()->Id ());
-			}
-		}
-		pthread_mutex_lock(&fSubmittedMutex);
+      CM->SendTask (aux);
+    }
+    else if(dmt)
+    {
+      SubmitDaemon(dmt);
+    }
+    else
+    {
+      OOPTaskControl *tc = new OOPTaskControl (aux);
+      fTaskList.push_back (tc);
+      if (tc->Depend ().SubmitDependencyList (tc->Task ()->Id ()))
+      {
+        // their is no incompatibility between
+        // versions
+      }
+      else
+      {
+        // there is an incompatibility of versions
+        CancelTask (tc->Task ()->Id ());
+      }
+    }
     DM->SubmitAllObjects();
-		listsize = fSubmittedList.size();
-		sub = fSubmittedList.begin ();
-		aux = 0;
-		if(listsize) {
-			aux = (*sub);
-			fSubmittedList.erase (sub);
-		}
-		pthread_mutex_unlock(&fSubmittedMutex);
-		
-	}
+    listsize = fSubmittedList.size();
+    sub = fSubmittedList.begin ();
+    aux = 0;
+    if(listsize)
+    {
+      aux = (*sub);
+      fSubmittedList.erase (sub);
+    }
+  }
 }
 void OOPTaskManager::TransferFinishedTasks ()
 {
@@ -740,74 +764,79 @@ void OOPTaskManager::TransferFinishedTasks ()
     LOGPZ_DEBUG (logger,sout.str());
 #endif    
   }
-	list < OOPTaskControl * >::iterator sub;
-	int listsize = fFinished.size();
+  list < OOPTaskControl * >::iterator sub;
+  int listsize = fFinished.size();
   if(!listsize) return;
   DM->SubmitAllObjects();
-	sub = fFinished.begin();
-	OOPTaskControl * auxtc=0;
-	if(listsize){
-		auxtc = (*sub);
-		fFinished.erase(sub);
-	}
-	while (auxtc){
-   {
-#ifdef LOGPZ     
-     stringstream sout;
-     sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " <<
-         auxtc->Task()->ClassId() << " finished";
-     LOGPZ_DEBUG(tasklogger,sout.str());
-#endif     
-   }
-		if (auxtc->Task ()->IsRecurrent () && auxtc->Task ()->GetProcID () != fProc) {
+  sub = fFinished.begin();
+  OOPTaskControl * auxtc=0;
+  if(listsize)
+  {
+    auxtc = (*sub);
+    fFinished.erase(sub);
+  }
+  while (auxtc)
+  {
+#ifdef LOGPZ
+    {
+      stringstream sout;
+      sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " << auxtc->Task()->ClassId() << " finished";
+      LOGPZ_DEBUG(tasklogger,sout.str());
+    }
+#endif
+    if (auxtc->Task ()->IsRecurrent () && auxtc->Task ()->GetProcID () != fProc)
+    {
+#ifdef LOGPZ
       {
-#ifdef LOGPZ        
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " <<
             auxtc->Task()->ClassId() << " transferred from " << fProc << " to " << auxtc->Task ()->GetProcID();
         LOGPZ_DEBUG(tasklogger,sout.str());
-#endif        
       }
-			CM->SendTask (auxtc->Task ());
-			auxtc->ZeroTask ();
-			delete auxtc;
-		}else if(auxtc->Task ()->IsRecurrent ()) {
+#endif
+      CM->SendTask (auxtc->Task ());
+      auxtc->ZeroTask ();
+      delete auxtc;
+    }
+    else if(auxtc->Task ()->IsRecurrent ())
+    {
+#ifdef LOGPZ
       {
-#ifdef LOGPZ        
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " <<
             auxtc->Task()->ClassId() << " resubmitted";
         LOGPZ_DEBUG(tasklogger,sout.str());
-#endif        
       }
-			auxtc->Depend () =
-				auxtc->Task ()->GetDependencyList ();
-			auxtc->Depend ().ClearPointers ();
-			fTaskList.push_back (auxtc);
-			if (auxtc->Depend ().
-			    SubmitDependencyList (auxtc->Task ()->Id ())) {
-				// their is no incompatibility between
-				// versions
-			}
-			else {
-				// there is an incompatibility of versions
-				CancelTask (auxtc->Task ()->Id ());
-			}
-		}
-		else {
-			delete auxtc;
-		}
-//		pthread_mutex_lock(&fFinishedMutex);
-		listsize = fFinished.size();
-		auxtc=0;
-		sub = fFinished.begin ();
-		if(listsize) {
-			auxtc = (*sub);
-			fFinished.erase (sub);
-		}
-// pthread_mutex_unlock(&fFinishedMutex);
-	}
+#endif
+      auxtc->Depend () = auxtc->Task ()->GetDependencyList ();
+      auxtc->Depend ().ClearPointers ();
+      fTaskList.push_back (auxtc);
+      if (auxtc->Depend ().SubmitDependencyList (auxtc->Task ()->Id ()))
+      {
+        // their is no incompatibility between
+        // versions
+      }
+      else
+      {
+        // there is an incompatibility of versions
+        CancelTask (auxtc->Task ()->Id ());
+      }
+    }
+    else
+    {
+      delete auxtc;
+    }
+    listsize = fFinished.size();
+    auxtc=0;
+    sub = fFinished.begin ();
+    if(listsize)
+    {
+      auxtc = (*sub);
+      fFinished.erase (sub);
+    }
+  }
 }
+
 void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 {
   if(!pthread_equal(fExecuteThread,pthread_self()))
@@ -818,30 +847,30 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
     LOGPZ_DEBUG (logger,sout.str());
 #endif    
   }
-	list < OOPTaskControl * >::iterator i;
-	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
-		OOPTaskControl *tc = (*i);
-		if (tc->Task ()->Id () == taskid) {
-			tc->Task ()->SetDependencyList (tc->Depend ());
-			tc->Depend ().SetExecuting (taskid, true);
-			OOPDaemonTask *dmt =
-				dynamic_cast < OOPDaemonTask * >(tc->Task ());
-			if (dmt) {
+  list < OOPTaskControl * >::iterator i;
+  for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
+    OOPTaskControl *tc = (*i);
+    if (tc->Task ()->Id () == taskid) {
+      tc->Task ()->SetDependencyList (tc->Depend ());
+      tc->Depend ().SetExecuting (taskid, true);
+      OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(tc->Task ());
+      if (dmt) {
 #ifdef LOGPZ        
         LOGPZ_ERROR (logger,"TM::TransfertoExecutable inconsistent datastructure\nThere is daemontask in the fTaskList\n");
 #endif        
-				SubmitDaemon(dmt);
-				tc->ZeroTask();
-				delete tc;
-			}
-			else {
-				fExecutable.push_back (tc);
-			}
-			fTaskList.erase (i);
-			break;
-		}
-	}
+          SubmitDaemon(dmt);
+          tc->ZeroTask();
+          delete tc;
+        }
+        else {
+          fExecutable.push_back (tc);
+        }
+        fTaskList.erase (i);
+        break;
+      }
+    }
 }
+
 void OOPTaskManager::PrintTaskQueues(char * msg, std::ostream & out){
 	out << msg << endl;
 	out << "Printing TaskManager Queues on TM:" << fProc << endl;
@@ -904,4 +933,59 @@ TPZSaveable *OOPTerminationTask::Restore (TPZStream & buf, void * context){
 	v->Read (buf);
 	return v;
 }
+
+void OOPTaskManager::Lock(TMLock &lock)
+{
+  if(pthread_equal(pthread_self(),fLockThread))
+  {
+    std::cout << "A single thread locking twice\n";
+    return;
+  }
+  pthread_mutex_lock(&fSubmittedMutex);
+  fLockThread = pthread_self();
+  if(fLock)
+  {
+    std::cout << __PRETTY_FUNCTION__ << " Lock passed on a already lock mutex\n";
+    return;
+  }
+  fLock = &lock;
+}
+
+void OOPTaskManager::Unlock(TMLock &lock)
+{
+  if(fLock != &lock)
+  {
+    std::cout << __PRETTY_FUNCTION__ << " Unlock called for the wrong lock object\n";
+    return;
+  }
+  pthread_mutex_unlock(&fSubmittedMutex);
+  fLock = 0;
+  fLockThread = 0;
+}
+
+void OOPTaskManager::Signal(TMLock &lock)
+{
+  if(fLock != &lock)
+  {
+    std::cout << __PRETTY_FUNCTION__ << " Signal called for the wrong lock object\n";
+    return;
+  }
+  pthread_cond_signal(&fExecuteCondition);
+}
+
+TMLock::TMLock()
+{
+  TM->Lock(*this);
+}
+
+TMLock::~TMLock()
+{
+  TM->Unlock(*this);
+}
+
+void TMLock::Signal()
+{
+  TM->Signal(*this);
+}
+
 extern OOPTaskManager *TM;

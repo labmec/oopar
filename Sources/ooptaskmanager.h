@@ -13,6 +13,7 @@ class   OOPSaveable;
 class   OOPTaskControl;
 using namespace std;
 class   OOPObjectId;
+class TMLock;
 /**
  * Implements the manager of tasks on the environment.
  * All parallelized task are submitted to environment through the TaskManager.
@@ -151,6 +152,19 @@ class   OOPTaskManager
 	static void * ReceiveMessages(void * data);
 	
 	static void * ExecuteMT(void * data);
+
+        /**
+         * This method will grab the fSubmittedMutex
+         */
+        void Lock(TMLock &obj);
+        /**
+         * This method will signal the condition variable
+         */
+        void Signal(TMLock &obj);
+        /**
+         * This method will release the fSubmittedMutex
+         */
+        void Unlock(TMLock &obj);
 private:
 
   /** Max number of threads
@@ -161,12 +175,15 @@ private:
   thread which is the main execution loop of the task manager
   */
 	pthread_t fExecuteThread;
+  /**
+ thread which owns the lock
+   */
+ pthread_t fLockThread;
 
 	/**
 	 * Indicates if TM must continue its processing
 	 */
 	bool fKeepGoing;
-#ifndef WIN32
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
@@ -179,19 +196,10 @@ private:
   * Condition variable to put the taskmanager thread to sleep
   */
   pthread_cond_t fExecuteCondition;
-	/**
-	 * Mutual exclusion lock for the setting changing the IsExecuting state of a
-	 * task.
-	 */
-//	pthread_mutex_t fExecutingMutex;
-	/**
-	 * Mutual exclusion lock for accessing the fFinished queue
-	 */
-//	pthread_mutex_t fFinishedMutex;
-
-
-#endif
-//	static void * TriggerTask(void * data);
+  /**
+   * The lock object currently holding the mutex
+   */
+  TMLock *fLock;
 
   /**
    * Generate a unique id number
@@ -242,6 +250,29 @@ private:
    */
 	        list < OOPTaskControl * >fFinished;
 };
+
+/**
+ * Class which implements a lock on the task manager data structure
+ */
+ class TMLock
+{
+public:
+  /**
+   * This method will grab the mutex of the task manager
+   */
+  TMLock();
+
+  /**
+   * The destructor will release the mutex
+   */
+  ~TMLock();
+
+  /**
+   * This method will signal the condition of the task manager
+   */
+  void Signal();
+}; 
+
 /**
  * Implements a task which will be registered as a daemon
  */

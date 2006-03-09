@@ -355,7 +355,7 @@ void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
         stringstream sout;
         sout << "OOPDataManager::GetUpdate rerouting request task:";
         task->LogMe(sout);
-        LOG4CXX_WARN(logger,sout.str());
+        LOGPZ_WARN(logger,sout.str());
       }
       OOPDMRequestTask *ntask = new OOPDMRequestTask(*task);
       ntask->SetProcID((*i).second->Proc());

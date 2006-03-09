@@ -18,15 +18,14 @@
 // Versao:  01 / 03.
 //
 
-// $Author: cesar $
-// $Id: oopmpistorage.cpp,v 1.32 2005-11-09 13:55:01 cesar Exp $
-// $Revision: 1.32 $
+// $Author: phil $
+// $Id: oopmpistorage.cpp,v 1.33 2006-03-09 11:34:56 phil Exp $
+// $Revision: 1.33 $
 
 
 
 #include "oopmpistorage.h"
 #include "oopcommmanager.h"
-#include "mpi.h"
 #include <iostream>
 #include <sys/types.h>
 #include <unistd.h>

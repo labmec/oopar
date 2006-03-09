@@ -20,8 +20,8 @@
 #ifndef _STR_MPIHH_
 #define _STR_MPIHH_
 
-#include "pzmanvector.h"
 #include "mpi.h"
+#include "pzmanvector.h"
 #include "pzfilebuffer.h"
 #include "pzsave.h"
 #include "ooperror.h"

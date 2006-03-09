@@ -179,8 +179,8 @@ void * OOPTaskManager::ExecuteMT(void * data){
     //    if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << " after receive " << CM->GetProcID() <<   "\n";
     
     // give a chance to waiting threads
-    pthread_mutex_unlock(&lTM->fSubmittedMutex);
-    pthread_mutex_lock(&lTM->fSubmittedMutex);
+//    pthread_mutex_unlock(&lTM->fSubmittedMutex);
+//    pthread_mutex_lock(&lTM->fSubmittedMutex);
     lTM->TransferSubmittedTasks ();
     CM->SendMessages ();
     lTM->ExecuteDaemons();
@@ -196,7 +196,14 @@ void * OOPTaskManager::ExecuteMT(void * data){
       next.tv_sec = now.tv_sec;
       next.tv_nsec = now.tv_usec*1000;
       //        cout << __PRETTY_FUNCTION__ << " TaskManager going to sleep\n";
-      cout.flush();
+      //   cout.flush();
+#ifdef LOGPZ
+      {
+        std::stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " going to sleep";
+        LOGPZ_DEBUG(tasklogger,sout.c_str());
+      }
+#endif
       if(CM->NumProcessors() > 1)
       {
         pthread_cond_timedwait(&lTM->fExecuteCondition, &lTM->fSubmittedMutex,&next);
@@ -551,91 +558,31 @@ void OOPTaskManager::ExecuteDaemons() {
 }
 void OOPTaskManager::Execute ()
 {
-#ifndef MT
-	//Qual �o service thread ?
-	// O service thread e a linha de execucao do programa principal
-	DM->SubmitAllObjects();
-	CM->ReceiveMessages ();
-	TransferSubmittedTasks ();
-	list < OOPTaskControl * >::iterator i;
-	fKeepGoing=true;
-	ExecuteDaemons();
-	while (fKeepGoing) {
-		//pthread_mutex_lock(&fExecuteMutex);
-		DM->SubmitAllObjects();
-		CM->ReceiveMessages();
-		ExecuteDaemons();
-		while (fExecutable.size ()) {
-			//pthread_mutex_unlock(&fExecuteMutex);
-			i = fExecutable.begin ();
-			OOPTaskControl *tc = (*i);
-			tc->Task ()->Execute ();
-			OOPObjectId id;
-			id = tc->Task ()->Id ();
-			tc->Depend ().SetExecuting (tc->Task ()->Id (),
-						      false);
-			tc->Depend ().ReleaseAccessRequests (tc->Task ()->
-							       Id ());
-			DM->SubmitAllObjects();
-
-			fFinished.push_back (tc);
-			fExecutable.erase (i);
-		}
-		DM->SubmitAllObjects();
-		TransferFinishedTasks ();
-		CM->ReceiveMessages ();
-		TransferSubmittedTasks ();
-		CM->SendMessages ();
-		ExecuteDaemons();
-		//wait
-		pthread_mutex_lock(&fSubmittedMutex);
-		if(!HasWorkTodo () && fKeepGoing){
-//			cout << "Going into Blocking receive on TM->Execute()\n";
-//			cout << "PID" << getpid() << endl;
-			cout.flush();
-                        pthread_mutex_unlock(&fSubmittedMutex);
-#ifdef OOP_MPI
-			OOPMPICommManager *MPICM = dynamic_cast<OOPMPICommManager *> (CM);
-			if(MPICM) MPICM->ReceiveBlocking();
-			#endif
-//			pthread_cond_wait(&fExecuteCondition, &fExecuteMutex);
-#ifdef LOGPZ  
-                        stringstream sout;
-			sout << "Leaving blocking receive PID " << getpid();
-                        LOGPZ_DEBUG (logger,sout.str());
-#endif      
-			DM->SubmitAllObjects();
-                        pthread_mutex_lock(&fSubmittedMutex);
-                }
-                pthread_mutex_unlock(&fSubmittedMutex);
-	}
-	CM->SendMessages ();
-#else
 //	pthread_t execute_thread;
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
 	  sout << "Creating service thread";
     LOGPZ_DEBUG (logger,sout.str());
-#endif    
+#endif
   }
 	if(pthread_create(&fExecuteThread, NULL, ExecuteMT, this)){
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << "Fail to create service thread\n";
     sout << "Going out";
     LOGPZ_ERROR (logger,sout.str());
-#endif    
-	} 
+#endif
+	}
  {
-#ifdef LOGPZ   
+#ifdef LOGPZ
    stringstream sout;
    sout << "Created succesfuly";
    LOGPZ_DEBUG (logger,sout.str());
-#endif   
- }
 #endif
+ }
 }
+
 void OOPTaskManager::Wait(){
 	pthread_join(fExecuteThread,NULL);
 }
@@ -958,9 +905,9 @@ void OOPTaskManager::Unlock(TMLock &lock)
     std::cout << __PRETTY_FUNCTION__ << " Unlock called for the wrong lock object\n";
     return;
   }
-  pthread_mutex_unlock(&fSubmittedMutex);
   fLock = 0;
   fLockThread = 0;
+  pthread_mutex_unlock(&fSubmittedMutex);
 }
 
 void OOPTaskManager::Signal(TMLock &lock)

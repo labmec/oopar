@@ -1,3 +1,6 @@
+#ifdef OOP_MPI
+#include "oopmpicomm.h"
+#endif
 
 #include <iostream>
 //#include <istream>
@@ -6,9 +9,6 @@
 //#include "oopfilecomm.h"
 #include "ooperror.h"
 #include "oopwaittask.h"
-#ifdef OOP_MPI
-#include "oopmpicomm.h"
-#endif
 
 
 #include "OOPDataLogger.h"

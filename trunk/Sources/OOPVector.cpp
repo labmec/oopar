@@ -18,15 +18,22 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPVector"));
 template class TPZRestoreClass<OOPVector < int > , OOPVECINT_ID>;
 template class TPZRestoreClass<OOPVector < REAL > , OOPVECDOUBLE_ID>;	
 	
+template<>
 OOPVector<REAL>::~OOPVector(){}
+
+template<>
 OOPVector<int>::~OOPVector(){}
 	
+template<>
 int OOPVector<REAL>::ClassId() const {
     return OOPVECDOUBLE_ID;
 }
+
+template<>
 int OOPVector<int>::ClassId() const {
     return OOPVECINT_ID;
 }
+
 template <class T>
 void OOPVector<T>::Read(TPZStream & buf, void * context){
     TPZSaveable::Read(buf, context);

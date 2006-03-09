@@ -19,10 +19,6 @@ class   OOPTaskControl
 	 */
 	OOPMDataDependList fDepend;
  
- /**
- Mutex to control changes in the state of the object
- */
-   pthread_mutex_t fStateMutex;
    /**
    Flag indicating whether the thread was started
    Only if this flag is true the thread will have meaningful data
@@ -94,9 +90,7 @@ static void *ThreadExec(void *tcobject);
     int TaskFinished() 
     {
       int res;
-      pthread_mutex_lock(&fStateMutex);
       res = fExecFinished;
-      pthread_mutex_unlock(&fStateMutex);
       return res;
     }
     

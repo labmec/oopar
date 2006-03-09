@@ -1,15 +1,12 @@
 #include "ooptaskcontrol.h"
 #include "ooptask.h"
 #include "ooperror.h"
+#include "ooptaskmanager.h"
 
 #include <sstream>
 
 #include <pzlog.h>
-#ifdef LOG4CXX
-#include <log4cxx/logger.h>
-#include <log4cxx/basicconfigurator.h>
-#include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/helpers/exception.h>
+#ifdef LOGPZ
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
@@ -23,8 +20,6 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 		fDepend = task->GetDependencyList ();
 		fDepend.ClearPointers ();
 	}
-	pthread_mutex_init(&fStateMutex, NULL);
-
 }
 OOPTaskControl::~OOPTaskControl ()
 {
@@ -59,16 +54,18 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
 #endif  
   tc->fExecStarted = 1;
   tc->fTask->Execute();
+  // the task finished executing!!!!
+
+  TMLock lock;
   tc->fTask->SetExecuting(false);
-  pthread_mutex_lock(&(tc->fStateMutex));
   tc->fExecFinished =1;
-  pthread_mutex_unlock(&(tc->fStateMutex));
 #ifdef LOGPZ  
   {
     sout << "Task " << tc->fTask->Id() << " finished";
     LOGPZ_DEBUG(logger,sout.str());
   }
-#endif  
+#endif
+  TM->Signal(lock);
   return 0;
 }
 

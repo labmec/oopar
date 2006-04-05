@@ -388,8 +388,8 @@ OOPObjectId OOPDataManager::GenerateId ()
 	fLastCreated++;
 //	if (fLastCreated >= fMaxId)
 //		exit (-1);	// the program ceases to function
-	OOPObjectId *obj = new OOPObjectId (GetProcID (), fLastCreated);
-	return *obj;	// fLastCreated;
+	OOPObjectId obj(GetProcID (), fLastCreated);
+	return obj;	// fLastCreated;
 }
 OOPMetaData *OOPDataManager::Data (OOPObjectId ObjId)
 {

@@ -30,7 +30,7 @@ private:
 	 */
 	bool fIsExecuting;
 
-protected:
+public:
 	void IncrementWriteDependentData();
 
 public:	
@@ -67,7 +67,7 @@ public:
 	 * @since 16/08/2003
 	 * @author Gustavo C Longhin
 	 */
-	void PrintLog(ostream & out = cout, char * message = "empty log message");
+	void PrintLog(std::ostream & out = std::cout, char * message = "empty log message");
 	/**
 	 * Returns the reference to the OOPMDataDependList object.
 	 * @since 04/07/2003
@@ -77,7 +77,7 @@ public:
 	{
 		return fDataDepend;
 	}
-	void    Print (ostream & out = cout);
+	void    Print (std::ostream & out = std::cout);
 	/**
 	 * This method is called when a task terminates its execution
 	 * Update information such as data access, ownership etc pending on that task.

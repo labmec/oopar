@@ -33,8 +33,8 @@ OOPObjectId::OOPObjectId (long ProcId, long Id)
 }
 void OOPObjectId::Print (std::ostream & out) const
 {
-	out << "ObjectId: " << fId << endl;
-	out << "ProcessorId: " << GetProcId () << endl;
+	out << "ObjectId: " << fId << std::endl;
+	out << "ProcessorId: " << GetProcId () << std::endl;
 }
 std::ostream &OOPObjectId::ShortPrint (std::ostream & out) const
 {
@@ -125,6 +125,8 @@ bool OOPObjectId::operator < (const OOPObjectId & id) const
 }
 OOPObjectId & OOPObjectId::operator= (const OOPObjectId & obj)
 {
+  //:wq
+  //std::cout << __PRETTY_FUNCTION__ << "fdp!!!!!!!!!!!!!!!!\n\n\n\n";
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 	return *this;
@@ -162,6 +164,7 @@ void OOPObjectId::SetId (int id)
 }
 OOPObjectId::OOPObjectId (const::OOPObjectId & obj)
 {
+  //std::cout << __PRETTY_FUNCTION__ << "fdp!!!!!!!!!!!!!!!!\n\n\n\n";
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 }

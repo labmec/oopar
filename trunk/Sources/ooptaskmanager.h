@@ -42,11 +42,11 @@ class   OOPTaskManager
 	/**
 	 * Print TM task queues
 	 */
-	void PrintTaskQueues(char * msg, ostream & out);
+	void PrintTaskQueues(char * msg, std::ostream & out);
 	/**
 	 * Print TaskManager data structure
 	 */	  
-	void    Print (ostream & out);
+	void    Print (std::ostream & out);
   /**
    * Checks for the existence for obselete tasks on the task manager list
    */

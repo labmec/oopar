@@ -33,7 +33,7 @@ class   OOPDataManager
 {
 	friend class OOPMetaData;
 public:
-	void PrintDataQueues(char * msg, ostream & out);
+	void PrintDataQueues(char * msg, std::ostream & out);
 	/**
 	 * Used only for testing purposes
 	 */
@@ -189,11 +189,11 @@ private:
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
       public:
-	void LogMeReceived(ostream & out);
+	void LogMeReceived(std::ostream & out);
 	/**
 	 * Generates logging information
 	 */
-	void LogMe(ostream & out);
+	void LogMe(std::ostream & out);
 	OOPMDMOwnerMessageType fType;
 	/**
 	* Access state associated with this message
@@ -246,7 +246,7 @@ template class TPZRestoreClass<OOPDMOwnerTask,TDMOWNERTASK_ID>;
 class   OOPDMRequestTask:public OOPDaemonTask
 {
       public:
-	void LogMe(ostream & out);
+	void LogMe(std::ostream & out);
 	/**
 	 * Id of the processor to which the request applies.
 	 */

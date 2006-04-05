@@ -59,8 +59,8 @@ public:
 	/**
      * Streams out TDataVersion data structure
 	 */
-	void    Print (ostream & out = cout) const;
-	ostream & ShortPrint(ostream &out = cout) const;
+	void    Print (std::ostream & out = std::cout) const;
+	std::ostream & ShortPrint(std::ostream &out = std::cout) const;
 	/**
 	 * Operator overloaded
 	 */
@@ -148,11 +148,11 @@ public:
 	/**
 	 * The cardinality of each level
 	 */
-	        vector < int >fLevelCardinality;
+	        std::vector < int >fLevelCardinality;
 	/**
 	 * The version for each level
 	 */
-	        vector < int >fVersion;
+	        std::vector < int >fVersion;
 };
 inline std::ostream & operator<<(std::ostream &out, const OOPDataVersion &obj) {
 	return obj.ShortPrint(out);

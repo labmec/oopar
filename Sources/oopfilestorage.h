@@ -18,6 +18,7 @@
 //
 #ifndef _STR_FILEHH_
 #define _STR_FILEHH_
+#include <oopstorage.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

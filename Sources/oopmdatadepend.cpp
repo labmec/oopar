@@ -49,11 +49,11 @@ bool OOPMDataDepend::operator == (const OOPMDataDepend & dd) const
 }
 void OOPMDataDepend::Print (std::ostream & out) const
 {
-	out << "Data Id" << endl;
+	out << "Data Id" << std::endl;
 	fDataId.Print (out);
-	out << "Access State \t" << fNeed << endl;
-	out << "Object Pointer \t" << fObjPtr << endl;
-	out << "Required version " << endl;
+	out << "Access State \t" << fNeed << std::endl;
+	out << "Object Pointer \t" << fObjPtr << std::endl;
+	out << "Required version " << std::endl;
 	fVersion.Print (out);
 }
 std::ostream &OOPMDataDepend::ShortPrint(std::ostream &out) const {

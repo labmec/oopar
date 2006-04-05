@@ -34,8 +34,10 @@ class   OOPDMOwnerTask;
 class   OOPMetaData:public TPZSaveable
 {
 public:
-	virtual ~OOPMetaData(){}		 
-      private:
+
+  virtual ~OOPMetaData(){}
+
+private:
 	/**
 	 * List of tasks which requires specific access to this data.
 	 */
@@ -98,10 +100,11 @@ public:
       * It is mostly used for debugging purposes
       */
 	int     fTrace;
-      public:
+
+public:
 		  
-	void PrintLog (ostream & out = cout);
-	void    Print (ostream & out = cout);
+	void PrintLog (std::ostream & out = std::cout);
+	void    Print (std::ostream & out = std::cout);
 	/**
 	 * SetVersion is allowed if the task has read and/or version access
 	 */

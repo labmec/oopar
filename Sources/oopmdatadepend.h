@@ -16,9 +16,9 @@ class   OOPMDataDepend
 {
       public:
 	~OOPMDataDepend(){}		 
-	void    Print (ostream & out = cout) const;
-	ostream &ShortPrint (ostream & out = cout) const;
-	void LogMe(ostream &out);
+	void    Print (std::ostream & out = std::cout) const;
+	std::ostream &ShortPrint (std::ostream & out = std::cout) const;
+	void LogMe(std::ostream &out);
   /**
    * Operator overloaded
    */
@@ -130,7 +130,7 @@ public:
   /**
    * Prints the list of data dependencies
    */
-	void    Print (ostream & out);
+	void    Print (std::ostream & out);
   /**
    * This method will release all access requests filed in this container
    */

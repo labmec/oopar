@@ -100,7 +100,7 @@ class   OOPAccessInfo
 			&& fVersion == other.fVersion
 			&& fProcessor == other.fProcessor);
 	}
-void    Print (ostream & out = cout)
+void    Print (std::ostream & out = std::cout)
 	{
 		out << "Is Accessing ? " << (bool) fIsAccessing << endl;
 		out << "Is Granted ? " << fIsGranted << endl;
@@ -125,7 +125,7 @@ PostPoneWriteAccessGranted ();
 
 		  
 		 
-	  void Print(ostream & out);
+	  void Print(std::ostream & out);
 	/**
 	 * returns the number of elements in the list
 	 */

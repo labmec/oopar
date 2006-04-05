@@ -201,7 +201,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
       {
         std::stringstream sout;
         sout << __PRETTY_FUNCTION__ << " going to sleep";
-        LOGPZ_DEBUG(tasklogger,sout.c_str());
+        LOGPZ_DEBUG(tasklogger,sout.str().c_str());
       }
 #endif
       if(CM->NumProcessors() > 1)

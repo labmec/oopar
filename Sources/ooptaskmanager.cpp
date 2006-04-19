@@ -41,6 +41,8 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskManager"));
 static LoggerPtr tasklogger(Logger::getLogger("OOPAR.OOPTaskManager.task"));
 #endif
 
+static ofstream tlog("TM_time_log.txt");
+
 void OOPTaskManager::main ()
 {
 }
@@ -132,6 +134,7 @@ void * OOPTaskManager::TriggerTask(void * data){
 	disparar o thread de execu�o da tarefa.
 */
 void * OOPTaskManager::ExecuteMT(void * data){
+  tlog << "time\tsubmitted\twaiting\texecutable\texecuting\tfinished\tdaemon\n";
   OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
   //Qual �o service thread ?
   // O service thread e a linha de execucao do programa principal
@@ -197,14 +200,25 @@ void * OOPTaskManager::ExecuteMT(void * data){
       next.tv_nsec = now.tv_usec*1000;
       //        cout << __PRETTY_FUNCTION__ << " TaskManager going to sleep\n";
       //   cout.flush();
-#ifdef LOGPZ
+/*#ifdef LOGPZ
       {
         std::stringstream sout;
         sout << __PRETTY_FUNCTION__ << " going to sleep";
         LOGPZ_DEBUG(tasklogger,sout.str().c_str());
       }
+#endif*/
+#ifdef LOGTIME
+      time_t curtime;
+      time (& curtime);
+      tlog << curtime << "\t"
+           << lTM->fSubmittedList.size() << "\t"
+           << lTM->fTaskList.size() << "\t"
+           << lTM->fExecutable.size() << "\t"
+           << lTM->fExecuting.size() << "\t"
+           << lTM->fFinished.size() << "\t"
+           << lTM->fDaemon.size() << std::endl;
 #endif
-      if(CM->NumProcessors() > 1)
+     if(CM->NumProcessors() > 1)
       {
         pthread_cond_timedwait(&lTM->fExecuteCondition, &lTM->fSubmittedMutex,&next);
       } else

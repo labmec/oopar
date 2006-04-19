@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: phil $
-// $Id: oopmpistorage.cpp,v 1.33 2006-03-09 11:34:56 phil Exp $
-// $Revision: 1.33 $
+// $Author: cesar $
+// $Id: oopmpistorage.cpp,v 1.34 2006-04-19 15:18:54 cesar Exp $
+// $Revision: 1.34 $
 
 
 
@@ -144,9 +144,10 @@ int OOPMPIStorageBuffer::Send (int target)
 int OOPMPIStorageBuffer::PkStr (char *p)
 {
 	int len = strlen(p);
-	PkInt(&len,1);
-	//return PackGeneric(p,len,MPI_CHAR);
-	return PkByte(p,len);
+	int result = PkInt(&len,1);
+  if(len)	return PkByte(p,len);
+  return result;
+
 }
 int OOPMPIStorageBuffer::PkDouble (double *p, int n)
 {
@@ -235,14 +236,13 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 	}
 	f_isreceiving = 0;
 	f_recv_position = 0;
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
 	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
-#ifdef DEBUGALL
-#ifdef LOGPZ  
-  stringstream sout;
-  sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId();
-  LOGPZ_DEBUG(logger,sout.str()):
-#endif  
-#endif
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId();
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+  }
 	//MPI_Request_free(&f_request);
 	return obj;
 }
@@ -347,7 +347,8 @@ int OOPMPIStorageBuffer::UpkStr (char *p)
 	int n;
 	MPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, &n, 1,
 			    MPI_INT, MPI_COMM_WORLD);
-	UpkByte(p,n);
+  p[0] = '\0';
+	if(n) UpkByte(p,n);
 	return 1;
 }
  void OOPMPIStorageBuffer::Write(int *p, int size){
@@ -360,10 +361,18 @@ int OOPMPIStorageBuffer::UpkStr (char *p)
 	 PkByte(p, size);
  }
  void OOPMPIStorageBuffer::Write(string *p, int size){
-	 PkInt(&size);
-	 char* buf = new char[p->length()];
-  	 p->copy(buf, p->length());	 
-	 PkStr(buf);
+  int i;
+  for(i=0; i<size; i++)
+  {
+    int locsize;
+    locsize = p[i].length() > 0 ? p[i].length() : 1;
+   
+    char* buf = new char[locsize+1];
+    buf[0] = '\0';
+    p[i].copy(buf, p[i].length());
+    PkStr(buf);
+    delete []buf;
+  }
  }
  void OOPMPIStorageBuffer::Read(int *p, int size){
 	 UpkInt(p, size);	 
@@ -375,10 +384,12 @@ int OOPMPIStorageBuffer::UpkStr (char *p)
 	 UpkByte(p, size);
  }
  void OOPMPIStorageBuffer::Read(string *p, int size){
-	 UpkInt(&size);
-	 char * buf = new char[size];
+  if(!size) return;
 	 int i=0;
 	 for (i=0;i<size;i++)
-	 	UpkStr(&buf[i]);
-	 p->insert(size, buf);
+   {
+      char buf[2000];
+	 	  UpkStr(buf);
+      p[i] = buf;
+    }
  }

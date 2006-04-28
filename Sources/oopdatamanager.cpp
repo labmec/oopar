@@ -140,7 +140,6 @@ OOPDataManager::OOPDataManager (int Procid)
   char filename[255];
   sprintf(filename,"datalogger%d", CM->GetProcID());
   LogDM = new OOPDataLogger(filename);
-
 }
 void OOPDataManager::SubmitAllObjects(){
 	pthread_mutex_lock(&fDataMutex);
@@ -209,14 +208,23 @@ OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace, OOPDataV
     delete []compare;    
   }
 #endif
-
-	OOPObjectId id = DM->GenerateId ();
+  //cout << __PRETTY_FUNCTION__ << " ENTERING\n";
+  //cout.flush();
+  OOPObjectId id = DM->GenerateId ();
+  //cout.flush();
+  //cout << __PRETTY_FUNCTION__ << " generate id\n";
 	OOPMetaData *dat = new OOPMetaData (obj, id, fProcessor, ver);
-	
+ //cout << __PRETTY_FUNCTION__ << " new meta data\n";
+ 
 	dat->SetTrace (trace);	// Erico
+ //cout << __PRETTY_FUNCTION__ << " set trace\n";
 	pthread_mutex_lock(&fDataMutex);
+ //cout << __PRETTY_FUNCTION__ << " mutex_lock\n";
 	fSubmittedObjects.push_back(dat);
+ //cout << __PRETTY_FUNCTION__ << " fSubmittedObjects.push_back\n";
 	pthread_mutex_unlock(&fDataMutex);
+ //cout << __PRETTY_FUNCTION__ << " mutex unlock\n";
+ //cout.flush();
 	return id;
 }
 void OOPDataManager::DeleteObject (OOPObjectId & ObjId)

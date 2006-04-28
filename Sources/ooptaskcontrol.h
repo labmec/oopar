@@ -14,6 +14,24 @@ class   OOPTaskControl
 	 * Pointer to the task object the taskcontrol reffers to.
 	 */
 	OOPTask *fTask;
+
+ /////////////////////////////////////Task Data////////////////////////////////////////
+ /**
+  * Store the task identifier since that task is now delete by it own thread
+  */
+ OOPObjectId fTaskId;
+
+ /**
+  * Store the task dependencies since that task is now delete by it own thread
+  */
+ OOPMDataDependList fDataDepend;
+
+ /**
+  * Store the task classid identifier since that task is now delete by it own thread
+  */
+ int fClassId;
+ /////////////////////////////////////Task Data////////////////////////////////////////
+  
 	/**
 	 * List of dependency for the current object.
 	 */
@@ -95,5 +113,15 @@ static void *ThreadExec(void *tcobject);
     }
     
     void Join();
+
+
+    /**
+     * Acess to task data since that task is deleted itself after execute
+     */
+    OOPObjectId & Id() {return fTaskId;}
+
+    int ClassId() {return fClassId;}
+
+    OOPMDataDependList & TaskDepend (){return fDataDepend;}
 };
 #endif

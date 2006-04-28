@@ -19,11 +19,15 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 	if (task) {
 		fDepend = task->GetDependencyList ();
 		fDepend.ClearPointers ();
+  fTaskId = task->Id();
+  fClassId = task->ClassId();
+  fDataDepend = task->Depend();
 	}
 }
+
 OOPTaskControl::~OOPTaskControl ()
 {
-	delete  fTask;
+  if (fTask) delete  fTask;
 }
 
 void OOPTaskControl::Execute()
@@ -55,13 +59,21 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   tc->fExecStarted = 1;
   tc->fTask->Execute();
   // the task finished executing!!!!
+//  cout << __PRETTY_FUNCTION__ << " before lock for task " << tc->fTask->Id() << endl;
+  OOPObjectId id = tc->fTask->Id();
+  if (!tc->fTask->IsRecurrent())
+  {
+    delete tc->fTask;
+    tc->fTask=0;
+  }
 
   TMLock lock;
-  tc->fTask->SetExecuting(false);
+  //cout << __PRETTY_FUNCTION__ << " after lock for task" << tc->fTask->Id() << endl;
+  //tc->fTask->SetExecuting(false);
   tc->fExecFinished =1;
-#ifdef LOGPZ  
+#ifdef LOGPZ
   {
-    sout << "Task " << tc->fTask->Id() << " finished";
+    sout << "Task " << id << " finished";
     LOGPZ_DEBUG(logger,sout.str());
   }
 #endif

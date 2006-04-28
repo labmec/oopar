@@ -14,6 +14,24 @@ class   OOPTaskControl;
 using namespace std;
 class   OOPObjectId;
 class TMLock;
+
+  struct SszQueues{
+    int fWaiting_sz;
+    int fExecabl_sz;
+    int fExecing_sz;
+    void set(int wait, int execab, int execing)
+    {
+      fWaiting_sz = wait;
+      fExecabl_sz = execab;
+      fExecing_sz = execing;
+    }
+    bool IsEqual(int wait, int execab, int execing)
+    {
+      if (execing != fExecing_sz || execab!=fExecabl_sz || wait!=fWaiting_sz) return false;
+      return true;
+    }
+  };
+
 /**
  * Implements the manager of tasks on the environment.
  * All parallelized task are submitted to environment through the TaskManager.

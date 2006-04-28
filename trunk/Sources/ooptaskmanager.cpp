@@ -61,6 +61,7 @@ void OOPTaskManager::TransferExecutingTasks(){
 #ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    //cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
     LOGPZ_ERROR (logger,sout.str());
     
 #endif
@@ -83,6 +84,7 @@ void OOPTaskManager::TransferExecutingTasks(){
 #ifdef LOGPZ      
       stringstream sout;
       sout << __FUNCTION__ << " I dont understand \n";
+      //cout << __FUNCTION__ << " I dont understand \n";
       LOGPZ_ERROR (logger,sout.str());
 #endif      
     }
@@ -92,15 +94,19 @@ void OOPTaskManager::TransferExecutingTasks(){
       auxtc->Join();
 #ifdef LOGPZ        
       stringstream sout;
-      sout << __PRETTY_FUNCTION__ << "Task finished " << auxtc->Task()->Id() << " classid " << auxtc->Task()->ClassId();
+      sout << __PRETTY_FUNCTION__ << "Task finished " << auxtc->Id() << " classid " << auxtc->ClassId();
       LOGPZ_DEBUG (logger,sout.str());
 #endif      
       OOPObjectId id;
-      id = auxtc->Task ()->Id ();
+      id = auxtc->Id ();
       auxtc->Depend ().SetExecuting (id, false);
       // this method may want to grab the mutex!!!
       auxtc->Depend ().ReleaseAccessRequests (id);
-      auxtc->Task()->Depend().ClearPointers();
+
+
+      //auxtc->TaskDepend().ClearPointers();
+
+
       fFinished.push_back(auxtc);
       list < OOPTaskControl * >::iterator keep;
       keep = sub;
@@ -138,13 +144,18 @@ void * OOPTaskManager::ExecuteMT(void * data){
   OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
   //Qual �o service thread ?
   // O service thread e a linha de execucao do programa principal
-  
+  //cout << __PRETTY_FUNCTION__ << " acquiring lock\n";
+
   pthread_mutex_lock(&lTM->fSubmittedMutex);
   DM->SubmitAllObjects();
   CM->ReceiveMessages ();
   // this method needs to grab the lock
   lTM->TransferSubmittedTasks ();
   list < OOPTaskControl * >::iterator i;
+
+  SszQueues curSz;
+  curSz.set(lTM->fTaskList.size(),lTM->fExecutable.size(),lTM->fExecuting.size());
+  
 #ifdef LOGPZ    
   {
     std::stringstream sout;
@@ -167,7 +178,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
 #ifdef LOGPZ        
       {
         stringstream sout;
-        sout << "Entering taskcontrol execute for task " << tc->Task()->Id() << " classid " << tc->Task()->ClassId();
+        sout << "Entering taskcontrol execute for task " << tc->Id() << " classid " << tc->ClassId();
         LOGPZ_DEBUG (tasklogger,sout.str());
       }
 #endif      
@@ -182,23 +193,46 @@ void * OOPTaskManager::ExecuteMT(void * data){
     //    if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << " after receive " << CM->GetProcID() <<   "\n";
     
     // give a chance to waiting threads
+//    cout << __PRETTY_FUNCTION__ << " releasing lock\n";
 //    pthread_mutex_unlock(&lTM->fSubmittedMutex);
+//    cout << __PRETTY_FUNCTION__ << " acquiring lock\n";
 //    pthread_mutex_lock(&lTM->fSubmittedMutex);
     lTM->TransferSubmittedTasks ();
     CM->SendMessages ();
     lTM->ExecuteDaemons();
     //wait
+
+#ifdef LOGTIME
+      if (!curSz.IsEqual(lTM->fTaskList.size(),lTM->fExecutable.size(),lTM->fExecuting.size()))
+      { 
+        timeval curtime;
+        gettimeofday(&curtime,0);
+        
+        tlog << curtime.tv_sec << ":" << curtime.tv_usec << "\t"
+            << lTM->fSubmittedList.size() << "\t"
+            << lTM->fTaskList.size() << "\t"
+            << lTM->fExecutable.size() << "\t"
+            << lTM->fExecuting.size() << "\t"
+            << lTM->fFinished.size() << "\t"
+            << lTM->fDaemon.size() << std::endl;
+        curSz.set(lTM->fTaskList.size(),lTM->fExecutable.size(),lTM->fExecuting.size());
+      }
+#endif
+
+    
     if(!lTM->HasWorkTodo () && lTM->fKeepGoing)
     {
-      timeval now;
-      gettimeofday(&now,0);
-      now.tv_usec += 1;
-      now.tv_sec += now.tv_usec/1000000;
-      now.tv_usec %= 1000000;
-      timespec next;
-      next.tv_sec = now.tv_sec;
-      next.tv_nsec = now.tv_usec*1000;
-      //        cout << __PRETTY_FUNCTION__ << " TaskManager going to sleep\n";
+      if(CM->NumProcessors() > 1)
+      {
+        timeval now;
+        gettimeofday(&now,0);
+        now.tv_usec += 1;
+        now.tv_sec += now.tv_usec/1000000;
+        now.tv_usec %= 1000000;
+        timespec next;
+        next.tv_sec = now.tv_sec;
+        next.tv_nsec = now.tv_usec*1000;
+        //cout << __PRETTY_FUNCTION__ << " TaskManager going to sleep\n";
       //   cout.flush();
 /*#ifdef LOGPZ
       {
@@ -207,27 +241,19 @@ void * OOPTaskManager::ExecuteMT(void * data){
         LOGPZ_DEBUG(tasklogger,sout.str().c_str());
       }
 #endif*/
-#ifdef LOGTIME
-      time_t curtime;
-      time (& curtime);
-      tlog << curtime << "\t"
-           << lTM->fSubmittedList.size() << "\t"
-           << lTM->fTaskList.size() << "\t"
-           << lTM->fExecutable.size() << "\t"
-           << lTM->fExecuting.size() << "\t"
-           << lTM->fFinished.size() << "\t"
-           << lTM->fDaemon.size() << std::endl;
-#endif
-     if(CM->NumProcessors() > 1)
-      {
+        //cout << __PRETTY_FUNCTION__ << " releasing lock\n";
         pthread_cond_timedwait(&lTM->fExecuteCondition, &lTM->fSubmittedMutex,&next);
+        //cout << __PRETTY_FUNCTION__ << " acquiring lock\n";
       } else
       {
+        //cout << __PRETTY_FUNCTION__ << " going to condwait\n";
         pthread_cond_wait(&lTM->fExecuteCondition, &lTM->fSubmittedMutex);
+        //cout << __PRETTY_FUNCTION__ << " leaving condwait\n";
       }
     }
   }
   CM->SendMessages ();
+  //cout << __PRETTY_FUNCTION__ << " releasing lock\n";
   pthread_mutex_unlock(&lTM->fSubmittedMutex);
   return NULL;
 }
@@ -280,7 +306,7 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
       {
 #ifdef LOGPZ        
         stringstream sout;
-        sout << "Access Granted to taskId " << TaskId  << " classid " << tc->Task()->ClassId();
+        sout << "Access Granted to taskId " << TaskId  << " classid " << tc->ClassId();
         sout << " on data " << depend.Id();
         LOGPZ_DEBUG (tasklogger,sout.str());
 #endif
@@ -288,11 +314,11 @@ void OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 			if (tc->Depend ().CanExecute ()) {
 				TransfertoExecutable (tc->Task ()->Id ());
         {
-#ifdef LOGPZ          
+#ifdef LOGPZ
           stringstream sout;
-          sout << "OOPTaskManager task is executable " << TaskId << " classid " << tc->Task()->ClassId();
+          sout << "OOPTaskManager task is executable " << TaskId << " classid " << tc->ClassId();
           LOGPZ_DEBUG (tasklogger,sout.str());
-#endif          
+#endif 
         }
 			}
 			break;
@@ -324,12 +350,12 @@ void OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
 	bool found = false;
 	for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
 		OOPTaskControl *tc = (*i);
-		if (tc->Task ()->Id () == TaskId) {
+		if (tc->Id () == TaskId) {
 			found = true;
-			tc->Depend ().RevokeAccess (depend);
+			tc->Depend().RevokeAccess (depend);
 #ifdef LOGPZ        
       stringstream sout;
-			sout << "Access Revoked to taskId " << TaskId << " classid " << tc->Task()->ClassId();
+			sout << "Access Revoked to taskId " << TaskId << " classid " << tc->ClassId();
 			sout << " on data " << depend.Id();
       LOGPZ_DEBUG (logger,sout.str());
 #endif      
@@ -458,11 +484,13 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
   // (in that case I already have the lock)
   if(!pthread_equal(fExecuteThread,pthread_self()))
   { 
+    //cout << __PRETTY_FUNCTION__ << " acquiring lock\n";
     pthread_mutex_lock(&fSubmittedMutex);
   }
   fSubmittedList.push_back (task);
   if(!pthread_equal(fExecuteThread,pthread_self()))
   {
+    //cout << __PRETTY_FUNCTION__ << " going to release lock\n";
     pthread_cond_signal(&fExecuteCondition);
     pthread_mutex_unlock(&fSubmittedMutex);
   }
@@ -493,7 +521,10 @@ bool OOPTaskManager::HasWorkTodo ()
 #endif
     return false;
   }
-  int numtasks = fExecutable.size () + fFinished.size () + fSubmittedList.size () + fDaemon.size();
+/*  cout << __PRETTY_FUNCTION__ <<  "\n\t" <<fExecutable.size()
+      << "\t" << fFinished.size () << "\t" << fSubmittedList.size () << "\t" << fDaemon.size() << endl;*/
+  int numtasks = fFinished.size () + fSubmittedList.size () + fDaemon.size();
+  if (fExecuting.size() != fNumberOfThreads && fExecutable.size()) numtasks++;
   return numtasks != 0;
 }
 
@@ -536,7 +567,7 @@ int OOPTaskManager::CancelTask (OOPObjectId taskid)
 #ifdef LOGPZ      
       stringstream sout;
       sout << "Task erased ";
-      sout << "Task ID " << tc->Task()->Id() << " classid " << tc->Task()->ClassId();
+      sout << "Task ID " << tc->Id() << " classid " << tc->ClassId();
       LOGPZ_DEBUG (logger,sout.str());
 #endif      
       tc->Depend ().ReleaseAccessRequests (tc->Task ()->Id ());
@@ -741,17 +772,17 @@ void OOPTaskManager::TransferFinishedTasks ()
 #ifdef LOGPZ
     {
       stringstream sout;
-      sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " << auxtc->Task()->ClassId() << " finished";
+      sout << __PRETTY_FUNCTION__ << " task " << auxtc->Id() << " classid " << auxtc->ClassId() << " finished";
       LOGPZ_DEBUG(tasklogger,sout.str());
     }
 #endif
-    if (auxtc->Task ()->IsRecurrent () && auxtc->Task ()->GetProcID () != fProc)
+    if ( auxtc->Task() && auxtc->Task ()->IsRecurrent () && auxtc->Task ()->GetProcID () != fProc)
     {
 #ifdef LOGPZ
       {
         stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " <<
-            auxtc->Task()->ClassId() << " transferred from " << fProc << " to " << auxtc->Task ()->GetProcID();
+        sout << __PRETTY_FUNCTION__ << " task " << auxtc->Id() << " classid " <<
+            auxtc->ClassId() << " transferred from " << fProc << " to " << auxtc->Task ()->GetProcID();
         LOGPZ_DEBUG(tasklogger,sout.str());
       }
 #endif
@@ -759,18 +790,18 @@ void OOPTaskManager::TransferFinishedTasks ()
       auxtc->ZeroTask ();
       delete auxtc;
     }
-    else if(auxtc->Task ()->IsRecurrent ())
+    else if(auxtc->Task() && auxtc->Task ()->IsRecurrent ())
     {
 #ifdef LOGPZ
       {
         stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " task " << auxtc->Task()->Id() << " classid " <<
-            auxtc->Task()->ClassId() << " resubmitted";
+        sout << __PRETTY_FUNCTION__ << " task " << auxtc->Id() << " classid " <<
+            auxtc->ClassId() << " resubmitted";
         LOGPZ_DEBUG(tasklogger,sout.str());
       }
 #endif
       auxtc->Depend () = auxtc->Task ()->GetDependencyList ();
-      auxtc->Depend ().ClearPointers ();
+      auxtc->Task()->Depend().ClearPointers ();
       fTaskList.push_back (auxtc);
       if (auxtc->Depend ().SubmitDependencyList (auxtc->Task ()->Id ()))
       {
@@ -844,15 +875,15 @@ void OOPTaskManager::PrintTaskQueues(char * msg, std::ostream & out){
 	out << "Number of tasks :" << fTaskList.size() << endl;
 	list < OOPTaskControl * >::iterator j;
 	for(j=fTaskList.begin();j!=fTaskList.end();j++)
-		out << (*j)->Task()->Id() << endl;
+		out << (*j)->Id() << endl;
 	out << "Print fExecutable\n";
 	out << "Number of tasks :" << fExecutable.size() << endl;
 	for(j=fExecutable.begin();j!=fExecutable.end();j++)
-		out << (*j)->Task()->Id() << endl;
+		out << (*j)->Id() << endl;
 	out << "Print fFinished\n";
 	out << "Number of tasks :" << fFinished.size() << endl;
 	for(j=fFinished.begin();j!=fFinished.end();j++)
-		out << (*j)->Task()->Id() << endl;
+		out << (*j)->Id() << endl;
 	
 }
 OOPTMTask::OOPTMTask(): OOPDaemonTask() {
@@ -897,6 +928,8 @@ TPZSaveable *OOPTerminationTask::Restore (TPZStream & buf, void * context){
 
 void OOPTaskManager::Lock(TMLock &lock)
 {
+  //cout << __PRETTY_FUNCTION__ << " acquiring lock\n";
+
   if(pthread_equal(pthread_self(),fLockThread))
   {
     std::cout << "A single thread locking twice\n";
@@ -921,6 +954,8 @@ void OOPTaskManager::Unlock(TMLock &lock)
   }
   fLock = 0;
   fLockThread = 0;
+  //cout << __PRETTY_FUNCTION__ << " releasing lock\n";
+
   pthread_mutex_unlock(&fSubmittedMutex);
 }
 
@@ -928,7 +963,7 @@ void OOPTaskManager::Signal(TMLock &lock)
 {
   if(fLock != &lock)
   {
-    std::cout << __PRETTY_FUNCTION__ << " Signal called for the wrong lock object\n";
+    //std::cout << __PRETTY_FUNCTION__ << " Signal called for the wrong lock object\n";
     return;
   }
   pthread_cond_signal(&fExecuteCondition);
@@ -936,11 +971,14 @@ void OOPTaskManager::Signal(TMLock &lock)
 
 TMLock::TMLock()
 {
+  //std::cout <<  __PRETTY_FUNCTION__ << " LOCK called\n";
   TM->Lock(*this);
+  //std::cout <<  __PRETTY_FUNCTION__ << " LOCK acquired\n";
 }
 
 TMLock::~TMLock()
 {
+  //std::cout <<  __PRETTY_FUNCTION__ << " UNLOCK will be called\n";
   TM->Unlock(*this);
 }
 

@@ -140,7 +140,9 @@ void * OOPTaskManager::TriggerTask(void * data){
 	disparar o thread de execu�o da tarefa.
 */
 void * OOPTaskManager::ExecuteMT(void * data){
+#ifdef LOGTIME
   tlog << "time\tsubmitted\twaiting\texecutable\texecuting\tfinished\tdaemon\n";
+#endif
   OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
   //Qual �o service thread ?
   // O service thread e a linha de execucao do programa principal

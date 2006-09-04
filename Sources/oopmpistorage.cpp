@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: cesar $
-// $Id: oopmpistorage.cpp,v 1.34 2006-04-19 15:18:54 cesar Exp $
-// $Revision: 1.34 $
+// $Author: longhin $
+// $Id: oopmpistorage.cpp,v 1.35 2006-09-04 23:19:16 longhin Exp $
+// $Revision: 1.35 $
 
 
 
@@ -336,6 +336,12 @@ int OOPMPIStorageBuffer::UpkFloat (float *p, int n)
 }
 int OOPMPIStorageBuffer::UpkDouble (double *p, int n)
 {
+    int lSizeToRead = 0;
+    MPI_Pack_size(f_recv_buffr.NElements(),
+                        MPI_DOUBLE,
+                        MPI_COMM_WORLD,
+                        &lSizeToRead);
+
 	MPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_DOUBLE,
 		    MPI_COMM_WORLD);
 	// f_recv_position=f_recv_position+n*sizeof(double);

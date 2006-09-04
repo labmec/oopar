@@ -35,7 +35,7 @@
         <cxxflags>-O2 -g0</cxxflags>
       </optimized>
       <debug>
-        <configargs>--prefix=/home/cluster/proj/proj076/ecrylo/installDIR/std6_dbg_64 --enable-debug=full --with-mpi-dir=/home/cluster/proj/proj076/ecrylo/installDIR/std6_dbg_64 --with-pz-dir=/home/cluster/proj/proj076/ecrylo/installDIR/std6_dbg_64 --enable-mpi=yes</configargs>
+        <configargs>--enable-debug=full --enable-mpi=yes --with-pz-dir=/home/longhin/PZInstall --enable-pz=yes</configargs>
         <builddir>debug</builddir>
         <ccompiler>kdevgccoptions</ccompiler>
         <cxxcompiler>kdevgppoptions</cxxcompiler>
@@ -44,7 +44,7 @@
         <envvars/>
         <topsourcedir/>
         <cppflags/>
-        <ldflags>-m64</ldflags>
+        <ldflags/>
         <ccompilerbinary/>
         <cxxcompilerbinary/>
         <f77compilerbinary/>
@@ -190,6 +190,14 @@
       <headerCompletionDelay>250</headerCompletionDelay>
     </codecompletion>
     <references/>
+    <creategettersetter>
+      <prefixGet/>
+      <prefixSet>set</prefixSet>
+      <prefixVariable>m_,_</prefixVariable>
+      <parameterName>theValue</parameterName>
+      <inlineGet>true</inlineGet>
+      <inlineSet>true</inlineSet>
+    </creategettersetter>
   </kdevcppsupport>
   <kdevcvsservice>
     <recursivewhenupdate>true</recursivewhenupdate>

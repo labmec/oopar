@@ -15,6 +15,6 @@ bin_PROGRAMS = main
 
 main_SOURCES = main.cpp tsmalltask.cpp TParVector.cpp TParVector.h fluxdefs.h
 
-main_LDADD = $(top_builddir)/lib/liboopar.a @MPILIBDIR@ @MPILAMLIBDIR@ @PZ_LIBDIR@ @LOG4CXX_LIBDIR@ @PZ_LIB@ @LOG4CXX_LIB@ @MPILIB@ @MPILAMLIB@ -lpthread
+main_LDADD = $(top_builddir)/lib/liboopar.a @MPILIBDIR@ @MPILAMLIBDIR@ @PZ_LIBDIR@ @PZ_LIB@ @MPILIB@ @MPILAMLIB@ -lpthread
 ## --| OOPar |------------------------------------------------------------------
 noinst_HEADERS = tsmalltask.h

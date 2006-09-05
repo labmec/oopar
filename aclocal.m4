@@ -11,11 +11,252 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
-# Copyright (C) 2002, 2003, 2005  Free Software Foundation, Inc.
-#
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
+dnl
+dnl acinclude.m4 for OOPar
+dnl
+dnl Process this file with GNU aclocal to produce a configure script.
+dnl
+dnl $Id: aclocal.m4,v 1.7 2006-09-05 17:39:43 longhin Exp $
+dnl
+
+dnl
+dnl Greetings!
+dnl
+AC_DEFUN(OOP_GREETINGS,
+[
+    echo
+    echo "+-----------------------------------------------+"
+    echo "             Welcome to OOPar project"
+    echo "+-----------------------------------------------+"
+    echo
+    echo "Configuring OOPar version:" $OOP_VERSION.$OOP_REV
+    echo
+])
+
+dnl
+dnl Checking g++ version
+dnl
+AC_DEFUN(OOP_PROG_CXX,
+[
+    AC_PROG_CXX
+    case "$CXX" in
+        c++ | g++)
+           CXX_MAJOR=2
+           CXX_MINOR=95
+           AC_MSG_CHECKING(if $CXX version >= $CXX_MAJOR.$CXX_MINOR)
+           AC_TRY_COMPILE([#include<features.h>],
+             [
+              #if !__GNUC_PREREQ($CXX_MAJOR, $CXX_MINOR)
+              #error Bad version
+              #endif
+             ],
+             AC_MSG_RESULT(ok),
+             AC_MSG_ERROR($CXX invalid version! Must be >= $CXX_MAJOR.$CXX_MINOR))
+             ;;
+    esac
+])
+
+dnl
+dnl Checking for ar
+dnl
+AC_DEFUN(OOP_PROG_AR,
+[
+    case "${AR-unset}" in
+	unset) AC_CHECK_PROG(AR, ar, ar) ;;
+	*) AC_CHECK_PROGS(AR, $AR ar, ar) ;;
+    esac
+    AC_SUBST(AR)
+    AC_MSG_CHECKING(ar flags)
+    case "${ARFLAGS-unset}" in
+	unset) ARFLAGS="-rcsv" ;;
+    esac
+    AC_MSG_RESULT($ARFLAGS)
+    AC_SUBST(ARFLAGS)
+])
+
+dnl
+dnl Bye bye!
+dnl
+AC_DEFUN(OOP_BYEBYE,
+[
+    echo
+    echo "Finished configuration for OOPar version" $OOP_VERSION.$OOP_REV
+    echo
+
+    echo "+-----------------------------------------------+"
+    echo
+    echo "   You hopefully configured OOPar project"
+    echo
+    echo "   Options:"
+    echo
+
+    case "${mpi_enabled}" in
+      yes)
+        echo "      -> MPI enabled."
+      ;;
+      no)
+        echo "      -> MPI not enabled."
+      ;;
+    esac
+
+    case "${sloan_enabled}" in
+      yes)
+        echo "      -> Sloan enabled."
+      ;;
+      no)
+        echo "      -> Sloan not enabled."
+      ;;
+    esac
+
+    echo
+    echo "   type \"make\" to start compilation."
+    echo "   type \"make install\" as root to install it."
+    echo
+    echo "+-----------------------------------------------+"
+])
+
+dnl --| OOPar |-----------------------------------------------------------------
+
+# Do all the work for Automake.                            -*- Autoconf -*-
+
+# This macro actually does too much some checks are only needed if
+# your package does certain things.  But this isn't really a big deal.
+
+# Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003
+# Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# serial 10
+
+AC_PREREQ([2.54])
+
+# Autoconf 2.50 wants to disallow AM_ names.  We explicitly allow
+# the ones we care about.
+m4_pattern_allow([^AM_[A-Z]+FLAGS$])dnl
+
+# AM_INIT_AUTOMAKE(PACKAGE, VERSION, [NO-DEFINE])
+# AM_INIT_AUTOMAKE([OPTIONS])
+# -----------------------------------------------
+# The call with PACKAGE and VERSION arguments is the old style
+# call (pre autoconf-2.50), which is being phased out.  PACKAGE
+# and VERSION should now be passed to AC_INIT and removed from
+# the call to AM_INIT_AUTOMAKE.
+# We support both call styles for the transition.  After
+# the next Automake release, Autoconf can make the AC_INIT
+# arguments mandatory, and then we can depend on a new Autoconf
+# release and drop the old call support.
+AC_DEFUN([AM_INIT_AUTOMAKE],
+[AC_REQUIRE([AM_SET_CURRENT_AUTOMAKE_VERSION])dnl
+ AC_REQUIRE([AC_PROG_INSTALL])dnl
+# test to see if srcdir already configured
+if test "`cd $srcdir && pwd`" != "`pwd`" &&
+   test -f $srcdir/config.status; then
+  AC_MSG_ERROR([source directory already configured; run "make distclean" there first])
+fi
+
+# test whether we have cygpath
+if test -z "$CYGPATH_W"; then
+  if (cygpath --version) >/dev/null 2>/dev/null; then
+    CYGPATH_W='cygpath -w'
+  else
+    CYGPATH_W=echo
+  fi
+fi
+AC_SUBST([CYGPATH_W])
+
+# Define the identity of the package.
+dnl Distinguish between old-style and new-style calls.
+m4_ifval([$2],
+[m4_ifval([$3], [_AM_SET_OPTION([no-define])])dnl
+ AC_SUBST([PACKAGE], [$1])dnl
+ AC_SUBST([VERSION], [$2])],
+[_AM_SET_OPTIONS([$1])dnl
+ AC_SUBST([PACKAGE], ['AC_PACKAGE_TARNAME'])dnl
+ AC_SUBST([VERSION], ['AC_PACKAGE_VERSION'])])dnl
+
+_AM_IF_OPTION([no-define],,
+[AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE", [Name of package])
+ AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [Version number of package])])dnl
+
+# Some tools Automake needs.
+AC_REQUIRE([AM_SANITY_CHECK])dnl
+AC_REQUIRE([AC_ARG_PROGRAM])dnl
+AM_MISSING_PROG(ACLOCAL, aclocal-${am__api_version})
+AM_MISSING_PROG(AUTOCONF, autoconf)
+AM_MISSING_PROG(AUTOMAKE, automake-${am__api_version})
+AM_MISSING_PROG(AUTOHEADER, autoheader)
+AM_MISSING_PROG(MAKEINFO, makeinfo)
+AM_MISSING_PROG(AMTAR, tar)
+AM_PROG_INSTALL_SH
+AM_PROG_INSTALL_STRIP
+# We need awk for the "check" target.  The system "awk" is bad on
+# some platforms.
+AC_REQUIRE([AC_PROG_AWK])dnl
+AC_REQUIRE([AC_PROG_MAKE_SET])dnl
+AC_REQUIRE([AM_SET_LEADING_DOT])dnl
+
+_AM_IF_OPTION([no-dependencies],,
+[AC_PROVIDE_IFELSE([AC_PROG_CC],
+                  [_AM_DEPENDENCIES(CC)],
+                  [define([AC_PROG_CC],
+                          defn([AC_PROG_CC])[_AM_DEPENDENCIES(CC)])])dnl
+AC_PROVIDE_IFELSE([AC_PROG_CXX],
+                  [_AM_DEPENDENCIES(CXX)],
+                  [define([AC_PROG_CXX],
+                          defn([AC_PROG_CXX])[_AM_DEPENDENCIES(CXX)])])dnl
+])
+])
+
+
+# When config.status generates a header, we must update the stamp-h file.
+# This file resides in the same directory as the config header
+# that is generated.  The stamp files are numbered to have different names.
+
+# Autoconf calls _AC_AM_CONFIG_HEADER_HOOK (when defined) in the
+# loop where config.status creates the headers, so we can generate
+# our stamp files there.
+AC_DEFUN([_AC_AM_CONFIG_HEADER_HOOK],
+[# Compute $1's index in $config_headers.
+_am_stamp_count=1
+for _am_header in $config_headers :; do
+  case $_am_header in
+    $1 | $1:* )
+      break ;;
+    * )
+      _am_stamp_count=`expr $_am_stamp_count + 1` ;;
+  esac
+done
+echo "timestamp for $1" >`AS_DIRNAME([$1])`/stamp-h[]$_am_stamp_count])
+
+# Copyright 2002  Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 
 # AM_AUTOMAKE_VERSION(VERSION)
 # ----------------------------

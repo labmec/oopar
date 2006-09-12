@@ -203,6 +203,16 @@ public:
 	 * Increment the version of the ith object from which this task depends
 	 */
 	 void IncrementDepObjVersion(int idepend);
+	 
+	 /**
+	  * Gets and sets f_MySize
+	  */
+	 int GetMySize(){
+	     return f_MySize;
+	 };
+	 void SetMySize(int thesize){
+	     f_MySize = thesize;
+	 };
       protected:
 	/**
 	* Processor where the task should be executed
@@ -232,8 +242,15 @@ public:
 	 * Holds a brief description of the task purpose
 	 */
 	string fLabel;
+	/**
+	 * Indicates my size in bytes.
+	 * Must be computed by StorageBuffer
+	 * Only for logging purposes, no logic relation with the parallel environment
+	 */
+	int f_MySize;
+	
 
-      protected:
+
 };
 
 template class TPZRestoreClass<OOPTask, TTASK_ID>;

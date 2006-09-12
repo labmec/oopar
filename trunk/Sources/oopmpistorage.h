@@ -59,7 +59,12 @@ private:
 
   /** flag indicating whether nonblocking reception is initiated */
     int     f_isreceiving;
-
+    /**
+     * Indicates the amount of bytes transmitted through the MPI Interface
+     * Requires resetting for each Message being sent
+     */
+    long f_BytesTransmitted;
+    
 public:
 	~OOPMPIStorageBuffer();
 	void FreeRequest();
@@ -280,6 +285,10 @@ public:
     virtual void Read(char *p, int size = 1);
 
     virtual void Read(std::string *p, int size = 1);
+    void ResetByteCounter();
+
+	long GetBytesTransmitted() const;
+	
 };
 typedef OOPMPIStorageBuffer *POOPMPIStorageBuffer;
 #endif

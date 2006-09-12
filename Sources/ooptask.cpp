@@ -55,6 +55,7 @@ OOPTask::OOPTask (int proc)
 	fPriority = 0;
 	fIsRecurrent = 0;
 	fLabel="non initialized";
+	f_MySize = 0;
 }
 OOPTask::OOPTask (const OOPTask & task):fProc (task.fProc),
 fTaskId (), fDataDepend (task.fDataDepend),
@@ -120,6 +121,8 @@ void OOPTask::Write (TPZStream & buf, int withclassid)
 	TPZSaveable::Write (buf,withclassid);
 	// ObjectId packing and unpacking
 	fTaskId.Write (buf);
+	//Logging purpose only
+	buf.Write(&f_MySize);
 	buf.Write (&fProc);	// Processor where the task should be
 	// executed
 	buf.Write (&fPriority);
@@ -132,6 +135,8 @@ void OOPTask::Read (TPZStream & buf, void * context)
 	TPZSaveable::Read(buf, context);
 	fTaskId.Read (buf);
 	// Finished OOPObjectId unpacking
+	//Logging purpose only
+	buf.Read(&f_MySize);
 	buf.Read (&fProc);
 	buf.Read (&fPriority);
 	buf.Read (&fIsRecurrent);

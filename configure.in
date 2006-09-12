@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.14 2005-10-03 18:11:47 cesar Exp $
+dnl $Id: configure.in,v 1.15 2006-09-12 17:00:41 longhin Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -197,6 +197,36 @@ AC_SUBST(USING_MPI)
 
 
 dnl ----------------------------------------------------------------------------
+dnl                              ENABLE MPE?
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(mpe,
+  [  --enable-mpe=no      Enables the use of MPE [default=no]],
+  [mpe_enabled=$enableval],
+  [mpe_enabled="no"])
+
+case "${mpe_enabled}" in
+  yes)
+    echo "Enabling MPE logging functionality."
+    USING_MPE="-DOOP_MPE"
+	
+  ;;
+  no)
+    echo "MPE not chosen."
+    USING_MPE=""
+	
+  ;;
+  *)
+    AC_MSG_ERROR(bad value ${mpe_enabled} for --enable-mpe)
+  ;;
+esac
+
+AM_CONDITIONAL( MPE, test ${mpe_enabled} = yes )
+AM_CONDITIONAL(OOPMPE, test "$mpe_enabled" = yes)
+AC_SUBST(USING_MPE)
+
+
+dnl ----------------------------------------------------------------------------
 dnl                              ENABLE MPILAM?
 dnl ----------------------------------------------------------------------------
 
@@ -261,6 +291,40 @@ AC_SUBST(MPIINCLUDE)
 AC_SUBST(MPILIBDIR)
 AC_SUBST(MPILIB)
 AC_SUBST(MPISOURCE)
+
+dnl ----------------------------------------------------------------------------
+dnl                               MPE LOCATION
+dnl ----------------------------------------------------------------------------
+
+dnl MPE location
+AC_ARG_WITH(mpe-dir,
+  [  --with-mpe-dir=DIR    Root of MPE instalation [/usr/local/mpe]],
+  [mpe_dir=$withval],
+  [mpe_dir=${mpi_dir}])
+
+case "${mpe_enabled}" in
+  yes)
+    MPEDIR=$mpi_dir
+    MPEINCLUDE="-I$MPIDIR/include"
+    MPELIBDIR="-L$MPIDIR/lib"
+    MPELIB="-lmpe"
+	
+  ;;
+  no)
+    MPEDIR=""
+    MPEINCLUDE=""
+    MPELIBDIR=""
+    MPELIB=""
+  ;;
+  *)
+    AC_MSG_ERROR(bad value ${mpi_enabled} for --enable-mpi)
+  ;;
+esac
+
+AC_SUBST(MPEDIR)
+AC_SUBST(MPEINCLUDE)
+AC_SUBST(MPELIBDIR)
+AC_SUBST(MPELIB)
 
 dnl ----------------------------------------------------------------------------
 dnl                               MPILAM LOCATION

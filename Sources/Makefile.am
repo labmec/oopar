@@ -12,7 +12,7 @@ CLEANFILES     = @OOP_CLEANFILES@
 -include  $(top_builddir)/OOP.mk
 
 # set the include path found by configure
-INCLUDES = $(all_includes) @LOG4CXX_INCLUDE@ $(PZ_INCLUDES) @MPIINCLUDE@
+INCLUDES = $(all_includes) @LOG4CXX_INCLUDE@ $(PZ_INCLUDES) @MPIINCLUDE@ @MPEINCLUDE@
 
 oopardir = $(prefix)/Sources $(prefix)/NeoPZ/Save
 
@@ -44,15 +44,10 @@ liboopar_a_SOURCES = oopdatamanager.cpp \
 	OOPInt.cpp \
 	OOPDouble.cpp \
 	OOPVector.cpp \
-  oopstorage.cpp \
-  oopstore.cpp \
-  oopsaveable.cpp \
-  oopcommmanager.cpp 
-#  oopfilecomm.cpp 
-#  oopfilestorage.cpp
-
-
-#  ooppardefs.cpp
+	oopstorage.cpp \
+	oopstore.cpp \
+	oopsaveable.cpp \
+	oopcommmanager.cpp 
 else
 liboopar_a_SOURCES = oopdatamanager.cpp \
 	ooptaskmanager.cpp \

@@ -122,6 +122,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 #endif    
   }
 #endif
+	pTask->SetMySize(f_buffer.GetBytesTransmitted());
 	pTask->Write (f_buffer, 1);
 #ifdef DEBUGALL
   {

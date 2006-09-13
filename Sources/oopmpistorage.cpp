@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.36 2006-09-12 17:00:41 longhin Exp $
-// $Revision: 1.36 $
+// $Id: oopmpistorage.cpp,v 1.37 2006-09-13 04:57:26 longhin Exp $
+// $Revision: 1.37 $
 
 
 
@@ -29,6 +29,10 @@
 #include <iostream>
 #include <sys/types.h>
 #include <unistd.h>
+
+#ifdef OOP_MPE
+#include "mpe.h"
+#endif	
 
 #include <sstream>
 #include <pzlog.h>
@@ -91,6 +95,10 @@ int OOPMPIStorageBuffer::Send (int target)
 	int tag = 0;
 	ret = MPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);
+#	ifdef OOP_MPE
+	MPE_Log_send(target, tag, f_send_position);
+#	endif	
+					
 #ifdef DEBUGALL
 	switch(ret){
 		case MPI_SUCCESS:

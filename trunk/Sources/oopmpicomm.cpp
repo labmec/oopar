@@ -58,10 +58,13 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
   	cout << "Initializing MPI !\n Calling MPI_Init\n";
 	cout.flush();
 	MPI_Init(&argc,&argv); 
+	Initialize((char*)argv, argc);
 #	ifdef OOP_MPE
 	MPE_Init_log();
+	MPE_Describe_state( 1, 2, "Running", "yellow" );
+	//MPE_Describe_state( 3, 4, "Idle", "yellow" );
 #	endif	
-	Initialize((char*)argv, argc);
+	
 	f_argc = argc;
 	f_argv = argv;
   	cout << "MPI_Init Called\n";

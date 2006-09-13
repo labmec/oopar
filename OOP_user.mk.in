@@ -3,8 +3,9 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: OOP_user.mk.in,v 1.6 2006-09-12 17:00:41 longhin Exp $
+# $Id: OOP_user.mk.in,v 1.7 2006-09-13 01:58:00 longhin Exp $
 #
+
 include @PZ_DIR@/PZ_user.mk
 
 #OOP_INCLUDES = -I@prefix@/include/oopar @MPIINCLUDE@ @MPILAMINCLUDE@ @LOG4CXX_INCLUDE@

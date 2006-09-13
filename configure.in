@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.15 2006-09-12 17:00:41 longhin Exp $
+dnl $Id: configure.in,v 1.16 2006-09-13 01:58:00 longhin Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -61,6 +61,12 @@ case "$target" in
     ARCH_INCLUDES=
     ;;
   x86_64*)
+    ARCH_INCLUDES=
+    ;;
+  *-apple-*)
+    ARCH_INCLUDES=
+    ;;
+  powerpc*)
     ARCH_INCLUDES=
     ;;
   *)

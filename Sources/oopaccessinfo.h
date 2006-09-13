@@ -94,7 +94,7 @@ class   OOPAccessInfo
 		fIsAccessing = aci.fIsAccessing;
 		fProcessor = aci.fProcessor;
 	}
-	bool    OOPAccessInfo::operator == (const OOPAccessInfo & other)
+	bool operator == (const OOPAccessInfo & other)
 	{
 		return (fTaskId == other.fTaskId && fState == other.fState
 			&& fVersion == other.fVersion

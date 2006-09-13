@@ -206,7 +206,7 @@ class   OOPStorageBuffer:public OOPError
    */
 	virtual char *ClassName ()
 	{
-		return ("TReceiveStorage");
+		return ("OOPStorageBuffer");
 	}
       private:
   /**

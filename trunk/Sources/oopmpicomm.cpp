@@ -11,15 +11,13 @@
 //
 // Versao: 12 / 2002
 //
+
 #include "mpi.h"
 //#include "communic.h"
 #include <stdio.h>
 //#include <stdlib.h>
 
-#ifdef OOP_MPE
 #include "mpe.h"
-#endif	
-
 
 #include <string>
 #include <pthread.h>
@@ -278,6 +276,9 @@ void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
 	cout.flush();
 	f_buffer.FreeRequest();
+#	ifdef OOP_MPE
+	MPE_Finish_log("default_log");
+#	endif
 	MPI_Finalize();
 }
 

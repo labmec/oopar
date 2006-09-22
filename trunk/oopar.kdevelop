@@ -43,7 +43,7 @@
         <cxxflags>-O0 -g3</cxxflags>
         <envvars/>
         <topsourcedir/>
-        <cppflags/>
+        <cppflags>-DMPICH_IGNORE_CXX_SEEK</cppflags>
         <ldflags/>
         <ccompilerbinary>mpicc</ccompilerbinary>
         <cxxcompilerbinary>mpicxx</cxxcompilerbinary>

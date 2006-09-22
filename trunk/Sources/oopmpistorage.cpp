@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.37 2006-09-13 04:57:26 longhin Exp $
-// $Revision: 1.37 $
+// $Id: oopmpistorage.cpp,v 1.38 2006-09-22 19:16:40 longhin Exp $
+// $Revision: 1.38 $
 
 
 
@@ -31,7 +31,7 @@
 #include <unistd.h>
 
 #ifdef OOP_MPE
-#include "mpe.h"
+//#include "mpe.h"
 #endif	
 
 #include <sstream>
@@ -96,7 +96,7 @@ int OOPMPIStorageBuffer::Send (int target)
 	ret = MPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);
 #	ifdef OOP_MPE
-	MPE_Log_send(target, tag, f_send_position);
+//	MPE_Log_send(target, tag, f_send_position);
 #	endif	
 					
 #ifdef DEBUGALL
@@ -208,16 +208,19 @@ OOPMPIStorageBuffer::~OOPMPIStorageBuffer()
 {
 	//if(f_request) MPI_Request_free(&f_request);
 }
-void OOPMPIStorageBuffer::FreeRequest(){
-	if(f_request) MPI_Request_free(&f_request);
+void OOPMPIStorageBuffer::CancelRequest(){
+    if(f_isreceiving) MPI_Cancel(&f_request);
 }
 int OOPMPIStorageBuffer::Receive ()
-{      // nonblocking!!!!
+{
+    
+    // nonblocking!!!!
 	//f_buffr.Resize(50000);
 	if(f_isreceiving) return 1;
 	//MPI_Status status;
 	//int test_flag;
 	// recebe (nonblocking) primeros 10^6 bytes
+	
 	MPI_Irecv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 		   MPI_ANY_TAG, MPI_COMM_WORLD, &f_request);
 	f_isreceiving = 1;
@@ -265,25 +268,27 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 		return 1;
 		
 	}
-	//MPI_Status status;
+	
+	MPI_Status status;
 #ifdef DEBUG
 /*	cout << "Going to MPI_Wait\n";
 	cout << "PID" << getpid() << endl;
 	cout.flush();*/
 #endif
-	//MPI_Wait(&f_request,&status);
+	MPI_Wait(&f_request,&status);
 //	sleep(1);
 	return 1;
-	/*
-	MPI_Status status;
+	
+	//MPI_Status status;
 	// recebe primeiros 10^6 bytes
+/*
 	cout << "MPI_Recv returned " << 
-	MPI_Recv (&f_buffr[0], f_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
+	MPI_Recv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 		   MPI_ANY_TAG, MPI_COMM_WORLD, &status) << endl;
 	// desempacota dimensao do pacote completo
 	cout << "Returning 1\n";
 	cout.flush();
-	*/
+*/	
 }
   // Metodos para DESEMPACOTAR dados do buffer.
   // p : Ponteiro para o buffer onde os dados serao lidos.

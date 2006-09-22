@@ -3,11 +3,12 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.7 2005-10-03 18:11:47 cesar Exp $
+# $Id: Makefile.am,v 1.8 2006-09-22 19:16:40 longhin Exp $
 #
 
 usermkdir = $(prefix)
 
+CXX=mpicxx
 usermk_DATA = OOP_user.mk
 
 SUBDIRS = Sources lib Projects

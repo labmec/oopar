@@ -17,7 +17,7 @@
 #include <stdio.h>
 //#include <stdlib.h>
 
-#include "mpe.h"
+//#include "mpe.h"
 
 #include <string>
 #include <pthread.h>
@@ -60,8 +60,8 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 	MPI_Init(&argc,&argv); 
 	Initialize((char*)argv, argc);
 #	ifdef OOP_MPE
-	MPE_Init_log();
-	MPE_Describe_state( 1, 2, "Running", "yellow" );
+	//MPE_Init_log();
+	//MPE_Describe_state( 1, 2, "Running", "yellow" );
 	//MPE_Describe_state( 3, 4, "Idle", "yellow" );
 #	endif	
 	
@@ -278,9 +278,9 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
 	cout.flush();
-	f_buffer.FreeRequest();
+	f_buffer.CancelRequest();
 #	ifdef OOP_MPE
-	MPE_Finish_log("default_log");
+	//MPE_Finish_log("default_log");
 #	endif
 	MPI_Finalize();
 }

@@ -13,7 +13,13 @@
 //
 #ifndef _COM_MPIHH_
 #define _COM_MPIHH_
+#ifdef OOP_MPE
+//#include "mpe.h"
+#else
+#ifdef OOP_MPI
 #include "mpi.h"
+#endif
+#endif
 #include "oopmpistorage.h"
 #include "oopcommmanager.h"
 class   OOPMPISendStorage;

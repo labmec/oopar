@@ -20,7 +20,13 @@
 #ifndef _STR_MPIHH_
 #define _STR_MPIHH_
 
+#ifdef OOP_MPI
 #include "mpi.h"
+#endif
+#ifdef OOP_MPE
+#include "mpe.h"
+#endif
+
 #include "pzmanvector.h"
 #include "pzfilebuffer.h"
 #include "pzsave.h"
@@ -67,7 +73,7 @@ private:
     
 public:
 	~OOPMPIStorageBuffer();
-	void FreeRequest();
+	void CancelRequest();
 	/**
      * Contructor which initializes the buffer
 	 */

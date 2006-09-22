@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.16 2006-09-13 01:58:00 longhin Exp $
+dnl $Id: configure.in,v 1.17 2006-09-22 19:16:40 longhin Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -313,7 +313,8 @@ case "${mpe_enabled}" in
     MPEDIR=$mpi_dir
     MPEINCLUDE="-I$MPIDIR/include"
     MPELIBDIR="-L$MPIDIR/lib"
-    MPELIB="-lmpe"
+    MPELIB="-llmpe -lmpe   -lm"
+    MPILIB=""
 	
   ;;
   no)
@@ -331,6 +332,7 @@ AC_SUBST(MPEDIR)
 AC_SUBST(MPEINCLUDE)
 AC_SUBST(MPELIBDIR)
 AC_SUBST(MPELIB)
+AC_SUBST(MPILIB)
 
 dnl ----------------------------------------------------------------------------
 dnl                               MPILAM LOCATION

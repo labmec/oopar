@@ -42,6 +42,7 @@ class   OOPTaskManager
 {
   friend class OOPTask;
       public:
+  
 
         /** Set max number of simultaneous threads.
          */

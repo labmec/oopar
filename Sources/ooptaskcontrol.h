@@ -10,6 +10,8 @@ class   OOPTask;
  */
 class   OOPTaskControl
 {
+    int m_MPEEvtStart;
+    int m_MPEEvtEnd;
 	/**
 	 * Pointer to the task object the taskcontrol reffers to.
 	 */

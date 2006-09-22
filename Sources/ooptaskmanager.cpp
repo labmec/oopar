@@ -1,6 +1,11 @@
 #ifdef OOP_MPI
 #include "oopmpicomm.h"
 #endif
+
+//#ifdef OOP_MPE
+//#include "mpe.h"
+//#endif
+
 #include "ooptaskmanager.h"
 #include "oopcommmanager.h"
 #include "oopdatamanager.h"
@@ -135,7 +140,6 @@ void * OOPTaskManager::TriggerTask(void * data){
 	return NULL;
 }
 */
-
 /**
 	disparar o thread de execu�o da tarefa.
 */
@@ -144,6 +148,8 @@ void * OOPTaskManager::ExecuteMT(void * data){
   tlog << "time\tsubmitted\twaiting\texecutable\texecuting\tfinished\tdaemon\n";
 #endif
   OOPTaskManager * lTM = static_cast<OOPTaskManager *>(data);
+  
+  
   //Qual �o service thread ?
   // O service thread e a linha de execucao do programa principal
   //cout << __PRETTY_FUNCTION__ << " acquiring lock\n";
@@ -257,6 +263,7 @@ void * OOPTaskManager::ExecuteMT(void * data){
   CM->SendMessages ();
   //cout << __PRETTY_FUNCTION__ << " releasing lock\n";
   pthread_mutex_unlock(&lTM->fSubmittedMutex);
+  
   return NULL;
 }
 #endif
@@ -905,9 +912,9 @@ OOPTerminationTask::OOPTerminationTask (const OOPTerminationTask & term): OOPTas
 }
 
 OOPMReturnType OOPTerminationTask::Execute (){
-  TM->SetKeepGoing(false);  
-  LOGPZ_DEBUG (logger,"----------------------------------------------TM Finished\n");
-	return ESuccess;
+  TM->SetKeepGoing(false);
+  //LOGPZ_DEBUG (logger,"----------------------------------------------TM Finished\n");
+  return ESuccess;
 }
 
 void OOPTerminationTask::Write(TPZStream & buf, int withclassid){

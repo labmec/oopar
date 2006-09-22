@@ -1,10 +1,12 @@
+
 #include "ooptaskcontrol.h"
+
+
 #include "ooptask.h"
 #include "ooperror.h"
 #include "ooptaskmanager.h"
 
 #include <sstream>
-
 #include <pzlog.h>
 #ifdef LOGPZ
 using namespace log4cxx;
@@ -12,17 +14,30 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 #endif
 
+#ifdef OOP_MPI
+#include "mpi.h"
+#endif
+#ifdef OOP_MPE
+#include "mpe.h"
+#endif
+
 OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 {
+  m_MPEEvtStart = MPE_Log_get_event_number();
+  m_MPEEvtEnd = MPE_Log_get_event_number();
   fExecStarted = 0;
   fExecFinished = 0;
-	if (task) {
-		fDepend = task->GetDependencyList ();
-		fDepend.ClearPointers ();
-  fTaskId = task->Id();
-  fClassId = task->ClassId();
-  fDataDepend = task->Depend();
-	}
+  if (task) {
+    fDepend = task->GetDependencyList ();
+    fDepend.ClearPointers ();
+    fTaskId = task->Id();
+    fClassId = task->ClassId();
+    fDataDepend = task->Depend();
+    char title [256];
+    sprintf (title, "TaskId %d:%d : Class %d",fTaskId.GetId(), fTaskId.GetProcId(), fClassId);
+    MPE_Describe_state(m_MPEEvtStart, m_MPEEvtEnd, title, "blue");
+
+  }
 }
 
 OOPTaskControl::~OOPTaskControl ()
@@ -50,6 +65,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   stringstream sout;
 #endif  
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
+  MPE_Log_event(tc->m_MPEEvtStart, 0, NULL);
 #ifdef LOGPZ  
   {
     sout << "Task " << tc->fTask->Id() << " started";
@@ -78,6 +94,8 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   }
 #endif
   TM->Signal(lock);
+  MPE_Log_event(tc->m_MPEEvtEnd, 0, NULL);
+
   return 0;
 }
 

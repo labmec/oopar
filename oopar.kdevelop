@@ -9,7 +9,7 @@
     <ignoreparts/>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description/>
+    <description></description>
     <secondaryLanguages/>
   </general>
   <kdevautoproject>
@@ -42,14 +42,14 @@
         <f77compiler>kdevpgf77options</f77compiler>
         <cxxflags>-O0 -g3</cxxflags>
         <envvars/>
-        <topsourcedir/>
-        <cppflags>-DMPICH_IGNORE_CXX_SEEK</cppflags>
-        <ldflags/>
-        <ccompilerbinary>mpicc</ccompilerbinary>
-        <cxxcompilerbinary>mpicxx</cxxcompilerbinary>
-        <f77compilerbinary/>
-        <cflags/>
-        <f77flags/>
+        <topsourcedir></topsourcedir>
+        <cppflags></cppflags>
+        <ldflags></ldflags>
+        <ccompilerbinary></ccompilerbinary>
+        <cxxcompilerbinary></cxxcompilerbinary>
+        <f77compilerbinary></f77compilerbinary>
+        <cflags></cflags>
+        <f77flags></f77flags>
       </debug>
       <default>
         <envvars/>
@@ -101,11 +101,11 @@
   <kdevdebugger>
     <general>
       <dbgshell>libtool</dbgshell>
-      <programargs/>
-      <gdbpath/>
-      <configGdbScript/>
-      <runShellScript/>
-      <runGdbScript/>
+      <programargs></programargs>
+      <gdbpath></gdbpath>
+      <configGdbScript></configGdbScript>
+      <runShellScript></runShellScript>
+      <runGdbScript></runGdbScript>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -191,7 +191,7 @@
     </codecompletion>
     <references/>
     <creategettersetter>
-      <prefixGet/>
+      <prefixGet></prefixGet>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>

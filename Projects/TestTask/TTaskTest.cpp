@@ -22,5 +22,4 @@ void TTaskTest::Read(TPZStream & buf, void * context){
 	if(ClassId()!=clsid){
 		cout << "ClassId Missmatch\n";
 	}
-	cout << "My size is " << f_MySize << " bytes !\n";
 }

@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.38 2006-09-22 19:16:40 longhin Exp $
-// $Revision: 1.38 $
+// $Id: oopmpistorage.cpp,v 1.39 2006-09-26 14:31:01 longhin Exp $
+// $Revision: 1.39 $
 
 
 
@@ -45,6 +45,7 @@ using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMPIStorageBuffer"));
 #endif
+
       
 void OOPMPIStorageBuffer::ExpandBuffer (int more_dimension)
 {
@@ -231,7 +232,7 @@ bool OOPMPIStorageBuffer::TestReceive() {
 	if(!f_isreceiving) return false;
 	MPI_Status status;
 	int test_flag, ret_test;
-	ret_test=MPI_Test (&f_request, &test_flag, &status);
+	ret_test=PMPI_Test (&f_request, &test_flag, &status);
 #ifdef DEBUG
 /*	cout << "Test returned " << ret_test << endl;
 	cout << "Flag " << test_flag << endl;
@@ -262,7 +263,6 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 
 int OOPMPIStorageBuffer::ReceiveBlocking ()
 {
-	//f_buffr.resize(50000);
 	Receive();
 	if(TestReceive()) {
 		return 1;
@@ -270,13 +270,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 	}
 	
 	MPI_Status status;
-#ifdef DEBUG
-/*	cout << "Going to MPI_Wait\n";
-	cout << "PID" << getpid() << endl;
-	cout.flush();*/
-#endif
 	MPI_Wait(&f_request,&status);
-//	sleep(1);
 	return 1;
 	
 	//MPI_Status status;

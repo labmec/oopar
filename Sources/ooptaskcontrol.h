@@ -10,7 +10,14 @@ class   OOPTask;
  */
 class   OOPTaskControl
 {
+    /**
+     * Identifies an event for the associated OOPTask execution start 
+     */
     int m_MPEEvtStart;
+
+    /**
+     * Identifies an event for the associated OOPTask execution finish 
+     */
     int m_MPEEvtEnd;
 	/**
 	 * Pointer to the task object the taskcontrol reffers to.

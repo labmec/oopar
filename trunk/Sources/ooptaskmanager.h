@@ -8,29 +8,32 @@
 #include <list>
 #include <set>
 class OOPStorageBuffer;
-class   OOPDataVersion;
-class   OOPSaveable;
-class   OOPTaskControl;
+class OOPDataVersion;
+class OOPSaveable;
+class OOPTaskControl;
 using namespace std;
-class   OOPObjectId;
+class OOPObjectId;
 class TMLock;
 
-  struct SszQueues{
-    int fWaiting_sz;
-    int fExecabl_sz;
-    int fExecing_sz;
-    void set(int wait, int execab, int execing)
-    {
-      fWaiting_sz = wait;
-      fExecabl_sz = execab;
-      fExecing_sz = execing;
-    }
-    bool IsEqual(int wait, int execab, int execing)
-    {
-      if (execing != fExecing_sz || execab!=fExecabl_sz || wait!=fWaiting_sz) return false;
-      return true;
-    }
-  };
+struct SszQueues
+{
+  int fWaiting_sz;
+  int fExecabl_sz;
+  int fExecing_sz;
+  void set (int wait, int execab, int execing)
+  {
+    fWaiting_sz = wait;
+    fExecabl_sz = execab;
+    fExecing_sz = execing;
+  }
+  bool IsEqual (int wait, int execab, int execing)
+  {
+    if (execing != fExecing_sz || execab != fExecabl_sz
+	|| wait != fWaiting_sz)
+      return false;
+    return true;
+  }
+};
 
 /**
  * Implements the manager of tasks on the environment.
@@ -38,179 +41,180 @@ class TMLock;
  * Along with Communication Manager and Data Manager, Task Manager acts as daemon on all nodes
  * present on the environment.
  */
-class   OOPTaskManager
+class OOPTaskManager
 {
   friend class OOPTask;
-      public:
-  
+public:
 
-        /** Set max number of simultaneous threads.
-         */
-        void SetNumberOfThreads(const int n);
 
-        /** Get max number of simultaneous threads.
-         */
-        int NumberOfThreads();
-         
-	void Wait();		  
-	/**
-	 * Sets the KeepGoing flag which will control the TM Execute method
-	 */
-	void SetKeepGoing(bool go);
+  /**
+   * Set max number of simultaneous threads.
+   */
+  void SetNumberOfThreads (const int n);
 
-	/**
-	 * Print TM task queues
-	 */
-	void PrintTaskQueues(char * msg, std::ostream & out);
-	/**
-	 * Print TaskManager data structure
-	 */	  
-	void    Print (std::ostream & out);
+  /**
+   * Get max number of simultaneous threads.
+   */
+  int NumberOfThreads ();
+
+  void Wait ();
+  /**
+   * Sets the KeepGoing flag which will control the TM Execute method
+   */
+  void SetKeepGoing (bool go);
+
+  /**
+   * Print TM task queues
+   */
+  void PrintTaskQueues (char *msg, std::ostream & out);
+  /**
+   * Print TaskManager data structure
+   */
+  void Print (std::ostream & out);
   /**
    * Checks for the existence for obselete tasks on the task manager list
    */
-	void    CleanUpTasks ();
+  void CleanUpTasks ();
   /**
    * Used for testing purposes.
    * Checks all the public interfaces of the class
    */
-	static void main ();
+  static void main ();
   /**
-     * Notifies the task that a required access was granted on the data.
+   * Notifies the task that a required access was granted on the data.
    * @param TaskId Id of the task to which the access was granted.
    * @param depend dependency structure including objectid, state and version.
    * @param objptr Pointer to data object.
    */
-	void    NotifyAccessGranted (const OOPObjectId & TaskId,
-				     const OOPMDataDepend & depend,
-				     OOPMetaData * objptr);
+  void NotifyAccessGranted (const OOPObjectId & TaskId,
+			    const OOPMDataDepend & depend,
+			    OOPMetaData * objptr);
   /**
-     * Notifies the task that a required access was revoked on the data.
+   * Notifies the task that a required access was revoked on the data.
    * @param TaskId Id of the task to which the access was granted.
    * @param depend dependency structure including objectid, state and version.
    */
-	void    RevokeAccess (const OOPObjectId & TaskId,
-			      const OOPMDataDepend & depend);
+  void RevokeAccess (const OOPObjectId & TaskId,
+		     const OOPMDataDepend & depend);
   /**
    * Constructor passing processor id as parameter.
    * @param proc Processor where the TM is created.
    */
-	        OOPTaskManager (int proc);
+    OOPTaskManager (int proc);
   /**
    * Simple destructor
    */
-	       ~OOPTaskManager ();
+   ~OOPTaskManager ();
   /**
    * Submits a task to the TaskManager.
    * Assigns to that task a unique Id on the environment.
    * @param task Pointer to the submitted task.
    */
-      protected:
-	OOPObjectId Submit (OOPTask * task);
-      public:
+protected:
+    OOPObjectId Submit (OOPTask * task);
+public:
   /**
    * Submits a daemon task to the TaskManager.
    * @param task Pointer to the submitted task.
    */
-	void SubmitDaemon (OOPDaemonTask * task);
+  void SubmitDaemon (OOPDaemonTask * task);
   /**
    * Returns the number tasks currently being managed by this data manager
    */
-	int     NumberOfTasks ();
+  int NumberOfTasks ();
   /**
    * Returns true if there is a chance of finding an executable task
    */
-	bool  HasWorkTodo ();
+  bool HasWorkTodo ();
   /**
    * Returns the total number of task on the environment.
    */
-	int     GlobalNumberOfTasks ();
+  int GlobalNumberOfTasks ();
   /**
    * Changes the priority of the task identified by Id.
    * @param Id Id of the task having its priority changed.
    * @param newpriority New priority assigned to the task.
    */
-	int     ChangePriority (OOPObjectId & Id, int newpriority);
+  int ChangePriority (OOPObjectId & Id, int newpriority);
   /**
    * Cancels the task.
    * @param taskid Id of task which will be canceled.
    */
-	int     CancelTask (OOPObjectId taskid);
+  int CancelTask (OOPObjectId taskid);
   /**
    * Returns 1 if task does exist on the current TM
    * @param taskid Id of the searched task
    */
-	int     ExistsTask (OOPObjectId taskid);	// returns 1 if the
-	// task
-	// exists
-	void TransferExecutingTasks();
+  int ExistsTask (OOPObjectId taskid);	// returns 1 if the
+
+  void TransferExecutingTasks ();
   /**
    * Transfer the tasks which are in the fSubmittedList to the
    * fTaskList, registering their dependencies
    */
-	void    TransferSubmittedTasks ();
+  void TransferSubmittedTasks ();
   /**
    * Transfer the finished tasks to the tasklist if they are recurrent
    * else delete the finished tasks
    */
-	void    TransferFinishedTasks ();
+  void TransferFinishedTasks ();
   /**
    * Indicate to the TaskManager that a given task can execute
    */
-	void    TransfertoExecutable (const OOPObjectId & taskid);
+  void TransfertoExecutable (const OOPObjectId & taskid);
   /**
    * Execute all daemons which are in the list
    */
-	void ExecuteDaemons();
+  void ExecuteDaemons ();
   /**
    * Very important method for the whole OOPar environment.
    * Starts all task which has their data access requests granted from the DM.
    * At least one call to one of the task managers should performed for the OOPar to start.
    */
-	void    Execute ();
-	static void * ReceiveMessages(void * data);
-	
-	static void * ExecuteMT(void * data);
+  void Execute ();
+  static void *ReceiveMessages (void *data);
 
-        /**
-         * This method will grab the fSubmittedMutex
-         */
-        void Lock(TMLock &obj);
-        /**
-         * This method will signal the condition variable
-         */
-        void Signal(TMLock &obj);
-        /**
-         * This method will release the fSubmittedMutex
-         */
-        void Unlock(TMLock &obj);
+  static void *ExecuteMT (void *data);
+
+  /**
+   * This method will grab the fSubmittedMutex
+   */
+  void Lock (TMLock & obj);
+  /**
+   * This method will signal the condition variable
+   */
+  void Signal (TMLock & obj);
+  /**
+   * This method will release the fSubmittedMutex
+   */
+  void Unlock (TMLock & obj);
 private:
 
   /** Max number of threads
    */
   int fNumberOfThreads;
-  
+
   /**
   thread which is the main execution loop of the task manager
   */
-	pthread_t fExecuteThread;
+  pthread_t fExecuteThread;
   /**
  thread which owns the lock
    */
- pthread_t fLockThread;
+  pthread_t fLockThread;
 
-	/**
-	 * Indicates if TM must continue its processing
-	 */
-	bool fKeepGoing;
+  /**
+   * Indicates if TM must continue its processing
+   */
+  bool fKeepGoing;
   /**
    * Mutual exclusion locks for adding tasks to the submission task list.
    */
-	/**
-	 * Mutual exclusion lock for the fSubmittedList queue
-	 */
-	pthread_mutex_t fSubmittedMutex;
-  
+  /**
+   * Mutual exclusion lock for the fSubmittedList queue
+   */
+  pthread_mutex_t fSubmittedMutex;
+
   /**
   * Condition variable to put the taskmanager thread to sleep
   */
@@ -223,120 +227,122 @@ private:
   /**
    * Generate a unique id number
    */
-	OOPObjectId GenerateId ();
+  OOPObjectId GenerateId ();
   /**
    * Find the task with the given id.
    */
-	OOPTask *FindTask (OOPObjectId taskid);	// 
+  OOPTask *FindTask (OOPObjectId taskid);	// 
   /**
    * reorder the tasks according to their priority
    */
-	void    Reschedule ();
+  void Reschedule ();
   /**
    * Processor where the current object is located
    */
-	int     fProc;
+  int fProc;
   /**
    * Counter for number of objects assigned to this manager.
    * Whenever a new task is assigned, fLastCreated is incremented.
    */
-	long    fLastCreated;
+  long fLastCreated;
   /**
    * Maximum number of generated Id.
    */
-//	long    fMaxId;
-	int fReceiveThreadCreated;
+  int fReceiveThreadCreated;
   /**
    * List of tasks which can't be executed yet
    */
-   list < OOPTaskControl * >fTaskList;
+  list < OOPTaskControl * >fTaskList;
   /**
    * List of tasks which can be readily executed
    */
-	        list < OOPTaskControl * >fExecutable;
-			list <OOPTaskControl * >fExecuting;
-			
-	/**
+  list < OOPTaskControl * >fExecutable;
+  list < OOPTaskControl * >fExecuting;
+
+  /**
    * List of daemon tasks which can be readily executed
    */
-	        list < OOPDaemonTask * >fDaemon;
+  list < OOPDaemonTask * >fDaemon;
   /**
    * List of tasks recently submitted
    */
-	        list < OOPTask * >fSubmittedList;
+  list < OOPTask * >fSubmittedList;
   /**
    * List of finished tasks
    */
-	        list < OOPTaskControl * >fFinished;
+  list < OOPTaskControl * >fFinished;
 };
 
 /**
  * Class which implements a lock on the task manager data structure
  */
- class TMLock
+class TMLock
 {
 public:
   /**
    * This method will grab the mutex of the task manager
    */
-  TMLock();
+  TMLock ();
 
   /**
    * The destructor will release the mutex
    */
-  ~TMLock();
+  ~TMLock ();
 
   /**
    * This method will signal the condition of the task manager
    */
-  void Signal();
-}; 
+  void Signal ();
+};
 
 /**
  * Implements a task which will be registered as a daemon
  */
-class   OOPTMTask:public OOPDaemonTask
+class OOPTMTask:public OOPDaemonTask
 {
 public:
 
-	OOPTMTask();
-	~OOPTMTask();
+  OOPTMTask ();
+  ~OOPTMTask ();
   /**
    * Simple constructor
    */
-	OOPTMTask (int ProcId);
+  OOPTMTask (int ProcId);
 private:
   /**
    * Returns execution type
    */
-	OOPMReturnType Execute ();
+  OOPMReturnType Execute ();
 
 };
 
 class OOPTerminationTask:public OOPTask
 {
 public:
-	~OOPTerminationTask();
-	/**
+  ~OOPTerminationTask ();
+  /**
    * Simple constructor
    */
-	OOPTerminationTask(){} 
-	OOPTerminationTask (int ProcId);
-	OOPTerminationTask (const OOPTerminationTask & term);
+  OOPTerminationTask ()
+  {
+  }
+  OOPTerminationTask (int ProcId);
+  OOPTerminationTask (const OOPTerminationTask & term);
   /**
    * Returns execution type
    */
-	OOPMReturnType Execute ();
-	virtual int ClassId () const{
-		return TTERMINATIONTASK_ID;
-	}
-		;
-	void Write(TPZStream & buf, int withclassid);
-	void Read(TPZStream & buf, void * context = 0);
-	long int ExecTime();
-	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
+  OOPMReturnType Execute ();
+  virtual int ClassId () const
+  {
+    return TTERMINATIONTASK_ID;
+  }
+   ;
+  void Write (TPZStream & buf, int withclassid);
+  void Read (TPZStream & buf, void *context = 0);
+  long int ExecTime ();
+  static TPZSaveable *Restore (TPZStream & buf, void *context = 0);
 };
-template class TPZRestoreClass<OOPTerminationTask,TTERMINATIONTASK_ID>;
+template class TPZRestoreClass < OOPTerminationTask, TTERMINATIONTASK_ID >;
 
 /*
   enum TTMMessageType {

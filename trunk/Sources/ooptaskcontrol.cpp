@@ -14,6 +14,8 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 #endif
 
+#include "oopcommmanager.h"
+
 #ifdef OOP_MPI
 #include "mpi.h"
 #endif
@@ -23,8 +25,11 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 
 OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 {
-  m_MPEEvtStart = MPE_Log_get_event_number();
-  m_MPEEvtEnd = MPE_Log_get_event_number();
+  //m_MPEEvtStart1 = MPE_Log_get_event_number();
+  //m_MPEEvtEnd1 = MPE_Log_get_event_number();
+   MPE_Log_get_solo_eventID( &m_MPEEvtStart );
+   MPE_Log_get_solo_eventID( &m_MPEEvtEnd );
+ 
   fExecStarted = 0;
   fExecFinished = 0;
   if (task) {
@@ -35,7 +40,15 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
     fDataDepend = task->Depend();
     char title [256];
     sprintf (title, "TaskId %d:%d : Class %d",fTaskId.GetId(), fTaskId.GetProcId(), fClassId);
-    MPE_Describe_state(m_MPEEvtStart, m_MPEEvtEnd, title, "blue");
+    if(CM->GetProcID() == 0){ 
+      //MPE_Describe_state(m_MPEEvtStart1, m_MPEEvtEnd1, title, "blue");
+      MPE_Describe_comm_event( MPI_COMM_WORLD, 20,
+                             m_MPEEvtStart,
+                             "Inicio", "green",
+                             "%s" );
+      //MPE_Describe_event(m_MPEEvtStart, "Inicio ", "green");
+      MPE_Describe_event(m_MPEEvtEnd, "Final ", "red");
+    }
 
   }
 }
@@ -59,13 +72,20 @@ void OOPTaskControl::Execute()
   }
 }
 
+extern MPEU_DLL_SPEC       CLOG_CommSet_t  *CLOG_CommSet;
+extern               const CLOG_CommIDs_t  *CLOG_CommIDs4Self;
+extern MPEU_DLL_SPEC const CLOG_CommIDs_t  *CLOG_CommIDs4World;
+
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
 #ifdef LOGPZ
   stringstream sout;
 #endif  
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
-  MPE_Log_event(tc->m_MPEEvtStart, 0, NULL);
+  char tentativa[1000] = "  Eu sou muito foda";
+  tentativa[1]=strlen(tentativa)-2;
+  tentativa[0]=0x00;
+  MPE_Log_event(tc->m_MPEEvtStart, 0, (char*)&tentativa[0]);
 #ifdef LOGPZ  
   {
     sout << "Task " << tc->fTask->Id() << " started";
@@ -79,6 +99,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   OOPObjectId id = tc->fTask->Id();
   if (!tc->fTask->IsRecurrent())
   {
+
     delete tc->fTask;
     tc->fTask=0;
   }
@@ -94,7 +115,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   }
 #endif
   TM->Signal(lock);
-  MPE_Log_event(tc->m_MPEEvtEnd, 0, NULL);
+  MPE_Log_event(tc->m_MPEEvtEnd, 0, "sst\0");
 
   return 0;
 }

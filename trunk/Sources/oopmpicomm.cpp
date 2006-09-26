@@ -13,11 +13,7 @@
 //
 
 #include "mpi.h"
-//#include "communic.h"
 #include <stdio.h>
-//#include <stdlib.h>
-
-//#include "mpe.h"
 
 #include <string>
 #include <pthread.h>

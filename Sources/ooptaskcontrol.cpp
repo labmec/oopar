@@ -55,21 +55,21 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 
 OOPTaskControl::~OOPTaskControl ()
 {
-  if (fTask) delete  fTask;
+	if (fTask) delete  fTask;
 }
 
 void OOPTaskControl::Execute()
 {
-//  static int numthreads = 0;
-//  cout << __FUNCTION__ << " creating trhead number " << numthreads++ << " max threads " << PTHREAD_THREADS_MAX << endl;
-  if(pthread_create(&fExecutor, NULL, ThreadExec, this)){
+	//  static int numthreads = 0;
+	//  cout << __FUNCTION__ << " creating trhead number " << numthreads++ << " max threads " << PTHREAD_THREADS_MAX << endl;
+	if(pthread_create(&fExecutor, NULL, ThreadExec, this)){
 #ifdef LOGPZ  
-    stringstream sout;
-    sout << "Fail to create service thread -- ";
-    sout << "Going out";
-    LOGPZ_DEBUG(logger,sout.str());
+		stringstream sout;
+		sout << "Fail to create service thread -- ";
+		sout << "Going out";
+		LOGPZ_DEBUG(logger,sout.str());
 #endif    
-  }
+	}
 }
 
 extern MPEU_DLL_SPEC       CLOG_CommSet_t  *CLOG_CommSet;
@@ -79,7 +79,7 @@ extern MPEU_DLL_SPEC const CLOG_CommIDs_t  *CLOG_CommIDs4World;
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
 #ifdef LOGPZ
-  stringstream sout;
+	stringstream sout;
 #endif  
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
   char tentativa[1000] = "  Eu sou muito foda";
@@ -87,10 +87,10 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   tentativa[0]=0x00;
   MPE_Log_event(tc->m_MPEEvtStart, 0, (char*)&tentativa[0]);
 #ifdef LOGPZ  
-  {
-    sout << "Task " << tc->fTask->Id() << " started";
-    LOGPZ_DEBUG(logger,sout.str());
-  }
+	{
+		sout << "Task " << tc->fTask->Id() << " started";
+		LOGPZ_DEBUG(logger,sout.str());
+	}
 #endif  
   tc->fExecStarted = 1;
   tc->fTask->Execute();
@@ -109,10 +109,10 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   //tc->fTask->SetExecuting(false);
   tc->fExecFinished =1;
 #ifdef LOGPZ
-  {
-    sout << "Task " << id << " finished";
-    LOGPZ_DEBUG(logger,sout.str());
-  }
+	{
+		sout << "Task " << id << " finished";
+		LOGPZ_DEBUG(logger,sout.str());
+	}
 #endif
   TM->Signal(lock);
   MPE_Log_event(tc->m_MPEEvtEnd, 0, "sst\0");
@@ -122,24 +122,24 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
 
 void OOPTaskControl::Join()
 {
-  if(fExecutor == pthread_self())
-  {
+	if(fExecutor == pthread_self())
+	{
 #ifdef LOGPZ    
-    stringstream sout;
-    sout << __FUNCTION__ << " called by the taskcontrol object itself";
-    LOGPZ_DEBUG(logger,sout.str());
+		stringstream sout;
+		sout << __FUNCTION__ << " called by the taskcontrol object itself";
+		LOGPZ_DEBUG(logger,sout.str());
 #endif    
-    return;
-  }
-  void *execptr;
-  void **executorresultptr = &execptr;
-  int result = pthread_join(fExecutor,executorresultptr);
-  if(result)
-  {
+		return;
+	}
+	void *execptr;
+	void **executorresultptr = &execptr;
+	int result = pthread_join(fExecutor,executorresultptr);
+	if(result)
+	{
 #ifdef LOGPZ    
-    stringstream sout;
-    sout << __FUNCTION__ << __LINE__ << " join operation failed with result " << result;
-    LOGPZ_DEBUG(logger,sout.str());
+		stringstream sout;
+		sout << __FUNCTION__ << __LINE__ << " join operation failed with result " << result;
+		LOGPZ_DEBUG(logger,sout.str());
 #endif
-  }
+	}
 }

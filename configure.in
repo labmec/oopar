@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.19 2006-10-02 15:29:08 tiago Exp $
+dnl $Id: configure.in,v 1.20 2006-10-02 23:52:36 longhin Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ dnl ----------------------------------------------------------------------------
 dnl                              ENABLE LOG4CXX?
 dnl ----------------------------------------------------------------------------
 
-AC_ARG_ENABLE(mpi,
+AC_ARG_ENABLE(log4cxx,
   [  --enable-log4cxx=no      Enables the use of LOG4CXX [default=no]],
   [log4cxx_enabled=$enableval],
   [log4cxx_enabled="no"])
@@ -163,11 +163,13 @@ case "${log4cxx_enabled}" in
   yes)
     echo "Enabling log4cxx code."
     USING_LOG4CXX="-DLOG4CXX -DLOGPZ"
+    LOG4CXX_LIB="-llog4cxx"
 	
   ;;
   no)
     echo "log4cxx not chosen."
     USING_LOG4CXX=""
+    LOG4CXX_LIB=""
 	
   ;;
   *)
@@ -176,6 +178,8 @@ case "${log4cxx_enabled}" in
 esac
 
 AC_SUBST(USING_LOG4CXX)
+AC_SUBST(LOG4CXX_LIB)
+
 
 dnl ----------------------------------------------------------------------------
 dnl                               LOG4CXX LOCATION
@@ -190,13 +194,11 @@ AC_ARG_WITH(log4cxx-dir,
   LOG4CXX_DIR=$log4cxx_dir
   LOG4CXX_INCLUDE="-I$LOG4CXX_DIR/include"
   LOG4CXX_LIBDIR="-L$LOG4CXX_DIR/lib"
-  LOG4CXX_LIB="-llog4cxx"
   LOG4CXX_FLAG="-DLOG4CXX"
 
 AC_SUBST(LOG4CXX_DIR)
 AC_SUBST(LOG4CXX_INCLUDE)
 AC_SUBST(LOG4CXX_LIBDIR)
-AC_SUBST(LOG4CXX_LIB)
 AC_SUBST(LOG4CXX_SOURCE)
 
 

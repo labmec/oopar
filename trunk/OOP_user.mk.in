@@ -3,7 +3,7 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: OOP_user.mk.in,v 1.7 2006-09-13 01:58:00 longhin Exp $
+# $Id: OOP_user.mk.in,v 1.8 2006-10-02 14:36:19 tiago Exp $
 #
 
 include @PZ_DIR@/PZ_user.mk
@@ -15,12 +15,12 @@ include @PZ_DIR@/PZ_user.mk
 
 #OOP_CXXFLAGS = @OOP_CXXFLAGS@ @USING_MPI@ @USING_MPILAM@ @USING_SLOAN@ @LOG4CXX_DEF@
 
-OOP_INCLUDES = -I@prefix@/include/oopar @MPEINCLUDE@ @MPIINCLUDE@ @MPILAMINCLUDE@ $(PZ_INCLUDES)
+OOP_INCLUDES = -I@prefix@/include/oopar @MPEINCLUDE@ @MPIINCLUDE@ @MPILAMINCLUDE@ $(PZ_INCLUDES) @LOG4CXX_INCLUDE@
 
-OOP_LIBDIR = -L@prefix@/lib @MPELIBDIR@ @MPILIBDIR@ @MPILAMLIBDIR@ $(PZ_LIBDIR)
-OOP_LIB = -loopar @MPELIB@ @MPILIB@ @MPILAMLIB@ $(PZ_LIB) -lpthread
+OOP_LIBDIR = -L@prefix@/lib @MPELIBDIR@ @MPILIBDIR@ @MPILAMLIBDIR@ $(PZ_LIBDIR) @LOG4CXX_LIBDIR@
+OOP_LIB = -loopar @MPELIB@ @MPILIB@ @MPILAMLIB@ $(PZ_LIB) -lpthread @LOG4CXX_LIB@
 
-OOP_CXXFLAGS = $(PZ_CXXFLAGS) @USING_MPI@ @USING_MPILAM@ @USING_SLOAN@ @USING_MPE@
+OOP_CXXFLAGS = $(PZ_CXXFLAGS) @USING_MPI@ @USING_MPILAM@ @USING_SLOAN@ @USING_MPE@ @USING_LOG4CXX@
 
 
 ## --| NeoPZ |------------------------------------------------------------------

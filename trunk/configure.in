@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.18 2006-10-02 14:36:43 tiago Exp $
+dnl $Id: configure.in,v 1.19 2006-10-02 15:29:08 tiago Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -162,7 +162,7 @@ AC_ARG_ENABLE(mpi,
 case "${log4cxx_enabled}" in
   yes)
     echo "Enabling log4cxx code."
-    USING_LOG4CXX="-DLOG4CXX"
+    USING_LOG4CXX="-DLOG4CXX -DLOGPZ"
 	
   ;;
   no)

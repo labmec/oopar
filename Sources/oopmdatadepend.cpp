@@ -33,6 +33,19 @@ OOPMDataDepend::OOPMDataDepend (const::OOPMDataDepend & dd)
 	fVersion = dd.fVersion;
 	fObjPtr = dd.fObjPtr;
 }
+
+   /**
+    *  operator = to copy the content
+    */
+OOPMDataDepend &OOPMDataDepend::operator=(const OOPMDataDepend &copy)
+{
+	fDataId = copy.fDataId;
+	fNeed = copy.fNeed;
+	fVersion = copy.fVersion;
+	fObjPtr = copy.fObjPtr;
+	return *this;
+}
+
 OOPMetaData *OOPMDataDepend::ObjPtr ()
 {
 	return fObjPtr;
@@ -180,7 +193,7 @@ void OOPMDataDependList::Print (std::ostream & out)
 	out << "OOPMDataDependList printout\n";
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
-		i->ShortPrint (out) << endl;
+		i->ShortPrint (out) << " status " << i->Status() << endl;
 	}
 }
 int OOPMDataDependList::NElements ()
@@ -218,6 +231,8 @@ void OOPMDataDependList::GrantAccess (const OOPMDataDepend & depend, OOPMetaData
     stringstream sout;
     sout << "OOPMDataDepend::GrantAccess didn't find the corresponding dependency : ";
     depend.ShortPrint (sout);
+    sout << std::endl << "My dependency list " << std::endl;
+    Print(sout);
     LOGPZ_ERROR(logger,sout.str());
 #endif    
   }

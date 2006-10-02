@@ -23,6 +23,10 @@ class   OOPMDataDepend
    * Operator overloaded
    */
    bool    operator == (const OOPMDataDepend & dd) const;
+   /**
+    *  operator = to copy the content
+    */
+    OOPMDataDepend &operator=(const OOPMDataDepend &copy);
   /**
    * Copy constructor
    */

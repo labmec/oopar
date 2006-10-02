@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.40 2006-10-01 13:50:24 longhin Exp $
-// $Revision: 1.40 $
+// $Author: tiago $
+// $Id: oopmpistorage.cpp,v 1.41 2006-10-02 19:56:33 tiago Exp $
+// $Revision: 1.41 $
 
 
 
@@ -269,6 +269,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 	}
 	
 	MPI_Status status;
+	//Isso aqui
 	MPI_Wait(&f_request,&status);
 	return 1;
 	

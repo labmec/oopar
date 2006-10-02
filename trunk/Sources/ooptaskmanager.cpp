@@ -95,9 +95,12 @@ OOPTaskManager::TransferExecutingTasks ()
       LOGPZ_ERROR (logger, sout.str ());
 #endif
     }
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
 
     //pthread_mutex_unlock(&fExecutingMutex);
     if (isfinished) {
+/*      cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ <<
+      " taskid " << auxtc->Id() <<  endl;*/
       auxtc->Join ();
 #ifdef LOGPZ
       stringstream sout;
@@ -162,11 +165,15 @@ OOPTaskManager::ExecuteMT (void *data)
   lTM->fKeepGoing = true;
   lTM->ExecuteDaemons ();
   while (lTM->fKeepGoing) {
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     CM->ReceiveMessages ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->ExecuteDaemons ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     while (lTM->fExecutable.size ()
 	   && (int) lTM->fExecuting.size () < lTM->fNumberOfThreads) {
       i = lTM->fExecutable.begin ();
+//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
       OOPTaskControl *tc = (*i);
       lTM->fExecutable.erase (i);
       lTM->fExecuting.push_back (tc);
@@ -179,16 +186,25 @@ OOPTaskManager::ExecuteMT (void *data)
 	LOGPZ_DEBUG (tasklogger, sout.str ());
       }
 #endif
+//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
       tc->Execute ();
+//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
       lTM->TransferExecutingTasks ();
+//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
       DM->SubmitAllObjects ();
     }
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->TransferExecutingTasks ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->TransferFinishedTasks ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     CM->ReceiveMessages ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
 
     lTM->TransferSubmittedTasks ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     CM->SendMessages ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->ExecuteDaemons ();
     //wait
 
@@ -232,6 +248,13 @@ OOPTaskManager::ExecuteMT (void *data)
 	pthread_cond_timedwait (&lTM->fExecuteCondition,
 				&lTM->fSubmittedMutex, &next);
       } else {
+#ifdef LOGPZ
+      {
+        std::stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " going to sleep";
+        LOGPZ_DEBUG(tasklogger,sout.str().c_str());
+      }
+#endif
 	pthread_cond_wait (&lTM->fExecuteCondition, &lTM->fSubmittedMutex);
       }
     }
@@ -513,11 +536,15 @@ OOPTaskManager::HasWorkTodo ()
 #endif
     return false;
   }
-/*  cout << __PRETTY_FUNCTION__ <<  "\n\t" <<fExecutable.size()
-      << "\t" << fFinished.size () << "\t" << fSubmittedList.size () << "\t" << fDaemon.size() << endl;*/
+//   cout << __PRETTY_FUNCTION__ <<  "\n\t" <<fExecutable.size()
+//       << "\t" << fFinished.size () << "\t" << fSubmittedList.size () << "\t" << fDaemon.size() << endl;
   int numtasks = fFinished.size () + fSubmittedList.size () + fDaemon.size ();
   if (fExecuting.size () != fNumberOfThreads && fExecutable.size ())
+  {
     numtasks++;
+  }
+//   cout << "numtasks = " << numtasks << " fExecuting.size " << fExecuting.size() <<
+//   " fExecutable.size() " << fExecutable.size() << endl;
   return numtasks != 0;
 }
 
@@ -787,13 +814,21 @@ OOPTaskManager::TransferFinishedTasks ()
 	LOGPZ_DEBUG (tasklogger, sout.str ());
       }
 #endif
-      auxtc->Depend () = auxtc->Task ()->GetDependencyList ();
       auxtc->Task ()->Depend ().ClearPointers ();
+      auxtc->Depend () = auxtc->Task ()->GetDependencyList ();
       fTaskList.push_back (auxtc);
       if (auxtc->Depend ().SubmitDependencyList (auxtc->Task ()->Id ())) {
 	// their is no incompatibility between
 	// versions
       } else {
+#ifdef LOGPZ
+        {
+          stringstream sout;
+          sout << __PRETTY_FUNCTION__ << " task " << auxtc->
+            Id () << " classid " << auxtc->ClassId () << " is canceled";
+          LOGPZ_ERROR (tasklogger, sout.str ());
+        }
+#endif
 	// there is an incompatibility of versions
 	CancelTask (auxtc->Task ()->Id ());
       }
@@ -971,7 +1006,7 @@ void
 OOPTaskManager::Signal (TMLock & lock)
 {
   if (fLock != &lock) {
-    //std::cout << __PRETTY_FUNCTION__ << " Signal called for the wrong lock object\n";
+    std::cout << __PRETTY_FUNCTION__ << " Signal called for the wrong lock object\n";
     return;
   }
   pthread_cond_signal (&fExecuteCondition);
@@ -979,14 +1014,14 @@ OOPTaskManager::Signal (TMLock & lock)
 
 TMLock::TMLock ()
 {
-  //std::cout <<  __PRETTY_FUNCTION__ << " LOCK called\n";
+//   std::cout <<  __PRETTY_FUNCTION__ << " LOCK called\n";
   TM->Lock (*this);
-  //std::cout <<  __PRETTY_FUNCTION__ << " LOCK acquired\n";
+//   std::cout <<  __PRETTY_FUNCTION__ << " LOCK acquired\n";
 }
 
 TMLock::~TMLock ()
 {
-  //std::cout <<  __PRETTY_FUNCTION__ << " UNLOCK will be called\n";
+//   std::cout <<  __PRETTY_FUNCTION__ << " UNLOCK will be called\n";
   TM->Unlock (*this);
 }
 

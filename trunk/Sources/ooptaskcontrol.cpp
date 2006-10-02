@@ -60,6 +60,7 @@ OOPTaskControl::~OOPTaskControl ()
 
 void OOPTaskControl::Execute()
 {
+  fExecFinished =0;
 	//  static int numthreads = 0;
 	//  cout << __FUNCTION__ << " creating trhead number " << numthreads++ << " max threads " << PTHREAD_THREADS_MAX << endl;
 	if(pthread_create(&fExecutor, NULL, ThreadExec, this)){
@@ -79,8 +80,7 @@ extern MPEU_DLL_SPEC const CLOG_CommIDs_t  *CLOG_CommIDs4World;
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
 #ifdef LOGPZ
-	stringstream sout;
-#endif  
+#endif
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
   char tentativa[1000] = "  Eu sou muito foda";
   tentativa[1]=strlen(tentativa)-2;
@@ -88,6 +88,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   MPE_Log_event(tc->m_MPEEvtStart, 0, (char*)&tentativa[0]);
 #ifdef LOGPZ  
 	{
+                stringstream sout;
 		sout << "Task " << tc->fTask->Id() << " started";
 		LOGPZ_DEBUG(logger,sout.str());
 	}
@@ -103,6 +104,13 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
     delete tc->fTask;
     tc->fTask=0;
   }
+#ifdef LOGPZ
+	{
+		stringstream sout;
+		sout << "Task " << id << " finished before lock";
+		LOGPZ_DEBUG(logger,sout.str());
+	}
+#endif
 
   TMLock lock;
   //cout << __PRETTY_FUNCTION__ << " after lock for task" << tc->fTask->Id() << endl;
@@ -110,6 +118,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   tc->fExecFinished =1;
 #ifdef LOGPZ
 	{
+		stringstream sout;
 		sout << "Task " << id << " finished";
 		LOGPZ_DEBUG(logger,sout.str());
 	}

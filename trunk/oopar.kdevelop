@@ -35,19 +35,19 @@
         <cxxflags>-O2 -g0</cxxflags>
       </optimized>
       <debug>
-        <configargs>--enable-debug=full --enable-mpi=yes --with-mpi-dir=/home/longhin/Projetos/MPIDebug --with-pz-dir=/home/longhin/Projetos/PZInstall --enable-mpe=yes --enable-pz=yes --prefix=/home/longhin/Projetos/OOParInstall</configargs>
+        <configargs>--enable-debug=full --enable-mpi=yes --with-mpi-dir=/home/cluster/proj/proj076/longhin/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=/home/cluster/proj/proj076/fortiago/Embraer/apps64/pz --enable-mpe=yes --prefix=/home/cluster/proj/proj076/fortiago/Embraer/apps64/ooparnovo --with-log4cxx-dir=/home/cluster/proj/proj076/fortiago/Embraer/apps64 --enable-log4cxx=yes</configargs>
         <builddir>debug</builddir>
         <ccompiler>kdevgccoptions</ccompiler>
         <cxxcompiler>kdevgppoptions</cxxcompiler>
         <f77compiler>kdevpgf77options</f77compiler>
-        <cxxflags>-O0 -g3</cxxflags>
+        <cxxflags>-no-inline -O0 -g3</cxxflags>
         <envvars/>
         <topsourcedir></topsourcedir>
-        <cppflags></cppflags>
+        <cppflags>-DMPICH_IGNORE_CXX_SEEK -m64 </cppflags>
         <ldflags></ldflags>
-        <ccompilerbinary></ccompilerbinary>
-        <cxxcompilerbinary></cxxcompilerbinary>
-        <f77compilerbinary></f77compilerbinary>
+        <ccompilerbinary>/home/cluster/proj/proj076/longhin/Projetos/MPIDebug/bin/mpicc</ccompilerbinary>
+        <cxxcompilerbinary>/home/cluster/proj/proj076/longhin/Projetos/MPIDebug/bin/mpicxx</cxxcompilerbinary>
+        <f77compilerbinary>/home/cluster/proj/proj076/longhin/Projetos/MPIDebug/bin/mpif77</f77compilerbinary>
         <cflags></cflags>
         <f77flags></f77flags>
       </debug>
@@ -191,7 +191,7 @@
     </codecompletion>
     <references/>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>

@@ -2,7 +2,35 @@
 #ifndef OOPTASKCONTROLH
 #define OOPTASKCONTROLH
 class   OOPTask;
+
+
+
 #include "oopmdatadepend.h"
+
+#ifdef OOP_MPE
+#include <map>
+#include <set>
+class OOPEvtId{
+public:
+  OOPEvtId();
+  int f_EvtStart;
+  int f_EvtEnd;
+  int f_StateExecuting;
+  void Print(ostream & out = cout);  
+};
+class OOPEvtManager{
+public:
+  OOPEvtManager();
+  void GetEvtIdAndIndex(int & index, OOPEvtId & Evt);
+  
+  void ReleaseEvtIdIndex(int index);
+private:
+  set<int> m_Avail;
+  set<int> m_Used;
+  map<int, OOPEvtId> m_Evts;
+};
+#endif
+
 /**
  * class which encapsulates a task object and data dependency structure.
  * The main idea is to separate the data dependency structure from the task.
@@ -10,6 +38,9 @@ class   OOPTask;
  */
 class   OOPTaskControl
 {
+  static OOPEvtManager s_EvtMan;
+  OOPEvtId m_EvtId;
+  int m_EvtIdIndex;
     /**
      * Identifies an event for the associated OOPTask execution start 
      */
@@ -20,8 +51,8 @@ class   OOPTaskControl
      */
     int m_MPEEvtEnd;
 	/**
-	 * Pointer to the task object the taskcontrol reffers to.
-	 */
+	* Pointer to the task object the taskcontrol reffers to.
+	*/
 	OOPTask *fTask;
 
  /////////////////////////////////////Task Data////////////////////////////////////////

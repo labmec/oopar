@@ -23,12 +23,17 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 #include "mpe.h"
 #endif
 
+OOPEvtManager OOPTaskControl::s_EvtMan;
+
 OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 {
   //m_MPEEvtStart1 = MPE_Log_get_event_number();
   //m_MPEEvtEnd1 = MPE_Log_get_event_number();
-   MPE_Log_get_solo_eventID( &m_MPEEvtStart );
-   MPE_Log_get_solo_eventID( &m_MPEEvtEnd );
+   //Phil MPE_Log_get_solo_eventID( &m_MPEEvtStart );
+   //Phil MPE_Log_get_solo_eventID( &m_MPEEvtEnd );
+   OOPTaskControl::s_EvtMan.GetEvtIdAndIndex(m_EvtIdIndex, m_EvtId);
+   
+   m_EvtId.Print();
  
   fExecStarted = 0;
   fExecFinished = 0;
@@ -41,13 +46,15 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
     char title [256];
     sprintf (title, "TaskId %d:%d : Class %d",fTaskId.GetId(), fTaskId.GetProcId(), fClassId);
     if(CM->GetProcID() == 0){ 
+      //Com os caras inicializados, inserir texto para o estado 
+      
       //MPE_Describe_state(m_MPEEvtStart1, m_MPEEvtEnd1, title, "blue");
-      MPE_Describe_comm_event( MPI_COMM_WORLD, 20,
+/*      Phil MPE_Describe_comm_event( MPI_COMM_WORLD, 20,
                              m_MPEEvtStart,
                              "Inicio", "green",
-                             "%s" );
+                             "%s" );*/
       //MPE_Describe_event(m_MPEEvtStart, "Inicio ", "green");
-      MPE_Describe_event(m_MPEEvtEnd, "Final ", "red");
+//       MPE_Describe_event(m_MPEEvtEnd, "Final ", "red");
     }
 
   }
@@ -73,9 +80,9 @@ void OOPTaskControl::Execute()
 	}
 }
 
-extern MPEU_DLL_SPEC       CLOG_CommSet_t  *CLOG_CommSet;
-extern               const CLOG_CommIDs_t  *CLOG_CommIDs4Self;
-extern MPEU_DLL_SPEC const CLOG_CommIDs_t  *CLOG_CommIDs4World;
+// extern MPEU_DLL_SPEC       CLOG_CommSet_t  *CLOG_CommSet;
+// extern               const CLOG_CommIDs_t  *CLOG_CommIDs4Self;
+// extern MPEU_DLL_SPEC const CLOG_CommIDs_t  *CLOG_CommIDs4World;
 
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
@@ -86,6 +93,9 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   tentativa[1]=strlen(tentativa)-2;
   tentativa[0]=0x00;
   MPE_Log_event(tc->m_MPEEvtStart, 0, (char*)&tentativa[0]);
+  cout << " Evento dentro do thread .............." << endl;
+  tc->m_EvtId.Print();
+  cout << " Evento dentro do thread ++++++++++++++++++++++++" << endl;
 #ifdef LOGPZ  
 	{
                 stringstream sout;
@@ -152,3 +162,55 @@ void OOPTaskControl::Join()
 #endif
 	}
 }
+#ifdef OOP_MPE
+OOPEvtId::OOPEvtId(){
+  MPE_Log_get_solo_eventID( &f_EvtStart);
+  MPE_Log_get_solo_eventID( &f_EvtEnd );
+  MPE_Describe_state(f_EvtStart, f_EvtEnd, "default title", "blue");
+
+}
+void OOPEvtId::Print(ostream & out){
+  out << "Start ID " << f_EvtStart << endl;
+  out << "Start ID " << f_EvtEnd << endl;
+  out.flush();
+}
+OOPEvtManager::OOPEvtManager(){
+  m_Avail.clear();
+  m_Used.clear();
+  m_Evts.clear();
+  
+}
+
+void OOPEvtManager::GetEvtIdAndIndex(int & index, OOPEvtId & Evt){
+  cout << "Calling EVTID Function" << endl;
+  if(m_Avail.size() == 0){
+    cout << "Dentro do if" << endl;
+    int curr = m_Used.size() + 1;
+    OOPEvtId levt;
+    pair< int, OOPEvtId > item(curr, levt);
+    m_Evts.insert(item);
+    m_Avail.insert(curr);
+  }
+  set<int>::iterator it = m_Avail.begin();
+  if(it == m_Avail.end()){
+    //Logar erro
+    cout << "Fodeu ............................" << endl;
+  }else{
+    cout << " Inserted on Used and removed from Avail " << *it << endl;
+    m_Used.insert(*it);
+    m_Avail.erase(*it);
+    index = *it;
+    map<int, OOPEvtId>::iterator mit;
+    mit = m_Evts.find(index);
+    if(mit != m_Evts.end()){
+      Evt = mit->second;
+    }
+  }
+}
+void OOPEvtManager::ReleaseEvtIdIndex(int index){
+  //Needs to be mutexed
+  m_Avail.insert(index);
+  m_Used.erase(index);
+}
+
+#endif

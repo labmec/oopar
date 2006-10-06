@@ -6,31 +6,7 @@ class   OOPTask;
 
 
 #include "oopmdatadepend.h"
-
-#ifdef OOP_MPE
-#include <map>
-#include <set>
-class OOPEvtId{
-public:
-  OOPEvtId();
-  int f_EvtStart;
-  int f_EvtEnd;
-  int f_StateExecuting;
-  void Print(ostream & out = cout);  
-};
-class OOPEvtManager{
-public:
-  OOPEvtManager();
-  void GetEvtIdAndIndex(int & index, OOPEvtId & Evt);
-  
-  void ReleaseEvtIdIndex(int index);
-private:
-  set<int> m_Avail;
-  set<int> m_Used;
-  map<int, OOPEvtId> m_Evts;
-};
-#endif
-
+#include "oopevtmanager.h"
 /**
  * class which encapsulates a task object and data dependency structure.
  * The main idea is to separate the data dependency structure from the task.
@@ -38,22 +14,16 @@ private:
  */
 class   OOPTaskControl
 {
-  static OOPEvtManager s_EvtMan;
-  OOPEvtId m_EvtId;
-  int m_EvtIdIndex;
-    /**
-     * Identifies an event for the associated OOPTask execution start 
-     */
-    int m_MPEEvtStart;
-
-    /**
-     * Identifies an event for the associated OOPTask execution finish 
-     */
-    int m_MPEEvtEnd;
-	/**
-	* Pointer to the task object the taskcontrol reffers to.
-	*/
-	OOPTask *fTask;
+#ifdef OOP_MPE
+  /**
+   * The static attribute for EventID management
+   */
+//  static OOPEvtManager s_EvtMan;
+#endif
+  /**
+   * Pointer to the task object the taskcontrol reffers to.
+   */
+  OOPTask *fTask;
 
  /////////////////////////////////////Task Data////////////////////////////////////////
  /**
@@ -62,7 +32,7 @@ class   OOPTaskControl
  OOPObjectId fTaskId;
 
  /**
-  * Store the task dependencies since that task is now delete by it own thread
+  * Store the task dependencies since that task is now deleted by its own thread
   */
  OOPMDataDependList fDataDepend;
 
@@ -72,56 +42,56 @@ class   OOPTaskControl
  int fClassId;
  /////////////////////////////////////Task Data////////////////////////////////////////
   
-	/**
-	 * List of dependency for the current object.
-	 */
-	OOPMDataDependList fDepend;
+  /**
+   * List of dependency for the current object.
+   */
+  OOPMDataDependList fDepend;
  
-   /**
-   Flag indicating whether the thread was started
-   Only if this flag is true the thread will have meaningful data
+  /**
+   * Flag indicating whether the thread was started
+   * Only if this flag is true the thread will have meaningful data
    */
-   int fExecStarted;
-   /**
-   Flag indicating whether the thread finished execution
+  int fExecStarted;
+  /**
+   * Flag indicating whether the thread finished execution
    */
-   int fExecFinished;
-   
-   /**
-   Thread created to execute the task
+  int fExecFinished;
+ 
+  /**
+   *Thread created to execute the task
    */
-   pthread_t fExecutor;
+  pthread_t fExecutor;
   
-      public:
+public:
   /**
    * constructor, will initiate the data dependency list with the dependency list of the task
    */
-	        OOPTaskControl (OOPTask * task);
+  OOPTaskControl (OOPTask * task);
   /**
    * destructor, will delete the task object is the pointer is not null
    */
-	       ~OOPTaskControl ();
+  ~OOPTaskControl ();
   /**
    * data access method
    */
-	        OOPMDataDependList & Depend ()
-	{
-		return fDepend;
-	}
+  OOPMDataDependList & Depend ()
+  {
+    return fDepend;
+  }
   /**
    * data access method
    */
-	OOPTask *Task ()
-	{
-		return fTask;
-	}
+  OOPTask *Task ()
+  {
+    return fTask;
+  }
   /**
    * zeroes the task pointer
    */
-	void    ZeroTask ()
-	{
-		fTask = 0;
-	}
+  void ZeroTask ()
+  {
+    fTask = 0;
+  }
    /*
    Execute the task in a separate thread
    */

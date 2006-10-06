@@ -1056,66 +1056,66 @@ void OOPMetaData::GrantAccess (OOPMDataState state, int processor)
     LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
-	switch(state) {
-	case EVersionAccess: {
-    {
+  switch(state) {
+  case EVersionAccess: {
+  {
 #ifdef LOGPZ      
-      stringstream sout;
-      sout << "Sending grant version access for obj " << fObjId << " to proc " << processor;
-      LOGPZ_DEBUG(logger,sout.str());
+    stringstream sout;
+    sout << "Sending grant version access for obj " << fObjId << " to proc " << processor;
+    LOGPZ_DEBUG(logger,sout.str());
 #endif      
-    }
-		OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantVersionAccess,processor);
-		town->fObjId = this->fObjId;
-		town->fVersion = this->fVersion;
-		town->fProcOrigin = DM->GetProcID();
-		LogDM->SendGrantAccessLog(town,processor);
-		TM->SubmitDaemon(town);
-		fProcVersionAccess = processor;
-		break;
-	}
-	case EReadAccess :
+  }
+    OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantVersionAccess,processor);
+    town->fObjId = this->fObjId;
+    town->fVersion = this->fVersion;
+    town->fProcOrigin = DM->GetProcID();
+    LogDM->SendGrantAccessLog(town,processor);
+    TM->SubmitDaemon(town);
+    fProcVersionAccess = processor;
+    break;
+  }
+  case EReadAccess :
+  {
     {
-      {
 #ifdef LOGPZ        
-        stringstream sout;
-        sout << "Sending grant read access for obj " << fObjId << " to proc " << processor;
-        LOGPZ_DEBUG(logger,sout.str());
-#endif        
-      }
-      OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantReadAccess,processor);
-      town->fObjId = this->fObjId;
-      town->fObjPtr = this->fObjPtr;
-      town->fVersion = this->fVersion;
-      town->fProcOrigin = DM->GetProcID();
-      LogDM->SendGrantAccessLog(town,processor);
-      TM->SubmitDaemon(town);
-      this->fReadAccessProcessors.insert(processor);
-      break;
-    }
-	case EWriteAccess: 
-    {
-#ifdef LOGPZ      
       stringstream sout;
-      sout << "OOPMetaData::GrantAccess transferring object" << fObjId << " State "
-           << state << " to proc " << processor ;
+      sout << "Sending grant read access for obj " << fObjId << " to proc " << processor;
       LOGPZ_DEBUG(logger,sout.str());
-#endif      
+#endif        
     }
-		TransferObject(processor);
-		break;
-	default:
+    OOPDMOwnerTask *town = new OOPDMOwnerTask(EGrantReadAccess,processor);
+    town->fObjId = this->fObjId;
+    town->fObjPtr = this->fObjPtr;
+    town->fVersion = this->fVersion;
+    town->fProcOrigin = DM->GetProcID();
+    LogDM->SendGrantAccessLog(town,processor);
+    TM->SubmitDaemon(town);
+    this->fReadAccessProcessors.insert(processor);
+    break;
+  }
+  case EWriteAccess: 
+  {
+#ifdef LOGPZ      
+    stringstream sout;
+    sout << "OOPMetaData::GrantAccess transferring object" << fObjId << " State "
+         << state << " to proc " << processor ;
+    LOGPZ_DEBUG(logger,sout.str());
+#endif      
+  }
+    TransferObject(processor);
+    break;
+  default:
 #ifdef LOGPZ    
     stringstream sout;
     sout << "OOPMetaData::GrantAccess " << fObjId << " unhandled state " << state ;
     LOGPZ_DEBUG(logger,sout.str());
 #endif    
     break;
-	}
+  }
 }
 OOPDataVersion OOPMetaData::Version () const
 {
-	return fVersion;
+  return fVersion;
 }
 void OOPMetaData::IncrementVersion (const OOPObjectId &taskid) 
 {

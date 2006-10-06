@@ -15,18 +15,24 @@
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
-using namespace log4cxx::helpers;
-static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTask"));
+using namespace
+  log4cxx::helpers;
+static LoggerPtr
+logger (Logger::getLogger ("OOPAR.OOPTask"));
 #endif
 
-void OOPTask::SetRecurrence (bool recurrence)
+void
+OOPTask::SetRecurrence (bool recurrence)
 {
-	fIsRecurrent = recurrence;
+  fIsRecurrent = recurrence;
 }
-int OOPTask::IsRecurrent ()
+
+int
+OOPTask::IsRecurrent ()
 {
-	return fIsRecurrent;
+  return fIsRecurrent;
 }
+
 class OOPStorageBuffer;
 class OOPStorageBuffer;
 class OOPObjectId;
@@ -35,175 +41,207 @@ class OOPDaemonTask;
 class OOPMDataDepend;
 class OOPSaveable;
 using namespace std;
-void OOPTask::Print (std::ostream & out)
+void
+OOPTask::Print (std::ostream & out)
 {
-	out << "OOPTask Id" << fTaskId << endl;
-	out << fLabel << endl;
-	out << "Priority\t" << fPriority << endl;
-	out << "Processor\t" << fProc << endl;
-	out << "Data Dependence\t" << endl;
-	fDataDepend.Print (out);
+  out << "OOPTask Id" << fTaskId << endl;
+  out << fLabel << endl;
+  out << "Priority\t" << fPriority << endl;
+  out << "Processor\t" << fProc << endl;
+  out << "Data Dependence\t" << endl;
+  fDataDepend.Print (out);
 }
-void OOPTask::TaskFinished ()
+
+void
+OOPTask::TaskFinished ()
 {
 //  fDataDepend.ReleaseAccessRequests(fTaskId);
 // Is taken care of by the task manager
 }
 OOPTask::OOPTask (int proc)
 {
-	fProc = proc;
-	fPriority = 0;
-	fIsRecurrent = 0;
-	fLabel="non initialized";
-	f_MySize = 0;
+  fProc = proc;
+  fPriority = 0;
+  fIsRecurrent = 0;
+  fLabel = "non initialized";
+  f_MySize = 0;
 }
-OOPTask::OOPTask (const OOPTask & task):fProc (task.fProc),
-fTaskId (), fDataDepend (task.fDataDepend),
-fPriority (task.fPriority), fIsRecurrent (task.fIsRecurrent),
-fLabel(task.fLabel)
+OOPTask::OOPTask (const OOPTask & task):
+fProc (task.fProc),
+fTaskId (),
+fDataDepend (task.fDataDepend),
+fPriority (task.fPriority),
+fIsRecurrent (task.fIsRecurrent),
+fLabel (task.fLabel)
 {
 }
-void OOPTask::AddDependentData (const OOPMDataDepend & depend)
+void
+OOPTask::AddDependentData (const OOPMDataDepend & depend)
 {
-	fDataDepend.AppendDependency (depend);
+  fDataDepend.AppendDependency (depend);
 }
-void OOPTask::PrintLog(std::ostream & out, char * message){
-	out << "Task:" << fTaskId.GetProcId()<< ":" << fTaskId.GetId() << ":" << message ;
-}
-long OOPTask::ExecTime ()
+
+void
+OOPTask::PrintLog (std::ostream & out, char *message)
 {
-	return -1;
+  out << "Task:" << fTaskId.GetProcId () << ":" << fTaskId.
+    GetId () << ":" << message;
 }
-OOPObjectId OOPTask::Submit ()
+
+long
+OOPTask::ExecTime ()
 {
-	OOPObjectId val = TM->Submit(this);
-//	fTaskId = TM->Submit (this);
-	return val;
+  return -1;
 }
+
+OOPObjectId
+OOPTask::Submit ()
+{
+  OOPObjectId val = TM->Submit (this);
+//      fTaskId = TM->Submit (this);
+  return val;
+}
+
 OOPDaemonTask::OOPDaemonTask (int Procid):OOPTask (Procid)
 {
 }
-long OOPDaemonTask::ExecTime ()
+long
+OOPDaemonTask::ExecTime ()
 {
-	return 0;
+  return 0;
 }
-int OOPDaemonTask::CanExecute ()
+
+int
+OOPDaemonTask::CanExecute ()
 {
-	return 1;
+  return 1;
 }
-OOPMReturnType OOPTask::Execute ()
+
+OOPMReturnType
+OOPTask::Execute ()
 {
-  IncrementWriteDependentData();
+  IncrementWriteDependentData ();
 /*  stringstream sout;
   sout << "OOPTask::Execute should never be called!\n";
   sout << "Called from ClassId " << ClassId() << endl;
   LOGPZ_ERROR(logger, sout.str());*/
-  return ESuccess;	// execute the task, verifying that
-}
-int OOPTask::GetProcID ()
-{
-	return fProc;
-}
-void OOPTask::ChangePriority (int newpriority)
-{
-	fPriority = newpriority;
-}
-int OOPTask::Priority ()
-{
-	return fPriority;
-}
-OOPObjectId OOPTask::Id ()
-{
-	return fTaskId;
-}
-void OOPTask::Write (TPZStream & buf, int withclassid)
-{
-	TPZSaveable::Write (buf,withclassid);
-	// ObjectId packing and unpacking
-	fTaskId.Write (buf);
-	//Logging purpose only
-	buf.Write(&f_MySize);
-	buf.Write (&fProc);	// Processor where the task should be
-	// executed
-	buf.Write (&fPriority);
-	buf.Write (&fIsRecurrent);
-	fDataDepend.Write (buf);
-	
-}
-void OOPTask::Read (TPZStream & buf, void * context)
-{
-	TPZSaveable::Read(buf, context);
-	fTaskId.Read (buf);
-	// Finished OOPObjectId unpacking
-	//Logging purpose only
-	buf.Read(&f_MySize);
-	buf.Read (&fProc);
-	buf.Read (&fPriority);
-	buf.Read (&fIsRecurrent);
-	fDataDepend.Read(buf);
-	
+  return ESuccess;		// execute the task, verifying that
 }
 
-	/**
-	 * Return the pointer to the ith object from which this task depends
-	 */
-TPZSaveable *OOPTask::GetDepObjPtr(int idepend)
+int
+OOPTask::GetProcID ()
 {
-	int numdep = fDataDepend.NElements();
-	if(idepend < 0 || idepend >= numdep) 
-  {
-#ifdef LOGPZ    
+  return fProc;
+}
+
+void
+OOPTask::ChangePriority (int newpriority)
+{
+  fPriority = newpriority;
+}
+
+int
+OOPTask::Priority ()
+{
+  return fPriority;
+}
+
+OOPObjectId
+OOPTask::Id ()
+{
+  return fTaskId;
+}
+
+void
+OOPTask::Write (TPZStream & buf, int withclassid)
+{
+  TPZSaveable::Write (buf, withclassid);
+  // ObjectId packing and unpacking
+  fTaskId.Write (buf);
+  //Logging purpose only
+  buf.Write (&f_MySize);
+  buf.Write (&fProc);		// Processor where the task should be
+  // executed
+  buf.Write (&fPriority);
+  buf.Write (&fIsRecurrent);
+  fDataDepend.Write (buf);
+
+}
+
+void
+OOPTask::Read (TPZStream & buf, void *context)
+{
+  TPZSaveable::Read (buf, context);
+  fTaskId.Read (buf);
+  // Finished OOPObjectId unpacking
+  //Logging purpose only
+  buf.Read (&f_MySize);
+  buf.Read (&fProc);
+  buf.Read (&fPriority);
+  buf.Read (&fIsRecurrent);
+  fDataDepend.Read (buf);
+
+}
+
+TPZSaveable *
+OOPTask::GetDepObjPtr (int idepend)
+{
+  int numdep = fDataDepend.NElements ();
+  if (idepend < 0 || idepend >= numdep) {
+#ifdef LOGPZ
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " << idepend << " " << numdep;
-    LOGPZ_WARN(logger, sout.str());
-#endif    
+    sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " <<
+      idepend << " " << numdep;
+    LOGPZ_WARN (logger, sout.str ());
+#endif
     return 0;
   }
-  OOPMDataDepend &dep = fDataDepend.Dep(idepend);
-	return dep.ObjPtr()->Ptr();
+  OOPMDataDepend & dep = fDataDepend.Dep (idepend);
+  return dep.ObjPtr ()->Ptr ();
 }
-	/**
-	 * Increment the version of the ith object from which this task depends
-	 */
-void OOPTask::IncrementDepObjVersion(int idepend)
+
+void
+OOPTask::IncrementDepObjVersion (int idepend)
 {
-	int numdep = fDataDepend.NElements();
-	if(idepend < 0 || idepend >= numdep) {
-#ifdef LOGPZ    
+  int numdep = fDataDepend.NElements ();
+  if (idepend < 0 || idepend >= numdep) {
+#ifdef LOGPZ
     stringstream sout;
-		sout << "Dpendency Id is bigger then number of objects";
-    LOGPZ_WARN(logger, sout.str());
-#endif    
-		return;
-	}
-	OOPMDataDepend &dep = fDataDepend.Dep(idepend);
-	dep.ObjPtr()->IncrementVersion(Id());
+    sout << "Dpendency Id is bigger then number of objects";
+    LOGPZ_WARN (logger, sout.str ());
+#endif
+    return;
+  }
+  OOPMDataDepend & dep = fDataDepend.Dep (idepend);
+  dep.ObjPtr ()->IncrementVersion (Id ());
 }
-void OOPTask::IncrementWriteDependentData()
+
+void
+OOPTask::IncrementWriteDependentData ()
 {
-	int numdep = fDataDepend.NElements();
-	int i;
-	
-	for(i=0;i<numdep;i++){
-		if(fDataDepend.Dep(i).State()==EWriteAccess || fDataDepend.Dep(i).State()==EVersionAccess){
-      OOPMetaData *meta = fDataDepend.Dep(i).ObjPtr();
-			if(meta)
-      {
-        meta->IncrementVersion(Id());
-#ifdef LOGPZ          
-        stringstream sout;
-        sout << "Automatically Incrementing Write Dependent Data Versions of object id " << meta->Id();
-        LOGPZ_INFO(logger, sout.str());
-#endif        
+  int numdep = fDataDepend.NElements ();
+  int i;
+
+  for (i = 0; i < numdep; i++) {
+    if (fDataDepend.Dep (i).State () == EWriteAccess
+	|| fDataDepend.Dep (i).State () == EVersionAccess) {
+      OOPMetaData *meta = fDataDepend.Dep (i).ObjPtr ();
+      if (meta) {
+	meta->IncrementVersion (Id ());
+#ifdef LOGPZ
+	stringstream sout;
+	sout <<
+	  "Automatically Incrementing Write Dependent Data Versions of object id "
+	  << meta->Id ();
+	LOGPZ_INFO (logger, sout.str ());
+#endif
+      } else {
+#ifdef LOGPZ
+	stringstream sout;
+	sout << __PRETTY_FUNCTION__ << " meta is NULL!!!";
+	LOGPZ_ERROR (logger, sout.str ());
+#endif
       }
-      else
-      {
-#ifdef LOGPZ        
-        stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " meta is NULL!!!";
-        LOGPZ_ERROR(logger, sout.str());
-#endif        
-      }
-		}
-	}
+    }
+  }
 }

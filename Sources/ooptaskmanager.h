@@ -190,16 +190,16 @@ public:
   void Unlock (TMLock & obj);
 private:
 
-  /** Max number of threads
+  /** 
+   * Max number of threads
    */
   int fNumberOfThreads;
-
   /**
-  thread which is the main execution loop of the task manager
-  */
+   * Thread which is the main execution loop of the task manager
+   */
   pthread_t fExecuteThread;
   /**
- thread which owns the lock
+   * Thread which owns the lock
    */
   pthread_t fLockThread;
 
@@ -252,25 +252,25 @@ private:
   /**
    * List of tasks which can't be executed yet
    */
-  list < OOPTaskControl * >fTaskList;
+    list < OOPTaskControl * >fTaskList;
   /**
    * List of tasks which can be readily executed
    */
-  list < OOPTaskControl * >fExecutable;
-  list < OOPTaskControl * >fExecuting;
+    list < OOPTaskControl * >fExecutable;
+    list < OOPTaskControl * >fExecuting;
 
   /**
    * List of daemon tasks which can be readily executed
    */
-  list < OOPDaemonTask * >fDaemon;
+    list < OOPDaemonTask * >fDaemon;
   /**
    * List of tasks recently submitted
    */
-  list < OOPTask * >fSubmittedList;
+    list < OOPTask * >fSubmittedList;
   /**
    * List of finished tasks
    */
-  list < OOPTaskControl * >fFinished;
+    list < OOPTaskControl * >fFinished;
 };
 
 /**
@@ -312,7 +312,7 @@ private:
   /**
    * Returns execution type
    */
-  OOPMReturnType Execute ();
+    OOPMReturnType Execute ();
 
 };
 

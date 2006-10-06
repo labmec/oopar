@@ -18,9 +18,9 @@
 // Versao:  01 / 03.
 //
 
-// $Author: tiago $
-// $Id: oopmpistorage.cpp,v 1.41 2006-10-02 19:56:33 tiago Exp $
-// $Revision: 1.41 $
+// $Author: longhin $
+// $Id: oopmpistorage.cpp,v 1.42 2006-10-06 20:55:04 longhin Exp $
+// $Revision: 1.42 $
 
 
 
@@ -30,9 +30,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef OOP_MPE
-//#include "mpe.h"
-#endif	
 
 #include <sstream>
 #include <pzlog.h>
@@ -231,7 +228,11 @@ bool OOPMPIStorageBuffer::TestReceive() {
 	if(!f_isreceiving) return false;
 	MPI_Status status;
 	int test_flag, ret_test;
+#ifdef OOP_MPE
 	ret_test=PMPI_Test (&f_request, &test_flag, &status);
+#else
+	ret_test=MPI_Test (&f_request, &test_flag, &status);
+#endif
 #ifdef DEBUG
 	/*	cout << "Test returned " << ret_test << endl;
 	cout << "Flag " << test_flag << endl;

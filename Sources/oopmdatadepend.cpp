@@ -73,6 +73,10 @@ std::ostream &OOPMDataDepend::ShortPrint(std::ostream &out) const {
 	out << "obj " << fDataId << " acc " << fNeed << " vers " << fVersion;
 	return out;
 }
+std::ostream &OOPMDataDepend::SuperShortPrint(std::ostream &out) const {
+	out << fDataId << ":" << fNeed << ":" << fVersion;
+	return out;
+}
 
 void OOPMDataDepend::LogMe(std::ostream &out) {
 	out << "regarding obj " << fDataId << "\t\tState ";
@@ -194,6 +198,13 @@ void OOPMDataDependList::Print (std::ostream & out)
 	deque < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		i->ShortPrint (out) << " status " << i->Status() << endl;
+	}
+}
+void OOPMDataDependList::ShortPrint (std::ostream & out)
+{
+	deque < OOPMDataDepend >::iterator i;
+	for (i = fDependList.begin (); i != fDependList.end (); i++) {
+		i->SuperShortPrint (out) << " st " << i->Status() << ";";
 	}
 }
 int OOPMDataDependList::NElements ()

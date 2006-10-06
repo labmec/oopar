@@ -21,6 +21,10 @@
 #include <iostream>
 
 #include <sys/time.h>
+
+#ifdef OOP_MPE
+class OOPSoloEvent;
+#endif
 class OOPStorageBuffer;
 class OOPTask;
 class OOPDataVersion;
@@ -308,6 +312,11 @@ OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
       found = true;
       tc->Depend ().GrantAccess (depend, objptr);
       {
+#ifdef OOP_MPE
+        stringstream auxsout;
+        auxsout << "T " << TaskId << " " << depend;
+        OOPSoloEvent solo("grantaccess", auxsout.str());
+#endif
 #ifdef LOGPZ
 	stringstream sout;
 	sout << "Access Granted to taskId " << TaskId << " classid " << tc->

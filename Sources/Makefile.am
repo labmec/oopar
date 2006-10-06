@@ -25,7 +25,10 @@ noinst_LIBRARIES = liboopar.a
 
 #AM_CONDITIONAL(MPI, test "$enable_mpi" = yes)
 if OOPMPI
-liboopar_a_SOURCES = oopdatamanager.cpp \
+liboopar_a_SOURCES = 	\
+	oopevtmanager.cpp \
+	oopevtid.cpp \
+	oopdatamanager.cpp \
 	ooptaskmanager.cpp 	\
 	oopdataversion.cpp 	\
 	ooperror.cpp \

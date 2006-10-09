@@ -172,8 +172,8 @@ int main (int argc, char **argv)
 		IdA = DM->SubmitObject(inta, 1);
 //		IdB = DM->SubmitObject(intb, 1);
 
-		TTaskTest * tta = new TTaskTest(0);
-		TTaskTest * ttb = new TTaskTest(1);
+		TTaskTest * tta = new TTaskTest(1);
+		TTaskTest * ttb = new TTaskTest(0);
 		TTaskTest * ttc = new TTaskTest(2);
 		TTaskTest * ttd = new TTaskTest(3);
 		OOPDataVersion ver;

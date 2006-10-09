@@ -21,7 +21,7 @@ liboopar_a_LIBADD = ../Sources/oopdatamanager.o ../Sources/ooptaskmanager.o \
 	../Sources/ooptask.o ../Sources/oopmdatadepend.o ../Sources/ooptaskcontrol.o \
 	../Sources/OOPDataLogger.o ../Sources/oopaccessinfo.o ../Sources/ooppardefs.o \
 	../Sources/oopwaittask.o  ../Sources/oopmpicomm.o ../Sources/oopmpistorage.o \
-  ../Sources/ooperror.o ../Sources/OOPInt.o ../Sources/OOPDouble.o ../Sources/oopcommmanager.o ../Sources/OOPVector.o
+  ../Sources/ooperror.o ../Sources/OOPInt.o ../Sources/OOPDouble.o ../Sources/oopcommmanager.o ../Sources/OOPVector.o ../Sources/oopevtid.o ../Sources/oopevtmanager.o
 else 
 liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
 	../Sources/ooptaskmanager.o \

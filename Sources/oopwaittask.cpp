@@ -22,6 +22,10 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
 #endif
 
+#ifdef OOP_MPE
+#include "oopevtid.h"
+#endif
+
 class OOPStorageBuffer;
 
 int OOPWaitTask::gCounter = 0;
@@ -63,6 +67,9 @@ OOPMReturnType OOPWaitTask::Execute()
   pthread_cond_signal(&fExtCond);
   pthread_mutex_unlock(&fExtMutex);
   //sleep(10);
+  {
+    
+  }
   pthread_cond_wait(&fExecCond, &fExecMutex);
 #ifdef LOGPZ    
   stringstream sout;
@@ -100,6 +107,14 @@ void OOPWaitTask::Wait()
   }
   gCounter++;
 //  pthread_mutex_lock(&fExtMutex);
+#ifdef OOP_MPE
+  stringstream sout;
+  sout << "TId:" << Id().GetId()
+    << ":" << Id().GetProcId() << ":Dep:";
+  fDataDepend.ShortPrint(sout);
+  OOPStateEvent evt("waittask",sout.str());
+#endif
+
   pthread_cond_wait(&fExtCond,&fExtMutex);
 }
 

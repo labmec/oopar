@@ -314,7 +314,7 @@ OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
       {
 #ifdef OOP_MPE
         stringstream auxsout;
-        auxsout << "T " << TaskId << " " << depend;
+        auxsout << "T:" << TaskId << " " << depend;
         OOPSoloEvent solo("grantaccess", auxsout.str());
 #endif
 #ifdef LOGPZ

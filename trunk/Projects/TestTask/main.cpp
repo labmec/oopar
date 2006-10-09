@@ -135,7 +135,10 @@ int main (int argc, char **argv)
 
 #ifdef OOP_MPE
         gEvtDB.AddStateEvent("taskexec","Task Execution",CM->GetProcID()==0);
+        gEvtDB.AddStateEvent("waittask","Wait Task Call",CM->GetProcID()==0);
         gEvtDB.AddSoloEvent("grantaccess","Grant Access",CM->GetProcID()==0);
+        gEvtDB.AddSoloEvent("incrementversion","Inc Version",CM->GetProcID()==0);
+        
 
 #endif
 	char filename[256];

@@ -80,7 +80,7 @@ OOPStateEvent::OOPStateEvent(){
   f_EvtEnd = -1;
   f_manager = 0;
 }
-void OOPStateEvent::Initialize(int myindex, std::string &description, bool withdescription)
+void OOPStateEvent::Initialize(int myindex, std::string &description, bool withdescription, const std::string &color)
 {
   f_ThreadId = myindex;
   // initializar o f_EvtStart
@@ -89,7 +89,7 @@ void OOPStateEvent::Initialize(int myindex, std::string &description, bool withd
   if(withdescription)
   {
     MPE_Describe_comm_state( MPI_COMM_WORLD, f_ThreadId, f_EvtStart, f_EvtEnd,
-                             description.c_str(), "blue",
+                             description.c_str(), color.c_str(),
                              "%s" );
   }
 
@@ -165,7 +165,7 @@ void OOPSoloEvent::Log(){
     MPE_Log_comm_event(MPI_COMM_WORLD,f_ThreadId,f_EvtStart, (char*)&fMess);
   }
 }
-void OOPSoloEvent::Initialize(int myindex, std::string &description, bool withdescription)
+void OOPSoloEvent::Initialize(int myindex, std::string &description, bool withdescription, const std::string &color)
 {
   f_ThreadId = myindex;
   // initializar o f_EvtStart
@@ -174,7 +174,7 @@ void OOPSoloEvent::Initialize(int myindex, std::string &description, bool withde
   if(withdescription)
   {
     MPE_Describe_comm_event( MPI_COMM_WORLD, f_ThreadId,
-                                    f_EvtStart, description.c_str(), "green", "%s");
+                                    f_EvtStart, description.c_str(), color.c_str(), "%s");
 /*    MPE_Describe_comm_state( MPI_COMM_WORLD, f_ThreadId, f_EvtStart, f_EvtEnd,
                              description.c_str(), "blue",
                              "%s" );*/

@@ -119,7 +119,7 @@ public:
    * Initializes the Events Ids according to the MPE infrastructure
    * Called once for each EvtId defined.
    */
-  void Initialize(int myindex, std::string &description, bool withdescription);
+  void Initialize(int myindex, std::string &description, bool withdescription, const std::string &color);
   /**
    * Initializes the Events Ids according to the MPE infrastructure
    * Called once for each EvtId defined.
@@ -174,7 +174,7 @@ public:
    * Initializes the Events Ids according to the MPE infrastructure
    * Called once for each EvtId defined.
    */
-  void Initialize(int myindex, std::string &description, bool withdescription);
+  void Initialize(int myindex, std::string &description, bool withdescription, const std::string &color);
 
   /**
    * Prints the current object

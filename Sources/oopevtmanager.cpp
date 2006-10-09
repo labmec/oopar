@@ -43,13 +43,13 @@ OOPEventDatabase gEvtDB(20);
 using namespace std;
 
 template<class TEvt>
-OOPEvtManager<TEvt>::OOPEvtManager(const std::string &description, int nevts, bool withdescription){
+OOPEvtManager<TEvt>::OOPEvtManager(const std::string &description, int nevts, bool withdescription, const std::string color){
   m_Avail.clear();
   m_Used.clear();
   m_Evts.clear();
   pthread_mutex_init(&m_EvtMutex, NULL);
   f_description = description;
-  FillMeUp(nevts,withdescription);
+  FillMeUp(nevts,withdescription, color);
 }
 
 template<class TEvt>
@@ -66,7 +66,7 @@ OOPEvtManager<TEvt> & OOPEvtManager<TEvt>::operator = (const OOPEvtManager<TEvt>
 }
 
 template<class TEvt>
-void OOPEvtManager<TEvt>::FillMeUp(int nevts, bool withdescription){
+void OOPEvtManager<TEvt>::FillMeUp(int nevts, bool withdescription, std::string color){
   pthread_mutex_lock(&m_EvtMutex);
   if(m_Evts.size()) {
     pthread_mutex_unlock(&m_EvtMutex);
@@ -75,7 +75,7 @@ void OOPEvtManager<TEvt>::FillMeUp(int nevts, bool withdescription){
   int i=0;
   for(i=0;i<nevts;i++){
     TEvt levt;
-    levt.Initialize(i,f_description,withdescription);
+    levt.Initialize(i,f_description,withdescription, color);
     pair< int, TEvt > item(i, levt);
     m_Evts.insert(item);
     m_Avail.insert(i);
@@ -89,7 +89,7 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
   if(m_Avail.size() == 0){
     int curr = m_Used.size();
     TEvt levt;
-    levt.Initialize(curr,f_description,true);
+    levt.Initialize(curr,f_description,true,"black");
     pair< int, TEvt > item(curr, levt);
     m_Evts.insert(item);
     m_Avail.insert(curr);
@@ -115,9 +115,7 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
       cout << "Ferrou"<< endl;
       return;
     }
-    m_Evts[*it].Print(cout);
     Evt = m_Evts[*it];
-    Evt.Print(cout);
     m_Used.insert(*it);
     m_Avail.erase(*it);
     Evt.SetManager(this);
@@ -156,16 +154,16 @@ OOPEventDatabase::OOPEventDatabase(int numobjects)
 }
 
 void OOPEventDatabase::AddStateEvent(const std::string &eventname, 
-    const std::string &description, bool withdescription)
+    const std::string &description, const std::string &color, bool withdescription)
 {
-  OOPEvtManager<OOPStateEvent> evtman(description, f_numobjects, withdescription);
+  OOPEvtManager<OOPStateEvent> evtman(description, f_numobjects, withdescription, color);
   fStateEvents[eventname]=evtman;
 }
   
 void OOPEventDatabase::AddSoloEvent(const std::string &eventname,
-    const std::string &description, bool withdescription)
+    const std::string &description, const std::string &color, bool withdescription)
 {
-  OOPEvtManager<OOPSoloEvent> evtman(description, f_numobjects, withdescription);
+  OOPEvtManager<OOPSoloEvent> evtman(description, f_numobjects, withdescription, color);
   fSoloEvents[eventname]=evtman;
 }
   

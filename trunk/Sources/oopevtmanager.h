@@ -30,7 +30,7 @@ public:
   /**
    * Simple constructor
    */
-  OOPEvtManager(const std::string &description, int nevts, bool withdescription);
+  OOPEvtManager(const std::string &description, int nevts, bool withdescription, const std::string color);
   /**
    * Gets both index and EventId 
    * Performs calls to the MPE library so it can obtain unique ids for events.
@@ -49,7 +49,7 @@ private:
   /**
    * Instantiates a set of EvntIds
    */
-  void FillMeUp(int nevts, bool withdescription);
+  void FillMeUp(int nevts, bool withdescription, std::string color);
   /**
    * string with the description of the event
    */
@@ -89,10 +89,9 @@ public:
 
   OOPEventDatabase(int numobjects);
 
-  void AddStateEvent(const std::string &eventname, const std::string &description, bool withdescription);
+  void AddStateEvent(const std::string &eventname, const std::string &description, const std::string &color, bool withdescription);
   
-  void AddSoloEvent(const std::string &eventname, const std::string &description, bool withdescription);
-  
+  void AddSoloEvent(const std::string &eventname, const std::string &description,const std::string &color, bool withdescription);
   void Initialize(const std::string &eventname, OOPStateEvent &evt);
   
   void Initialize(const std::string &eventname, OOPSoloEvent &evt);

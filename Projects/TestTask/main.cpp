@@ -134,10 +134,10 @@ int main (int argc, char **argv)
 	CM = new OOPMPICommManager (argc, argv);
 
 #ifdef OOP_MPE
-        gEvtDB.AddStateEvent("taskexec","Task Execution",CM->GetProcID()==0);
-        gEvtDB.AddStateEvent("waittask","Wait Task Call",CM->GetProcID()==0);
-        gEvtDB.AddSoloEvent("grantaccess","Grant Access",CM->GetProcID()==0);
-        gEvtDB.AddSoloEvent("incrementversion","Inc Version",CM->GetProcID()==0);
+        gEvtDB.AddStateEvent("taskexec","Task Execution", "blue",CM->GetProcID()==0);
+        gEvtDB.AddStateEvent("waittask","Wait Task Call","red",CM->GetProcID()==0);
+        gEvtDB.AddSoloEvent("grantaccess","Grant Access", "green",CM->GetProcID()==0);
+        gEvtDB.AddSoloEvent("incrementversion","Inc Version", "red",CM->GetProcID()==0);
         
 
 #endif

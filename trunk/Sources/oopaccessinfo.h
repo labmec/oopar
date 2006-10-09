@@ -109,6 +109,16 @@ void    Print (std::ostream & out = std::cout)
 		out << "TaskId " << fTaskId << endl;
 		out << "Version" << fVersion << endl;
 	}
+void    ShortPrint (std::ostream & out = std::cout)
+	{
+		out << "A?:" << (bool) fIsAccessing << ";";
+		out << "G?:" << fIsGranted << ";";
+		out << "S:" << fState << ";";
+		out << "P:" << fProcessor << ";";
+		out << "T:" << fTaskId << ";";
+		out << "V:" << fVersion;
+	}
+
 bool    CanExecute (const OOPMetaData & object) const;
 };
 /**
@@ -124,12 +134,13 @@ PostPoneWriteAccessGranted ();
 
 
 		  
+  void ShortPrint(std::ostream & out);
 		 
-	  void Print(std::ostream & out);
-	/**
-	 * returns the number of elements in the list
-	 */
-	int     NElements ();
+  void Print(std::ostream & out);
+  /**
+   * returns the number of elements in the list
+   */
+  int     NElements ();
 /**
  * This method adds an access request as passed by SubmitAccessRequest
  * It does no verifications

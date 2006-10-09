@@ -23,6 +23,10 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMetaData"));
 #endif
 
+#ifdef OOP_MPE
+#include "oopevtid.h"
+#endif
+
 /*
 SEQUENCES
   A task wants to access the data, the processor does not own the data
@@ -1119,10 +1123,10 @@ OOPDataVersion OOPMetaData::Version () const
 }
 void OOPMetaData::IncrementVersion (const OOPObjectId &taskid) 
 {
-	if (fTaskWrite == taskid || fTaskVersion == taskid) {
-		OOPDataVersion ver = fVersion;
-		++ver;
-		LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver, State(),taskid);
+  if (fTaskWrite == taskid || fTaskVersion == taskid) {
+    OOPDataVersion ver = fVersion;
+    ++ver;
+    LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver, State(),taskid);
     {
 #ifdef LOGPZ      
       stringstream sout;
@@ -1131,9 +1135,17 @@ void OOPMetaData::IncrementVersion (const OOPObjectId &taskid)
       LOGPZ_DEBUG(logger,sout.str());
 #endif      
     }
-		++fVersion;
-	}
-	else {
+#ifdef OOP_MPE
+      stringstream auxsout;
+/*      auxsout << "D:" << Id().GetId() << ":" << Id().GetProcId()
+        << "T:" << fTaskWrite.Id().GetId() << ":" << fTaskWrite.Id().GetProcId()
+        << "V:";*/
+      ShortPrint(auxsout);
+      OOPSoloEvent evt("incrementversion", auxsout.str());
+#endif
+
+      ++fVersion;
+    }else{
     {
 #ifdef LOGPZ      
       stringstream sout;
@@ -1141,7 +1153,7 @@ void OOPMetaData::IncrementVersion (const OOPObjectId &taskid)
       LOGPZ_ERROR(logger,sout.str());
 #endif      
     }
-	}
+  }
 }
 
 void OOPMetaData::TraceMessage (OOPDMOwnerTask & ms)
@@ -1198,6 +1210,13 @@ void OOPMetaData::Print (std::ostream & out)
 	out << " OOPData structure" << endl;
 	out << "fAccessList size " << fAccessList.NElements () << endl;
 	fAccessList.Print(out);
+	out.flush ();
+}
+void OOPMetaData::ShortPrint(std::ostream & out)
+{
+	out << "D:" << fObjId << ":" << fProc << ":V:" << fVersion
+	 << ":AL:" << fAccessList.NElements () << ":";
+	fAccessList.ShortPrint(out);
 	out.flush ();
 }
 void OOPMetaData::PrintLog (std::ostream & out)

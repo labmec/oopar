@@ -271,8 +271,8 @@ void OOPDataVersion::DecreaseLevel ()
 void OOPDataVersion::Increment ()
 {
 	if (!fVersion.size ()) {
-    LOGPZ_ERROR(logger, "Something wrong - fVersion.size() = 0");
-		return;
+          LOGPZ_ERROR(logger, "Something wrong - fVersion.size() = 0");
+          return;
 	}
 	fVersion[fVersion.size () - 1]++;
 	// Checks whether fVersion grows indefinetely 
@@ -282,14 +282,14 @@ void OOPDataVersion::Increment ()
 	if (fLevelCardinality[fVersion.size () - 1] == -1)
 		return;
 	if (fVersion[fVersion.size () - 1] >
-	    fLevelCardinality[fVersion.size () - 1]) {
+	     fLevelCardinality[fVersion.size () - 1]) {
 #ifdef LOGPZ        
-    stringstream sout;
-		sout << "Inconsistent data version incrementation" <<
+          stringstream sout;
+          sout << "Inconsistent data version incrementation" <<
 			__FILE__ << __LINE__;
-    LOGPZ_ERROR(logger,sout.str());
+          LOGPZ_ERROR(logger,sout.str());
 #endif    
-		return;
+          return;
 	}
 	if (fVersion[fVersion.size () - 1] ==
 	    fLevelCardinality[fVersion.size () - 1]) {
@@ -300,37 +300,37 @@ void OOPDataVersion::Increment ()
 		}
 	}
 }
-     vector < int >OOPDataVersion::GetLevelCardinality () const
-     {
-	     return fLevelCardinality;
-     }
-     vector < int >OOPDataVersion::GetLevelVersion () const
-     {
-	     return fVersion;
-     }
-     int OOPDataVersion::GetLevelCardinality (int level) const
+vector < int >OOPDataVersion::GetLevelCardinality () const
+{
+  return fLevelCardinality;
+}
+vector < int >OOPDataVersion::GetLevelVersion () const
+{
+     return fVersion;
+}
+int OOPDataVersion::GetLevelCardinality (int level) const
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
-#ifdef LOGPZ         
-         stringstream sout;
-		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__
-			     << " Accessing level out of range" << endl;
-		     sout << "Maximum:" << GetNLevels () -
-			     1 << " Trying:" << level;
-         LOGPZ_ERROR(logger,sout.str());
+#ifdef LOGPZ
+                stringstream sout;
+		sout << "FILE: " << __FILE__ << " LINE:" << __LINE__
+		     << " Accessing level out of range" << endl;
+		sout << "Maximum:" << GetNLevels () -
+		     1 << " Trying:" << level;
+                LOGPZ_ERROR(logger,sout.str());
 #endif         
 		     // exit(-1);
 		     return -1;
 	     }
 	     return fLevelCardinality[level];
      }
-     int OOPDataVersion::GetLevelVersion (int level) const
+int OOPDataVersion::GetLevelVersion (int level) const
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
 #ifdef LOGPZ         
-         stringstream sout;
+              stringstream sout;
 		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__ << " Accessing level out of range" << endl;
 		     sout << "Maximum:" << GetNLevels () - 1 << " Trying:" << level;
 		     LOGPZ_ERROR(logger,sout.str());
@@ -340,10 +340,10 @@ void OOPDataVersion::Increment ()
 	     }
 	     return fVersion[level];
      }
-     int OOPDataVersion::GetNLevels () const
-     {
-	     return fVersion.size ();
-     }
+int OOPDataVersion::GetNLevels () const
+{
+  return fVersion.size ();
+}
 OOPDataVersion::~OOPDataVersion ()
 {
 	// Some necessary checks, still to be defined

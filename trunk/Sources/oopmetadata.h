@@ -105,6 +105,7 @@ public:
 		  
 	void PrintLog (std::ostream & out = std::cout);
 	void    Print (std::ostream & out = std::cout);
+        void ShortPrint(std::ostream & out = std::cout);
 	/**
 	 * SetVersion is allowed if the task has read and/or version access
 	 */

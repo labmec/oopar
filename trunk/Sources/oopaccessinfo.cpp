@@ -542,3 +542,10 @@ void OOPAccessInfoList::Print(std::ostream & out) {
 		i++;
 	}
 }
+void OOPAccessInfoList::ShortPrint(std::ostream & out) {
+	list < OOPAccessInfo >::iterator i = fList.begin ();
+	while(i != fList.end()) {
+		i->ShortPrint(out);
+		i++;
+	}
+}

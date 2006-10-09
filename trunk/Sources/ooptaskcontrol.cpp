@@ -55,8 +55,8 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
 #ifdef OOP_MPE
   stringstream sout;
-  sout << "TId:" << tc->fTask->Id().GetId()
-    << ":" << tc->fTask->Id().GetProcId() << ":Dep:";
+  sout << "T:" << tc->fTask->Id().GetId()
+    << ":" << tc->fTask->Id().GetProcId() << ":C:" << tc->fTask->ClassId() << ":D:";
   tc->fDataDepend.ShortPrint(sout);
   OOPStateEvent evt("taskexec",sout.str());
 #endif

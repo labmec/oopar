@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.42 2006-10-06 20:55:04 longhin Exp $
-// $Revision: 1.42 $
+// $Id: oopmpistorage.cpp,v 1.43 2006-10-09 21:07:01 longhin Exp $
+// $Revision: 1.43 $
 
 
 
@@ -71,33 +71,35 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
 int OOPMPIStorageBuffer::Send (int target)
 {
 #ifdef DEBUGALL
-{
-#ifdef LOGPZ    
-    stringstream sout;
-    sout << "PID" << getpid() << " Called MPI_Send ret = ";
-    LOGPZ_DEBUG(logger,sout.str()):
-#endif    
-}
+  {
+  #ifdef LOGPZ    
+      stringstream sout;
+      sout << "PID" << getpid() << " Called MPI_Send ret = ";
+      LOGPZ_DEBUG(logger,sout.str()):
+  #endif    
+  }
 #endif
-if(f_send_position >= MAXSIZE)
-{
-#ifdef LOGPZ    
-    std::stringstream st;
-    st << __PRETTY_FUNCTION__ << " Sending a message of size " << f_send_position << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
-    LOGPZ_ERROR(logger,st.str());    
-    std::cout << st.str() << endl;
-#endif
-}
-int ret;
-int tag = 0;
-ret = MPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
+  if(f_send_position >= MAXSIZE)
+  {
+  #ifdef LOGPZ    
+      std::stringstream st;
+      st << __PRETTY_FUNCTION__ << " Sending a message of size " << f_send_position << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
+      LOGPZ_ERROR(logger,st.str());    
+      std::cout << st.str() << endl;
+  #endif
+  }
+  int ret;
+  int tag = 0;
+  ret = MPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);
+/*  ret = PMPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
+				target, tag, MPI_COMM_WORLD);*/
 #	ifdef OOP_MPE
 //	MPE_Log_send(target, tag, f_send_position);
 #	endif	
 
 #ifdef DEBUGALL
-switch(ret){
+  switch(ret){
 	case MPI_SUCCESS:
 #ifdef LOGPZ      
 		stringstream sout;
@@ -142,11 +144,11 @@ switch(ret){
 		LOGPZ_ERROR(logger,sout.str()):
 #endif      
 			break;
-}
-cout.flush();
-#endif
-ResetBuffer();
-return ret;
+  }
+  cout.flush();
+  #endif
+  ResetBuffer();
+  return ret;
 }
 int OOPMPIStorageBuffer::PkStr (char *p)
 {
@@ -212,16 +214,21 @@ int OOPMPIStorageBuffer::Receive ()
 {
     
     // nonblocking!!!!
-	//f_buffr.Resize(50000);
+
 	if(f_isreceiving) return 1;
-	//MPI_Status status;
-	//int test_flag;
-	// recebe (nonblocking) primeros 10^6 bytes
 	
 	MPI_Irecv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 			   MPI_ANY_TAG, MPI_COMM_WORLD, &f_request);
 	f_isreceiving = 1;
 	return 1;
+
+  //Blocking
+// 	 MPI_Status status;
+// 	 MPI_Recv(&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
+// 			   MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+//          
+//          return 1;
+
 }
 
 bool OOPMPIStorageBuffer::TestReceive() {
@@ -229,7 +236,8 @@ bool OOPMPIStorageBuffer::TestReceive() {
 	MPI_Status status;
 	int test_flag, ret_test;
 #ifdef OOP_MPE
-	ret_test=PMPI_Test (&f_request, &test_flag, &status);
+	//ret_test=PMPI_Test (&f_request, &test_flag, &status);
+        ret_test=MPI_Test (&f_request, &test_flag, &status);
 #else
 	ret_test=MPI_Test (&f_request, &test_flag, &status);
 #endif
@@ -263,27 +271,28 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 
 int OOPMPIStorageBuffer::ReceiveBlocking ()
 {
-	Receive();
+/*	Receive();
 	if(TestReceive()) {
 		return 1;
 		
 	}
-	
 	MPI_Status status;
-	//Isso aqui
 	MPI_Wait(&f_request,&status);
-	return 1;
+	return 1;*/
 	
-	//MPI_Status status;
+	//
 	// recebe primeiros 10^6 bytes
-	/*
+	 MPI_Status status;
+          cout << "------------Entering Receive" << endl;
+          cout.flush();
 	 cout << "MPI_Recv returned " << 
 	 MPI_Recv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 			   MPI_ANY_TAG, MPI_COMM_WORLD, &status) << endl;
-	 // desempacota dimensao do pacote completo
+	 //desempacota dimensao do pacote completo
 	 cout << "Returning 1\n";
 	 cout.flush();
-	 */	
+         return 1;
+	 	
 }
 // Metodos para DESEMPACOTAR dados do buffer.
 // p : Ponteiro para o buffer onde os dados serao lidos.

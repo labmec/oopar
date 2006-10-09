@@ -139,6 +139,7 @@ OOPTaskManager::TransferExecutingTasks ()
 /**
 	disparar o thread de execu�o da tarefa.
 */
+
 void *
 OOPTaskManager::ExecuteMT (void *data)
 {
@@ -268,6 +269,139 @@ OOPTaskManager::ExecuteMT (void *data)
 
   return NULL;
 }
+
+void *
+OOPTaskManager::ExecuteMTBlocking (void *data)
+{
+#ifdef LOGTIME
+  tlog <<
+    "time\tsubmitted\twaiting\texecutable\texecuting\tfinished\tdaemon\n";
+#endif
+  OOPTaskManager *lTM = static_cast < OOPTaskManager * >(data);
+
+  pthread_mutex_lock (&lTM->fSubmittedMutex);
+  DM->SubmitAllObjects ();
+
+  ((OOPMPICommManager *)CM)->ReceiveMessagesBlocking ();
+  // this method needs to grab the lock
+  lTM->TransferSubmittedTasks ();
+  list < OOPTaskControl * >::iterator i;
+
+  SszQueues curSz;
+  curSz.set (lTM->fTaskList.size (), lTM->fExecutable.size (),
+	     lTM->fExecuting.size ());
+
+#ifdef LOGPZ
+  {
+    std::stringstream sout;
+    sout << "Entering task list loop";
+    LOGPZ_DEBUG (logger, sout.str ());
+  }
+#endif
+  lTM->fKeepGoing = true;
+  lTM->ExecuteDaemons ();
+  while (lTM->fKeepGoing) {
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+//    ((OOPMPICommManager *)CM)->ReceiveMessagesBlocking ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+    lTM->ExecuteDaemons ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+    while (lTM->fExecutable.size ()
+	   && (int) lTM->fExecuting.size () < lTM->fNumberOfThreads) {
+      i = lTM->fExecutable.begin ();
+//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+      OOPTaskControl *tc = (*i);
+      lTM->fExecutable.erase (i);
+      lTM->fExecuting.push_back (tc);
+      tc->Task ()->SetExecuting (true);
+#ifdef LOGPZ
+      {
+	stringstream sout;
+	sout << "Entering taskcontrol execute for task " << tc->
+	  Id () << " classid " << tc->ClassId ();
+	LOGPZ_DEBUG (tasklogger, sout.str ());
+      }
+#endif
+//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+      tc->Execute ();
+//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+      lTM->TransferExecutingTasks ();
+//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+      DM->SubmitAllObjects ();
+    }
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+    lTM->TransferExecutingTasks ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+    lTM->TransferFinishedTasks ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+//    ((OOPMPICommManager *)CM)->ReceiveMessagesBlocking ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+
+    lTM->TransferSubmittedTasks ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+    CM->SendMessages ();
+//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+    lTM->ExecuteDaemons ();
+    //wait
+
+#ifdef LOGTIME
+    if (!curSz.
+	IsEqual (lTM->fTaskList.size (), lTM->fExecutable.size (),
+		 lTM->fExecuting.size ())) {
+      timeval curtime;
+      gettimeofday (&curtime, 0);
+
+      tlog << curtime.tv_sec << ":" << curtime.tv_usec << "\t"
+	<< lTM->fSubmittedList.size () << "\t"
+	<< lTM->fTaskList.size () << "\t"
+	<< lTM->fExecutable.size () << "\t"
+	<< lTM->fExecuting.size () << "\t"
+	<< lTM->fFinished.size () << "\t"
+	<< lTM->fDaemon.size () << std::endl;
+      curSz.set (lTM->fTaskList.size (), lTM->fExecutable.size (),
+		 lTM->fExecuting.size ());
+    }
+#endif
+
+
+    if (!lTM->HasWorkTodo () && lTM->fKeepGoing) {
+      if (CM->NumProcessors () > 1) {
+	timeval now;
+	gettimeofday (&now, 0);
+	now.tv_usec += 1;
+	now.tv_sec += now.tv_usec / 1000000;
+	now.tv_usec %= 1000000;
+	timespec next;
+	next.tv_sec = now.tv_sec;
+	next.tv_nsec = now.tv_usec * 1000;
+#ifdef LOGPZ
+      {
+        std::stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " going to sleep";
+        LOGPZ_DEBUG(tasklogger,sout.str().c_str());
+      }
+#endif
+	pthread_cond_timedwait (&lTM->fExecuteCondition,
+				&lTM->fSubmittedMutex, &next);
+      } else {
+#ifdef LOGPZ
+      {
+        std::stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " going to sleep";
+        LOGPZ_DEBUG(tasklogger,sout.str().c_str());
+      }
+#endif
+	pthread_cond_wait (&lTM->fExecuteCondition, &lTM->fSubmittedMutex);
+      }
+    }
+  }
+  CM->SendMessages ();
+  pthread_mutex_unlock (&lTM->fSubmittedMutex);
+
+  return NULL;
+}
+
+
 #endif
 OOPTaskManager::OOPTaskManager (int proc):fNumberOfThreads (2),
 fLockThread (0), fLock (0)
@@ -642,7 +776,8 @@ OOPTaskManager::Execute ()
     LOGPZ_DEBUG (logger, sout.str ());
 #endif
   }
-  if (pthread_create (&fExecuteThread, NULL, ExecuteMT, this)) {
+   if (pthread_create (&fExecuteThread, NULL, ExecuteMT, this)) {
+//  if (pthread_create (&fExecuteThread, NULL, ExecuteMTBlocking, this)) {
 #ifdef LOGPZ
     stringstream sout;
     sout << "Fail to create service thread\n";

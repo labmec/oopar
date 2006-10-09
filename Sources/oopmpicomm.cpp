@@ -162,7 +162,20 @@ int OOPMPICommManager::ReceiveMessages ()
 //  if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID() <<   "\n";
 	return 1;
 };
+int OOPMPICommManager::ReceiveMessagesBlocking()
+{
+/*	f_buffer.ReceiveBlocking();
+        return 1;*/
+        static pthread_t threadId = 0;
+                cout << "------------------------------------AQUI-------------------";
+                cout.flush();
+        pthread_create(&threadId, NULL, ReceiveMsgBlocking, this);
+                cout << "------------------------------------Depois-------------------";
+                cout.flush();
+}
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
+        cout << "------------------------------------ENTREI-------------------";
+        cout.flush();
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
 #	ifdef DEBUG
   	{
@@ -175,9 +188,9 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 #	endif
 	while (1){
 		OOPMPIStorageBuffer msg;
-		pthread_mutex_lock(&fCommunicate);
+                cout << "------------------------------------AQUI-------------------";
+                cout.flush();
 		int ret = msg.ReceiveBlocking ();
-		pthread_mutex_unlock(&fCommunicate);
 		// se houver erro, Kill
 		if (ret <= 0) {
 	 		LocalCM->Finish("ReceiveBlocking <receive error>");

@@ -54,6 +54,7 @@ public:
    * receive, receives it and returns 1. Else, returns 0
    */
 	int     ReceiveMessages ();
+        int ReceiveMessagesBlocking();
   /**
    * Blocking receive. Execution stops and waits until a 
    * posted message is received

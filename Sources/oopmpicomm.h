@@ -27,6 +27,7 @@ class   OOPMPISendStorage;
 class   OOPMPICommManager:public OOPCommunicationManager
 {
 public:
+  
 	OOPMPICommManager ();
   /**
    * Constructor 
@@ -46,10 +47,11 @@ public:
 private:	
 	int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v);
 public:
+        void UnlockReceiveBlocking();
 	/* Sends all messages in all buffers
 	*/
   virtual int SendMessages ();
-  /**
+  /** 
    * Nonblocking receive. If there is a posted message to 
    * receive, receives it and returns 1. Else, returns 0
    */
@@ -106,6 +108,7 @@ public:
 	char  **f_argv;
 	bool fReceiveThreadExists;
 	pthread_t fReceiveThread;
+        pthread_mutex_t fReceiveMutex;
 };
 
 #endif

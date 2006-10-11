@@ -120,9 +120,11 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
     m_Avail.erase(*it);
     Evt.SetManager(this);
 #ifdef LOGPZ    
+    {
     stringstream sout;
     Evt.Print(sout);
     LOGPZ_DEBUG(logger,sout.str());
+    }
 #endif
 
   }
@@ -136,10 +138,13 @@ void OOPEvtManager<TEvt>::ReleaseEvent(int index){
   map<int, TEvt>::iterator it;
   it = m_Evts.find(index);
   if(it!=m_Evts.end()){
+    {
     stringstream sout;
-    sout << __FUNCTION__ << __LINE__ << "Releasing EvtID " << *it;
+
+    sout << __FUNCTION__ << __LINE__ << "Releasing EvtID " << it->first;
     it->second.Print(sout);
     LOGPZ_DEBUG(logger,sout.str());
+    }
   }
 #endif
   pthread_mutex_lock(&m_EvtMutex);

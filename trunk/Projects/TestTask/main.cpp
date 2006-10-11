@@ -123,7 +123,7 @@ int mainorig (int argc, char **argv)
 	delete  TM;
 	delete  CM;
 	delete LogDM;
-
+ 
 	cout << "Leaving mpimain\n";
 	cout.flush();
 	return 0;
@@ -139,7 +139,7 @@ int main (int argc, char **argv)
         gEvtDB.AddSoloEvent("grantaccess","Grant Access", "green",CM->GetProcID()==0);
         gEvtDB.AddSoloEvent("incrementversion","Inc Version", "red",CM->GetProcID()==0);
         
-
+  
 #endif
 	char filename[256];
 	sprintf(filename,"datalogger%d", CM->GetProcID());
@@ -148,9 +148,9 @@ int main (int argc, char **argv)
 	sprintf(filename,"tasklog.log%d", CM->GetProcID());
 	TaskLog.open(filename);
 	sprintf(filename,"datalog.log%d", CM->GetProcID());
-	DataLog.open(filename);
+	DataLog.open(filename); 
 	sprintf(filename,"datamanlog.log%d", CM->GetProcID());
-	DataManLog.open(filename);
+	DataManLog.open(filename); 
 	sprintf(filename,"transferdata.log%d", CM->GetProcID());
 	TransferDataLog.open(filename);
 	sprintf(filename,"taskqueue.log%d", CM->GetProcID());
@@ -163,7 +163,7 @@ int main (int argc, char **argv)
 	TM = new OOPTaskManager (CM->GetProcID ());
 	DM = new OOPDataManager (CM->GetProcID ());
 
-		
+		 
 	TM->Execute();
 	if(!CM->GetProcID()){
 		OOPInt * inta = new OOPInt;
@@ -209,6 +209,7 @@ int main (int argc, char **argv)
 		wt->Finish();
 		cout << "Wait task finished\n";
 		int iproc;
+                
 		for(iproc=1; iproc<CM->NumProcessors(); iproc++)
 		{
 			OOPTerminationTask *task = new OOPTerminationTask(iproc);
@@ -218,12 +219,40 @@ int main (int argc, char **argv)
 		OOPTerminationTask *task = new OOPTerminationTask(0);
 		task->Submit();
 	}
-
-	
+        
+	 
 	TM->Wait();
+/*        cout << "Wait task finished\n";
+        cout << "Triggering ReceiveThread termination" << endl;
+        cout.flush();
+        ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
+        cout << "Triggerred ReceiveThread termination" << endl;
+        cout.flush();
+         
+        if(!CM->GetProcID()){
+          int iproc;
+          for(iproc=1; iproc<CM->NumProcessors(); iproc++)
+          {
+                  OOPTerminationTask *task = new OOPTerminationTask(iproc);
+                  task->Submit();
+          }
+          sleep(1);
+          OOPTerminationTask *task = new OOPTerminationTask(0);
+          task->Submit();  
+        }*/
+ /*       cout << "Triggering ReceiveThread termination" << endl;
+        cout.flush();
+        ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
+        cout << "Triggerred ReceiveThread termination" << endl;
+        cout.flush();
+ */       sleep(5);       
 	delete  DM;
 	delete  TM;
+  cout << " -+++++++++ " << __LINE__ << endl;
+  cout.flush();       
 	delete  CM;
+  cout << " -+++++++++ " << __LINE__ << endl;
+  cout.flush();       
 	delete LogDM;
 
 	cout << "Leaving mpimain\n";

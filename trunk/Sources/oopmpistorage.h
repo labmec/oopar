@@ -65,7 +65,7 @@ private:
 
   /** flag indicating whether nonblocking reception is initiated */
     int     f_isreceiving;
-    /**
+    /** 
      * Indicates the amount of bytes transmitted through the MPI Interface
      * Requires resetting for each Message being sent
      */

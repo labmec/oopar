@@ -758,7 +758,7 @@ OOPTaskManager::ExecuteDaemons ()
     i = fDaemon.begin ();
     if ((*i)->GetProcID () != DM->GetProcID ()) {
       CM->SendTask ((*i));
-    } else {
+    } else { 
       (*i)->Execute ();
       delete (*i);
     }
@@ -776,8 +776,11 @@ OOPTaskManager::Execute ()
     LOGPZ_DEBUG (logger, sout.str ());
 #endif
   }
+#ifdef BLOCKING  
+  if (pthread_create (&fExecuteThread, NULL, ExecuteMTBlocking, this)) {
+#else
    if (pthread_create (&fExecuteThread, NULL, ExecuteMT, this)) {
-//  if (pthread_create (&fExecuteThread, NULL, ExecuteMTBlocking, this)) {
+#endif
 #ifdef LOGPZ
     stringstream sout;
     sout << "Fail to create service thread\n";
@@ -1081,6 +1084,9 @@ OOPMReturnType
 OOPTerminationTask::Execute ()
 {
   TM->SetKeepGoing (false);
+#ifdef BLOCKING  
+  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
+#endif
   return ESuccess;
 }
 

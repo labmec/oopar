@@ -65,6 +65,10 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 	f_argv = argv;
   	cout << "MPI_Init Called\n";
 	cout.flush();
+	fReceiveThread = 0;
+        pthread_mutex_init(&fReceiveMutex, NULL);       
+        pthread_mutex_lock(&fReceiveMutex);
+        
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
@@ -166,16 +170,16 @@ int OOPMPICommManager::ReceiveMessagesBlocking()
 {
 /*	f_buffer.ReceiveBlocking();
         return 1;*/
-        static pthread_t threadId = 0;
-                cout << "------------------------------------AQUI-------------------";
-                cout.flush();
-        pthread_create(&threadId, NULL, ReceiveMsgBlocking, this);
-                cout << "------------------------------------Depois-------------------";
-                cout.flush();
+
+/*  cout << "------------------------------------AQUI-------------------";
+  cout.flush();*/
+  pthread_create(&fReceiveThread, NULL, ReceiveMsgBlocking, this);
+/*  cout << "------------------------------------Depois-------------------";
+  cout.flush();*/
 }
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
-        cout << "------------------------------------ENTREI-------------------";
-        cout.flush();
+/*        cout << "------------------------------------ENTREI-------------------";
+        cout.flush();*/
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
 #	ifdef DEBUG
   	{
@@ -184,15 +188,15 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
     		sout << __PRETTY_FUNCTION__ << "ReceiveMsgBlocking ";
     		LOGPZ_DEBUG(logger,sout.str());
 #		endif
-	}
+	} 
 #	endif
-	while (1){
-		OOPMPIStorageBuffer msg;
-                cout << "------------------------------------AQUI-------------------";
-                cout.flush();
-		int ret = msg.ReceiveBlocking ();
+	//while (1){
+        while (pthread_mutex_trylock(&LocalCM->fReceiveMutex)!=0){       
+		int ret = LocalCM->f_buffer.ReceiveBlocking ();
 		// se houver erro, Kill
 		if (ret <= 0) {
+/*                  cout << "--------------" << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
+                  cout.flush();*/
 	 		LocalCM->Finish("ReceiveBlocking <receive error>");
 		}
 #		ifdef DEBUG
@@ -204,8 +208,10 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 #			endif    
   		}
 #		endif
-		LocalCM->ProcessMessage (msg);
+		LocalCM->ProcessMessage (LocalCM->f_buffer);
 	}
+        cout << "Leaving ReceiveThread infinit loop" << endl;
+        cout.flush();
 	return NULL;
 }
 void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
@@ -265,6 +271,7 @@ int OOPMPICommManager::ReceiveBlocking ()
 };
 int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 {
+
 	TPZSaveable *obj = msg.Restore ();
 	if (obj == NULL) {
 		Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
@@ -284,13 +291,11 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 	}
 	return 1;
 }
+
 void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
 	cout.flush();
 	f_buffer.CancelRequest();
-#	ifdef OOP_MPE
-	//MPE_Finish_log("default_log");
-#	endif
 	MPI_Finalize();
 }
 
@@ -304,4 +309,8 @@ char * OOPMPICommManager::ClassName(){
 
 int OOPMPICommManager::SendMessages(){
 	return 0;
+}
+
+void OOPMPICommManager::UnlockReceiveBlocking(){
+  pthread_mutex_unlock(&fReceiveMutex);
 }

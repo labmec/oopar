@@ -389,7 +389,7 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
 
 
 #endif
-OOPTaskManager::OOPTaskManager (int proc):fNumberOfThreads (2),
+OOPTaskManager::OOPTaskManager (int proc):fNumberOfThreads (10),
 fLockThread (0), fLock (0)
 {
   fProc = proc;
@@ -762,8 +762,8 @@ OOPTaskManager::Execute ()
     LOGPZ_DEBUG (logger, sout.str ());
 #endif
   }
-#ifdef BLOCKING  
-  if (pthread_create (&fExecuteThread, NULL, ExecuteMTBlocking, this)) {
+#ifdef BLOCKING
+   if (pthread_create (&fExecuteThread, NULL, ExecuteMTBlocking, this)) {
 #else
    if (pthread_create (&fExecuteThread, NULL, ExecuteMT, this)) {
 #endif
@@ -787,6 +787,9 @@ void
 OOPTaskManager::Wait ()
 {
   pthread_join (fExecuteThread, NULL);
+#ifdef BLOCKING
+  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking(); 
+#endif
 }
 
 void

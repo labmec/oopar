@@ -17,6 +17,7 @@
 
 #include <string>
 #include <pthread.h>
+#include <signal.h>
 #include "oopmpicomm.h"
 #include "ooptaskmanager.h"
 
@@ -168,14 +169,7 @@ int OOPMPICommManager::ReceiveMessages ()
 };
 int OOPMPICommManager::ReceiveMessagesBlocking()
 {
-/*	f_buffer.ReceiveBlocking();
-        return 1;*/
-
-/*  cout << "------------------------------------AQUI-------------------";
-  cout.flush();*/
   pthread_create(&fReceiveThread, NULL, ReceiveMsgBlocking, this);
-/*  cout << "------------------------------------Depois-------------------";
-  cout.flush();*/
 }
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 /*        cout << "------------------------------------ENTREI-------------------";
@@ -210,7 +204,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 #		endif
 		LocalCM->ProcessMessage (LocalCM->f_buffer);
 	}
-        cout << "Leaving ReceiveThread infinit loop" << endl;
+        cout << "Leaving ReceiveThread infinit loop " << LocalCM->f_myself << endl;
         cout.flush();
 	return NULL;
 }
@@ -295,7 +289,10 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
 	cout.flush();
+        cout << __LINE__ << endl;       
 	f_buffer.CancelRequest();
+        cout << __LINE__ << endl;       
+        sleep(5);
 	MPI_Finalize();
 }
 
@@ -313,4 +310,13 @@ int OOPMPICommManager::SendMessages(){
 
 void OOPMPICommManager::UnlockReceiveBlocking(){
   pthread_mutex_unlock(&fReceiveMutex);
+  sleep(1);
+  if (CM->GetProcID()==0){
+    OOPTerminationTask * tt = new OOPTerminationTask(f_num_proc - 1);
+    CM->SendTask(tt);
+  }else{
+    OOPTerminationTask * tt = new OOPTerminationTask(CM->GetProcID()-1);
+    CM->SendTask(tt);
+  }
+  
 }

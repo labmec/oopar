@@ -301,15 +301,10 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
   lTM->fKeepGoing = true;
   lTM->ExecuteDaemons ();
   while (lTM->fKeepGoing) {
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
-//    ((OOPMPICommManager *)CM)->ReceiveMessagesBlocking ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->ExecuteDaemons ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     while (lTM->fExecutable.size ()
 	   && (int) lTM->fExecuting.size () < lTM->fNumberOfThreads) {
       i = lTM->fExecutable.begin ();
-//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
       OOPTaskControl *tc = (*i);
       lTM->fExecutable.erase (i);
       lTM->fExecuting.push_back (tc);
@@ -322,27 +317,15 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
 	LOGPZ_DEBUG (tasklogger, sout.str ());
       }
 #endif
-//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
       tc->Execute ();
-//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
       lTM->TransferExecutingTasks ();
-//       cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
       DM->SubmitAllObjects ();
     }
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->TransferExecutingTasks ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->TransferFinishedTasks ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
-//    ((OOPMPICommManager *)CM)->ReceiveMessagesBlocking ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
-
     lTM->TransferSubmittedTasks ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     CM->SendMessages ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->ExecuteDaemons ();
-    //wait
 
 #ifdef LOGTIME
     if (!curSz.
@@ -395,8 +378,11 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
       }
     }
   }
+  
+  
   CM->SendMessages ();
   pthread_mutex_unlock (&lTM->fSubmittedMutex);
+  //Sinalizar liberação do thread
 
   return NULL;
 }

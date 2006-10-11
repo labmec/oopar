@@ -6,7 +6,7 @@
 
 #include <iostream>
 //#include <istream>
-#include "oopdatamanager.h"
+#include "oopdatamanager.h" 
 #include "ooptaskmanager.h"
 //#include "oopfilecomm.h"
 #include "ooperror.h"
@@ -20,7 +20,7 @@
 #endif
 
 
-#include "TTaskTest.h"
+#include "TTaskTest.h" 
 #include "OOPInt.h"
 
 
@@ -222,6 +222,8 @@ int main (int argc, char **argv)
         
 	 
 	TM->Wait();
+       ((OOPMPICommManager *)CM)->UnlockReceiveBlocking(); 
+       
 /*        cout << "Wait task finished\n";
         cout << "Triggering ReceiveThread termination" << endl;
         cout.flush();
@@ -244,10 +246,10 @@ int main (int argc, char **argv)
         cout.flush();
         ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
         cout << "Triggerred ReceiveThread termination" << endl;
-        cout.flush();
- */       sleep(5);       
-	delete  DM;
-	delete  TM;
+        cout.flush(); 
+ */       sleep(2);        
+	delete  DM; 
+	delete  TM;    
   cout << " -+++++++++ " << __LINE__ << endl;
   cout.flush();       
 	delete  CM;

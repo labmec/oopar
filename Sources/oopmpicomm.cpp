@@ -172,8 +172,6 @@ int OOPMPICommManager::ReceiveMessagesBlocking()
   pthread_create(&fReceiveThread, NULL, ReceiveMsgBlocking, this);
 }
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
-/*        cout << "------------------------------------ENTREI-------------------";
-        cout.flush();*/
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
 #	ifdef DEBUG
   	{
@@ -289,10 +287,12 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
 	cout.flush();
-        cout << __LINE__ << endl;       
 	f_buffer.CancelRequest();
-        cout << __LINE__ << endl;       
-        sleep(5);
+        
+        cout << "Processor " << f_myself  << " reached synchronization point ! Waiting for the rest !" << endl;
+        MPI_Barrier( MPI_COMM_WORLD );
+        cout << "Calling Finilize for " << f_myself << endl;
+        cout.flush();
 	MPI_Finalize();
 }
 

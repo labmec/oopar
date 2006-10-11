@@ -39,8 +39,10 @@ void OOPVector<T>::Read(TPZStream & buf, void * context){
     TPZSaveable::Read(buf, context);
     int size = 0;
     buf.Read(&size);
-    fVecValue.Resize(size);
-    buf.Read(&fVecValue[0], size);
+    if(size){
+      fVecValue.Resize(size);
+      buf.Read(&fVecValue[0], size);
+    }
     int clsid=0;
     buf.Read(&clsid);
     if(clsid!=ClassId()){
@@ -52,7 +54,9 @@ void OOPVector<T>::Write(TPZStream & buf, int withclassid){
     TPZSaveable::Write(buf, withclassid);
     int size = fVecValue.NElements();
     buf.Write(&size);
-    buf.Write(&fVecValue[0], size);
+    if(size){
+      buf.Write(&fVecValue[0], size);
+    }
     int clsid = ClassId();
     buf.Write(&clsid);
 }

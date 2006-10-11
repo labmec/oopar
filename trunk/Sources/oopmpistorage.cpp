@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.44 2006-10-11 02:17:34 longhin Exp $
-// $Revision: 1.44 $
+// $Id: oopmpistorage.cpp,v 1.45 2006-10-11 05:46:44 longhin Exp $
+// $Revision: 1.45 $
 
 
 
@@ -260,9 +260,6 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
  #endif       
 	f_isreceiving = 0;
 	f_recv_position = 0;
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
-          cout << "--------------" << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
-        cout.flush();
        
 	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
 	{
@@ -276,28 +273,13 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 
 int OOPMPIStorageBuffer::ReceiveBlocking ()
 {
-/*	Receive();
-	if(TestReceive()) {
-		return 1;
-		
-	}
-	MPI_Status status;
-	MPI_Wait(&f_request,&status);
-	return 1;*/
-	
-	//
-	// recebe primeiros 10^6 bytes
 	 MPI_Status status;
-          cout << "------------Entering Receive" << endl;
-          cout.flush();
 	 //cout << "MPI_Recv returned " << 
 	 int res = -1;
 	 res = MPI_Recv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 			   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;
 	 //desempacota dimensao do pacote completo
 	 if(res == MPI_SUCCESS){
-          cout << "Sucesso 1\n";
-          cout.flush();
           return 1;
          }else{
           cout << "Falhou Recv\n";

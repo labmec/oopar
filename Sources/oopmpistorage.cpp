@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.46 2006-10-11 14:50:23 longhin Exp $
-// $Revision: 1.46 $
+// $Id: oopmpistorage.cpp,v 1.47 2006-10-16 15:12:50 longhin Exp $
+// $Revision: 1.47 $
 
 
 
@@ -288,8 +288,8 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
           probres=PMPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG,MPI_COMM_WORLD, &status);
           int count = -1;
           PMPI_Get_count(&status, MPI_PACKED , &count);
-          cout << " Receiveing msg with size " << count << " bytes " << endl;
-          cout.flush();
+          //cout << " Receiveing msg with size " << count << " bytes " << endl;
+          //cout.flush();
 	 int res = -1;
 	 res = MPI_Recv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 			   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;

@@ -131,7 +131,7 @@ int mainorig (int argc, char **argv)
 }
 int main (int argc, char **argv)
 {
-	CM = new OOPMPICommManager (argc, argv);
+	CM = new OOPMPICommManager (argc, argv); 
 
 #ifdef OOP_MPE
         gEvtDB.AddStateEvent("taskexec","Task Execution", "blue",CM->GetProcID()==0);
@@ -222,39 +222,11 @@ int main (int argc, char **argv)
         
 	 
 	TM->Wait();
-       ((OOPMPICommManager *)CM)->UnlockReceiveBlocking(); 
        
-/*        cout << "Wait task finished\n";
-        cout << "Triggering ReceiveThread termination" << endl;
-        cout.flush();
-        ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
-        cout << "Triggerred ReceiveThread termination" << endl;
-        cout.flush();
-         
-        if(!CM->GetProcID()){
-          int iproc;
-          for(iproc=1; iproc<CM->NumProcessors(); iproc++)
-          {
-                  OOPTerminationTask *task = new OOPTerminationTask(iproc);
-                  task->Submit();
-          }
-          sleep(1);
-          OOPTerminationTask *task = new OOPTerminationTask(0);
-          task->Submit();  
-        }*/
- /*       cout << "Triggering ReceiveThread termination" << endl;
-        cout.flush();
-        ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
-        cout << "Triggerred ReceiveThread termination" << endl;
-        cout.flush(); 
- */       sleep(2);        
+
 	delete  DM; 
 	delete  TM;    
-  cout << " -+++++++++ " << __LINE__ << endl;
-  cout.flush();       
 	delete  CM;
-  cout << " -+++++++++ " << __LINE__ << endl;
-  cout.flush();       
 	delete LogDM;
 
 	cout << "Leaving mpimain\n";

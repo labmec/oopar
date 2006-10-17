@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.47 2006-10-16 15:12:50 longhin Exp $
-// $Revision: 1.47 $
+// $Id: oopmpistorage.cpp,v 1.48 2006-10-17 13:09:49 longhin Exp $
+// $Revision: 1.48 $
 
 
 
@@ -43,6 +43,17 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMPIStorageBuffer"));
 #endif
 
+#ifndef OOP_MPE
+#define PMPI_Pack_size MPI_Pack_size
+#define PMPI_Pack MPI_Pack
+#define PMPI_Send MPI_Send
+#define PMPI_Test MPI_Test
+#define PMPI_Probe MPI_Probe
+#define PMPI_Unpack MPI_Unpack
+#define PMPI_Get_count MPI_Get_count
+#endif
+
+
 void OOPMPIStorageBuffer::ExpandBuffer (int more_dimension)
 {
 	f_send_buffr.Resize(f_send_buffr.NElements()+more_dimension);
@@ -60,21 +71,20 @@ int OOPMPIStorageBuffer::ResetBuffer (int size)
 int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
 {
 	int nbytes;
-#ifdef OOP_MPE
 	PMPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
-#else
+/*#else
         MPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
-#endif
+#endif*/
 	f_BytesTransmitted += nbytes;
 	f_send_buffr.Resize(f_send_position+nbytes);
 	int mpiret;
-#ifdef OOP_MPE
+//#ifdef OOP_MPE
 	mpiret = PMPI_Pack (ptr, n, mpitype, &f_send_buffr[0], f_send_buffr.NElements(), &f_send_position,
 					   MPI_COMM_WORLD);
-#else
+/*#else
 	mpiret = MPI_Pack (ptr, n, mpitype, &f_send_buffr[0], f_send_buffr.NElements(), &f_send_position,
 
-#endif
+#endif*/
 	return mpiret;
 }
 int OOPMPIStorageBuffer::Send (int target)
@@ -244,12 +254,12 @@ bool OOPMPIStorageBuffer::TestReceive() {
 	if(!f_isreceiving) return false;
 	MPI_Status status;
 	int test_flag, ret_test;
-#ifdef OOP_MPE
-	ret_test=PMPI_Test (&f_request, &test_flag, &status);
+//#ifdef OOP_MPE
+	ret_test = PMPI_Test (&f_request, &test_flag, &status);
         //ret_test=MPI_Test (&f_request, &test_flag, &status);
-#else
+/*#else
 	ret_test=MPI_Test (&f_request, &test_flag, &status);
-#endif
+#endif*/
 #ifdef DEBUG
 	/*	cout << "Test returned " << ret_test << endl;
 	cout << "Flag " << test_flag << endl;
@@ -285,7 +295,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 	 MPI_Status status;
 	 //cout << "MPI_Recv returned " << 
           int probres=-1;
-          probres=PMPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG,MPI_COMM_WORLD, &status);
+          probres = PMPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG,MPI_COMM_WORLD, &status);
           int count = -1;
           PMPI_Get_count(&status, MPI_PACKED , &count);
           //cout << " Receiveing msg with size " << count << " bytes " << endl;
@@ -310,13 +320,13 @@ int OOPMPIStorageBuffer::UpkByte (char *p, int n)
 	int nbytes;
 	//MPI_Pack_size(n,MPI_CHAR,MPI_COMM_WORLD,&nbytes);
 	f_BytesTransmitted += nbytes;
-#ifdef OOP_MPE
+//#ifdef OOP_MPE
 	PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_CHAR,
 				MPI_COMM_WORLD);
-#else
+/*#else
 	MPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_CHAR,
 				MPI_COMM_WORLD);
-#endif
+#endif*/
 	// f_recv_position=f_recv_position+n*sizeof(char);
 	return 1;
 }

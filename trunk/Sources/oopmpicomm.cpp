@@ -186,7 +186,6 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 #	endif
 
         while (LocalCM->fKeepReceiving){
-                cout << "------------- " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
 		int ret = LocalCM->f_buffer.ReceiveBlocking();
 		// se houver erro, Kill
 		if (ret <= 0) {

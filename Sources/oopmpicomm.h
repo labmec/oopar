@@ -19,6 +19,9 @@
 
 #include "oopmpistorage.h"
 #include "oopcommmanager.h"
+
+#include <semaphore.h>
+
 class   OOPMPISendStorage;
 
 /**
@@ -110,6 +113,7 @@ public:
 	pthread_t fReceiveThread;
         pthread_mutex_t fReceiveMutex;
         pthread_cond_t fReceiveCond;
+        sem_t fReceiveSemaphore;
         bool fKeepReceiving;
 };
 

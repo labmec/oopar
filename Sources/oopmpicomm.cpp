@@ -292,7 +292,7 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 
 void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
-	cout.flush();
+	cout.flush(); 
 	f_buffer.CancelRequest();
         cout << "Processor " << f_myself  << " reached synchronization point !" << endl;
         MPI_Barrier( MPI_COMM_WORLD );

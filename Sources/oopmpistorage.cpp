@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.49 2006-10-18 05:07:18 longhin Exp $
-// $Revision: 1.49 $
+// $Id: oopmpistorage.cpp,v 1.50 2006-10-18 12:45:59 longhin Exp $
+// $Revision: 1.50 $
 
 
 
@@ -227,9 +227,9 @@ OOPMPIStorageBuffer::~OOPMPIStorageBuffer()
 	//if(f_request) MPI_Request_free(&f_request);
 }
 void OOPMPIStorageBuffer::CancelRequest(){
-//#ifndef BLOCKING
+#ifndef BLOCKING
     if(f_isreceiving) MPI_Cancel(&f_request);
-//#endif
+#endif
 }
 int OOPMPIStorageBuffer::Receive ()
 {

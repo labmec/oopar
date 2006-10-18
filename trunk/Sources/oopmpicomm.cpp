@@ -69,7 +69,7 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 	fReceiveThread = 0;
         pthread_mutex_init(&fReceiveMutex, NULL);       
         pthread_cond_init(&fReceiveCond, NULL);       
-        
+        sem_init(&fReceiveSemaphore, 0, 0);
         fKeepReceiving = true;
         
 }
@@ -175,6 +175,7 @@ int OOPMPICommManager::ReceiveMessagesBlocking()
 }
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
+        //pthread_mutex_lock(&LocalCM->fReceiveMutex);
 #	ifdef DEBUG
   	{
 #		ifdef LOGPZ    
@@ -206,8 +207,11 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
                 
 	}
         cout << "Leaving ReceiveThread infinit loop " << LocalCM->f_myself << endl;
-        sleep(3);
-        pthread_cond_signal(&LocalCM->fReceiveCond);
+
+        sem_post(&LocalCM->fReceiveSemaphore);
+        //sleep(3);
+        //pthread_cond_signal(&LocalCM->fReceiveCond);
+        //pthread_mutex_unlock(&LocalCM->fReceiveMutex);
         cout.flush();
 	return NULL;
 }
@@ -292,7 +296,7 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 
 void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
-	cout.flush(); 
+	cout.flush();
 	f_buffer.CancelRequest();
         cout << "Processor " << f_myself  << " reached synchronization point !" << endl;
         MPI_Barrier( MPI_COMM_WORLD );
@@ -315,12 +319,8 @@ int OOPMPICommManager::SendMessages(){
 
 void OOPMPICommManager::UnlockReceiveBlocking(){
   fKeepReceiving = false;
-  pthread_mutex_lock(&((OOPMPICommManager *)CM)->fReceiveMutex);
   MPI_Barrier( MPI_COMM_WORLD );
   cout << " ProcID " << CM->GetProcID() << " Synchronizing Termination Requests !" << endl;
-
-  
-  
   if (CM->GetProcID()==0){
     OOPTerminationTask * tt = new OOPTerminationTask(f_num_proc - 1);
     CM->SendTask(tt);
@@ -329,8 +329,10 @@ void OOPMPICommManager::UnlockReceiveBlocking(){
     OOPTerminationTask * tt = new OOPTerminationTask(CM->GetProcID()-1);
     CM->SendTask(tt);
   }
+  sem_wait(&((OOPMPICommManager *)CM)->fReceiveSemaphore);
+  //pthread_mutex_lock(&((OOPMPICommManager *)CM)->fReceiveMutex);
   cout << " ProcID " << CM->GetProcID() << " Waiting for ReceiveThread sinalization ..." << endl;
-  pthread_cond_wait(&((OOPMPICommManager *)CM)->fReceiveCond,&((OOPMPICommManager *)CM)->fReceiveMutex);
+  //pthread_cond_wait(&((OOPMPICommManager *)CM)->fReceiveCond,&((OOPMPICommManager *)CM)->fReceiveMutex);
   cout << " ProcID " << CM->GetProcID() << " Got it !" << endl;
   
 }

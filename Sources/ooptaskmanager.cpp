@@ -788,6 +788,7 @@ OOPTaskManager::Wait ()
 {
   pthread_join (fExecuteThread, NULL);
 #ifdef BLOCKING
+  cout << " Unlocking BlockingReceive Thread hopefully going down in a few seconds " << endl;
   ((OOPMPICommManager *)CM)->UnlockReceiveBlocking(); 
 #endif
 }
@@ -1074,7 +1075,7 @@ OOPTerminationTask::Execute ()
 {
   TM->SetKeepGoing (false);
 #ifdef BLOCKING  
-  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
+//  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
 #endif
   return ESuccess;
 }

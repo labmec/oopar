@@ -109,6 +109,8 @@ public:
 	bool fReceiveThreadExists;
 	pthread_t fReceiveThread;
         pthread_mutex_t fReceiveMutex;
+        pthread_cond_t fReceiveCond;
+        bool fKeepReceiving;
 };
 
 #endif

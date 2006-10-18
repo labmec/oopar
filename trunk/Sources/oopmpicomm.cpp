@@ -68,7 +68,9 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 	cout.flush();
 	fReceiveThread = 0;
         pthread_mutex_init(&fReceiveMutex, NULL);       
-        pthread_mutex_lock(&fReceiveMutex);
+        pthread_cond_init(&fReceiveCond, NULL);       
+        
+        fKeepReceiving = true;
         
 }
 OOPMPICommManager::~OOPMPICommManager ()
@@ -182,9 +184,10 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 #		endif
 	} 
 #	endif
-	//while (1){
-        while (pthread_mutex_trylock(&LocalCM->fReceiveMutex)!=0){       
-		int ret = LocalCM->f_buffer.ReceiveBlocking ();
+
+        while (LocalCM->fKeepReceiving){
+                cout << "------------- " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
+		int ret = LocalCM->f_buffer.ReceiveBlocking();
 		// se houver erro, Kill
 		if (ret <= 0) {
 /*                  cout << "--------------" << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
@@ -201,8 +204,11 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
   		}
 #		endif
 		LocalCM->ProcessMessage (LocalCM->f_buffer);
+                
 	}
         cout << "Leaving ReceiveThread infinit loop " << LocalCM->f_myself << endl;
+        sleep(3);
+        pthread_cond_signal(&LocalCM->fReceiveCond);
         cout.flush();
 	return NULL;
 }
@@ -267,6 +273,7 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 	TPZSaveable *obj = msg.Restore ();
 	if (obj == NULL) {
 		Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
+                //return 1;              
 	}
 	// Trace( " ClassId do objeto recebido: " );
 	// Trace( obj->GetClassId() << ".\n" );
@@ -288,8 +295,7 @@ void OOPMPICommManager::Finish(char * msg){
 	cout << msg << endl;
 	cout.flush();
 	f_buffer.CancelRequest();
-        
-        cout << "Processor " << f_myself  << " reached synchronization point ! Waiting for the rest !" << endl;
+        cout << "Processor " << f_myself  << " reached synchronization point !" << endl;
         MPI_Barrier( MPI_COMM_WORLD );
         cout << "Calling Finilize for " << f_myself << endl;
         cout.flush();
@@ -309,14 +315,23 @@ int OOPMPICommManager::SendMessages(){
 }
 
 void OOPMPICommManager::UnlockReceiveBlocking(){
-  pthread_mutex_unlock(&fReceiveMutex);
-  sleep(1);
+  fKeepReceiving = false;
+  pthread_mutex_lock(&((OOPMPICommManager *)CM)->fReceiveMutex);
+  MPI_Barrier( MPI_COMM_WORLD );
+  cout << " ProcID " << CM->GetProcID() << " Synchronizing Termination Requests !" << endl;
+
+  
+  
   if (CM->GetProcID()==0){
     OOPTerminationTask * tt = new OOPTerminationTask(f_num_proc - 1);
     CM->SendTask(tt);
   }else{
+  
     OOPTerminationTask * tt = new OOPTerminationTask(CM->GetProcID()-1);
     CM->SendTask(tt);
   }
+  cout << " ProcID " << CM->GetProcID() << " Waiting for ReceiveThread sinalization ..." << endl;
+  pthread_cond_wait(&((OOPMPICommManager *)CM)->fReceiveCond,&((OOPMPICommManager *)CM)->fReceiveMutex);
+  cout << " ProcID " << CM->GetProcID() << " Got it !" << endl;
   
 }

@@ -208,8 +208,6 @@ OOPTaskManager::ExecuteMT (void *data)
 
     lTM->TransferSubmittedTasks ();
 //     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
-    CM->SendMessages ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->ExecuteDaemons ();
     //wait
 
@@ -340,7 +338,6 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
     lTM->TransferExecutingTasks ();
     lTM->TransferFinishedTasks ();
     lTM->TransferSubmittedTasks ();
-    CM->SendMessages ();
     lTM->ExecuteDaemons ();
 
 #ifdef LOGTIME
@@ -396,7 +393,6 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
   }
   
   
-  CM->SendMessages ();
   pthread_mutex_unlock (&lTM->fSubmittedMutex);
   //Sinalizar liberação do thread
 

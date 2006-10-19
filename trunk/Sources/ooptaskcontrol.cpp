@@ -44,7 +44,7 @@ void OOPTaskControl::Execute()
     stringstream sout;
     sout << "Fail to create service thread -- ";
     sout << "Going out";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str());
 #endif    
   }
 }
@@ -72,6 +72,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   // the task finished executing!!!!
 //  cout << __PRETTY_FUNCTION__ << " before lock for task " << tc->fTask->Id() << endl;
   OOPObjectId id = tc->fTask->Id();
+  int lClassId = tc->fTask->ClassId();
   if (!tc->fTask->IsRecurrent())
   {
 
@@ -81,7 +82,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Task " << id << " finished before lock";
+    sout << "Task " << id << " CId:" << lClassId << " finished before lock";
     LOGPZ_DEBUG(logger,sout.str());
   }
 #endif
@@ -93,7 +94,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Task " << id << " finished";
+    sout << "Task " << id << " CId:" << lClassId << " finished";
     LOGPZ_DEBUG(logger,sout.str());
   }
 #endif

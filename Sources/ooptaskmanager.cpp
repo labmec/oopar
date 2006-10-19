@@ -169,7 +169,7 @@ OOPTaskManager::ExecuteMT (void *data)
 #endif
   lTM->fKeepGoing = true;
   lTM->ExecuteDaemons ();
-  while (lTM->fKeepGoing) {
+  while (lTM->fKeepGoing || lTM->fExecuting.size()) {
 //     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     CM->ReceiveMessages ();
 //     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
@@ -233,16 +233,17 @@ OOPTaskManager::ExecuteMT (void *data)
 #endif
 
 
-    if (!lTM->HasWorkTodo () && lTM->fKeepGoing) {
+    if (!lTM->HasWorkTodo ()) {
       if (CM->NumProcessors () > 1) {
 	timeval now;
 	gettimeofday (&now, 0);
-	now.tv_usec += 1;
+	now.tv_usec += 1000;
 	now.tv_sec += now.tv_usec / 1000000;
 	now.tv_usec %= 1000000;
 	timespec next;
 	next.tv_sec = now.tv_sec;
 	next.tv_nsec = now.tv_usec * 1000;
+	
 #ifdef LOGPZ
       {
         std::stringstream sout;
@@ -250,8 +251,15 @@ OOPTaskManager::ExecuteMT (void *data)
         LOGPZ_DEBUG(tasklogger,sout.str().c_str());
       }
 #endif
-	pthread_cond_timedwait (&lTM->fExecuteCondition,
+        int retval = 0;
+	retval = pthread_cond_timedwait (&lTM->fExecuteCondition,
 				&lTM->fSubmittedMutex, &next);
+
+        if(retval == ETIMEDOUT){
+          LOGPZ_DEBUG(tasklogger,"TimedWait TimedOut");
+        }else{
+          LOGPZ_DEBUG(tasklogger,"TimedWait Signaled");
+        }
       } else {
 #ifdef LOGPZ
       {
@@ -264,6 +272,14 @@ OOPTaskManager::ExecuteMT (void *data)
       }
     }
   }
+#ifdef LOGPZ
+      {
+        std::stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " falling through " << " keep going = " << lTM->fKeepGoing << " number of executing tasks " << lTM->fExecuting.size();
+        LOGPZ_DEBUG(tasklogger,sout.str().c_str());
+      }
+#endif
+  
   CM->SendMessages ();
   pthread_mutex_unlock (&lTM->fSubmittedMutex);
 
@@ -627,13 +643,15 @@ OOPTaskManager::Submit (OOPTask * task)
   // I dont need to lock if I am the service thread
   // (in that case I already have the lock)
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
-    //cout << __PRETTY_FUNCTION__ << " acquiring lock\n";
+    LOGPZ_DEBUG(logger,"Lock within Submit")
     pthread_mutex_lock (&fSubmittedMutex);
   }
   fSubmittedList.push_back (task);
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
     //cout << __PRETTY_FUNCTION__ << " going to release lock\n";
+    LOGPZ_DEBUG(logger,"Signal within Submit")
     pthread_cond_signal (&fExecuteCondition);
+    LOGPZ_DEBUG(logger,"Unlock within Submit")
     pthread_mutex_unlock (&fSubmittedMutex);
   }
   return id;
@@ -786,7 +804,9 @@ OOPTaskManager::Execute ()
 void
 OOPTaskManager::Wait ()
 {
+
   pthread_join (fExecuteThread, NULL);
+  MPI_Barrier(MPI_COMM_WORLD);
 #ifdef BLOCKING
   cout << " Unlocking BlockingReceive Thread hopefully going down in a few seconds " << endl;
   ((OOPMPICommManager *)CM)->UnlockReceiveBlocking(); 
@@ -1073,10 +1093,14 @@ OOPTask (term)
 OOPMReturnType
 OOPTerminationTask::Execute ()
 {
+  LOGPZ_DEBUG (logger, "Antes do Lock\n");
+  {
+  TMLock lock;
   TM->SetKeepGoing (false);
-#ifdef BLOCKING  
-//  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
-#endif
+  TM->Signal(lock);
+  }
+  LOGPZ_DEBUG (logger, "Depois do Lock\n");
+  sleep(1);
   return ESuccess;
 }
 
@@ -1116,6 +1140,7 @@ OOPTaskManager::Lock (TMLock & lock)
     std::cout << "A single thread locking twice\n";
     return;
   }
+  LOGPZ_DEBUG(logger,"Locking within TM")
   pthread_mutex_lock (&fSubmittedMutex);
   fLockThread = pthread_self ();
   if (fLock) {
@@ -1138,6 +1163,7 @@ OOPTaskManager::Unlock (TMLock & lock)
   fLock = 0;
   fLockThread = 0;
   //cout << __PRETTY_FUNCTION__ << " releasing lock\n";
+  LOGPZ_DEBUG(logger,"Unlocking within TM")
 
   pthread_mutex_unlock (&fSubmittedMutex);
 }
@@ -1149,12 +1175,13 @@ OOPTaskManager::Signal (TMLock & lock)
     std::cout << __PRETTY_FUNCTION__ << " Signal called for the wrong lock object\n";
     return;
   }
+  LOGPZ_DEBUG(logger,"Signaling within TM")
   pthread_cond_signal (&fExecuteCondition);
 }
 
 TMLock::TMLock ()
 {
-//   std::cout <<  __PRETTY_FUNCTION__ << " LOCK called\n";
+  LOGPZ_DEBUG(logger,"Locking")
   TM->Lock (*this);
 //   std::cout <<  __PRETTY_FUNCTION__ << " LOCK acquired\n";
 }
@@ -1162,6 +1189,7 @@ TMLock::TMLock ()
 TMLock::~TMLock ()
 {
 //   std::cout <<  __PRETTY_FUNCTION__ << " UNLOCK will be called\n";
+  LOGPZ_DEBUG(logger,"Unlocking")
   TM->Unlock (*this);
 }
 

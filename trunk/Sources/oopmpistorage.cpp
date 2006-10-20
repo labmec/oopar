@@ -19,8 +19,8 @@
 //
 
 // $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.50 2006-10-18 12:45:59 longhin Exp $
-// $Revision: 1.50 $
+// $Id: oopmpistorage.cpp,v 1.51 2006-10-20 17:48:10 longhin Exp $
+// $Revision: 1.51 $
 
 
 
@@ -109,17 +109,25 @@ int OOPMPIStorageBuffer::Send (int target)
   }
   int ret;
   int tag = 0;
+#	ifdef OOP_MPE
+/*  int lmyself=-1;
+  MPI_Comm_rank (MPI_COMM_WORLD, &lmyself);          
+  MPE_Log_send(target, tag, f_send_position);*/
+#	endif	
+
   ret = MPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);
+  //MPE_Log_send(target, tag, f_send_position);
 /*  ret = PMPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
 				target, tag, MPI_COMM_WORLD);*/
 #	ifdef OOP_MPE
-//	MPE_Log_send(target, tag, f_send_position);
+/*          MPE_Log_receive(target, tag, f_send_position);*/
 #	endif	
 
 #ifdef DEBUGALL
   switch(ret){
 	case MPI_SUCCESS:
+
 #ifdef LOGPZ      
 		stringstream sout;
 		sout <<" - No error; MPI routine completed successfully";
@@ -240,6 +248,8 @@ int OOPMPIStorageBuffer::Receive ()
 	
 	MPI_Irecv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
 			   MPI_ANY_TAG, MPI_COMM_WORLD, &f_request);
+
+
 	f_isreceiving = 1;
 	return 1;
 
@@ -258,6 +268,10 @@ bool OOPMPIStorageBuffer::TestReceive() {
 	int test_flag, ret_test;
 //#ifdef OOP_MPE
 	ret_test = PMPI_Test (&f_request, &test_flag, &status);
+        //Checks if test_flag is true and if source is something valid
+        if(test_flag && status.MPI_SOURCE >=0 ){
+          f_status = status;
+        }
         //ret_test=MPI_Test (&f_request, &test_flag, &status);
 /*#else
 	ret_test=MPI_Test (&f_request, &test_flag, &status);
@@ -281,6 +295,10 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
  #endif       
 	f_isreceiving = 0;
 	f_recv_position = 0;
+#ifdef OOP_MPE
+        MPE_Log_receive(f_status.MPI_SOURCE, f_status.MPI_TAG, f_recv_position);
+        cout << " Origin " << f_status.MPI_SOURCE << " Tag " << f_status.MPI_TAG << endl;
+#endif	
        
 	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
 	{

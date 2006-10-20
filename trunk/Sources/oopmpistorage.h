@@ -59,6 +59,7 @@ private:
 	int     f_msg_tag;
   /** request object for non-blocking receive operation */
 	MPI_Request  f_request;
+        MPI_Status f_status;
 
     /** Id of process for which message shall be sent */
 	int     f_target_tid;

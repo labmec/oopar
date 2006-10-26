@@ -1,51 +1,138 @@
 <?xml version = '1.0'?>
 <kdevelop>
   <general>
-    <author>Gustavo Camargo Longhin</author>
-    <email>longhin@labmec.fec.unicamp.br</email>
-    <version>1.1</version>
+    <author>Edimar Cesar Rylo</author>
+    <email>ecrylo@uol.com.br</email>
+    <version>$VERSION$</version>
     <projectmanagement>KDevAutoProject</projectmanagement>
     <primarylanguage>C++</primarylanguage>
-    <keywords>
-      <keyword>C++</keyword>
-      <keyword>Code</keyword>
-    </keywords>
     <ignoreparts/>
+    <projectdirectory>.</projectdirectory>
+    <absoluteprojectpath>false</absoluteprojectpath>
+    <description/>
+    <secondaryLanguages/>
   </general>
   <kdevautoproject>
     <general>
-      <activetarget>src/OOPar</activetarget>
-      <useconfiguration>debug</useconfiguration>
+      <activetarget>Sources/liboopar.a</activetarget>
+      <useconfiguration>debug_mpe_logged</useconfiguration>
     </general>
     <run>
-      <mainprogram>src/OOPar</mainprogram>
-      <terminal>true</terminal>
+      <mainprogram>src/oopar</mainprogram>
       <directoryradio>executable</directoryradio>
+      <customdirectory>/</customdirectory>
+      <programargs/>
+      <terminal>false</terminal>
+      <autocompile>true</autocompile>
+      <envvars/>
     </run>
     <configurations>
       <optimized>
         <builddir>optimized</builddir>
-        <ccompiler>kdevgccoptions</ccompiler>
-        <cxxcompiler>kdevgppoptions</cxxcompiler>
-        <f77compiler>kdevg77options</f77compiler>
+        <ccompiler>GccOptions</ccompiler>
+        <cxxcompiler>GppOptions</cxxcompiler>
+        <f77compiler>G77Options</f77compiler>
         <cxxflags>-O2 -g0</cxxflags>
       </optimized>
       <debug>
-        <configargs>--enable-debug=full</configargs>
+        <configargs>--enable-debug=full --enable-mpi=yes --with-mpi-dir=/home/longhin/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=/home/longhin/Projetos/PZInstall --prefix=/home/longhin/Projetos/OOParInstall</configargs>
         <builddir>debug</builddir>
         <ccompiler>kdevgccoptions</ccompiler>
         <cxxcompiler>kdevgppoptions</cxxcompiler>
         <f77compiler>kdevg77options</f77compiler>
-        <cxxflags>-O0 -g3</cxxflags>
+        <cxxflags>-no-inline -O0 -g3</cxxflags>
+        <envvars/>
+        <topsourcedir/>
+        <cppflags>-DMPICH_IGNORE_CXX_SEEK</cppflags>
+        <ldflags/>
+        <ccompilerbinary>mpicc</ccompilerbinary>
+        <cxxcompilerbinary>mpicxx</cxxcompilerbinary>
+        <f77compilerbinary>g77</f77compilerbinary>
+        <cflags/>
+        <f77flags/>
       </debug>
+      <default>
+        <envvars/>
+        <configargs>--prefix=/home/cluster/proj/proj076/ecrylo/installDIR/std6 --enable-mpilam=yes --with-mpilam-dir=/home/cluster/proj/proj076/ecrylo/installDIR/std6 --with-pz-dir=/home/cluster/proj/proj076/ecrylo/installDIR/std6 --with-log4cxx-dir=/home/cluster/proj/proj076/ecrylo/installDIR/std6</configargs>
+        <builddir/>
+        <topsourcedir/>
+        <cppflags>-m64</cppflags>
+        <ldflags/>
+        <ccompiler>kdevgccoptions</ccompiler>
+        <cxxcompiler>kdevgppoptions</cxxcompiler>
+        <f77compiler>kdevpgf77options</f77compiler>
+        <ccompilerbinary/>
+        <cxxcompilerbinary>mpic++</cxxcompilerbinary>
+        <f77compilerbinary/>
+        <cflags/>
+        <cxxflags/>
+        <f77flags/>
+      </default>
+      <debug_CFD>
+        <envvars/>
+        <configargs>--prefix=/home/cluster/proj/proj076/fortiago/Embraer/installDIR --enable-debug=full --with-mpi-dir=/home/cluster/proj/proj076/ecrylo/installDIR/std5/ --with-pz-dir=/home/cluster/proj/proj076/fortiago/Embraer/installDIR --enable-mpi=yes</configargs>
+        <builddir>debug_CFD</builddir>
+        <topsourcedir/>
+        <cppflags>-m64</cppflags>
+        <ldflags/>
+        <ccompiler>kdevgccoptions</ccompiler>
+        <cxxcompiler>kdevgppoptions</cxxcompiler>
+        <f77compiler>kdevpgf77options</f77compiler>
+        <ccompilerbinary>/usr/local/gcc-3.3.5/installdir/bin/gcc</ccompilerbinary>
+        <cxxcompilerbinary>/usr/local/gcc-3.3.5/installdir/bin/g++</cxxcompilerbinary>
+        <f77compilerbinary/>
+        <cflags/>
+        <cxxflags/>
+        <f77flags/>
+      </debug_CFD>
+      <debug_mpe_logged>
+        <envvars/>
+        <configargs>--enable-debug=full --enable-mpi=yes --enable-mpe=yes --with-mpi-dir=/home/longhin/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=/home/longhin/Projetos/PZInstall --prefix=/home/longhin/Projetos/OOParInstall</configargs>
+        <builddir>debug_mpe_logged</builddir>
+        <topsourcedir/>
+        <cppflags>-DMPICH_IGNORE_CXX_SEEK</cppflags>
+        <ldflags/>
+        <ccompiler>kdevgccoptions</ccompiler>
+        <cxxcompiler>kdevgppoptions</cxxcompiler>
+        <f77compiler>kdevpgf77options</f77compiler>
+        <ccompilerbinary>mpicc</ccompilerbinary>
+        <cxxcompilerbinary>mpicxx</cxxcompilerbinary>
+        <f77compilerbinary/>
+        <cflags/>
+        <cxxflags>-no-inline -O0 -g3</cxxflags>
+        <f77flags/>
+      </debug_mpe_logged>
     </configurations>
     <make>
       <envvars>
         <envvar value="1" name="WANT_AUTOCONF_2_5" />
         <envvar value="1" name="WANT_AUTOMAKE_1_6" />
       </envvars>
+      <abortonerror>true</abortonerror>
+      <numberofjobs>1</numberofjobs>
+      <dontact>false</dontact>
+      <makebin/>
+      <prio>0</prio>
     </make>
   </kdevautoproject>
+  <kdevdebugger>
+    <general>
+      <dbgshell>libtool</dbgshell>
+      <programargs/>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
+      <breakonloadinglibs>true</breakonloadinglibs>
+      <separatetty>false</separatetty>
+      <floatingtoolbar>false</floatingtoolbar>
+    </general>
+    <display>
+      <staticmembers>false</staticmembers>
+      <demanglenames>true</demanglenames>
+      <outputradix>10</outputradix>
+    </display>
+  </kdevdebugger>
   <kdevdoctreeview>
     <ignoretocs>
       <toc>ada</toc>
@@ -53,7 +140,6 @@
       <toc>bash</toc>
       <toc>bash_bugs</toc>
       <toc>clanlib</toc>
-      <toc>w3c-dom-level2-html</toc>
       <toc>fortran_bugs_gcc</toc>
       <toc>gnome1</toc>
       <toc>gnustep</toc>
@@ -76,8 +162,9 @@
       <toc>ruby</toc>
       <toc>ruby_bugs</toc>
       <toc>sdl</toc>
-      <toc>w3c-svg</toc>
       <toc>sw</toc>
+      <toc>w3c-dom-level2-html</toc>
+      <toc>w3c-svg</toc>
       <toc>w3c-uaag10</toc>
       <toc>wxwidgets_bugs</toc>
     </ignoretocs>
@@ -93,44 +180,20 @@
     </ignoredoxygen>
   </kdevdoctreeview>
   <kdevfilecreate>
+    <filetypes/>
     <useglobaltypes>
+      <type ext="ui" />
       <type ext="cpp" />
       <type ext="h" />
     </useglobaltypes>
   </kdevfilecreate>
-  <kdevfileview>
-    <groups>
-      <group pattern="*.h" name="Header files" />
-      <group pattern="*.cpp" name="Source files" />
-      <hidenonprojectfiles>false</hidenonprojectfiles>
-      <hidenonlocation>false</hidenonlocation>
-    </groups>
-    <tree>
-      <hidepatterns>*.o,*.lo,CVS</hidepatterns>
-      <hidenonprojectfiles>false</hidenonprojectfiles>
-    </tree>
-  </kdevfileview>
-  <kdevdocumentation>
-    <projectdoc>
-      <docsystem>Doxygen Documentation Collection</docsystem>
-      <docurl>OOPar.tag</docurl>
-    </projectdoc>
-  </kdevdocumentation>
-  <substmap>
-    <APPNAME>OOPar</APPNAME>
-    <APPNAMELC>OOPar</APPNAMELC>
-    <APPNAMESC>Oopar</APPNAMESC>
-    <APPNAMEUC>OOPAR</APPNAMEUC>
-    <AUTHOR>Gustavo Camargo Longhin</AUTHOR>
-    <EMAIL>longhin@labmec.fec.unicamp.br</EMAIL>
-    <LICENSE>GPL</LICENSE>
-    <LICENSEFILE>COPYING</LICENSEFILE>
-    <VERSION>1.1</VERSION>
-    <YEAR>2006</YEAR>
-    <dest>/home/longhin/Projetos/OOPar</dest>
-  </substmap>
+  <cppsupportpart>
+    <filetemplates>
+      <interfacesuffix>.h</interfacesuffix>
+      <implementationsuffix>.cpp</implementationsuffix>
+    </filetemplates>
+  </cppsupportpart>
   <kdevcppsupport>
-    <references/>
     <codecompletion>
       <includeGlobalFunctions>true</includeGlobalFunctions>
       <includeTypes>true</includeTypes>
@@ -143,5 +206,37 @@
       <argumentsHintDelay>400</argumentsHintDelay>
       <headerCompletionDelay>250</headerCompletionDelay>
     </codecompletion>
+    <references/>
+    <creategettersetter>
+      <prefixGet/>
+      <prefixSet>set</prefixSet>
+      <prefixVariable>m_,_</prefixVariable>
+      <parameterName>theValue</parameterName>
+      <inlineGet>false</inlineGet>
+      <inlineSet>true</inlineSet>
+    </creategettersetter>
+    <qt>
+      <used>false</used>
+      <version>3</version>
+      <root>/usr/lib/qt-3.3</root>
+    </qt>
   </kdevcppsupport>
+  <kdevcvsservice>
+    <recursivewhenupdate>true</recursivewhenupdate>
+    <prunedirswhenupdate>true</prunedirswhenupdate>
+    <createdirswhenupdate>true</createdirswhenupdate>
+    <recursivewhencommitremove>true</recursivewhencommitremove>
+    <revertoptions>-C</revertoptions>
+  </kdevcvsservice>
+  <kdevfileview>
+    <groups>
+      <hidenonprojectfiles>false</hidenonprojectfiles>
+      <hidenonlocation>false</hidenonlocation>
+    </groups>
+    <tree>
+      <showvcsfields>false</showvcsfields>
+      <hidenonprojectfiles>false</hidenonprojectfiles>
+      <hidepatterns>*.o,*.lo,CVS</hidepatterns>
+    </tree>
+  </kdevfileview>
 </kdevelop>

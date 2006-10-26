@@ -1,37 +1,5 @@
-#
-# Top Makefile.am for OOPar
-#
-# It will be processed by GNU automake to produce Makefile.in
-#
-# $Id: Makefile.am,v 1.8 2006-09-22 19:16:40 longhin Exp $
-#
+# not a GNU package. You can remove this line, if
+# have all needed files, that a GNU package needs
+AUTOMAKE_OPTIONS = foreign 1.4
 
-usermkdir = $(prefix)
-
-CXX=mpicxx
-usermk_DATA = OOP_user.mk
-
-SUBDIRS = Sources lib Projects
-
-DISTCLEANFILES = @OOP_DISTCLEANFILES@
-CLEANFILES     = @OOP_CLEANFILES@
-
-PACKAGE = OOP
-DEVELOPER_ID = LabMeC
-
-clean-project:
-	cd Projects && make distclean
-
-backup: clean-project distclean
-	@ echo Making $(PACKAGE) backup...
-	@ echo -----------------------------------------------------------------
-	@ echo Generating tarball...
-	@ cd .. && tar --exclude={*.a,*.so,*.bz2,.tm_*,.snprj} -cf \
-          $(PACKAGE)-$(DEVELOPER_ID)-`date +%Y%m%d_%Hh%Mm`.tar ./Pantheon
-	@ echo Compacting...
-	@ cd .. && bzip2 $(PACKAGE)-*.tar
-	@ echo Generated file:
-	@ echo $(PACKAGE)-$(DEVELOPER_ID)-`date +%Y%m%d_%Hh%Mm`.tar
-	@ echo -----------------------------------------------------------------
-
-## --| OOPar |------------------------------------------------------------------
+SUBDIRS = src

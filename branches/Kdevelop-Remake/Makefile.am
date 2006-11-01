@@ -3,7 +3,7 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.8.2.2 2006-10-26 14:53:18 longhin Exp $
+# $Id: Makefile.am,v 1.8.2.3 2006-11-01 21:22:32 longhin Exp $
 #
 
 usermkdir = $(prefix)

@@ -1,27 +1,4 @@
-//
-// Autor:   Fabio Amaral Castro,  RA: 991722
-//
-// Arquivo: str_mpi.c
-//
-// Classe:  TSendStorageMpi,
-//          TReceiveStorageMpi.
-//
-// Descr.: 
-//          TSendStorageMpi:
-//            Classe derivada de TSendStorage que implementa o buffer
-//            usando MPI para a comunicacao entre processos.
-//
-//          TReceiveStorageMpi:
-//            Classe derivada de TReceiveStorage que implementa o buffer
-//            usando MPI para a comunicacao entre processos.
-//
-// Versao:  01 / 03.
-//
-
-// $Author: longhin $
-// $Id: oopmpistorage.cpp,v 1.51 2006-10-20 17:48:10 longhin Exp $
-// $Revision: 1.51 $
-
+#ifdef OOP_MPI
 
 
 #include "oopmpistorage.h"
@@ -503,3 +480,5 @@ long OOPMPIStorageBuffer::GetBytesTransmitted() const
 {
 	return f_BytesTransmitted;
 }
+
+#endif

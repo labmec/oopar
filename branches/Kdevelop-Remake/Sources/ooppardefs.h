@@ -2,16 +2,10 @@
 #define PARDEFSH
 enum OOPMDMOwnerMessageType
 {
-	ENoMessage,
-	ECancelReadAccess,
-	ECancelReadAccessConfirmation,
-	ESuspendAccess,
-	ESuspendAccessConfirmation,
-	ESuspendSuspendAccess,
-	ETransferOwnership,
-	EGrantReadAccess,
-	EGrantVersionAccess,
-	ENotifyDeleteObject,
+  ENoMessage,
+  ETransferOwnership,
+  EGrantReadAccess,
+  ENotifyDeleteObject
 };
 enum OOPDMRequestMessageType
 {
@@ -30,13 +24,14 @@ enum OOPMDataState
 	ENoAccess,
 	EReadAccess,
 	EWriteAccess,
-	EVersionAccess
+//	EVersionAccess
 };
 enum OOPMTransitionState
 {
-	ENoTransition,
-	ECancelReadTransition,
-	ESuspendReadTransition
+  ENoTransition,
+  EToDelete
+/*	ECancelReadTransition,
+	ESuspendReadTransition*/
 };
 enum OOPMReturnType
 {

@@ -1,16 +1,4 @@
-//
-// Autor: F�io Amaral de Castro, RA: 991722
-//
-// E-mail: facastro99@yahoo.com
-//
-// Arquivo: com_mpi.c
-//
-// Classe: TMpiComManager
-//
-// Descr.: Classe para comunicacao utilizando MPI
-//
-// Versao: 12 / 2002
-//
+#ifdef OOP_MPI
 
 #include "mpi.h"
 #include <stdio.h>
@@ -336,3 +324,5 @@ void OOPMPICommManager::UnlockReceiveBlocking(){
   cout << " ProcID " << CM->GetProcID() << " Got it !" << endl;
   
 }
+
+#endif

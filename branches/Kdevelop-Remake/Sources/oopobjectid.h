@@ -23,6 +23,10 @@ class   OOPObjectId
 	 * be changed to the correct name as soon as possible.
 	 */
 	int IsZeroOOP() const;
+        operator bool() const
+        {
+          return (fId || fProcId);
+        }
 
 	  /**
 	 * Packs itself in a buffer so it can be sent through the network.

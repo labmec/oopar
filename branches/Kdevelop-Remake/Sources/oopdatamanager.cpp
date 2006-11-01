@@ -556,29 +556,11 @@ void OOPDMOwnerTask::LogMe(std::ostream & out){
 		case  ENoMessage:
 			out << "ENoMessage\t";
 			break;
-		case  ECancelReadAccess:
-			out << "ECancelReadAccess\t";
-			break;
-		case  ECancelReadAccessConfirmation:
-			out << "ECancelReadAccessConfirmation\t";
-			break;
-		case  ESuspendAccess:
-			out << "ESuspendAccess\t";
-			break;
-		case  ESuspendAccessConfirmation:
-			out << "ESuspendAccessConfirmation\t";
-			break;
-		case  ESuspendSuspendAccess:
-			out << "ESuspendSuspendAccess\t";
-			break;
 		case  ETransferOwnership:
 			out << "ETransferOwnership\t";
 			break;
 		case  EGrantReadAccess:
 			out << "EGrantReadAccess\t";
-			break;
-		case  EGrantVersionAccess:
-			out << "EGrantVersionAccess\t";
 			break;
 		case  ENotifyDeleteObject:
 			out << "ENotifyDeleteObject\t";
@@ -598,9 +580,6 @@ void OOPDMOwnerTask::LogMe(std::ostream & out){
 			break;
 		case  EWriteAccess:
 			out << "EWriteAccess\t";
-			break;
-		case  EVersionAccess:
-			out << "EVersionAccess\t";
 			break;
 	}
 	
@@ -621,29 +600,11 @@ void OOPDMOwnerTask::LogMeReceived(std::ostream & out){
 		case  ENoMessage:
 			out << "ENoMessage\t";
 			break;
-		case  ECancelReadAccess:
-			out << "ECancelReadAccess\t";
-			break;
-		case  ECancelReadAccessConfirmation:
-			out << "ECancelReadAccessConfirmation\t";
-			break;
-		case  ESuspendAccess:
-			out << "ESuspendAccess\t";
-			break;
-		case  ESuspendAccessConfirmation:
-			out << "ESuspendAccessConfirmation\t";
-			break;
-		case  ESuspendSuspendAccess:
-			out << "ESuspendSuspendAccess\t";
-			break;
 		case  ETransferOwnership:
 			out << "ETransferOwnership\t";
 			break;
 		case  EGrantReadAccess:
 			out << "EGrantReadAccess\t";
-			break;
-		case  EGrantVersionAccess:
-			out << "EGrantVersionAccess\t";
 			break;
 		case  ENotifyDeleteObject:
 			out << "ENotifyDeleteObject\t";
@@ -663,9 +624,6 @@ void OOPDMOwnerTask::LogMeReceived(std::ostream & out){
 			break;
 		case  EWriteAccess:
 			out << "EWriteAccess\t";
-			break;
-		case  EVersionAccess:
-			out << "EVersionAccess\t";
 			break;
 	}
 	

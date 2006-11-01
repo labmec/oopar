@@ -1,18 +1,7 @@
-//
-// C++ Interface: oopevtid
-//
-// Description: 
-//
-//
-// Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2006
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
+#ifdef OOP_MPE
 #ifndef OOPEVTID_H
 #define OOPEVTID_H
 
-#ifdef OOP_MPE
 #define MAX_MSG_LENGTH 30
 
 #include <map>
@@ -185,6 +174,10 @@ public:
 };
 
 
-#endif
+
 
 #endif
+
+#endif // OOP_MPE
+
+

@@ -1,22 +1,5 @@
-//
-// Autor:   Fabio Amaral Castro,  RA: 991722
-//
-// Arquivo: str_mpi.h
-//
-// Classe:  TSendStorageMpi,
-//          TReceiveStorageMpi.
-//
-// Descr.: 
-//          TSendStorageMpi:
-//            Classe derivada de TSendStorage que implementa o buffer
-//            usando MPI para a comunicacao entre processos.
-//
-//          TReceiveStorageMpi:
-//            Classe derivada de TReceiveStorage que implementa o buffer
-//            usando MPI para a comunicacao entre processos.
-//
-// Versao:  01 / 03
-//
+#ifdef OOP_MPI
+
 #ifndef _STR_MPIHH_
 #define _STR_MPIHH_
 
@@ -298,4 +281,8 @@ public:
 	
 };
 typedef OOPMPIStorageBuffer *POOPMPIStorageBuffer;
+#endif
+
+
+//OOP_MPI
 #endif

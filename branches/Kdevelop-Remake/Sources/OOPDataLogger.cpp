@@ -45,10 +45,6 @@ void OOPDataLogger::LogReleaseAccess(int proc, OOPObjectId & Id, OOPMDataState s
 			fLogger << "EWriteAccess ";
 			fLogger << "From task " << taskId << endl;
 			break;
-		case  EVersionAccess:
-			fLogger << "EVersionAccess ";
-			fLogger << "From task " << taskId << endl;
-			break;
 	}/*
 	fLogger << "\t" << currentstate;
 	fLogger << "\tVersion " << version;
@@ -167,9 +163,6 @@ char * OOPDataLogger::GetStateName(OOPMDataState state){
 			break;
 		case  EWriteAccess:
 			return "EWriteAccess";
-			break;
-		case  EVersionAccess:
-			return "EVersionAccess";
 			break;
 	}
 	return "Unidentified";

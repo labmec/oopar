@@ -98,9 +98,6 @@ void OOPMDataDepend::LogMe(std::ostream &out) {
 		case  EWriteAccess:
 			out << "EWriteAccess\t";
 			break;
-		case  EVersionAccess:
-			out << "EVersionAccess\t";
-			break;
 		default:
 			out << "Uninitialized fNeed attribute\t";
 			break;

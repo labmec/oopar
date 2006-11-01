@@ -3,6 +3,8 @@
 #endif
 
 
+#include <errno.h>
+
 #include "ooptaskmanager.h"
 #include "oopcommmanager.h"
 #include "oopdatamanager.h"
@@ -682,7 +684,7 @@ OOPTaskManager::HasWorkTodo ()
 //   cout << __PRETTY_FUNCTION__ <<  "\n\t" <<fExecutable.size()
 //       << "\t" << fFinished.size () << "\t" << fSubmittedList.size () << "\t" << fDaemon.size() << endl;
   int numtasks = fFinished.size () + fSubmittedList.size () + fDaemon.size ();
-  if (fExecuting.size () != fNumberOfThreads && fExecutable.size ())
+  if ((int)fExecuting.size () != fNumberOfThreads && fExecutable.size ())
   {
     numtasks++;
   }

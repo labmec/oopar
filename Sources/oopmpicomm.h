@@ -1,16 +1,5 @@
-//
-// Autor: F�io Amaral de Castro, RA: 991722
-//
-// E-mail: facastro99@yahoo.com
-//
-// Arquivo: com_mpi.h
-//
-// Classe: TMpiComManager
-//
-// Descr.: Classe para comunicacao utilizando MPI
-//
-// Versao: 12 / 2002
-//
+#ifdef OOP_MPI
+
 #ifndef _COM_MPIHH_
 #define _COM_MPIHH_
 #ifdef OOP_MPI
@@ -117,4 +106,8 @@ public:
         bool fKeepReceiving;
 };
 
+#endif
+
+
+//
 #endif

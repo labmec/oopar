@@ -23,50 +23,13 @@ ooparinc_HEADERS= $(top_srcdir)/Sources/*.h
 noinst_LIBRARIES = liboopar.a
 
 
-#AM_CONDITIONAL(MPI, test "$enable_mpi" = yes)
-if OOPMPI
-liboopar_a_SOURCES = 	\
-	oopevtmanager.cpp \
-	oopevtid.cpp \
-	oopdatamanager.cpp \
-	ooptaskmanager.cpp 	\
-	oopdataversion.cpp 	\
-	ooperror.cpp \
-	oopmetadata.cpp \
-	oopobjectid.cpp \
-	oopparclass.cpp \
-	ooptask.cpp \
-	oopmdatadepend.cpp \
-	ooptaskcontrol.cpp \
-	oopaccessinfo.cpp \
-	OOPDataLogger.cpp \
-	ooppardefs.cpp \
-	oopmpicomm.cpp \
-	oopmpistorage.cpp \
-	oopwaittask.cpp \
-	OOPInt.cpp \
-	OOPDouble.cpp \
-	OOPVector.cpp \
-	oopstorage.cpp \
-	oopstore.cpp \
-	oopsaveable.cpp \
-	oopcommmanager.cpp 
-else
-liboopar_a_SOURCES = oopdatamanager.cpp \
-	ooptaskmanager.cpp \
-	oopdataversion.cpp \
-	ooperror.cpp \
-	oopmetadata.cpp \
-	oopobjectid.cpp \
-	oopparclass.cpp \
-	ooptask.cpp \
-	oopmdatadepend.cpp \
-	ooptaskcontrol.cpp \
-	oopaccessinfo.cpp \
-	OOPDataLogger.cpp \
-	oopwaittask.cpp \
-	oopcommmanager.cpp
-endif
+liboopar_a_SOURCES = oopdatamanager.cpp 	ooptaskmanager.cpp 	oopdataversion.cpp \
+		ooperror.cpp 	oopmetadata.cpp 	oopobjectid.cpp 	oopparclass.cpp 	ooptask.cpp \
+		oopmdatadepend.cpp 	ooptaskcontrol.cpp 	oopaccessinfo.cpp 	OOPDataLogger.cpp \
+		oopwaittask.cpp 	oopcommmanager.cpp oopevtid.cpp oopevtmanager.cpp oopstorage.cpp \
+	oopstorage.h oopstore.cpp ooppardefs.cpp ooppardefs.h oopmpicomm.cpp oopmpicomm.h \
+	oopmpistorage.cpp oopmpistorage.h OOPInt.cpp OOPInt.h OOPVector.cpp OOPVector.h \
+	OOPDouble.cpp OOPDouble.h
 
 ## --| OOPar |------------------------------------------------------------------
 

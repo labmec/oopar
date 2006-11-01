@@ -223,8 +223,9 @@ OOPTask::IncrementWriteDependentData ()
   int i;
 
   for (i = 0; i < numdep; i++) {
-    if (fDataDepend.Dep (i).State () == EWriteAccess
-	|| fDataDepend.Dep (i).State () == EVersionAccess) {
+    if (fDataDepend.Dep (i).State () == EWriteAccess){
+#warning "Commented out --VERIFY"
+/*	|| fDataDepend.Dep (i).State () == EVersionAccess) {*/
       OOPMetaData *meta = fDataDepend.Dep (i).ObjPtr ();
       if (meta) {
 	meta->IncrementVersion (Id ());

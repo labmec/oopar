@@ -72,7 +72,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   // the task finished executing!!!!
 //  cout << __PRETTY_FUNCTION__ << " before lock for task " << tc->fTask->Id() << endl;
   OOPObjectId id = tc->fTask->Id();
-  int lClassId = tc->fTask->ClassId();
+  //int lClassId = tc->fTask->ClassId();
   if (!tc->fTask->IsRecurrent())
   {
 

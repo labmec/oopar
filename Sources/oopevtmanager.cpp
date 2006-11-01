@@ -1,20 +1,5 @@
-//
-// C++ Implementation: oopevtmanager
-//
-// Description: 
-//
-//
-// Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2006
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
-//#include "ooptaskcontrol.h"
+#ifdef OOP_MPE
 
-
-//#include "ooptask.h"
-//#include "ooperror.h"
-//#include "ooptaskmanager.h"
 
 #include <sstream>
 #include <pzlog.h>
@@ -195,3 +180,4 @@ template class OOPEvtManager<OOPSoloEvent>;
 #endif
 
 
+#endif //OOP_MPE

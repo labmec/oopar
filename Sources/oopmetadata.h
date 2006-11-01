@@ -90,12 +90,6 @@ private:
       */
 	        set < int >fReadAccessProcessors;
      /**
-      * Processors accessing current data with access.
-	  * 
-	  * Whenever the data has suspended read access, the vector contains only the id of that processor
-      */
-	        set < int >fSuspendAccessProcessors;
-     /**
       * Indicates trace of the data.
       * It is mostly used for debugging purposes
       */
@@ -214,17 +208,6 @@ public:
       */
 	bool    HasReadAccess (const int Procid) const;
 	/**
-	 * Indicates whether the object can be accessed for version
-	 */
-	bool    HasVersionAccess () const;
-	/**
-	 * Indicates whether the version access has been granted to a task
-	 */
-	bool    HasVersionAccessTask () const
-	{
-		return !fTaskVersion.IsZeroOOP();
-	}
-	/**
 	 * Indicates whether a task has write access to the object
 	 */
 	bool    HasWriteAccessTask () const
@@ -279,16 +262,6 @@ public:
      */
 	void    GrantReadAccess (OOPObjectId TaskId, int ProcId,
 				 OOPMDataState st, OOPDataVersion version);
-    /**
-     * Changes the access state of the data and notifies the task manager to try the indicated task
-     * Grants version access
-     * @param TaskId Identifies task which is to be transfered
-     * @param ProcId Identifies processsor which owns data
-     * @param AccessRequest Status of the data being requested
-     * @param version Identifies version of the data
-     */
-	void    GrantVersionAccess (OOPObjectId TaskId, int ProcId,
-				    OOPMDataState st, OOPDataVersion version);
     /**
      * Communicates, when necessary, the state of access to tasks willing to access the data
      

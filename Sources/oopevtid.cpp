@@ -1,14 +1,5 @@
-//
-// C++ Implementation: oopevtid
-//
-// Description: 
-//
-//
-// Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2006
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
+#ifdef OOP_MPE
+
 #include <sstream>
 #include <pzlog.h>
 #ifdef LOGPZ
@@ -196,3 +187,4 @@ OOPSoloEvent::~OOPSoloEvent()
 
 #endif
 
+#endif //OOP_MPE

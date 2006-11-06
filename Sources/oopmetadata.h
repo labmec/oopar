@@ -38,51 +38,38 @@ public:
   virtual ~OOPMetaData(){}
 
 private:
-	/**
-	 * List of tasks which requires specific access to this data.
-	 */
-	OOPAccessInfoList fAccessList;
-// dados:
-    /**
-    * pointer to the object
-    */
-	TPZSaveable *fObjPtr;
-     /**
-      * Id of the object
-      */
-	OOPObjectId fObjId;
-     /**
-      * Holds version of data
-      */
-	OOPDataVersion fVersion;
-     /**
-      * Processor where the object is located
-      */
-	int     fProc;
-	/**
-	 * Indicates if the current data is write access mode
-	 */
-	OOPObjectId fTaskWrite;
-	/**
-	 * Indicates the processor with current version access
-	 * If no processor accesses the object, its value == -1
-	 * If the value != -1
-	 * If fProcVersionAccess == this processor, the processor can grant version access
-	 * If fProcVersionAccess != processor request, access to that processor has been granted????
-	 */
-	int     fProcVersionAccess;
-	/**
-	 * Indicates the id of the task which has version access
-	 */
-	OOPObjectId fTaskVersion;
-     /**
-      * Indicates in which transition state the object is
-      */
-	OOPMTransitionState fTrans;
-     /**
-      * Indicates whether the data is under delete request
-      */
-	int     fToDelete;
+  /**
+   * List of tasks which requires specific access to this data.
+   */
+  OOPAccessInfoList fAccessList;
+  /**
+   * pointer to the object
+   */
+  TPZSaveable *fObjPtr;
+  /**
+   * Id of the object
+   */
+  OOPObjectId fObjId;
+  /**
+   * Holds version of data
+   */
+  OOPDataVersion fVersion;
+  /**
+   * Processor where the object is located
+   */
+  int fProc;
+  /**
+   * Indicates if the current data is write access mode
+   */
+  OOPObjectId fTaskWrite;
+  /**
+   * Indicates in which transition state the object is
+   */
+  OOPMTransitionState fTrans;
+  /**
+   * Indicates whether the data is under delete request
+   */
+  int fToDelete;
      /**
       * Processors accessing current data for read access.
 	  * 
@@ -94,130 +81,130 @@ private:
       * It is mostly used for debugging purposes
       */
 	int     fTrace;
-
+  bool f_PtrBeingModified;
 public:
-		  
-	void PrintLog (std::ostream & out = std::cout);
-	void    Print (std::ostream & out = std::cout);
-        void ShortPrint(std::ostream & out = std::cout);
-	/**
-	 * SetVersion is allowed if the task has read and/or version access
-	 */
-	void    SetVersion (const OOPDataVersion & ver,
-			    const OOPObjectId & taskid);
-	/**
-	 * IncrementVersion is allowed if the task has read and/or version access
-	 */
-	void    IncrementVersion (
-			    const OOPObjectId & taskid);
-	/**
-	 * Sets the Id of current data
-	 * @param id Id to be set
-	 */
-	void    SetId (OOPObjectId & id);
-	/**
-	 * Empty constructor
-	 */
-	        OOPMetaData (){}
-     /**
-      * Constructor
-      * @param *ObPtr Pointer to object TSaveable
-      * @param ObjId Id of object
-      * @param proc Processor number which owns TData.
-      */
-	        OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
+  bool PointerBeingModified() const;		  
+  void PrintLog (std::ostream & out = std::cout);
+  void    Print (std::ostream & out = std::cout);
+  void ShortPrint(std::ostream & out = std::cout);
+  /**
+   * SetVersion is allowed if the task has read and/or version access
+   */
+  void    SetVersion (const OOPDataVersion & ver,
+                      const OOPObjectId & taskid);
+  /**
+   * IncrementVersion is allowed if the task has read and/or version access
+   */
+  void    IncrementVersion (
+                      const OOPObjectId & taskid);
+  /**
+   * Sets the Id of current data
+   * @param id Id to be set
+   */
+  void    SetId (OOPObjectId & id);
+  /**
+   * Empty constructor
+   */
+  OOPMetaData (){}
+  /**
+   * Constructor
+   * @param *ObPtr Pointer to object TSaveable
+   * @param ObjId Id of object
+   * @param proc Processor number which owns TData.
+   */
+  OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 			     const int proc);
-	OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
-			  const int ProcId, const OOPDataVersion ver);				 
-	virtual int ClassId () const
-	{
-		return OOPMETADATA_ID;
-	}
-	/**
-	 * Checks if some task on the task access list is satisfied by the current data state
-	 */
-	void    VerifyAccessRequests ();
-      private:
-	/**
-	 * Verifies whether the transition state of the object can
-	 * not be adjusted
-	 */
-	void    CheckTransitionState ();
-      public:
-	/**
-	 * Submits a task which requires access on current data.
-	 * @param taskId Identifier of the task willing to access current data object.
-	 * @param depend dependency type requested.
-	 * @param processor processor for which access is requested
-	 */
-	void    SubmitAccessRequest (const OOPObjectId & taskId,
-				     const OOPMDataDepend & depend,
-				     int processor);
-      private:
-	/**
-	 * The access request is sent to the owning processor if it cannot
-	 * be honoured on the local processor
-	 */
-	void    SendAccessRequest (const OOPMDataDepend & depend);
-      public:
-	/**
-	 * Signals the object that the task is going into execution or not
-	 */
-	void    SetExecute (const OOPObjectId & taskId,
-			    const OOPMDataDepend & depend, bool condition);
-     /**
-      * Returns pointer to the TSaveable object
-      */
-	TPZSaveable *Ptr ();
-     /**
-      * Overloading of operator
-      */
-	TPZSaveable *operator-> ();
+  OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
+                    const int ProcId, const OOPDataVersion ver);				 
+  virtual int ClassId () const
+  {
+    return OOPMETADATA_ID;
+  }
+  /**
+   * Checks if some task on the task access list is satisfied by the current data state
+   */
+  void    VerifyAccessRequests ();
+private:
+  /**
+   * Verifies whether the transition state of the object can
+   * not be adjusted
+   */
+  void    CheckTransitionState ();
+public:
+  /**
+   * Submits a task which requires access on current data.
+   * @param taskId Identifier of the task willing to access current data object.
+   * @param depend dependency type requested.
+   * @param processor processor for which access is requested
+   */
+  void    SubmitAccessRequest (const OOPObjectId & taskId,
+                               const OOPMDataDepend & depend,
+                               int processor);
+private:
+  /**
+   * The access request is sent to the owning processor if it cannot
+   * be honoured on the local processor
+   */
+  void    SendAccessRequest (const OOPMDataDepend & depend);
+public:
+  /**
+   * Signals the object that the task is going into execution or not
+   */
+  void    SetExecute (const OOPObjectId & taskId,
+                      const OOPMDataDepend & depend, bool condition);
+  /**
+   * Returns pointer to the TSaveable object
+   */
+  TPZSaveable *Ptr ();
+  /**
+   * Overloading of operator
+   */
+  TPZSaveable *operator-> ();
   /**
    * Transfer an object based on the parameters.
    * @param ProcId Identifies processor Id
    */
-	void    TransferObject (int ProcId);
-	 /**
-      * Takes the appropriate action to satisfy the request. This method is used when the data belongs to this processor.
-      * Takes action on an incoming message
-      * @param &ms Identifies owner of the task.
-      */
-	void    HandleMessage (OOPDMOwnerTask & ms);
-     /**
-      * Returns the access state of this data
-      */
-	OOPMDataState State () const;
-     /**
-      * Returns the processor to which the object belongs
-      */
-	int     Proc () const;
-	/**
-	 * returns true if the current processor is owner of the object
-	 */
-	bool    IamOwner () const;
-     /**
-      * returns 1 if any processor has read access
-	  * on the given data
-      */
-	bool    HasReadAccess () const;
-     /**
-      * returns 1 if the processor has read access
-	  * on the given data
-      * @param Procid Identifies processor id
-      */
-	bool    HasReadAccess (const int Procid) const;
-	/**
-	 * Indicates whether a task has write access to the object
-	 */
-	bool    HasWriteAccessTask () const
-	{
-		return !fTaskWrite.IsZeroOOP();
-	}
-	/**
-	 * Indicates whether the task has write access to the data
-	 */
-	bool    HasWriteAccess (const OOPObjectId & taskid) const;
+  void    TransferObject (int ProcId);
+  /**
+   * Takes the appropriate action to satisfy the request. This method is used when the data belongs to this processor.
+   * Takes action on an incoming message
+   * @param &ms Identifies owner of the task.
+   */
+  void    HandleMessage (OOPDMOwnerTask & ms);
+  /**
+   * Returns the access state of this data
+   */
+  OOPMDataState State () const;
+  /**
+   * Returns the processor to which the object belongs
+   */
+  int     Proc () const;
+  /**
+   * returns true if the current processor is owner of the object
+   */
+  bool    IamOwner () const;
+  /**
+    * returns 1 if any processor has read access
+    * on the given data
+    */
+  bool    HasReadAccess () const;
+  /**
+    * returns 1 if the processor has read access
+    * on the given data
+    * @param Procid Identifies processor id
+    */
+  bool    HasReadAccess (const int Procid) const;
+  /**
+   * Indicates whether a task has write access to the object
+   */
+  bool    HasWriteAccessTask () const
+  {
+    return !fTaskWrite.IsZeroOOP();
+  }
+  /**
+   * Indicates whether the task has write access to the data
+   */
+  bool    HasWriteAccess (const OOPObjectId & taskid) const;
     /**
      * Attempts to delete the object pointed to by the object
      * Issues deletion request message

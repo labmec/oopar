@@ -130,9 +130,9 @@ class   OOPAccessInfoList
 	list < OOPAccessInfo > fList;
       public:
 void
-PostPoneWriteAccessGranted ();
+  PostPoneWriteAccessGranted ();
 
-
+  void GrantForeignAccess(OOPAccessInfo & info,OOPMetaData & object);
 		  
   void ShortPrint(std::ostream & out);
 		 
@@ -154,11 +154,9 @@ PostPoneWriteAccessGranted ();
  * Verifies whether there is an access request can be granted for the given
  * object.
  * @param object the OOPMetaData object to which this list refers
- * @param ac If an access request was found, its reference will be stored into ac
  * @return true if an access request was found which can be granted
  */
-	bool    VerifyAccessRequests (const OOPMetaData & object,
-				      list < OOPAccessInfo >::iterator & ac);
+  bool  VerifyAccessRequests (OOPMetaData & object);
 /**
  * Verifies whether an access request is incompatible with the version/state
  * of the corresponding object

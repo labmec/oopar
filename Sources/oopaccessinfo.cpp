@@ -27,39 +27,39 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 #endif    
     return false;
   }
-	// if the version is not right, don't even consider granting access
-	if (!fVersion.CanExecute (object.Version ()))
-		return false;
-	switch (this->fState) {
-	case EReadAccess:
-                if(!object.PointerBeingModified())
-                {
-        		return true;
-                } 
-                else
-                {
-                      return false;
-                }
-		break;
-	case EWriteAccess:
-
-		if (!object.HasWriteAccessTask ())
-			return true;
-		if (object.HasWriteAccess (fTaskId))
-			return true;
-		return false;
-		break;
-	default:
+  // if the version is not right, don't even consider granting access
+  if (!fVersion.CanExecute (object.Version ()))
+          return false;
+  switch (this->fState) {
+  case EReadAccess:
+    if(!object.PointerBeingModified())
+    {
+      return true;
+    } 
+    else
+    {
+      return false;
+    }
+    break;
+  case EWriteAccess:
+  
+    if (!object.HasWriteAccessTask ())
+      return true;
+    if (object.HasWriteAccess (fTaskId))
+      return true;
+    return false;
+    break;
+  default:
     {
 #ifdef LOGPZ    
-      stringstream sout;
-      sout << "OOPAccessInfo::CanExecute inconsistent\n";
-      LOGPZ_ERROR(logger, sout.str());
+    stringstream sout;
+    sout << "OOPAccessInfo::CanExecute inconsistent\n";
+    LOGPZ_ERROR(logger, sout.str());
 #endif      
     }
-		break;
-	}
-	return false;
+    break;
+  }
+  return false;
 }
 /**
  * This method adds an access request as passed by SubmitAccessRequest
@@ -93,6 +93,44 @@ void OOPAccessInfoList::AddAccessRequest (const OOPObjectId & taskid,
     fList.push_back (OOPAccessInfo (taskid, depend, processor));
   }
 }
+
+void OOPAccessInfoList::GrantForeignAccess(OOPAccessInfo & info,OOPMetaData & object)
+{
+#warning "Newly implemented"
+  //Checks for the required access, creates the corresponding OwnerTask and submit it to TM
+  switch (info.fState) {
+    case EReadAccess:
+    {
+      //OwnerMessage with read access request granted
+      OOPDMOwnerTask * town = new OOPDMOwnerTask(EGrantReadAccess, info.fProcessor);
+      town->fObjId = object.Id();
+      town->fVersion = object.Version();
+      LogDM->SendOwnTask(town);
+      TM->SubmitDaemon(town);
+      break;
+    }
+    case EWriteAccess:
+    {
+      //OwnerMessage with transferownership type.
+      #warning "Not sure here"
+      object.TransferObject(info.fProcessor);
+      break;
+    }
+    default:
+    {
+      {
+#ifdef LOGPZ    
+      stringstream sout;
+      sout << "OOPAccessInfo::GrantForeignAccess inconsistent OwnerTask Required\n";
+      LOGPZ_ERROR(logger, sout.str());
+#endif      
+      }
+      break;
+    }
+  }
+
+}
+
 /**
  * Verifies whether there is an access request can be granted for the given
  * object.
@@ -100,37 +138,37 @@ void OOPAccessInfoList::AddAccessRequest (const OOPObjectId & taskid,
  * @param ac If an access request was found, its reference will be stored into ac
  * @return true if an access request was found which can be granted
  */
-bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object)
+bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
 {
 #ifdef LOGPZ
   stringstream sout;
 #endif  
-	list < OOPAccessInfo >::iterator i;
-	i = fList.begin ();
-	while (i != fList.end ()) {
-        	if (!(i->fIsGranted)){
-			if (i->CanExecute (object)) {
-                              if(i->fProcessor == DM->GetProcID())
-                              {
-                                        OOPDataDepend dep(object.Id(),i->fState,i->fVersion);
-					TM->NotifyAccessGranted(i->fTaskId,dep,&object);
-                                        i->fIsGranted = true;
-                                        i++;
-                              }
-                              else
-                              {
-                                  GrantForeignAccess(*i,object);
-                                  fList.erase(i);
-                                  i=fList.begin();
-                              }             
-                        }
-                        else
-                        {
-    			   i++;
-                        }
-		}
-	}
-	return false;
+  list < OOPAccessInfo >::iterator i;
+  i = fList.begin ();
+  while (i != fList.end ()) {
+    if (!(i->fIsGranted)){
+      if (i->CanExecute (object)) {
+        if(i->fProcessor == DM->GetProcID())
+        {
+          OOPMDataDepend dep(object.Id(),i->fState,i->fVersion);
+          TM->NotifyAccessGranted(i->fTaskId,dep,&object);
+          i->fIsGranted = true;
+          i++;
+        }
+        else
+        {
+          GrantForeignAccess(*i,object);
+          fList.erase(i);
+          i=fList.begin();
+        }             
+      }
+      else
+      {
+         i++;
+      }
+    }
+  }
+  return false;
 }
 /**
  * Verifies whether an access request is incompatible with the version/state
@@ -189,68 +227,68 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
  */
 bool OOPAccessInfoList::HasReadAccessGranted () const
 {
-	list < OOPAccessInfo >::const_iterator i;
-	for (i=fList.begin(); i != fList.end (); i++) {
-		if (i->fState == EReadAccess && i->fIsGranted)
-                {
-			return true;
-                }
-	}
-	return false;
+  list < OOPAccessInfo >::const_iterator i;
+  for (i=fList.begin(); i != fList.end (); i++) {
+    if (i->fState == EReadAccess && i->fIsGranted)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 /**
  * Indicates whether any access request of type WriteAccess has been granted
  */
 bool OOPAccessInfoList::HasWriteAccessGranted () const
 {
-	list < OOPAccessInfo >::const_iterator i;
-	for (i = fList.begin(); i != fList.end (); i++) {
-		if (i->fState == EWriteAccess && i->fIsGranted)
-                {
-			return true;
-                }
-	}
-	return false;
+  list < OOPAccessInfo >::const_iterator i;
+  for (i = fList.begin(); i != fList.end (); i++) {
+    if (i->fState == EWriteAccess && i->fIsGranted)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 				       const OOPMDataDepend & depend)
 {
-	list < OOPAccessInfo >::iterator i = fList.begin ();
-	for (i=fList.begin(); i != fList.end (); i++) 
-        {
-		if (i->fTaskId == taskid && i->fState == depend.State ()
-		    && i->fVersion == depend.Version ()) {
-			fList.erase (i);
-			return;
-		}
-		i++;
-	}
+  list < OOPAccessInfo >::iterator i = fList.begin ();
+  for (i=fList.begin(); i != fList.end (); i++) 
+  {
+    if (i->fTaskId == taskid && i->fState == depend.State ()
+        && i->fVersion == depend.Version ()) {
+      fList.erase (i);
+      return;
+    }
+    i++;
+  }
 #ifdef LOGPZ  
-    stringstream sout;
-    sout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend <<endl;
-    LOGPZ_INFO(logger, sout.str());
+  stringstream sout;
+  sout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend <<endl;
+  LOGPZ_INFO(logger, sout.str());
 #endif    
-    Print(cout);
-    cout.flush();
+  Print(cout);
+  cout.flush();
 	
 }
 bool OOPAccessInfoList::HasAccessGranted (const OOPObjectId & taskid,
                                           const OOPMDataDepend & depend) const
 {
-	list < OOPAccessInfo >::const_iterator i = fList.begin ();
-	for (i=fList.begin(); i != fList.end (); i++) 
-        {
-		if (i->fTaskId == taskid && i->fState == depend.State ()
-		    && i->fVersion == depend.Version () && i->fIsGranted) {
-			return true;
-		}
-	}
-	return false;
+  list < OOPAccessInfo >::const_iterator i = fList.begin ();
+  for (i=fList.begin(); i != fList.end (); i++) 
+  {
+    if (i->fTaskId == taskid && i->fState == depend.State ()
+              && i->fVersion == depend.Version () && i->fIsGranted) {
+      return true;
+    }
+  }
+  return false;
 }
 int OOPAccessInfoList::NElements ()
 {
-	return fList.size ();
+  return fList.size ();
 }
 /**
  * Indicates whether version requests are filed with appropriate version
@@ -259,92 +297,92 @@ void OOPAccessInfoList::SetExecute (const OOPObjectId & taskid,
                                     const OOPMDataDepend & depend,
                                     bool condition)
 {
-	list < OOPAccessInfo >::iterator i = fList.begin ();
-	while (i != fList.end ()) {
-		if (i->fTaskId == taskid && i->fState == depend.State ()
-		    && i->fVersion == depend.Version ()) {
-			i->fIsAccessing = condition;
-			break;
-		}
-		i++;
-	}
+  list < OOPAccessInfo >::iterator i = fList.begin ();
+  while (i != fList.end ()) {
+    if (i->fTaskId == taskid && i->fState == depend.State ()
+        && i->fVersion == depend.Version ()) {
+      i->fIsAccessing = condition;
+      break;
+    }
+    i++;
+  }
 }
  /**
  * Revokes all access requests and cancels the tasks which are not executing
  */
 void OOPAccessInfoList::RevokeAccessAndCancel ()
 {
-	OOPObjectId taskid;
-	list < OOPAccessInfo >::iterator i = fList.begin ();
-	while (i != fList.end ()) {
-                int count = fList.size();
-		if (i->fIsAccessing) {
-		}
-		else if (i->fIsGranted) {
-                    TM->CancelTask(i->fTaskId);
-                }
-                if(fList.size() != count)
-                {
-                  i=fList.begin();
-                } else
-                {
-                  i++;
-                }
-	}
+  OOPObjectId taskid;
+  list < OOPAccessInfo >::iterator i = fList.begin ();
+  while (i != fList.end ()) {
+    int count = fList.size();
+    if (i->fIsAccessing) {
+    }
+    else if (i->fIsGranted) {
+      TM->CancelTask(i->fTaskId);
+    }
+    if(fList.size() != (unsigned)count)
+    {
+      i=fList.begin();
+    } else
+    {
+      i++;
+    }
+  }
 }
 /**
  * Transfer the access requests to the given processor
  */
 void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
-	list < OOPAccessInfo >::iterator i = fList.begin ();
-	// Send the requests of tasks executing on the current processor
-	// Keep a copy of the requests
-	for(i=fList.begin(); i != fList.end(); i++) {
-		if(i->fProcessor == DM->GetProcID()) {
-			OOPMDataDepend depend(id,i->fState,i->fVersion);
-			OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);
-			reqt->fProcOrigin = DM->GetProcID();
-			TM->SubmitDaemon(reqt);
-		}
-	}
-
-        i=fList.begin();
-	while(i != fList.end()) {
-		if(i->fProcessor == DM->GetProcID()) {
-                    i++;
-                }
-                else if(i->fProcessor == processor)
-                {
-                  {
-                    std::stringstream sout;
-                    sout << __PRETTY_FUNCTION__ << " erasing ";
-                    (*i).Print(sout);
-                    LOG4CXX_DEBUG(logger,sout.str());
-                  }
-                  fList.erase(i);
-                  i=fList.begin();
-		} else {
-			OOPMDataDepend depend(id,i->fState,i->fVersion);
-			OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);
-			reqt->fProcOrigin = i->fProcessor;
-			TM->SubmitDaemon(reqt);
-			fList.erase(i);
-			i=fList.begin();
-		}
-	}
+  list < OOPAccessInfo >::iterator i = fList.begin ();
+  // Send the requests of tasks executing on the current processor
+  // Keep a copy of the requests
+  for(i=fList.begin(); i != fList.end(); i++) {
+    if(i->fProcessor == DM->GetProcID()) {
+      OOPMDataDepend depend(id,i->fState,i->fVersion);
+      OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);
+      reqt->fProcOrigin = DM->GetProcID();
+      TM->SubmitDaemon(reqt);
+    }
+  }
+  
+  i=fList.begin();
+  while(i != fList.end()) {
+    if(i->fProcessor == DM->GetProcID()) {
+      i++;
+    }
+    else if(i->fProcessor == processor)
+    {
+      {
+        std::stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " erasing ";
+        (*i).Print(sout);
+        LOG4CXX_DEBUG(logger,sout.str());
+      }
+      fList.erase(i);
+      i=fList.begin();
+    } else {
+      OOPMDataDepend depend(id,i->fState,i->fVersion);
+      OOPDMRequestTask *reqt = new OOPDMRequestTask(processor,depend);
+      reqt->fProcOrigin = i->fProcessor;
+      TM->SubmitDaemon(reqt);
+      fList.erase(i);
+      i=fList.begin();
+    }
+  }
 }
 
 void OOPAccessInfoList::Print(std::ostream & out) {
-	list < OOPAccessInfo >::iterator i = fList.begin ();
-	while(i != fList.end()) {
-		i->Print(out);
-		i++;
-	}
+  list < OOPAccessInfo >::iterator i = fList.begin ();
+  while(i != fList.end()) {
+    i->Print(out);
+    i++;
+  }
 }
 void OOPAccessInfoList::ShortPrint(std::ostream & out) {
-	list < OOPAccessInfo >::iterator i = fList.begin ();
-	while(i != fList.end()) {
-		i->ShortPrint(out);
-		i++;
-	}
+  list < OOPAccessInfo >::iterator i = fList.begin ();
+  while(i != fList.end()) {
+    i->ShortPrint(out);
+    i++;
+  }
 }

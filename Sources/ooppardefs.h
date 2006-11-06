@@ -9,10 +9,10 @@ enum OOPMDMOwnerMessageType
 };
 enum OOPDMRequestMessageType
 {
-	ENoRequest,
-	ERequestReadAccess,
-	ERequestWriteAccess,
-	ERequestDelete
+  ENoRequest,
+  ERequestReadAccess,
+  ERequestWriteAccess,
+  ERequestDelete
 };
 //BlockingReadAccess concept no longer exists
 //longhin: 30/01/2003
@@ -21,9 +21,9 @@ enum OOPDMRequestMessageType
  */
 enum OOPMDataState
 {
-	ENoAccess,
-	EReadAccess,
-	EWriteAccess,
+  ENoAccess,
+  EReadAccess,
+  EWriteAccess,
 //	EVersionAccess
 };
 enum OOPMTransitionState
@@ -35,9 +35,9 @@ enum OOPMTransitionState
 };
 enum OOPMReturnType
 {
-	ESuccess,
-	EFail,
-	EContinue
+  ESuccess,
+  EFail,
+  EContinue
 };
 //#definE NUMOBJECTS  0x100000
 #define OOP_MAX_BUFFER_SIZE 5000000

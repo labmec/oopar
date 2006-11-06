@@ -27,6 +27,37 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMetaData"));
 #include "oopevtid.h"
 #endif
 
+OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
+			  const int ProcId, const OOPDataVersion ver)
+{
+  fProc = ProcId;
+  fObjPtr = ObPtr;
+  fObjId = ObjId;
+  fTrans = ENoTransition;
+  fToDelete = 0;
+  fTrace = 0;
+  fVersion = ver;
+  fTaskWrite.Zero ();
+  if(IamOwner()) fReadAccessProcessors.insert(ProcId);
+  f_PtrBeingModified = false;
+}
+	
+OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
+			  const int ProcId)
+{
+  fProc = ProcId;
+  fObjPtr = ObPtr;
+  fObjId = ObjId;
+  fTrans = ENoTransition;
+  fToDelete = 0;
+  fTrace = 0;
+  fTaskWrite.Zero ();
+  if(IamOwner()) fReadAccessProcessors.insert(ProcId);
+  f_PtrBeingModified = false;
+}
+bool OOPMetaData::PointerBeingModified() const{
+  return f_PtrBeingModified;
+}
 void OOPMetaData::VerifyAccessRequests ()
 {
   {
@@ -60,82 +91,27 @@ void OOPMetaData::VerifyAccessRequests ()
 }
 OOPObjectId OOPMetaData::Id () const
 {
-	return fObjId;
+  return fObjId;
 }
 bool OOPMetaData::CanGrantAccess () const
 {
-	if (fProcVersionAccess != -1
-	    && fProcVersionAccess != DM->GetProcID ())
-		return false;
-	if (fToDelete)
-		return false;
-	if (!fTaskVersion.IsZeroOOP ())
-		return false;
-	return true;
+  if (fToDelete)
+    return false;
+  return true;
 }
 	/**
 	 * returns true if the current processor is owner of the object
 	 */
 bool OOPMetaData::IamOwner () const
 {
-	return Proc () == DM->GetProcID ();
+  return Proc () == DM->GetProcID ();
 }
 void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
   const OOPMDataDepend & depend)
 {
 #warning "Commented out -- Must be reimplemented"
-/*  fAccessList.ReleaseAccess (taskid, depend);
-  if (depend.State () == EVersionAccess)
-  {
-    LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProcVersionAccess, fTaskVersion, State(),fVersion);
-    this->fProcVersionAccess = -1;
-    this->fTaskVersion.Zero ();
-    // remove this processor from the list of suspended read
-    // access
-    if(!IamOwner())
-    {
-      {
-#ifdef LOGPZ        
-        stringstream sout;
-        sout << "Sending suspend suspend read access for obj " << fObjId << " from task " << taskid << " at processor "<< DM->GetProcID();
-        LOGPZ_DEBUG(logger,sout.str());
-#endif        
-      }
-      OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,this->fProc);
-      town->fObjId = fObjId;
-      town->fVersion = fVersion;
-      LogDM->SendOwnTask(town);
-      TM->SubmitDaemon(town);
-      
-    } else
-    {
-      set < int >::iterator i = fSuspendAccessProcessors.begin ();
-      while (i != fSuspendAccessProcessors.end ())
-      {
-        if (*i != DM->GetProcID ())
-        {
-          OOPObjectId auxId;
-          LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), *i, auxId, State(), fVersion);
-          {
-#ifdef LOGPZ            
-            stringstream sout;
-            sout << "Sending suspend suspend read access for obj " << fObjId << " to processor "<< *i << endl;
-            sout << ":suspend read access " << fObjId << " to processor "<< *i ;
-            LOGPZ_DEBUG(logger,sout.str());
-#endif            
-          }
-          OOPDMOwnerTask *town = new OOPDMOwnerTask(ESuspendSuspendAccess,*i);
-          town->fObjId = fObjId;
-          town->fVersion = fVersion;
-          LogDM->SendOwnTask(town);
-          TM->SubmitDaemon(town);
-        }
-        i++;
-      }
-    }
-    fSuspendAccessProcessors.clear();
-  }
-  else if (depend.State () == EWriteAccess)
+  fAccessList.ReleaseAccess (taskid, depend);
+  if (depend.State () == EWriteAccess)
   {
     LogDM->LogReleaseAccess(DM->GetProcID(),fObjId,depend.State(), fProc, fTaskWrite, State(), fVersion);
 
@@ -148,7 +124,6 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
       LOGPZ_DEBUG(logger,sout.str());
 #endif      
     }
-    fReadAccessProcessors.insert (fProc);
   }
   else if(depend.State () == EReadAccess)
   {
@@ -164,7 +139,7 @@ void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
   {
     CheckTransitionState ();
     VerifyAccessRequests ();
-  }*/
+  }
 }
 void OOPMetaData::CheckTransitionState ()
 {
@@ -320,7 +295,7 @@ OOPMDataState OOPMetaData::State () const
     }
   }
 }
-/*
+/**
   I own the object : 
   Simply queue the access request
   I don't own the object
@@ -361,58 +336,25 @@ void OOPMetaData::SetExecute (const OOPObjectId & taskId,
 {
 	fAccessList.SetExecute (taskId, depend, condition);
 }
-OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
-			  const int ProcId, const OOPDataVersion ver)
-{
-	fProc = ProcId;
-	fObjPtr = ObPtr;
-	fObjId = ObjId;
-	fTrans = ENoTransition;
-	fToDelete = 0;
-	fTrace = 0;
-	fVersion = ver;
-	fProcVersionAccess = -1;
-	fTaskVersion.Zero ();
-	fTaskWrite.Zero ();
-	if(IamOwner()) fReadAccessProcessors.insert(ProcId);
-}
-	
-OOPMetaData::OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
-			  const int ProcId)
-{
-	fProc = ProcId;
-	fObjPtr = ObPtr;
-	fObjId = ObjId;
-	fTrans = ENoTransition;
-	fToDelete = 0;
-	fTrace = 0;
-	fProcVersionAccess = -1;
-	fTaskVersion.Zero ();
-	fTaskWrite.Zero ();
-	if(IamOwner()) fReadAccessProcessors.insert(ProcId);
-}
 void OOPMetaData::SetId (OOPObjectId & id)
 {
 	fObjId = id;
 }
-/*
+/**
    This method should only be called if I own the object
    Send a TDMOwnerTask transferring the ownership to the processor
 */
 void OOPMetaData::TransferObject (int ProcId)
 {
-
-//  stringstream sout;
-	OOPDMOwnerTask *town = new OOPDMOwnerTask(ETransferOwnership,ProcId);
-	//alterei aqui
-	town->fObjId=fObjId;
-	town->fObjPtr = this->fObjPtr;
-	town->fVersion = this->fVersion;
-	this->fProc = ProcId;
-	this->fObjPtr = 0;
-	LogDM->SendOwnTask(town);
-	TM->SubmitDaemon(town);
-	fAccessList.TransferAccessRequests(fObjId,ProcId);
+  OOPDMOwnerTask *town = new OOPDMOwnerTask(ETransferOwnership,ProcId);
+  town->fObjId=fObjId;
+  town->fObjPtr = this->fObjPtr;
+  town->fVersion = this->fVersion;
+  this->fProc = ProcId;
+  this->fObjPtr = 0;
+  LogDM->SendOwnTask(town);
+  TM->SubmitDaemon(town);
+  fAccessList.TransferAccessRequests(fObjId,ProcId);
   {
 #ifdef LOGPZ    
     stringstream sout; 
@@ -545,7 +487,7 @@ void OOPMetaData::DeleteObject ()
     }
     fReadAccessProcessors.clear();*/
   }
-  CheckTransitionState();
+  //CheckTransitionState();
 }
 
 void OOPMetaData::RequestDelete ()
@@ -623,7 +565,7 @@ OOPDataVersion OOPMetaData::Version () const
 }
 void OOPMetaData::IncrementVersion (const OOPObjectId &taskid) 
 {
-  if (fTaskWrite == taskid || fTaskVersion == taskid) {
+  if (fTaskWrite == taskid ) {
     OOPDataVersion ver = fVersion;
     ++ver;
     LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver, State(),taskid);
@@ -726,7 +668,7 @@ void OOPMetaData::PrintLog (std::ostream & out)
 void OOPMetaData::SetVersion (const OOPDataVersion & ver,
 			      const OOPObjectId & taskid)
 {
-  if (fTaskWrite == taskid || fTaskVersion == taskid) {
+  if (fTaskWrite == taskid ) {
 		LogDM->LogSetVersion(DM->GetProcID(),fObjId,fVersion,ver, State(),taskid);
 		fVersion = ver;
     {

@@ -59,21 +59,22 @@ public:
 	/**
      * Streams out TDataVersion data structure
 	 */
-	void    Print (std::ostream & out = std::cout) const;
-	std::ostream & ShortPrint(std::ostream &out = std::cout) const;
-	/**
-	 * Operator overloaded
-	 */
-	        OOPDataVersion & operator = (const OOPDataVersion & version);
-	/**
-	 * Operator overloaded
-	 */
-	bool    operator == (const OOPDataVersion & version) const;
-	/**
-	 * Overloaded operator
-	 */
-	bool    operator < (const OOPDataVersion & version);
-	bool    operator > (const OOPDataVersion & version);
+  void    Print (std::ostream & out = std::cout) const;
+  std::ostream & ShortPrint(std::ostream &out = std::cout) const;
+  /**
+   * Operator overloaded
+   */
+          OOPDataVersion & operator = (const OOPDataVersion & version);
+  /**
+   * Operator overloaded
+   */
+  bool    operator == (const OOPDataVersion & version) const;
+  /**
+   * Overloaded operator
+   */
+  bool    operator < (const OOPDataVersion & version);
+  bool    operator > (const OOPDataVersion & version);
+  bool operator >= (const OOPDataVersion & version);
 	/**
      * Implements the abstraction of data version incrementation.
 	 * The class will perform necessary checks to either increment only

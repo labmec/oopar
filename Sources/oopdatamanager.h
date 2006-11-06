@@ -188,56 +188,56 @@ private:
  */
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
-      public:
-	void LogMeReceived(std::ostream & out);
-	/**
-	 * Generates logging information
-	 */
-	void LogMe(std::ostream & out);
-	OOPMDMOwnerMessageType fType;
-	/**
-	* Access state associated with this message
-	*/
-	OOPMDataState fState;
-	/**
-	* Version of the data
-	*/
-	OOPDataVersion fVersion;
-	/**
-	* Holds a pointer to the object when the object data is transferred
-	*/
-	TPZSaveable *fObjPtr;
-	/**
-	* Id of processor which originated the message
-	*/
-	int     fProcOrigin;
-	/**
-	* Id of object to which this object refers
-	*/
-	OOPObjectId fObjId;
-	/**
-	* Used for debugging purposes, keeps track of all data by means of log files.
-	*/
-	int     fTrace;
-	/**
-	* Constructor
-	* @param t : type of ower task
-	* @param proc : processor which owns the message
-	*/
-	OOPDMOwnerTask ();
-	OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
-	virtual ~OOPDMOwnerTask();
-	virtual OOPMReturnType Execute ();
-	virtual int ClassId () const
-	{
-		return TDMOWNERTASK_ID;
-	}
-	virtual void Read (TPZStream & buf, void * context);
-//	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
-	virtual void Write (TPZStream & buf, int withclassid);
-	// Apenas para DEBUG.
-	// virtual void Work() { Debug( "\nTSaveable::Work." ); }
-	// virtual void Print() { Debug( " TSaveable::Print." ); }
+public:
+  void LogMeReceived(std::ostream & out);
+  /**
+   * Generates logging information
+   */
+  void LogMe(std::ostream & out);
+  OOPMDMOwnerMessageType fType;
+  /**
+  * Access state associated with this message
+  */
+  OOPMDataState fState;
+  /**
+  * Version of the data
+  */
+  OOPDataVersion fVersion;
+  /**
+  * Holds a pointer to the object when the object data is transferred
+  */
+  TPZSaveable *fObjPtr;
+  /**
+  * Id of processor which originated the message
+  */
+  int     fProcOrigin;
+  /**
+  * Id of object to which this object refers
+  */
+  OOPObjectId fObjId;
+  /**
+  * Used for debugging purposes, keeps track of all data by means of log files.
+  */
+  int     fTrace;
+  /**
+  * Constructor
+  * @param t : type of ower task
+  * @param proc : processor which owns the message
+  */
+  OOPDMOwnerTask ();
+  OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
+  virtual ~OOPDMOwnerTask();
+  virtual OOPMReturnType Execute ();
+  virtual int ClassId () const
+  {
+          return TDMOWNERTASK_ID;
+  }
+  virtual void Read (TPZStream & buf, void * context);
+  // static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
+  virtual void Write (TPZStream & buf, int withclassid);
+  // Apenas para DEBUG.
+  // virtual void Work() { Debug( "\nTSaveable::Work." ); }
+  // virtual void Print() { Debug( " TSaveable::Print." ); }
 };
 template class TPZRestoreClass<OOPDMOwnerTask,TDMOWNERTASK_ID>;
 /**

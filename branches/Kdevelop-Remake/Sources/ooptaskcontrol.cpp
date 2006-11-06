@@ -70,9 +70,9 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   tc->fExecStarted = 1;
   tc->fTask->Execute();
   // the task finished executing!!!!
-//  cout << __PRETTY_FUNCTION__ << " before lock for task " << tc->fTask->Id() << endl;
+  //cout << __PRETTY_FUNCTION__ << " before lock for task " << tc->fTask->Id() << endl;
   OOPObjectId id = tc->fTask->Id();
-  //int lClassId = tc->fTask->ClassId();
+  int lClassId = tc->fTask->ClassId();
   if (!tc->fTask->IsRecurrent())
   {
 
@@ -91,6 +91,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   //cout << __PRETTY_FUNCTION__ << " after lock for task" << tc->fTask->Id() << endl;
   //tc->fTask->SetExecuting(false);
   tc->fExecFinished =1;
+  cout << "Task " << id << " CId: finished";
 #ifdef LOGPZ
   {
     stringstream sout;

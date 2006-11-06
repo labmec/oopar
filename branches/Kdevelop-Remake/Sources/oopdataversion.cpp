@@ -211,6 +211,25 @@ bool OOPDataVersion::operator < (const OOPDataVersion & version)
 	}
 	return true;
 }
+bool OOPDataVersion::operator >= (const OOPDataVersion & version)
+{
+	if (GetNLevels () != version.GetNLevels ())
+		return false;
+	unsigned int i = 0;
+	for (i = 0; i < fVersion.size (); i++) {
+		// Returns false if my version is older than the one
+		// requested.
+		if (!(GetLevelVersion (i) >= version.GetLevelVersion (i)))
+			return false;
+		// Returns false if in any common level, the cardinality is
+		// not the same
+		if (GetLevelCardinality (i) !=
+		    version.GetLevelCardinality (i))
+			return false;
+	}
+	return true;
+}
+
 bool OOPDataVersion::operator > (const OOPDataVersion & version)
 {
 	if (GetNLevels () != version.GetNLevels ())

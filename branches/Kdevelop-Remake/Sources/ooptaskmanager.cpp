@@ -92,6 +92,7 @@ OOPTaskManager::TransferExecutingTasks ()
     auxtc = (*sub);
     //pthread_mutex_lock(&fExecutingMutex);
     if (auxtc) {
+//      cout << __PRETTY_FUNCTION__ << " AUX TC VALID " << __LINE__ << endl;
       isfinished = auxtc->TaskFinished ();
     } else {
 #ifdef LOGPZ
@@ -101,12 +102,12 @@ OOPTaskManager::TransferExecutingTasks ()
       LOGPZ_ERROR (logger, sout.str ());
 #endif
     }
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+    // cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
 
     //pthread_mutex_unlock(&fExecutingMutex);
     if (isfinished) {
-/*      cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ <<
-      " taskid " << auxtc->Id() <<  endl;*/
+      //cout << __PRETTY_FUNCTION__ << " IS FINISHED and line " << __LINE__ <<
+      //" taskid " << auxtc->Id() <<  endl;
       auxtc->Join ();
 #ifdef LOGPZ
       stringstream sout;
@@ -184,7 +185,7 @@ OOPTaskManager::ExecuteMT (void *data)
       OOPTaskControl *tc = (*i);
       lTM->fExecutable.erase (i);
       lTM->fExecuting.push_back (tc);
-      tc->Task ()->SetExecuting (true);
+      tc->Task()->SetExecuting (true);
 #ifdef LOGPZ
       {
 	stringstream sout;
@@ -209,7 +210,7 @@ OOPTaskManager::ExecuteMT (void *data)
 //     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
 
     lTM->TransferSubmittedTasks ();
-//     cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+//    cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->ExecuteDaemons ();
     //wait
 
@@ -410,6 +411,7 @@ fLockThread (0), fLock (0)
   fLastCreated = 0;		//NUMOBJECTS * fProc;
   pthread_mutex_init (&fSubmittedMutex, NULL);
   pthread_cond_init (&fExecuteCondition, NULL);
+  fExecuteThread = 0;
 }
 
 OOPTaskManager::~OOPTaskManager ()
@@ -635,18 +637,20 @@ OOPTaskManager::Submit (OOPTask * task)
 	" The writing process produced an error for class " << task->
 	ClassId () << compare << endl;
     }
-    delete[]compare;
+    delete [] compare;
   }
 #endif
   // I dont need to lock if I am the service thread
   // (in that case I already have the lock)
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
+    cout << __PRETTY_FUNCTION__ << " going to lock ---------- ProcID " << CM->GetProcID() << endl;
     LOGPZ_DEBUG(logger,"Lock within Submit")
     pthread_mutex_lock (&fSubmittedMutex);
+    cout << __PRETTY_FUNCTION__ << " Locked ---------- ProcID " << CM->GetProcID() << endl;
   }
   fSubmittedList.push_back (task);
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
-    //cout << __PRETTY_FUNCTION__ << " going to release lock\n";
+    cout << __PRETTY_FUNCTION__ << " going to release lock\n";
     LOGPZ_DEBUG(logger,"Signal within Submit")
     pthread_cond_signal (&fExecuteCondition);
     LOGPZ_DEBUG(logger,"Unlock within Submit")
@@ -1133,7 +1137,7 @@ OOPTerminationTask::Restore (TPZStream & buf, void *context)
 void
 OOPTaskManager::Lock (TMLock & lock)
 {
-
+  std::cout << "A single thread locking twice----------------------------\n";
   if (pthread_equal (pthread_self (), fLockThread)) {
     std::cout << "A single thread locking twice\n";
     return;
@@ -1180,8 +1184,9 @@ OOPTaskManager::Signal (TMLock & lock)
 TMLock::TMLock ()
 {
   LOGPZ_DEBUG(logger,"Locking")
+  std::cout <<  __PRETTY_FUNCTION__ << " LOCK Going to be acquired\n";
   TM->Lock (*this);
-//   std::cout <<  __PRETTY_FUNCTION__ << " LOCK acquired\n";
+  std::cout <<  __PRETTY_FUNCTION__ << " LOCK acquired\n";
 }
 
 TMLock::~TMLock ()

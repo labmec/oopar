@@ -120,55 +120,64 @@ void OOPMDataDepend::Write (TPZStream  & buf)
    */
 void OOPMDataDepend::Read (TPZStream & buf, void * context)
 {
-	fDataId.Read (buf);
-	int need;
-	buf.Read (&need);
-	fNeed = (OOPMDataState) need;
-	fVersion.Read(buf);
-	fObjPtr = 0;
-	
+  fDataId.Read (buf);
+  int need;
+  buf.Read (&need);
+  fNeed = (OOPMDataState) need;
+  fVersion.Read(buf);
+  fObjPtr = 0;
+  
 }
 int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 {
-	if (fDependList.size () == 0) {
-		TM->TransfertoExecutable (taskid);
-		return 1;
-	}
-	std::vector < OOPMDataDepend >::iterator i;
-	for (i = fDependList.begin (); i != fDependList.end (); i++) {
-   {
 #ifdef LOGPZ     
-     stringstream sout;
-     sout << __PRETTY_FUNCTION__ << " task id " << taskid << " submitting " << *i;
-     LOGPZ_DEBUG(tasklogger,sout.str());
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " task id " << taskid << " fDependList size " << fDependList.size();
+    LOGPZ_DEBUG(tasklogger,sout.str());
 #endif     
-   }
-		if (!DM->SubmitAccessRequest (taskid, *i)) {
-#ifdef LOGPZ      
+
+  if (fDependList.size () == 0)
+  {
+    TM->TransfertoExecutable (taskid);
+    return 1;
+  }
+  std::vector < OOPMDataDepend >::iterator i;
+  for (i = fDependList.begin (); i != fDependList.end (); i++) {
+  {
+#ifdef LOGPZ     
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " task id " << taskid << " submitting " << *i;
+    LOGPZ_DEBUG(tasklogger,sout.str());
+  #endif     
+    }
+    if (!DM->SubmitAccessRequest (taskid, *i))
+    {
+  #ifdef LOGPZ      
       stringstream sout;
       sout << "SubmitDependencyList failed for task id ";
       taskid.Print (sout);
       sout << "With dependency ";
       (*i).Print (sout);
       LOGPZ_ERROR(logger,sout.str());
-#endif      
-			vector < OOPMDataDepend >::iterator j;
-			for (j = fDependList.begin (); j != i; j++) {
-				DM->ReleaseAccessRequest (taskid, *j);
-			}
-			fDependList.clear();
-			return 0;
-		}
-	}
-	return 1;
+  #endif      
+      vector < OOPMDataDepend >::iterator j;
+      for (j = fDependList.begin (); j != i; j++)
+      {
+        DM->ReleaseAccessRequest (taskid, *j);
+      }
+      fDependList.clear();
+      return 0;
+    }
+  }
+  return 1;
 }
 void OOPMDataDependList::SetExecuting (const OOPObjectId & taskid,
 				       bool condition)
 {
-	vector < OOPMDataDepend >::iterator i;
-	for (i = fDependList.begin (); i != fDependList.end (); i++) {
-		i->ObjPtr ()->SetExecute (taskid, *i, condition);
-	}
+  vector < OOPMDataDepend >::iterator i;
+  for (i = fDependList.begin (); i != fDependList.end (); i++) {
+    i->ObjPtr ()->SetExecute (taskid, *i, condition);
+  }
 }
 void OOPMDataDependList::ReleaseAccessRequests (const OOPObjectId & taskid)
 {

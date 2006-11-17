@@ -14,7 +14,7 @@
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-static LoggerPtr logger(Logger::getLogger("OOPAR.OOPAccessInfo"));
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMetaData"));
 #endif
 
 bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
@@ -157,7 +157,8 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
   i = fList.begin ();
   while (i != fList.end ()) {
     if (!(i->fIsGranted)){
-      if (i->CanExecute (object)) {
+      if (i->CanExecute (object)) 
+      {
         if(i->fProcessor == DM->GetProcID())
         {
 #ifdef LOGPZ
@@ -181,6 +182,10 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
       {
          i++;
       }
+    }
+    else 
+    {
+      i++;
     }
   }
   return false;

@@ -95,7 +95,7 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
 #ifdef LOGPZ      
       stringstream sout;
       sout << "AmICompatible returned false ";
-      LOGPZ_ERROR(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str());
 #endif      
       return 0;
     }
@@ -126,25 +126,24 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
   }
   return 1;
 }
-OOPDataManager::OOPDataManager (int Procid)
+OOPDataManager::OOPDataManager(int Procid)
 {
-	fProcessor = Procid;
-	fObjId.SetProcId (Procid);
-	fLastCreated = 0;	// NUMOBJECTS * Procid;
-//	fMaxId = 1000;	// fLastCreated + NUMOBJECTS;
-	pthread_mutex_init(&fDataMutex, NULL);
+  fProcessor = Procid;
+  fObjId.SetProcId (Procid);
+  fLastCreated = 0;	// NUMOBJECTS * Procid;
+  pthread_mutex_init(&fDataMutex, NULL);
   char filename[255];
   sprintf(filename,"datalogger%d", CM->GetProcID());
   LogDM = new OOPDataLogger(filename);
 }
 void OOPDataManager::SubmitAllObjects(){
-	pthread_mutex_lock(&fDataMutex);
-	list<OOPMetaData *>::iterator lit=fSubmittedObjects.begin();
-	for(;lit!=fSubmittedObjects.end();lit++){
-		fObjects[(*lit)->Id()]=(*lit);
-	}
-	fSubmittedObjects.clear();
-	pthread_mutex_unlock(&fDataMutex);
+  pthread_mutex_lock(&fDataMutex);
+  list<OOPMetaData *>::iterator lit=fSubmittedObjects.begin();
+  for(;lit!=fSubmittedObjects.end();lit++){
+    fObjects[(*lit)->Id()]=(*lit);
+  }
+  fSubmittedObjects.clear();
+  pthread_mutex_unlock(&fDataMutex);
 }
 OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace)
 {

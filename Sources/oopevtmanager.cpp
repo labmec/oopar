@@ -93,8 +93,8 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
   }else{
 #ifdef LOGPZ    
     std::stringstream sout;
-    sout << __FUNCTION__ << __LINE__ << " Inserted on Used and removed from Avail " << *it;
-    LOGPZ_DEBUG(logger,sout.str());
+    sout << __FUNCTION__ << " L:" << __LINE__ << " Inserted on Used and removed from Avail " << *it;
+    //LOGPZ_DEBUG(logger,sout.str());
 #endif
 //    m_Evts.begin();
 //    map< int, TEvt>::iterator mit = m_Evts.begin();
@@ -112,7 +112,7 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
     {
     std::stringstream sout;
     Evt.Print(sout);
-    LOGPZ_DEBUG(logger,sout.str());
+    //LOGPZ_DEBUG(logger,sout.str());
     }
 #endif
 
@@ -132,7 +132,7 @@ void OOPEvtManager<OOPSoloEvent>::ReleaseEvent(int index){
 
     sout << __FUNCTION__ << __LINE__ << "Releasing EvtID " << it->first;
     it->second.Print(sout);
-    LOGPZ_DEBUG(logger,sout.str());
+    //LOGPZ_DEBUG(logger,sout.str());
     }
   }
 #endif
@@ -153,7 +153,7 @@ void OOPEvtManager<OOPStateEvent>::ReleaseEvent(int index){
 
     sout << __FUNCTION__ << __LINE__ << "Releasing EvtID " << it->first;
     it->second.Print(sout);
-    LOGPZ_DEBUG(logger,sout.str());
+    //LOGPZ_DEBUG(logger,sout.str());
     }
   }
 #endif

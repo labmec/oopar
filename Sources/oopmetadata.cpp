@@ -61,20 +61,20 @@ bool OOPMetaData::PointerBeingModified() const{
 void OOPMetaData::VerifyAccessRequests ()
 {
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Entering VerifyAccessRequests for Obj " << this->fObjId;
-    LOGPZ_DEBUG(logger,sout.str());
+    LOG4CXX_DEBUG(logger,sout.str());
+
 #endif    
   }
-  //Isso ta errado
   OOPObjectId taskid;
   while (fAccessList.HasIncompatibleTask (fVersion, taskid))
   {
 #ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << taskid;
-    LOGPZ_ERROR(logger,sout.str());
+    LOG4CXX_DEBUG(logger,sout.str());
 #endif    
     TM->CancelTask (taskid);
   }
@@ -82,11 +82,11 @@ void OOPMetaData::VerifyAccessRequests ()
 #ifdef LOGPZ    
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Verify leaving because fTrans = " << fTrans ;
-    LOGPZ_DEBUG(logger,sout.str());
+    LOG4CXX_DEBUG(logger,sout.str());
 #endif    
     return;
   }
-  fAccessList.VerifyAccessRequests(*this);  
+  fAccessList.VerifyAccessRequests(*this);
 
 }
 OOPObjectId OOPMetaData::Id () const
@@ -311,13 +311,16 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
     stringstream sout;
     sout << "SubmitAccessRequest objid " << fObjId << " task " << taskId << " depend " << depend << " proc " << processor;
     LOGPZ_DEBUG(logger,sout.str());
+    cout << "SubmitAccessRequest objid " << fObjId << " task " << taskId << " depend " << depend << " proc " << processor;
 #endif    
   }
   LogDM->SubmitAccessRequestLog(DM->GetProcID(),Id(),ENoMessage,depend.State(),State(),depend.Version(),processor,taskId);
-	fAccessList.AddAccessRequest (taskId, depend, processor);
-	if (!IamOwner ()) {
-		VerifyAccessRequests();
-		if(!fAccessList.HasAccessGranted (taskId, depend)) {
+  fAccessList.AddAccessRequest (taskId, depend, processor);
+  if (!IamOwner ())
+  {
+    VerifyAccessRequests();
+    if(!fAccessList.HasAccessGranted (taskId, depend))
+    {
       {
 #ifdef LOGPZ        
         stringstream sout;
@@ -325,11 +328,12 @@ void OOPMetaData::SubmitAccessRequest (const OOPObjectId & taskId,
         LOGPZ_DEBUG(logger,sout.str());
 #endif        
       }
-			this->SendAccessRequest (depend);
-		}
-	} else {
-		VerifyAccessRequests ();
-	}
+      this->SendAccessRequest (depend);
+    }
+  } else 
+  {
+    VerifyAccessRequests ();
+  }
 }
 void OOPMetaData::SetExecute (const OOPObjectId & taskId,
 			      const OOPMDataDepend & depend, bool condition)

@@ -117,19 +117,19 @@ public:
    * Submits a daemon task to the TaskManager.
    * @param task Pointer to the submitted task.
    */
-  void SubmitDaemon (OOPDaemonTask * task);
+  void SubmitDaemon(OOPDaemonTask * task);
   /**
    * Returns the number tasks currently being managed by this data manager
    */
-  int NumberOfTasks ();
+  int NumberOfTasks();
   /**
    * Returns true if there is a chance of finding an executable task
    */
-  bool HasWorkTodo ();
+  bool HasWorkTodo();
   /**
    * Returns the total number of task on the environment.
    */
-  int GlobalNumberOfTasks ();
+  int GlobalNumberOfTasks();
   /**
    * Changes the priority of the task identified by Id.
    * @param Id Id of the task having its priority changed.

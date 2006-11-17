@@ -24,6 +24,12 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
     fTaskId = task->Id();
     fClassId = task->ClassId();
     fDataDepend = task->GetDependencyRequests();
+#ifdef LOGPZ  
+    stringstream sout;
+    sout << "The data dependency of the task control for task id " << task->Id();
+    fDataDepend.Print(sout);
+    LOGPZ_DEBUG(logger,sout.str());
+#endif    
   }
 }
 
@@ -73,7 +79,10 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   int lClassId = tc->fTask->ClassId();
   if (!tc->fTask->IsRecurrent())
   {
-
+    //Guardar versoes dos dados
+    //Associando TaskDependList com DataDependList
+    //Objetos com WriteAccess sao atualizados com as novas versoes
+    //VerifyAccessRequest feito dentro do submit do metadata. 
     delete tc->fTask;
     tc->fTask=0;
   }
@@ -81,7 +90,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   {
     stringstream sout;
     sout << "Task " << id << " CId:" << lClassId << " finished before lock";
-    LOGPZ_DEBUG(logger,sout.str());
+    //LOGPZ_DEBUG(logger,sout.str());
   }
 #endif
 

@@ -159,7 +159,8 @@ int OOPMPICommManager::ReceiveMessages ()
 };
 int OOPMPICommManager::ReceiveMessagesBlocking()
 {
-  pthread_create(&fReceiveThread, NULL, ReceiveMsgBlocking, this);
+  return pthread_create(&fReceiveThread, NULL, ReceiveMsgBlocking, this);
+  
 }
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 	OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;

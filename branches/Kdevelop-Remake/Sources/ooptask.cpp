@@ -49,7 +49,8 @@ OOPTask::Print (std::ostream & out)
   out << "Priority\t" << fPriority << endl;
   out << "Processor\t" << fProc << endl;
   out << "Data Dependence\t" << endl;
-  fDataDepend.Print (out);
+  fDependRequest.Print(out);
+  fDataObjectList.Print(out);
 }
 
 void
@@ -67,18 +68,19 @@ OOPTask::OOPTask (int proc)
   f_MySize = 0;
 }
 OOPTask::OOPTask (const OOPTask & task):
-fProc (task.fProc),
-fTaskId (),
-fDataDepend (task.fDataDepend),
-fPriority (task.fPriority),
-fIsRecurrent (task.fIsRecurrent),
-fLabel (task.fLabel)
+  fProc (task.fProc),
+  fTaskId (),
+  fDependRequest (task.fDependRequest),
+  fDataObjectList(task.fDataObjectList),
+  fPriority (task.fPriority),
+  fIsRecurrent (task.fIsRecurrent),
+  fLabel (task.fLabel)
 {
 }
 void
 OOPTask::AddDependentData (const OOPMDataDepend & depend)
 {
-  fDataDepend.AppendDependency (depend);
+  fDependRequest.AppendDependency (depend);
 }
 
 void
@@ -164,7 +166,7 @@ OOPTask::Write (TPZStream & buf, int withclassid)
   // executed
   buf.Write (&fPriority);
   buf.Write (&fIsRecurrent);
-  fDataDepend.Write (buf);
+  fDependRequest.Write (buf);
 
 }
 
@@ -179,14 +181,14 @@ OOPTask::Read (TPZStream & buf, void *context)
   buf.Read (&fProc);
   buf.Read (&fPriority);
   buf.Read (&fIsRecurrent);
-  fDataDepend.Read (buf);
+  fDependRequest.Read (buf);
 
 }
 
-TPZSaveable *
+TPZAutoPointer<TPZSaveable> 
 OOPTask::GetDepObjPtr (int idepend)
 {
-  int numdep = fDataDepend.NElements ();
+  int numdep = fDataObjectList.NDepend();
   if (idepend < 0 || idepend >= numdep) {
 #ifdef LOGPZ
     stringstream sout;
@@ -196,14 +198,13 @@ OOPTask::GetDepObjPtr (int idepend)
 #endif
     return 0;
   }
-  OOPMDataDepend & dep = fDataDepend.Dep (idepend);
-  return dep.ObjPtr ()->Ptr ();
+  return fDataObjectList.ObjPtr(idepend);
 }
 
 void
 OOPTask::IncrementDepObjVersion (int idepend)
 {
-  int numdep = fDataDepend.NElements ();
+  int numdep = fDataObjectList.NDepend ();
   if (idepend < 0 || idepend >= numdep) {
 #ifdef LOGPZ
     stringstream sout;
@@ -212,37 +213,18 @@ OOPTask::IncrementDepObjVersion (int idepend)
 #endif
     return;
   }
-  OOPMDataDepend & dep = fDataDepend.Dep (idepend);
-  dep.ObjPtr ()->IncrementVersion (Id ());
+  fDataObjectList.IncrementVersion(idepend);
 }
 
 void
 OOPTask::IncrementWriteDependentData ()
 {
-  int numdep = fDataDepend.NElements ();
+  int numdep = fDataObjectList.NDepend ();
   int i;
 
   for (i = 0; i < numdep; i++) {
-    if (fDataDepend.Dep (i).State () == EWriteAccess){
-#warning "Commented out --VERIFY"
-/*	|| fDataDepend.Dep (i).State () == EVersionAccess) {*/
-      OOPMetaData *meta = fDataDepend.Dep (i).ObjPtr ();
-      if (meta) {
-	meta->IncrementVersion (Id ());
-#ifdef LOGPZ
-	stringstream sout;
-	sout <<
-	  "Automatically Incrementing Write Dependent Data Versions of object id "
-	  << meta->Id ();
-	LOGPZ_INFO (logger, sout.str ());
-#endif
-      } else {
-#ifdef LOGPZ
-	stringstream sout;
-	sout << __PRETTY_FUNCTION__ << " meta is NULL!!!";
-	LOGPZ_ERROR (logger, sout.str ());
-#endif
-      }
+    if (fDataObjectList.AccessType(i) == EWriteAccess){
+      IncrementDepObjVersion(i);
     }
   }
 }

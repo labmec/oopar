@@ -21,11 +21,9 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
   fExecStarted = 0;
   fExecFinished = 0;
   if (task) {
-    fDepend = task->GetDependencyList ();
-    fDepend.ClearPointers ();
     fTaskId = task->Id();
     fClassId = task->ClassId();
-    fDataDepend = task->Depend();
+    fDataDepend = task->GetDependencyRequests();
   }
 }
 

@@ -29,11 +29,23 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
   }
   // if the version is not right, don't even consider granting access
   if (!fVersion.CanExecute (object.Version ()))
-          return false;
+  {
+#ifdef LOGPZ  
+    stringstream sout;
+    sout << "OOPAccessInfo::CanExecute returning false fVersion " << fVersion << " object version " << object.Version();
+    LOGPZ_ERROR(logger, sout.str());
+#endif    
+      return false;
+  }
   switch (this->fState) {
   case EReadAccess:
     if(!object.PointerBeingModified())
     {
+#ifdef LOGPZ  
+    stringstream sout;
+    sout << "OOPAccessInfo::CanExecute returning true";
+    LOGPZ_ERROR(logger, sout.str());
+#endif    
       return true;
     } 
     else
@@ -105,6 +117,7 @@ void OOPAccessInfoList::GrantForeignAccess(OOPAccessInfo & info,OOPMetaData & ob
       OOPDMOwnerTask * town = new OOPDMOwnerTask(EGrantReadAccess, info.fProcessor);
       town->fObjId = object.Id();
       town->fVersion = object.Version();
+      town->fObjPtr = object.Ptr();
       LogDM->SendOwnTask(town);
       TM->SubmitDaemon(town);
       break;
@@ -140,9 +153,6 @@ void OOPAccessInfoList::GrantForeignAccess(OOPAccessInfo & info,OOPMetaData & ob
  */
 bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
 {
-#ifdef LOGPZ
-  stringstream sout;
-#endif  
   list < OOPAccessInfo >::iterator i;
   i = fList.begin ();
   while (i != fList.end ()) {
@@ -150,6 +160,11 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
       if (i->CanExecute (object)) {
         if(i->fProcessor == DM->GetProcID())
         {
+#ifdef LOGPZ
+    std::stringstream sout;
+    sout << "Giving access request for " << *i << " to object " << object.Id();
+    LOGPZ_DEBUG(logger,sout.str());
+#endif
           OOPMDataDepend dep(object.Id(),i->fState,i->fVersion);
           TM->NotifyAccessGranted(i->fTaskId,dep,&object);
           i->fIsGranted = true;

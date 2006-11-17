@@ -45,8 +45,6 @@ OOPDataManager::~OOPDataManager ()
 {
 	map< OOPObjectId,  OOPMetaData * >::iterator i=fObjects.begin ();
 	for(;i!=fObjects.end();i++){
-    TPZSaveable *dead = (*i).second->Ptr();
-    delete dead;
     delete (i->second);
     fObjects.erase(i);
 	}
@@ -103,19 +101,17 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
     }
 #ifdef LOGPZ      
     stringstream sout;
-    sout << "Access request submitted" << endl;
-#endif    
-    (*i).second->SubmitAccessRequest (TaskId, depend, GetProcID ());
-#ifdef LOGPZ      
-    LOGPZ_DEBUG(logger,sout.str());    
+    sout << "Access request " << depend << " submitted  to metadata ";
     (*i).second->Print(sout);
+    LOGPZ_DEBUG(logger,sout.str());    
 #endif
+    (*i).second->SubmitAccessRequest (TaskId, depend, GetProcID ());
   }else{
     if (depend.Id ().GetProcId () == fProcessor) {
 #ifdef LOGPZ      
       stringstream sout;
       sout << "SubmitAccessRequest for deleted object, returning 0 size of submitted list " << fSubmittedObjects.size();
-      LOGPZ_WARN(logger,sout);
+      LOGPZ_WARN(logger,sout.str());
 #endif      
       return 0;
     }
@@ -449,14 +445,6 @@ OOPDMOwnerTask::OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc):OOPDaemonTas
 	ENotifyDeleteObject,
 */
 OOPDMOwnerTask::~OOPDMOwnerTask() {
-	switch(this->fType) {
-	case ETransferOwnership:
-		if(this->fObjPtr) delete fObjPtr;
-		break;
-	
-	default:
-		return;
-	}
 }
 //***********************************************************************
 OOPDMRequestTask::OOPDMRequestTask (int proc,

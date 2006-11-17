@@ -111,7 +111,7 @@ void OOPWaitTask::Wait()
   stringstream sout;
   sout << "TId:" << Id().GetId()
     << ":" << Id().GetProcId() << ":Dep:";
-  fDataDepend.ShortPrint(sout);
+  fDependRequest.ShortPrint(sout);
   OOPStateEvent evt("waittask",sout.str());
 #endif
 

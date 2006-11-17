@@ -1,0 +1,15 @@
+#
+# OOP.mk options makefile for OOPar.
+#
+# It will be processed by GNU automake to produce Makefile.in
+#
+# $Id: OOP.mk.in,v 1.13.2.2 2006-11-17 13:22:13 longhin Exp $
+#
+
+-include @PZ_DIR@/PZ_user.mk
+CXXFLAGS = @USING_MPI@ @USING_MPE@ $(PZ_CXXFLAGS) @USING_LOG4CXX@
+INCLUDES = -I$(top_srcdir)/Sources @MPIINCLUDE@ $(PZ_INCLUDES) @MPEINCLUDE@ @LOG4CXX_INCLUDE@
+LDFLAGS = -L$(top_builddir)/lib $(PZ_LIBDIR) @MPILIBDIR@ @MPELIBDIR@ @LOG4CXX_LIBDIR@
+LDADD =  -loopar $(PZ_LIB) -lpthread @MPILIB@ @MPELIB@ @LOG4CXX_LIB@
+
+## --| OOPar |------------------------------------------------------------------

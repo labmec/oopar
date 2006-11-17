@@ -56,10 +56,10 @@ class   OOPMDataDepend
   /**
    * returns the state corresponding to the dependency
    */
-   const   OOPMDataState & State () const
-   {
-     return fNeed;
-   }
+  const OOPMDataState & State () const
+  {
+    return fNeed;
+  }
   /**
    * method which will serialize the object
    */
@@ -67,11 +67,11 @@ class   OOPMDataDepend
   /**
    * method to reconstruct the object
    */
-	void Read (TPZStream  & buf, void * context = 0);
-   void SetState(OOPMDataState state){
-	   fNeed = state;
-   }
-      private:
+  void Read (TPZStream  & buf, void * context = 0);
+  void SetState(OOPMDataState state){
+    fNeed = state;
+  }
+private:
   /**
    * Id of the data needed to execute the task
    */
@@ -90,48 +90,48 @@ class   OOPMDataDepend
    */
 	        OOPMetaData * fObjPtr;
       public:
-	        OOPMetaData * ObjPtr ();
-	void    SetObjPtr (OOPMetaData * objptr);
+        OOPMetaData * ObjPtr () const;
+	void SetObjPtr (OOPMetaData * objptr);
   /**
    * Empty constructor
    */
-	OOPMDataDepend ()
-	{
-		fObjPtr = 0;
-	}
-	// if fVersion == -1 , there is no version dependency
+  OOPMDataDepend ()
+  {
+          fObjPtr = 0;
+  }
+  // if fVersion == -1 , there is no version dependency
   /**
    * Constructor with initial parameters
    */
-	OOPMDataDepend (const OOPObjectId & id,
+  OOPMDataDepend (const OOPObjectId & id,
 			OOPMDataState st, const OOPDataVersion & ver);
   /**
    * Returns access status.
    * returns 0 if no access
    * returns the pointer to the task which is accessing the data
    */
-	bool    Status ()
-	{
-		// cout << "Pointer " << fObjPtr << endl;
-		return fObjPtr != 0;
-	}
+  bool Status()
+  {
+    // cout << "Pointer " << fObjPtr << endl;
+    return fObjPtr != 0;
+  }
 	
 };
 class   OOPMDataDependList
 {
-	deque < OOPMDataDepend > fDependList;
+  std::vector < OOPMDataDepend > fDependList;
 public:
-	~OOPMDataDependList(){}		  
+  ~OOPMDataDependList(){}		  
   /**
    * this method submits the data dependency to the DataManager
    * @returns 1 if successful 0 if the task should be deleted because of incompatibility
    */
-	int     SubmitDependencyList (const OOPObjectId & taskid);
+  int SubmitDependencyList (const OOPObjectId & taskid);
   /**
    * Signal the OOPMetaData objects that the task is executing
    * @param condition true if the task enters execution, false if it finished executing
    */
-	void    SetExecuting (const OOPObjectId & taskid, bool condition);
+  void SetExecuting (const OOPObjectId & taskid, bool condition);
   /**
    * Prints the list of data dependencies
    */
@@ -140,60 +140,60 @@ public:
   /**
    * This method will release all access requests filed in this container
    */
-	void    ReleaseAccessRequests (const OOPObjectId & taskid);
+  void ReleaseAccessRequests (const OOPObjectId & taskid);
   /**
    * @return the number of elements in the list
    */
-	int     NElements ();
+  int NElements () const;
   /**
    * appends an element to the list
    * @param depend element appended to the list
    */
-	void    AppendDependency (const OOPMDataDepend & depend);
+  void AppendDependency (const OOPMDataDepend & depend);
   /**
    * Signals the dependency list that a accessrequest has been granted
    * @param depend Dependent data as requested
    * @param ObjPtr pointer to the OOPMetaData object to which the task has access
    */
-	void    GrantAccess (const OOPMDataDepend & depend,
+  void GrantAccess (const OOPMDataDepend & depend,
 			     OOPMetaData * ObjPtr);
   /**
    * Signals the dependency list that a accessrequest has been revoked
    * @param depend Dependent data as requested
    */
-	void    RevokeAccess (const OOPMDataDepend & depend);
+  void RevokeAccess (const OOPMDataDepend & depend);
   /**
    * deletes all elements
    */
-	void    Clear ();
+  void Clear ();
   /**
    * zeroes all the OOPMetaDataPointers
    */
-	void    ClearPointers ();
+  void ClearPointers ();
   /**
    * @return 1 if all access requests have been granted
    */
-	int     CanExecute ();
-	void    operator= (const OOPMDataDependList & copy)
-	{
-		fDependList = copy.fDependList;
-	}
+  int CanExecute ();
+  void operator= (const OOPMDataDependList & copy)
+  {
+    fDependList = copy.fDependList;
+  }
   /**
    * Access method while functionality is not fully implemented
    */
-	OOPMDataDepend & Dep (int i)
-	{
-		return fDependList[i];
-	}
-	OOPMDataDepend & Dep (OOPObjectId & Id);
+  OOPMDataDepend & Dep (int i)
+  {
+    return fDependList[i];
+  }
+  OOPMDataDepend & Dep (OOPObjectId & Id);
   /**
    * method which will serialize the object
    */
-	void    Write (TPZStream & buf);
+  void Write (TPZStream & buf);
   /**
    * method to reconstruct the object
    */
-	void     Read (TPZStream & buf, void * context = 0);
+  void Read (TPZStream & buf, void * context = 0);
 };
 inline std::ostream &operator<<(std::ostream &out, const OOPMDataDepend &obj) {
 	return obj.ShortPrint(out);

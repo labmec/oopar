@@ -3,6 +3,7 @@
 #include <deque>
 #include <set>
 #include <list>
+#include <iostream>
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include "ooppardefs.h"
@@ -109,7 +110,7 @@ void    Print (std::ostream & out = std::cout)
 		out << "TaskId " << fTaskId << endl;
 		out << "Version" << fVersion << endl;
 	}
-void    ShortPrint (std::ostream & out = std::cout)
+void    ShortPrint (std::ostream & out = std::cout) const
 	{
 		out << "A?:" << (bool) fIsAccessing << ";";
 		out << "G?:" << fIsGranted << ";";
@@ -121,6 +122,12 @@ void    ShortPrint (std::ostream & out = std::cout)
 
 bool    CanExecute (const OOPMetaData & object) const;
 };
+
+inline std::ostream &operator<<(std::ostream &out, const OOPAccessInfo &info)
+{
+  info.ShortPrint(out);
+  return out;
+}
 /**
  * This class manages the set of access requests which were filed
  * to an OOPar object (data + OOPMetaData)

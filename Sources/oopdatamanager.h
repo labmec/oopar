@@ -14,6 +14,7 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include <pthread.h>
+#include "tpzautopointer.h"
 class TPZSaveable;
 class   OOPStorageBuffer;
 class   OOPStorageBuffer;
@@ -206,7 +207,7 @@ public:
   /**
   * Holds a pointer to the object when the object data is transferred
   */
-  TPZSaveable *fObjPtr;
+  TPZAutoPointer<TPZSaveable> fObjPtr;
   /**
   * Id of processor which originated the message
   */

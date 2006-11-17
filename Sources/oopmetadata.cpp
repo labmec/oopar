@@ -107,7 +107,7 @@ bool OOPMetaData::IamOwner () const
   return Proc () == DM->GetProcID ();
 }
 void OOPMetaData::ReleaseAccess (const OOPObjectId & taskid,
-  const OOPMDataDepend & depend)
+                                 const OOPMDataDepend & depend)
 {
 #warning "Commented out -- Must be reimplemented"
   fAccessList.ReleaseAccess (taskid, depend);
@@ -351,7 +351,6 @@ void OOPMetaData::TransferObject (int ProcId)
   town->fObjPtr = this->fObjPtr;
   town->fVersion = this->fVersion;
   this->fProc = ProcId;
-  this->fObjPtr = 0;
   LogDM->SendOwnTask(town);
   TM->SubmitDaemon(town);
   fAccessList.TransferAccessRequests(fObjId,ProcId);
@@ -379,8 +378,6 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       if(fObjPtr && ms.fObjPtr)
       {
         LOGPZ_WARN(logger, "Receives the pointer to the object again!");
-        delete ms.fObjPtr;
-        ms.fObjPtr = 0;
         if(ms.fProcOrigin != fProc || !(fVersion == ms.fVersion))
         {
 #ifdef LOGPZ          
@@ -392,7 +389,6 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
         }
       }
       if(ms.fObjPtr) fObjPtr = ms.fObjPtr;
-      ms.fObjPtr = 0;
       fProc = ms.fProcOrigin;
       fVersion = ms.fVersion;
       fReadAccessProcessors.insert(DM->GetProcID());

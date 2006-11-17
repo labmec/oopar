@@ -46,7 +46,7 @@ OOPMDataDepend &OOPMDataDepend::operator=(const OOPMDataDepend &copy)
 	return *this;
 }
 
-OOPMetaData *OOPMDataDepend::ObjPtr ()
+OOPMetaData *OOPMDataDepend::ObjPtr () const
 {
 	return fObjPtr;
 }
@@ -134,7 +134,7 @@ int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 		TM->TransfertoExecutable (taskid);
 		return 1;
 	}
-	deque < OOPMDataDepend >::iterator i;
+	std::vector < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
    {
 #ifdef LOGPZ     
@@ -152,7 +152,7 @@ int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
       (*i).Print (sout);
       LOGPZ_ERROR(logger,sout.str());
 #endif      
-			deque < OOPMDataDepend >::iterator j;
+			vector < OOPMDataDepend >::iterator j;
 			for (j = fDependList.begin (); j != i; j++) {
 				DM->ReleaseAccessRequest (taskid, *j);
 			}
@@ -165,14 +165,14 @@ int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 void OOPMDataDependList::SetExecuting (const OOPObjectId & taskid,
 				       bool condition)
 {
-	deque < OOPMDataDepend >::iterator i;
+	vector < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		i->ObjPtr ()->SetExecute (taskid, *i, condition);
 	}
 }
 void OOPMDataDependList::ReleaseAccessRequests (const OOPObjectId & taskid)
 {
-	deque < OOPMDataDepend >::iterator i;
+	vector < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 #ifdef LOGPZ    
           std::stringstream sout;
@@ -184,47 +184,49 @@ void OOPMDataDependList::ReleaseAccessRequests (const OOPObjectId & taskid)
 }
 void OOPMDataDependList::ClearPointers ()
 {
-	deque < OOPMDataDepend >::iterator i;
+	vector < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		(*i).SetObjPtr (0);
 	}
 }
 void OOPMDataDependList::Print (std::ostream & out)
 {
-	out << "OOPMDataDependList printout\n";
-	deque < OOPMDataDepend >::iterator i;
-	for (i = fDependList.begin (); i != fDependList.end (); i++) {
-		i->ShortPrint (out) << " status " << i->Status() << endl;
-	}
+  out << "OOPMDataDependList printout\n";
+  vector < OOPMDataDepend >::iterator i;
+  for (i = fDependList.begin (); i != fDependList.end (); i++) {
+    i->ShortPrint (out) << " status " << i->Status() << endl;
+  }
 }
 void OOPMDataDependList::ShortPrint (std::ostream & out)
 {
-	deque < OOPMDataDepend >::iterator i;
-	for (i = fDependList.begin (); i != fDependList.end (); i++) {
-		i->SuperShortPrint (out) << " st " << i->Status() << ";";
-	}
+  vector < OOPMDataDepend >::iterator i;
+  for (i = fDependList.begin (); i != fDependList.end (); i++) {
+    i->SuperShortPrint (out) << " st " << i->Status() << ";";
+  }
 }
-int OOPMDataDependList::NElements ()
+int OOPMDataDependList::NElements () const
 {
-	return fDependList.size ();
+  return fDependList.size ();
 }
 void OOPMDataDependList::AppendDependency (const OOPMDataDepend & depend)
 {
-	deque < OOPMDataDepend >::iterator i;
-	for (i = fDependList.begin (); i != fDependList.end (); i++) {
-		if (*i == depend) {
+  vector < OOPMDataDepend >::iterator i;
+  for (i = fDependList.begin (); i != fDependList.end (); i++)
+  {
+    if (*i == depend)
+    {
 #ifdef LOGPZ      
       stringstream sout;
       sout << "OOPMDataDependList::AppendDependency duplicate dependency ";
       LOGPZ_WARN(logger,sout.str());
 #endif      
-		}
-	}
-	fDependList.push_back (depend);
+    }
+  }
+  fDependList.push_back (depend);
 }
 void OOPMDataDependList::GrantAccess (const OOPMDataDepend & depend, OOPMetaData * ObjPtr)
 {
-  deque < OOPMDataDepend >::iterator i;
+  vector < OOPMDataDepend >::iterator i;
   for (i = fDependList.begin (); i != fDependList.end (); i++)
   {
     if (*i == depend && !i->Status ())
@@ -247,7 +249,7 @@ void OOPMDataDependList::GrantAccess (const OOPMDataDepend & depend, OOPMetaData
 }
 void OOPMDataDependList::RevokeAccess (const OOPMDataDepend & depend)
 {
-  deque < OOPMDataDepend >::iterator i;
+  vector < OOPMDataDepend >::iterator i;
   for (i = fDependList.begin (); i != fDependList.end (); i++)
   {
     if (*i == depend && i->Status ())
@@ -277,7 +279,7 @@ void OOPMDataDependList::Clear ()
 }
 int OOPMDataDependList::CanExecute ()
 {
-	deque < OOPMDataDepend >::iterator i;
+	vector < OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		if (!i->Status ())
 			return 0;
@@ -286,7 +288,7 @@ int OOPMDataDependList::CanExecute ()
 }
 void OOPMDataDependList::Write (TPZStream  & buf)
 {
-	deque < OOPMDataDepend >::iterator i;
+	vector < OOPMDataDepend >::iterator i;
 	int nel = fDependList.size ();
 	buf.Write (&nel);
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
@@ -310,7 +312,7 @@ void OOPMDataDependList::Read (TPZStream  & buf, void * context)
 }
 
 OOPMDataDepend & OOPMDataDependList::Dep (OOPObjectId & Id)	{
-	deque< OOPMDataDepend >::iterator i;
+	vector< OOPMDataDepend >::iterator i;
 	for (i = fDependList.begin (); i != fDependList.end (); i++) {
 		if (i->Id() == Id)
 			return *(i);

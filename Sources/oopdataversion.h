@@ -75,30 +75,30 @@ public:
   bool    operator < (const OOPDataVersion & version);
   bool    operator > (const OOPDataVersion & version);
   bool operator >= (const OOPDataVersion & version);
-	/**
-     * Implements the abstraction of data version incrementation.
-	 * The class will perform necessary checks to either increment only
-	 * its cardinality or also its level. 
-     */
-	void    Increment ();
-	/**
-	 * Adds a new level to the dataversion object
-	 * @param cardinality : New level is created with depth cardinality
-	 */
-	void    IncrementLevel (int cardinality);
-	/**
-	 * Deletes last level
-	 */
-	void    DecreaseLevel ();
-    /**
-     * Simple constructor 
-     */
-	        OOPDataVersion ();
-    /**
-     * Constructor setting n Level parameter. Depth will be set to 1.
-     * @param Level : Level to be set 
-     */
-	        OOPDataVersion (int cardinality);
+  /**
+   * Implements the abstraction of data version incrementation.
+   * The class will perform necessary checks to either increment only
+   * its cardinality or also its level. 
+   */
+  void    Increment ();
+  /**
+   * Adds a new level to the dataversion object
+   * @param cardinality : New level is created with depth cardinality
+   */
+  void    IncrementLevel (int cardinality);
+  /**
+   * Deletes last level
+   */
+  void    DecreaseLevel ();
+  /**
+   * Simple constructor 
+   */
+  OOPDataVersion ();
+  /**
+   * Constructor setting n Level parameter. Depth will be set to 1.
+   * @param Level : Level to be set 
+   */
+  OOPDataVersion (int cardinality);
     /**
      * Copy constructor 
      */

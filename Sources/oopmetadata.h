@@ -15,6 +15,7 @@
 #include "oopaccessinfo.h"
 #include "OOPDataLogger.h"
 #include "pzsave.h"
+#include "tpzautopointer.h"
 using namespace std;
 // NOT IMPLEMENTED :
 class   OOPDataManager;
@@ -45,7 +46,8 @@ private:
   /**
    * pointer to the object
    */
-  TPZSaveable *fObjPtr;
+  TPZAutoPointer<TPZSaveable> fObjPtr;
+  
   /**
    * Id of the object
    */
@@ -155,11 +157,7 @@ public:
   /**
    * Returns pointer to the TSaveable object
    */
-  TPZSaveable *Ptr ();
-  /**
-   * Overloading of operator
-   */
-  TPZSaveable *operator-> ();
+  TPZAutoPointer<TPZSaveable> Ptr ();
   /**
    * Transfer an object based on the parameters.
    * @param ProcId Identifies processor Id
@@ -277,20 +275,20 @@ public:
 	 * Returns current object Id
 	 */
 	        OOPObjectId Id () const;
-	/**
-	 * It releases the access posted by the Task identified by id.
-	 * It erases the id entry from the task list.
-	 * If any of the conditions mismatches an error message is issued.
-	 * @param taskid Identifies the task from which the access request should be dropped
-	 * @param depend Identifies the type of dependency
-	 */
-	void    ReleaseAccess (const OOPObjectId & taskid,
+  /**
+   * It releases the access posted by the Task identified by id.
+   * It erases the id entry from the task list.
+   * If any of the conditions mismatches an error message is issued.
+   * @param taskid Identifies the task from which the access request should be dropped
+   * @param depend Identifies the type of dependency
+   */
+  void ReleaseAccess (const OOPObjectId & taskid,
 			       const OOPMDataDepend & depend);
-	 /**
-	  * Verifies whether the object can grant any type of access
-	  * @return true if there are types of access which can be granted
-	  */
-	bool    CanGrantAccess () const;
+  /**
+   * Verifies whether the object can grant any type of access
+   * @return true if there are types of access which can be granted
+   */
+  bool CanGrantAccess () const;
 };
 template class TPZRestoreClass<OOPMetaData,OOPMETADATA_ID>;
 /*
@@ -301,11 +299,7 @@ inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {
 	fState = st;
 }
 */
-inline  TPZSaveable *OOPMetaData::Ptr ()
-{
-	return fObjPtr;
-}
-inline TPZSaveable *OOPMetaData::operator-> ()
+inline  TPZAutoPointer<TPZSaveable> OOPMetaData::Ptr ()
 {
 	return fObjPtr;
 }

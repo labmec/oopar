@@ -973,8 +973,8 @@ OOPTaskManager::TransferFinishedTasks ()
 	LOGPZ_DEBUG (tasklogger, sout.str ());
       }
 #endif
-      auxtc->Task ()->Depend ().ClearPointers ();
-      auxtc->Depend () = auxtc->Task ()->GetDependencyList ();
+      auxtc->Task ()->GetDependencyRequests ().ClearPointers ();
+      auxtc->Depend () = auxtc->Task ()->GetDependencyRequests ();
       fTaskList.push_back (auxtc);
       if (auxtc->Depend ().SubmitDependencyList (auxtc->Task ()->Id ())) {
 	// their is no incompatibility between
@@ -1019,7 +1019,11 @@ OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
     OOPTaskControl *tc = (*i);
     if (tc->Task ()->Id () == taskid) {
       tc->Task ()->SetDependencyList (tc->Depend ());
+      //Colocar o pointer beingmodified
+      //Se estiver sendo lido mensagem de erro
+      //Pois ainda nao clonamos os dados.
       tc->Depend ().SetExecuting (taskid, true);
+  
       OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(tc->Task ());
       if (dmt) {
 #ifdef LOGPZ

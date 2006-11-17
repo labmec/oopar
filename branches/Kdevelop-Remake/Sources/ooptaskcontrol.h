@@ -42,10 +42,6 @@ class   OOPTaskControl
  int fClassId;
  /////////////////////////////////////Task Data////////////////////////////////////////
   
-  /**
-   * List of dependency for the current object.
-   */
-  OOPMDataDependList fDepend;
  
   /**
    * Flag indicating whether the thread was started
@@ -74,13 +70,6 @@ public:
   /**
    * data access method
    */
-  OOPMDataDependList & Depend ()
-  {
-    return fDepend;
-  }
-  /**
-   * data access method
-   */
   OOPTask *Task ()
   {
     return fTask;
@@ -97,10 +86,14 @@ public:
    */
    void Execute();
    
-   /**
-   Entry point for the execution thread
+  /**
+   * Entry point for the execution thread
+   * TaskControl objects triggers the Execute() method of the associated OOPTask * object.
+   * At the end of execution, the TaskControl either submit a new version to the MetaData object,
+   * or, if the PointerIsBeingModified is true, updates the current version to the new version.
+   * All infrastructure for this Version arithmetics is responsibility of the MetaData.
    */
-static void *ThreadExec(void *tcobject);
+  static void *ThreadExec(void *tcobject);
 
     /*!
         \fn OOPTaskControl::TaskStarted() const

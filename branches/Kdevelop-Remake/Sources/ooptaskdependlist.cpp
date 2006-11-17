@@ -12,6 +12,16 @@
 #include "ooptaskdependlist.h"
 #include "oopmetadata.h"
 
+#include "pzlog.h"
+
+#ifdef LOGPZ
+using namespace log4cxx;
+using namespace
+  log4cxx::helpers;
+static LoggerPtr
+logger (Logger::getLogger ("OOPAR.OOPTaskDependList"));
+#endif
+
 OOPTaskDependList::OOPTaskDependList()
 {
 }
@@ -25,14 +35,28 @@ OOPTaskDependList::~OOPTaskDependList()
 
 void OOPTaskDependList::SetDependency(const OOPMDataDependList &datalist) {
   int i = 0;
-#warning "Wilderness of consts ! This is absolutely not necessary, consts are forcing me to do this !"
-  OOPMDataDependList dplst = datalist;
-  int size = dplst.NElements();
+  int size = datalist.NElements();
+  fDependList.resize(size);
   for(i = 0; i < size ;i++){
     OOPTaskData td;
-    td.fAccess = dplst.Dep(i).State();
-    td.fData = dplst.Dep(i).ObjPtr()->Ptr();
-    td.fVersion = dplst.Dep(i).Version();
+    td.fAccess = datalist.Dep(i).State();
+    if(datalist.Dep(i).ObjPtr())
+    {
+      td.fData = datalist.Dep(i).ObjPtr()->Ptr();
+    }
+    else
+    {
+#ifdef LOGPZ  
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Lacking a pointer to the metadata object ";
+    LOGPZ_DEBUG(logger,sout.str());
+  }
+#endif  
+
+    }
+    td.fVersion = datalist.Dep(i).Version();
+    fDependList[i]=td;
   }
 }
 

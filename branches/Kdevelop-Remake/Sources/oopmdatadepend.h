@@ -181,10 +181,16 @@ public:
   /**
    * Access method while functionality is not fully implemented
    */
-  OOPMDataDepend & Dep (int i)
+  OOPMDataDepend & Dep (int i) 
   {
     return fDependList[i];
   }
+
+  const OOPMDataDepend & Dep (int i) const
+  {
+    return fDependList[i];
+  }
+
   OOPMDataDepend & Dep (OOPObjectId & Id);
   /**
    * method which will serialize the object

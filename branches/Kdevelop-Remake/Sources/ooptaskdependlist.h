@@ -53,6 +53,7 @@ class OOPTaskDependList{
       fData = copy.fData;
       fAccess = copy.fAccess;
       fVersion = copy.fVersion;
+      return *this;
     }
   };
 public:

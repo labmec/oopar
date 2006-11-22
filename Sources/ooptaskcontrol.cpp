@@ -66,13 +66,19 @@ void OOPTaskControl::UpdateVersions(){
       sout << "Submitting new Versions from Task " << fTaskId 
       << " On ObjectId " << TaskDepend().Dep(i).Id()
       << " : Old Version " << TaskDepend().Dep(i).Version()
-      << " New Versio " << fTask->GetDependencyData().Version(i);
+      << " New Version " << fTask->GetDependencyData().Version(i);
       LOGPZ_DEBUG(logger, sout.str());
 #endif      
       OOPDataVersion nextver = fTask->GetDependencyData().Version(i);
-      TaskDepend().Dep(i).ObjPtr()->SubmitVersion(nextver, TaskDepend().Dep(i).ObjPtr());
+      TPZAutoPointer<TPZSaveable> objptr = fTask->GetDependencyData().ObjPtr(i);
+      TaskDepend().Dep(i).ObjPtr()->SubmitVersion(nextver, objptr);
     }
   }
+#ifdef LOGPZ
+  stringstream sout;
+  sout << "Leaving UpdateVersion";
+  LOGPZ_DEBUG(logger, sout.str());
+#endif      
 }
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
@@ -97,23 +103,41 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   //cout << __PRETTY_FUNCTION__ << " before lock for task " << tc->fTask->Id() << endl;
   OOPObjectId id = tc->fTask->Id();
   int lClassId = tc->fTask->ClassId();
-  if (!tc->fTask->IsRecurrent())
+  //Guardar versoes dos dados
+  //Associando TaskDependList com DataDependList
+  //Objetos com WriteAccess sao atualizados com as novas versoes
+  //VerifyAccessRequest feito dentro do submit do metadata. 
+#ifdef LOGPZ
   {
-    //Guardar versoes dos dados
-    //Associando TaskDependList com DataDependList
-    //Objetos com WriteAccess sao atualizados com as novas versoes
-    //VerifyAccessRequest feito dentro do submit do metadata. 
-    tc->UpdateVersions();
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << "Before lock";
+  LOGPZ_DEBUG(logger,sout.str());
+  }
+#endif
+  {
+  TMLock lock;
+  tc->UpdateVersions();
+  }
+#ifdef LOGPZ
+  {
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << "After lock";
+  LOGPZ_DEBUG(logger,sout.str());
+  }
+#endif
+/*  if (!tc->fTask->IsRecurrent())
+  {
     delete tc->fTask;
     tc->fTask=0;
-  }
+  }*/
 #ifdef LOGPZ
   {
     stringstream sout;
     sout << "Task " << id << " CId:" << lClassId << " finished before lock";
-    //LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str());
   }
 #endif
+  cout << "Task " << id << " CId: finished before lock";
 
   TMLock lock;
   //cout << __PRETTY_FUNCTION__ << " after lock for task" << tc->fTask->Id() << endl;

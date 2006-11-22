@@ -119,7 +119,7 @@ void OOPAccessInfoList::AddAccessRequest (const OOPObjectId & taskid,
 
 void OOPAccessInfoList::GrantForeignAccess(OOPAccessInfo & info,OOPMetaData & object)
 {
-#warning "Newly implemented"
+
   //Checks for the required access, creates the corresponding OwnerTask and submit it to TM
   switch (info.fState) {
     case EReadAccess:
@@ -129,14 +129,20 @@ void OOPAccessInfoList::GrantForeignAccess(OOPAccessInfo & info,OOPMetaData & ob
       town->fObjId = object.Id();
       town->fVersion = object.Version();
       town->fObjPtr = object.Ptr(town->fVersion);
-      LogDM->SendOwnTask(town);
+#ifdef LOGPZ    
+      stringstream sout;
+      sout << __PRETTY_FUNCTION__ << " Granting foreign Read Access to Processor "
+      << info.fProcessor << " Version " << object.Version() << " for ID " << object.Id()
+      << " with pointer " << town->fObjPtr << " of classid " << town->fObjPtr->ClassId();
+      LOGPZ_DEBUG(logger, sout.str());
+#endif      
       TM->SubmitDaemon(town);
+      fList.remove(info);
       break;
     }
     case EWriteAccess:
     {
       //OwnerMessage with transferownership type.
-      #warning "Not sure here"
       object.TransferObject(info.fProcessor);
       break;
     }
@@ -185,12 +191,21 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
         else
         {
 #ifdef LOGPZ
+          {
           std::stringstream sout;
           sout << "Granting foreign access for " << *i << " to object " << object.Id();
           LOGPZ_DEBUG(logger,sout.str());
+          }
 #endif
           GrantForeignAccess(*i,object);
-          fList.erase(i);
+          //fList.erase(i);
+#ifdef LOGPZ
+          {
+          std::stringstream sout;
+          sout << "After Granting foreign access list size " << fList.size();
+          LOGPZ_DEBUG(logger,sout.str());
+          }
+#endif
           i=fList.begin();
         }
       }
@@ -204,6 +219,13 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
       i++;
     }
   }
+#ifdef LOGPZ
+          {
+          std::stringstream sout;
+          sout << "Leaving " << __PRETTY_FUNCTION__;
+          LOGPZ_DEBUG(logger,sout.str());
+          }
+#endif
   return false;
 }
 /**

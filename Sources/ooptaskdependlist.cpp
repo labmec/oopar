@@ -40,9 +40,20 @@ void OOPTaskDependList::SetDependency(const OOPMDataDependList &datalist) {
   for(i = 0; i < size ;i++){
     OOPTaskData td;
     td.fAccess = datalist.Dep(i).State();
+    td.fVersion = datalist.Dep(i).Version();
     if(datalist.Dep(i).ObjPtr())
     {
       td.fData = datalist.Dep(i).ObjPtr()->Ptr(td.fVersion);
+      if(!td.fData)
+      {
+#ifdef LOGPZ  
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Lacking a pointer to the saveable object ";
+    LOGPZ_ERROR(logger,sout.str());
+  }
+#endif  
+      }
     }
     else
     {
@@ -55,7 +66,6 @@ void OOPTaskDependList::SetDependency(const OOPMDataDependList &datalist) {
 #endif  
 
     }
-    td.fVersion = datalist.Dep(i).Version();
     fDependList[i]=td;
   }
 }
@@ -77,7 +87,31 @@ OOPDataVersion & OOPTaskDependList::Version(int i){
   return fDependList[i].fVersion;
 }
 TPZAutoPointer<TPZSaveable> OOPTaskDependList::ObjPtr(int i){
-  return fDependList[i].fData;
+  if(i< fDependList.size())
+  {
+#ifdef LOGPZ  
+
+    {
+      stringstream sout;
+      sout << __PRETTY_FUNCTION__ << " returning a pointer of classid ";
+      if(fDependList[i].fData) sout << fDependList[i].fData->ClassId();
+      LOGPZ_DEBUG(logger,sout.str());
+    }
+#endif  
+    return fDependList[i].fData;
+  }
+  else
+  {
+#ifdef LOGPZ
+    {
+      stringstream sout;
+      sout << __PRETTY_FUNCTION__ << " parameter out of range " << i << " size " <<
+        fDependList.size();
+      LOGPZ_DEBUG(logger,sout.str());
+    }
+#endif
+  }
+  return NULL;
 }
 OOPMDataState OOPTaskDependList::AccessType(int i){
   return fDependList[i].fAccess;

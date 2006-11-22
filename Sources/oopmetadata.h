@@ -32,11 +32,11 @@ class   OOPDMOwnerTask;
  * @since Jan/2003
  * @author Gustavo Longhin
  */
-class   OOPMetaData:public TPZSaveable
+class   OOPMetaData//:public TPZSaveable
 {
 public:
 
-  virtual ~OOPMetaData(){}
+  virtual ~OOPMetaData();
 
 private:
   /**
@@ -90,7 +90,7 @@ public:
    * Amount of information and layout are modified in each method
    */
   void PrintLog (std::ostream & out = std::cout);
-  void    Print (std::ostream & out = std::cout);
+  void Print (std::ostream & out = std::cout);
   void ShortPrint(std::ostream & out = std::cout);
   /**
    * Sets the Id of current data
@@ -107,7 +107,7 @@ public:
    * @param ObjId Id of object
    * @param proc Processor number which owns TData.
    */
-  OOPMetaData (TPZAutoPointer<TPZSaveable> ObPtr, const OOPObjectId & ObjId,
+  OOPMetaData (const OOPObjectId & ObjId,
 			     const int proc);
   OOPMetaData (TPZAutoPointer<TPZSaveable> ObPtr, const OOPObjectId & ObjId,
                     const int ProcId, const OOPDataVersion & ver);				 
@@ -251,7 +251,7 @@ public:
    */
   bool CanGrantAccess () const;
 };
-template class TPZRestoreClass<OOPMetaData,OOPMETADATA_ID>;
+//template class TPZRestoreClass<OOPMetaData,OOPMETADATA_ID>;
 /*
 inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {
 	fObjPtr = ObPtr;

@@ -18,17 +18,17 @@ class   OOPMPISendStorage;
 */
 class   OOPMPICommManager:public OOPCommunicationManager
 {
-public:
+ public:
   
-	OOPMPICommManager ();
+  OOPMPICommManager ();
   /**
    * Constructor 
    */
-	OOPMPICommManager (int &argc, char **argv);
+  OOPMPICommManager (int &argc, char **argv);
   /**
    * Simple destructor
    */
-	       ~OOPMPICommManager ();
+  ~OOPMPICommManager ();
   /**
    * Opens Communication, initializing all the processes. 
    * If this processor was created by user, returns the 
@@ -36,74 +36,74 @@ public:
    * @param *process_name
    * @param num_of_process
    */
-private:	
-	int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v);
-public:
-        void UnlockReceiveBlocking();
-	/* Sends all messages in all buffers
-	*/
+ private:	
+  int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v);
+ public:
+  void UnlockReceiveBlocking();
+  /* Sends all messages in all buffers
+   */
   virtual int SendMessages ();
   /** 
    * Nonblocking receive. If there is a posted message to 
    * receive, receives it and returns 1. Else, returns 0
    */
-	int     ReceiveMessages ();
-        int ReceiveMessagesBlocking();
+  int     ReceiveMessages ();
+  int ReceiveMessagesBlocking();
   /**
    * Blocking receive. Execution stops and waits until a 
    * posted message is received
    */
-	int     ReceiveBlocking ();
-	/**
-	 * Multithreading blocking receive
-	 */
-	static void * ReceiveMsgBlocking (void *t);
-	static void * ReceiveMsgNonBlocking (void *t);
+  int     ReceiveBlocking ();
+  /**
+   * Multithreading blocking receive
+   */
+  static void * ReceiveMsgBlocking (void *t);
+  static void * ReceiveMsgNonBlocking (void *t);
   /**
    * Retorna 0 se o processo n� tiver sido disparado 
    * pelo console. What does it really mean?
    */
-        int     IAmTheMaster ();
+  int     IAmTheMaster ();
   /**
    * Used for error management
    */
-        char   *ClassName ();
+  char   *ClassName ();
         
-      protected:
-	/**
-	 * Terminates MPI execution
-	 */
-	 void Finish(char * msg);
+ protected:
+  /**
+   * Terminates MPI execution
+   */
+  void Finish(char * msg);
   /**
    * Unpacks the received message
    * @param msg Received message to be unpacked
    */
-	int     ProcessMessage (OOPMPIStorageBuffer & msg);
+  int     ProcessMessage (OOPMPIStorageBuffer & msg);
   /**
    * Function called by TCommunicationManager::
    * SendTask(TTask*). Packs the message to be sent to
    * a SendStorage Buffer.
    * @param *pTask Pointer to TTask object to be packed.
    */
-	int     SendTask (OOPTask * pTask);
+  int     SendTask (OOPTask * pTask);
   /** Array of send buffers */
-	//OOPMPISendStorage f_sendbuffer;
+  //OOPMPISendStorage f_sendbuffer;
   /** Reception object for non blocking receive */
-	//OOPMPIStorageBuffer f_receivebuffer;
+  //OOPMPIStorageBuffer f_receivebuffer;
   /** Communication argument */
   /**
    * Send and receive buffer are the same
    */
-    OOPMPIStorageBuffer f_buffer;
-	int     f_argc;
+  OOPMPIStorageBuffer f_buffer;
+  int     f_argc;
   /** Communication argument */
-	char  **f_argv;
-	bool fReceiveThreadExists;
-	pthread_t fReceiveThread;
-        pthread_mutex_t fReceiveMutex;
-        pthread_cond_t fReceiveCond;
-        sem_t fReceiveSemaphore;
-        bool fKeepReceiving;
+  char  **f_argv;
+  bool fReceiveThreadExists;
+  pthread_t fReceiveThread;
+  pthread_mutex_t fReceiveMutex;
+  pthread_cond_t fReceiveCond;
+  sem_t fReceiveSemaphore;
+  bool fKeepReceiving;
 };
 
 #endif

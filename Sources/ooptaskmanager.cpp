@@ -415,6 +415,14 @@ fLockThread (0), fLock (0)
 
 OOPTaskManager::~OOPTaskManager ()
 {
+#ifdef LOGPZ
+	stringstream sout;
+	sout << "submitted.size : " << fSubmittedList.size()  << 
+	" executable.size " << fExecutable.size() << 
+	" finished.size " << fFinished.size() << 
+	" tasklist.size " << fTaskList.size();
+	LOGPZ_DEBUG (tasklogger, sout.str ());
+#endif
   list < OOPTask * >::iterator i;
   for (i = fSubmittedList.begin (); i != fSubmittedList.end (); i++)
     delete *i;

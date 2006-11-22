@@ -56,8 +56,4 @@ enum OOPMReturnType
 
 
 
-/**
- * Discoontinued
-void RegisterOOParRestore();
-*/
 #endif

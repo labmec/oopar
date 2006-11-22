@@ -33,7 +33,7 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 #ifdef LOGPZ  
     stringstream sout;
     sout << "OOPAccessInfo::CanExecute returning false fVersion " << fVersion << " object version " << object.Version();
-    LOGPZ_ERROR(logger, sout.str());
+    LOGPZ_DEBUG(logger, sout.str());
 #endif    
       return false;
   }
@@ -42,9 +42,9 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
     if(!object.PointerBeingModified())
     {
 #ifdef LOGPZ  
-    stringstream sout;
-    sout << "OOPAccessInfo::CanExecute returning true";
-    LOGPZ_ERROR(logger, sout.str());
+      stringstream sout;
+      sout << "OOPAccessInfo::CanExecute returning true";
+      LOGPZ_DEBUG(logger, sout.str());
 #endif    
       return true;
     } 
@@ -54,12 +54,23 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
     }
     break;
   case EWriteAccess:
-  
-    if (!object.HasWriteAccessTask ())
+    if (!object.PointerBeingModified ())
+    {
+#ifdef LOGPZ  
+      stringstream sout;
+      sout << "OOPAccessInfo::CanExecute returning true for WriteAccess";
+      LOGPZ_DEBUG(logger, sout.str());
+#endif
       return true;
-    if (object.HasWriteAccess (fTaskId))
-      return true;
-    return false;
+    } else
+    {
+#ifdef LOGPZ  
+      stringstream sout;
+      sout << "OOPAccessInfo::CanExecute Pointer being modified";
+      LOGPZ_DEBUG(logger, sout.str());
+#endif
+      return false;
+    }
     break;
   default:
     {
@@ -117,7 +128,7 @@ void OOPAccessInfoList::GrantForeignAccess(OOPAccessInfo & info,OOPMetaData & ob
       OOPDMOwnerTask * town = new OOPDMOwnerTask(EGrantReadAccess, info.fProcessor);
       town->fObjId = object.Id();
       town->fVersion = object.Version();
-      town->fObjPtr = object.Ptr();
+      town->fObjPtr = object.Ptr(town->fVersion);
       LogDM->SendOwnTask(town);
       TM->SubmitDaemon(town);
       break;
@@ -162,9 +173,9 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
         if(i->fProcessor == DM->GetProcID())
         {
 #ifdef LOGPZ
-    std::stringstream sout;
-    sout << "Giving access request for " << *i << " to object " << object.Id();
-    LOGPZ_DEBUG(logger,sout.str());
+          std::stringstream sout;
+          sout << "Giving access request for " << *i << " to object " << object.Id();
+          LOGPZ_DEBUG(logger,sout.str());
 #endif
           OOPMDataDepend dep(object.Id(),i->fState,i->fVersion);
           TM->NotifyAccessGranted(i->fTaskId,dep,&object);
@@ -173,10 +184,15 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
         }
         else
         {
+#ifdef LOGPZ
+          std::stringstream sout;
+          sout << "Granting foreign access for " << *i << " to object " << object.Id();
+          LOGPZ_DEBUG(logger,sout.str());
+#endif
           GrantForeignAccess(*i,object);
           fList.erase(i);
           i=fList.begin();
-        }             
+        }
       }
       else
       {

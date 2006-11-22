@@ -46,24 +46,16 @@ private:
   /**
    * pointer to the object
    */
-  TPZAutoPointer<TPZSaveable> fObjPtr;
+//  TPZAutoPointer<TPZSaveable> fObjPtr;
   
   /**
    * Id of the object
    */
   OOPObjectId fObjId;
   /**
-   * Holds version of data
-   */
-  OOPDataVersion fVersion;
-  /**
    * Processor where the object is located
    */
   int fProc;
-  /**
-   * Indicates if the current data is write access mode
-   */
-  OOPObjectId fTaskWrite;
   /**
    * Indicates in which transition state the object is
    */
@@ -72,33 +64,34 @@ private:
    * Indicates whether the data is under delete request
    */
   int fToDelete;
-     /**
-      * Processors accessing current data for read access.
-	  * 
-	  * Whenever the data has read access, the vector contains only the id of that processor
-      */
-	        set < int >fReadAccessProcessors;
-     /**
-      * Indicates trace of the data.
-      * It is mostly used for debugging purposes
-      */
-	int     fTrace;
+  /**
+   * Indicates trace of the data.
+   * It is mostly used for debugging purposes
+   */
+  int     fTrace;
   bool f_PtrBeingModified;
+  std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> > fAvailableVersions;
 public:
+  void ClearAllVersions();
+  /**
+   * MetaData objects holds more than a single version for each Saveable object.
+   * Each different version is therefore stored in a map of OOPVersion to Saveable pointer.
+   * This Method provides the necessary interface for submitting new versions for a given object
+   */
+  void SubmitVersion(const OOPDataVersion  & nextversion, TPZAutoPointer <TPZSaveable> NewPtr);
+  /**
+   * Indicates if the associated Saveable object is being accessed with WriteAccess.
+   * Provides information for granting access policies. If necessary a copy of the pointer
+   * is provided. Allowing for a more parallel execution.
+   */
   bool PointerBeingModified() const;		  
+  /**
+   * Different levels of printing.
+   * Amount of information and layout are modified in each method
+   */
   void PrintLog (std::ostream & out = std::cout);
   void    Print (std::ostream & out = std::cout);
   void ShortPrint(std::ostream & out = std::cout);
-  /**
-   * SetVersion is allowed if the task has read and/or version access
-   */
-  void    SetVersion (const OOPDataVersion & ver,
-                      const OOPObjectId & taskid);
-  /**
-   * IncrementVersion is allowed if the task has read and/or version access
-   */
-  void    IncrementVersion (
-                      const OOPObjectId & taskid);
   /**
    * Sets the Id of current data
    * @param id Id to be set
@@ -114,10 +107,10 @@ public:
    * @param ObjId Id of object
    * @param proc Processor number which owns TData.
    */
-  OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
+  OOPMetaData (TPZAutoPointer<TPZSaveable> ObPtr, const OOPObjectId & ObjId,
 			     const int proc);
-  OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
-                    const int ProcId, const OOPDataVersion ver);				 
+  OOPMetaData (TPZAutoPointer<TPZSaveable> ObPtr, const OOPObjectId & ObjId,
+                    const int ProcId, const OOPDataVersion & ver);				 
   virtual int ClassId () const
   {
     return OOPMETADATA_ID;
@@ -157,7 +150,7 @@ public:
   /**
    * Returns pointer to the TSaveable object
    */
-  TPZAutoPointer<TPZSaveable> Ptr ();
+  TPZAutoPointer<TPZSaveable> Ptr (OOPDataVersion & version);
   /**
    * Transfer an object based on the parameters.
    * @param ProcId Identifies processor Id
@@ -181,28 +174,6 @@ public:
    * returns true if the current processor is owner of the object
    */
   bool    IamOwner () const;
-  /**
-    * returns 1 if any processor has read access
-    * on the given data
-    */
-  bool    HasReadAccess () const;
-  /**
-    * returns 1 if the processor has read access
-    * on the given data
-    * @param Procid Identifies processor id
-    */
-  bool    HasReadAccess (const int Procid) const;
-  /**
-   * Indicates whether a task has write access to the object
-   */
-  bool    HasWriteAccessTask () const
-  {
-    return !fTaskWrite.IsZeroOOP();
-  }
-  /**
-   * Indicates whether the task has write access to the data
-   */
-  bool    HasWriteAccess (const OOPObjectId & taskid) const;
     /**
      * Attempts to delete the object pointed to by the object
      * Issues deletion request message
@@ -214,16 +185,6 @@ public:
 	 * waits for delete confirmation and finishes the deletion procedure
      */
 	void    RequestDelete ();
-	/**
-     * Cancels read access to the object
-     * Issues the appropriate messages to the other processors and waits for confirmation
-     */
-	void    CancelReadAccess ();
-	/**
-	 * Suspends the read access to the objects
-	 * Issues the appropriate messages to the other processors
-	 */
-	void    SuspendReadAccess ();
 	/**
 	 * Sends a TDMOwnerTask granting the access state to the processor
 	 */
@@ -245,7 +206,7 @@ public:
      * @param AccessRequest Status of the data being requested
      * @param version Identifies version of the data
      */
-	void    GrantReadAccess (OOPObjectId TaskId, int ProcId,
+    void    GrantReadAccess (OOPObjectId TaskId, int ProcId,
 				 OOPMDataState st, OOPDataVersion version);
     /**
      * Communicates, when necessary, the state of access to tasks willing to access the data
@@ -299,10 +260,6 @@ inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {
 	fState = st;
 }
 */
-inline  TPZAutoPointer<TPZSaveable> OOPMetaData::Ptr ()
-{
-	return fObjPtr;
-}
 /*inline MDataState
 TData::State ()
 {

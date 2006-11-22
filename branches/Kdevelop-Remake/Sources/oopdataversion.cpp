@@ -193,7 +193,7 @@ void OOPDataVersion::operator ++ ()
 	     }
 	     return true;
      }
-bool OOPDataVersion::operator < (const OOPDataVersion & version)
+bool OOPDataVersion::operator < (const OOPDataVersion & version) const
 {
 	if (GetNLevels () != version.GetNLevels ())
 		return false;

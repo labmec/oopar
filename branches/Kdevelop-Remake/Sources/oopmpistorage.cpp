@@ -274,7 +274,7 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 	f_recv_position = 0;
 #ifdef OOP_MPE
         MPE_Log_receive(f_status.MPI_SOURCE, f_status.MPI_TAG, f_recv_position);
-        cout << " Origin " << f_status.MPI_SOURCE << " Tag " << f_status.MPI_TAG << endl;
+//        cout << " Origin " << f_status.MPI_SOURCE << " Tag " << f_status.MPI_TAG << endl;
 #endif	
        
 	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);

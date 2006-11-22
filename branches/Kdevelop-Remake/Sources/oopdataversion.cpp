@@ -146,7 +146,7 @@ void OOPDataVersion::SetLevelCardinality (int level, int depth)
 				 if(i>=version.fVersion.size()) return true;
 			     if (GetLevelVersion (i) <
 				     version.GetLevelVersion (i)) {
-#ifdef LOGPZ               
+#ifdef LOGPZ_PARANOID
              stringstream sout;
              LOGPZ_WARN(logger, "AmICompatible returned false");
 				     sout << "My version ";
@@ -154,7 +154,7 @@ void OOPDataVersion::SetLevelCardinality (int level, int depth)
 				     sout << "Other version ";
 				     version.Print (sout);
              LOGPZ_DEBUG(logger,sout.str());
-#endif             
+#endif
 				     return false;
 			     }
 		     }
@@ -173,43 +173,86 @@ void OOPDataVersion::operator ++ ()
 {
 	this->Increment ();
 }
-     bool OOPDataVersion::operator == (const OOPDataVersion & version) const
-     {
-	     if (GetNLevels () != version.GetNLevels ())
-		     return false;
-	     unsigned int i = 0;
-	     for (i = 0; i < fVersion.size (); i++)
-	     {
-		     // Returns false if my version is older than the one
-		     // requested.
-		     if (GetLevelVersion (i) != version.GetLevelVersion (i))
-			     return false;
-		     // Returns false if in any common level, the
-		     // cardinality is
-		     // not the same
-		     if (GetLevelCardinality (i) !=
-			 version.GetLevelCardinality (i))
-			     return false;
-	     }
-	     return true;
-     }
+bool OOPDataVersion::operator == (const OOPDataVersion & version) const
+{
+  if (GetNLevels () != version.GetNLevels ())
+  {
+#ifdef LOGPZ_PARANOID
+    stringstream sout;
+    sout << "Returning false for different number of levels";
+    LOGPZ_DEBUG(logger,sout.str());
+#endif
+    return false;
+  }
+  unsigned int i = 0;
+  for (i = 0; i < fVersion.size (); i++)
+  {
+     // Returns false if my version is older than the one
+     // requested.
+    if (GetLevelVersion (i) != version.GetLevelVersion (i))
+    {
+#ifdef LOGPZ_PARANOID
+      stringstream sout;
+      sout << "Returning false for different version on level " << i;
+      LOGPZ_DEBUG(logger,sout.str());
+#endif
+      return false;
+    }
+    // Returns false if in any common level, the
+    // cardinality is
+    // not the same
+    if (GetLevelCardinality (i) !=
+        version.GetLevelCardinality (i))
+    {
+#ifdef LOGPZ_PARANOID
+      stringstream sout;
+      sout << "Returning false for different level cardinality on level " << i;
+      LOGPZ_DEBUG(logger,sout.str());
+#endif
+      return false;
+    }
+  }
+#ifdef LOGPZ_PARANOID
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Returning true";
+  LOGPZ_DEBUG(logger,sout.str());
+#endif
+  return true;
+}
 bool OOPDataVersion::operator < (const OOPDataVersion & version) const
 {
-	if (GetNLevels () != version.GetNLevels ())
-		return false;
-	unsigned int i = 0;
-	for (i = 0; i < fVersion.size (); i++) {
-		// Returns false if my version is older than the one
-		// requested.
-		if (GetLevelVersion (i) > version.GetLevelVersion (i))
-			return false;
-		// Returns false if in any common level, the cardinality is
-		// not the same
-		if (GetLevelCardinality (i) !=
-		    version.GetLevelCardinality (i))
-			return false;
-	}
-	return true;
+  bool result = true;
+  if (GetNLevels () != version.GetNLevels ()){
+    result = false;
+  }
+  if (result){
+        
+    unsigned int i = 0;
+    for (i = 0; i < fVersion.size (); i++) {
+      // Returns false if my version is older than the one
+      // requested.
+      if (!(GetLevelVersion (i) < version.GetLevelVersion (i)))
+      {
+        result=false;
+        break;
+      }
+      // Returns false if in any common level, the cardinality is
+      // not the same
+      if (GetLevelCardinality (i) !=
+          version.GetLevelCardinality (i))
+      {
+        result = false;
+        break;
+      }
+    }
+  }
+#ifdef LOGPZ_PARANOID
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Returning " << result << " " << *this << " < " << version;
+  LOGPZ_DEBUG(logger,sout.str());
+#endif
+  
+  return result;
 }
 bool OOPDataVersion::operator >= (const OOPDataVersion & version)
 {
@@ -248,18 +291,18 @@ bool OOPDataVersion::operator > (const OOPDataVersion & version)
 	}
 	return true;
 }
-     void OOPDataVersion::Print (std::ostream & out) const
-     {
-	     out << "Number of levels " << GetNLevels () << endl;
-	     int i = 0;
-	     for (i = 0; i < GetNLevels (); i++)
-	     {
-		     out << "Level:" << i << "\t Cardinality:" <<
-			     GetLevelCardinality (i) << "\t Version:" <<
-			     GetLevelVersion (i) << endl;
-		     out.flush ();
-	     }
-     }
+void OOPDataVersion::Print (std::ostream & out) const
+{
+  out << "Number of levels " << GetNLevels () << endl;
+  int i = 0;
+  for (i = 0; i < GetNLevels (); i++)
+  {
+    out << "Level:" << i << "\t Cardinality:" <<
+      GetLevelCardinality (i) << "\t Version:" <<
+      GetLevelVersion (i) << endl;
+    out.flush ();
+  }
+}
 std::ostream &OOPDataVersion::ShortPrint(std::ostream & out) const {
 	int nl = GetNLevels(), i;
 	for(i=0; i<nl; i++) out << GetLevelVersion(i) << '/' <<
@@ -302,7 +345,7 @@ void OOPDataVersion::Increment ()
 		return;
 	if (fVersion[fVersion.size () - 1] >
 	     fLevelCardinality[fVersion.size () - 1]) {
-#ifdef LOGPZ        
+#ifdef LOGPZ_PARANOID        
           stringstream sout;
           sout << "Inconsistent data version incrementation" <<
 			__FILE__ << __LINE__;
@@ -331,7 +374,7 @@ int OOPDataVersion::GetLevelCardinality (int level) const
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
-#ifdef LOGPZ
+#ifdef LOGPZ_PARANOID
                 stringstream sout;
 		sout << "FILE: " << __FILE__ << " LINE:" << __LINE__
 		     << " Accessing level out of range" << endl;
@@ -348,7 +391,7 @@ int OOPDataVersion::GetLevelVersion (int level) const
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
-#ifdef LOGPZ         
+#ifdef LOGPZ_PARANOID         
               stringstream sout;
 		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__ << " Accessing level out of range" << endl;
 		     sout << "Maximum:" << GetNLevels () - 1 << " Trying:" << level;

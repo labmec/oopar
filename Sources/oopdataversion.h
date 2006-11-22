@@ -72,7 +72,7 @@ public:
   /**
    * Overloaded operator
    */
-  bool    operator < (const OOPDataVersion & version);
+  bool    operator < (const OOPDataVersion & version) const;
   bool    operator > (const OOPDataVersion & version);
   bool operator >= (const OOPDataVersion & version);
   /**

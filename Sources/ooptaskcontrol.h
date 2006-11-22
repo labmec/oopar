@@ -104,9 +104,8 @@ public:
         return fExecStarted;
     }
 
-    /*!
-        \fn OOPTaskControl::TaskFinished() const
-      returns true if the task finished
+    /**
+     * Returns true if the task finished
      */
     int TaskFinished() 
     {
@@ -114,9 +113,20 @@ public:
       res = fExecFinished;
       return res;
     }
-    
+    /**
+     * Synchronizes the execution thread with the termination of the TaskControl object
+     */
     void Join();
 
+    /**
+     * Updates versions of dependent MetaData objects.
+     * If for a given MetaData, its access is WriteAccess type, then version will be incremented, obeying the following rule:
+     * - If PointerIsBeingModified, then the current version is itself incremented and this indicates that only this object.
+     * has access to that MetaData.
+     * - If PointerIsBeingModified is false, then more than one task is accessing the MetaData with WriteAccess, which indicates
+     * that a new version submission will be required
+     */
+    void UpdateVersions();
 
     /**
      * Acess to task data since that task is deleted itself after execute

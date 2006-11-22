@@ -42,7 +42,7 @@ void OOPTaskDependList::SetDependency(const OOPMDataDependList &datalist) {
     td.fAccess = datalist.Dep(i).State();
     if(datalist.Dep(i).ObjPtr())
     {
-      td.fData = datalist.Dep(i).ObjPtr()->Ptr();
+      td.fData = datalist.Dep(i).ObjPtr()->Ptr(td.fVersion);
     }
     else
     {
@@ -72,6 +72,9 @@ int OOPTaskDependList::NDepend() const{
 }
 void OOPTaskDependList::IncrementVersion(int i){
   fDependList[i].fVersion.Increment();
+}
+OOPDataVersion & OOPTaskDependList::Version(int i){
+  return fDependList[i].fVersion;
 }
 TPZAutoPointer<TPZSaveable> OOPTaskDependList::ObjPtr(int i){
   return fDependList[i].fData;

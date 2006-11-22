@@ -16,6 +16,7 @@ using namespace std;
 class   OOPMetaData;
 class   OOPMDataDepend;
 class   OOPMDataDependList;
+class OOPTaskDependList;
 /**
  * Implements a abstract Task on the environment.
  * Any task which are going to parallelized on OOPar must be derived from TTask
@@ -98,6 +99,10 @@ public:
   OOPMDataDependList & GetDependencyRequests ()
   {
     return fDependRequest;
+  }
+  OOPTaskDependList & GetDependencyData ()
+  {
+    return fDataObjectList;
   }
   /**
    * Sets the dependency list of the task

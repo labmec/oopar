@@ -14,7 +14,7 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 #endif
 
 #include "oopcommmanager.h"
-
+#include "oopmetadata.h"
 
 OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 {
@@ -53,7 +53,27 @@ void OOPTaskControl::Execute()
   }
 }
 
-
+void OOPTaskControl::UpdateVersions(){
+  int i = 0;
+  int size = TaskDepend().NElements();
+  for(i=0;i<size;i++)
+  {
+    if(TaskDepend().Dep(i).State() == EWriteAccess &&
+      !(fTask->GetDependencyData().Version(i) == TaskDepend().Dep(i).Version()))
+    {
+#ifdef LOGPZ
+      stringstream sout;
+      sout << "Submitting new Versions from Task " << fTaskId 
+      << " On ObjectId " << TaskDepend().Dep(i).Id()
+      << " : Old Version " << TaskDepend().Dep(i).Version()
+      << " New Versio " << fTask->GetDependencyData().Version(i);
+      LOGPZ_DEBUG(logger, sout.str());
+#endif      
+      OOPDataVersion nextver = fTask->GetDependencyData().Version(i);
+      TaskDepend().Dep(i).ObjPtr()->SubmitVersion(nextver, TaskDepend().Dep(i).ObjPtr());
+    }
+  }
+}
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
@@ -83,6 +103,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
     //Associando TaskDependList com DataDependList
     //Objetos com WriteAccess sao atualizados com as novas versoes
     //VerifyAccessRequest feito dentro do submit do metadata. 
+    tc->UpdateVersions();
     delete tc->fTask;
     tc->fTask=0;
   }

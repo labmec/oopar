@@ -209,10 +209,10 @@ void
  */
 	void    ReleaseAccess (const OOPObjectId & taskid,
 			       const OOPMDataDepend & depend);
-/**
- * Deletes the corresponding access request record from the list
- */
-	void    ReleaseAccess (list < OOPAccessInfo >::iterator & ac);
+  /**
+   * Deletes the corresponding access request record from the list
+   */
+  void ReleaseAccess(list < OOPAccessInfo >::iterator & ac);
 /**
  * Flags if the task is going into/out-of execution
  */

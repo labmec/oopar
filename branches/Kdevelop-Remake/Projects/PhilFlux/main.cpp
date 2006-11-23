@@ -113,7 +113,7 @@ void CreateObjIds (list<DataAccessOrg> &mylist,
   depend.resize(nt);
   list<DataAccessOrg>::iterator ac_It;
   
-  for (i=0,ac_It=mylist.begin();i<nt,ac_It!=mylist.end();i++,ac_It++){
+  for (i=0, ac_It=mylist.begin();i<nt && ac_It!=mylist.end();i++,ac_It++){
     //Verifies if the object_id was already created
     int file_id = (*ac_It).fDataId;//mylist[i].fDataId;
     map<int,OOPObjectId,less<int> >::iterator file_id_It;
@@ -144,7 +144,7 @@ void CreateObjIds (list<DataAccessOrg> &mylist,
       higVersions[vicid] = dp;
       continue;
     }
-    if (dp.State()==EWriteAccess || dp.State() == EVersionAccess) dp.IncrementVersion();
+    if (dp.State()==EWriteAccess ) dp.IncrementVersion();
     OOPDataVersion prevHg = ((*hig_It).second).Version();
     OOPDataVersion curr_ver = dp.Version();
     if (curr_ver > prevHg) {
@@ -156,7 +156,7 @@ void CreateObjIds (list<DataAccessOrg> &mylist,
 
 
 void CreateTaskFromFile(string &file) {
-  int i,nt;
+  int i;
 
   ifstream arq (file.c_str());
   list<DataAccessOrg> mylist;
@@ -174,7 +174,7 @@ void CreateTaskFromFile(string &file) {
   int /*it,*/ numproc = CM->NumProcessors();
   int lasttask = -1;
   list<DataAccessOrg>::iterator it;
-  int numdeps = depend.size();
+//  int numdeps = depend.size();
   TSmallTask *st = 0;
   int counter;
   for(it=mylist.begin(),counter=0; it!=mylist.end(); it++,counter++) {
@@ -324,10 +324,9 @@ void InsertTasks(int numtasks)
   wt->Wait();
   cout << "Got out of wait\n";
   // At this point I have version access to victim
-  OOPMetaData *obj = wt->Depend().Dep(0).ObjPtr();
+  OOPMetaData *obj = 0;//wt->GetDependencyRequests().Dep(0).ObjPtr();
   ver= obj->Version();
   ver.IncrementLevel(numtasks);
-  obj->SetVersion(ver,wt->Id());
   cout << "Before wait finish\n";
   wt->Finish();
   cout << "After wait finish\n";
@@ -347,7 +346,8 @@ void InsertTasks(int numtasks)
     {
       cout << "Adding data dependency\n";
       cout.flush();
-      OOPMDataDepend dp(vicid,EVersionAccess,stver);
+      //OOPMDataDepend dp(vicid,EVersionAccess,stver);
+      OOPMDataDepend dp(vicid,EWriteAccess,stver);
       st->AddDependentData(dp);
     }
     cout << "Submitting the small task\n";

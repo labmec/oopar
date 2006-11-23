@@ -50,15 +50,15 @@ template class TPZRestoreClass<TSmallTask,TSMALLTASKID>;
 
 OOPMReturnType TSmallTask::Execute()
 {
-  OOPMDataDependList &deplist = this->GetDependencyList();
+  OOPMDataDependList &deplist = this->GetDependencyRequests();
   int i,nel = deplist.NElements();
   for(i=0; i<nel; i++) 
   {
     OOPMDataDepend &dep = deplist.Dep(i);
-    if(dep.State() == EWriteAccess || dep.State() == EVersionAccess) {
+    if(dep.State() == EWriteAccess){// || dep.State() == EVersionAccess) {
       OOPDataVersion ver = dep.ObjPtr()->Version();
       ver.Increment();
-      dep.ObjPtr()->SetVersion(ver,Id());
+      //dep.ObjPtr()->SetVersion(ver,Id());
     }
   }
   sleep(2);

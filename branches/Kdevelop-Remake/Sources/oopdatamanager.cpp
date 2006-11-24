@@ -41,6 +41,23 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDataManager"));
 #endif
 
+OOPDataManager::OOPDataManager(int Procid)
+{
+  fProcessor = Procid;
+  fObjId.SetProcId (Procid);
+  fLastCreated = 0;	// NUMOBJECTS * Procid;
+  pthread_mutex_init(&fDataMutex, NULL);
+}
+void OOPDataManager::SubmitAllObjects(){
+  pthread_mutex_lock(&fDataMutex);
+  list<OOPMetaData *>::iterator lit=fSubmittedObjects.begin();
+  for(;lit!=fSubmittedObjects.end();lit++){
+    fObjects[(*lit)->Id()]=(*lit);
+  }
+  fSubmittedObjects.clear();
+  pthread_mutex_unlock(&fDataMutex);
+}
+
 OOPDataManager::~OOPDataManager ()
 {
   map< OOPObjectId,  OOPMetaData * >::iterator i=fObjects.begin ();
@@ -60,8 +77,31 @@ OOPDataManager::~OOPDataManager ()
   sout << "Terminating DM";
   LOGPZ_INFO(logger,sout.str().c_str());
 #endif  
-  if (LogDM) delete LogDM;
-  LogDM = 0;
+}
+
+void OOPDataManager::SnapShotMe()
+{
+  stringstream filename;
+  filename << "DMSnapShot" << fProcessor << ".txt";
+  ofstream out(filename.str().c_str(), ios::app);
+  std::stringstream sout;
+  sout << "DataManager SnapShot\n";
+  sout << "Processor" << fProcessor << endl;
+  sout << "fObjects size " << fObjects.size() << endl;
+  std::map<OOPObjectId, OOPMetaData * >::iterator it = fObjects.begin();
+  for(;it!=fObjects.end();it++)
+  {
+    sout << "ObjId " << it->first << "\nMetaData ";
+    it->second->Print(sout);
+  }
+  sout << "SubmittedObjects size " << fSubmittedObjects.size() << endl;
+  std::list<OOPMetaData * >::iterator lit = fSubmittedObjects.begin();
+  for(;lit!=fSubmittedObjects.end();lit++)
+  {
+    (*lit)->Print(sout);
+  }
+  sout << endl;
+  out << sout.str().c_str();
 }
 bool OOPDataManager::HasObject (OOPObjectId & id)
 {
@@ -131,25 +171,6 @@ int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
     }
   }
   return 1;
-}
-OOPDataManager::OOPDataManager(int Procid)
-{
-  fProcessor = Procid;
-  fObjId.SetProcId (Procid);
-  fLastCreated = 0;	// NUMOBJECTS * Procid;
-  pthread_mutex_init(&fDataMutex, NULL);
-  char filename[255];
-  sprintf(filename,"datalogger%d", CM->GetProcID());
-  LogDM = new OOPDataLogger(filename);
-}
-void OOPDataManager::SubmitAllObjects(){
-  pthread_mutex_lock(&fDataMutex);
-  list<OOPMetaData *>::iterator lit=fSubmittedObjects.begin();
-  for(;lit!=fSubmittedObjects.end();lit++){
-    fObjects[(*lit)->Id()]=(*lit);
-  }
-  fSubmittedObjects.clear();
-  pthread_mutex_unlock(&fDataMutex);
 }
 OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj, int trace)
 {

@@ -7,6 +7,9 @@
 #include "ooptask.h"
 #include <list>
 #include <set>
+
+#include <semaphore.h>
+
 class OOPStorageBuffer;
 class OOPDataVersion;
 class OOPSaveable;
@@ -45,8 +48,15 @@ class OOPTaskManager
 {
   friend class OOPTask;
 public:
-
-
+  ofstream * fMainLog;
+  
+  void WakeServiceThread(){
+    sem_post(&fServiceSemaphore);
+  }
+  /**
+   * Dumps on disk the current state of the Manager object
+   */
+  void SnapShotMe();
   /**
    * Set max number of simultaneous threads.
    */
@@ -111,6 +121,8 @@ public:
    * @param task Pointer to the submitted task.
    */
 protected:
+    OOPObjectId SubmitOriginal (OOPTask * task);
+
     OOPObjectId Submit (OOPTask * task);
 public:
   /**
@@ -209,8 +221,9 @@ private:
    */
   bool fKeepGoing;
   /**
-   * Mutual exclusion locks for adding tasks to the submission task list.
+   * Mutual exclusion lock for the service thread
    */
+  pthread_mutex_t fServiceMutex;
   /**
    * Mutual exclusion lock for the fSubmittedList queue
    */
@@ -219,7 +232,9 @@ private:
   /**
   * Condition variable to put the taskmanager thread to sleep
   */
-  pthread_cond_t fExecuteCondition;
+  //pthread_cond_t fExecuteCondition;
+  
+  sem_t fServiceSemaphore;
   /**
    * The lock object currently holding the mutex
    */

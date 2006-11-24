@@ -185,6 +185,13 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
 #endif
           OOPMDataDepend dep(object.Id(),i->fState,i->fVersion);
           TM->NotifyAccessGranted(i->fTaskId,dep,&object);
+#warning "No metodo TM->NotifyAccessGranted fazer a baldeação do AutoPoiter para o TaskControl"
+          if(dep.State() == EWriteAccess)
+          {
+            //Contador de acessos ao AutoPointer
+            //Remover o Dado do MetaData.
+#warning "Remover o Dado do MetaData"
+          }
           i->fIsGranted = true;
           i++;
         }
@@ -220,11 +227,11 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
     }
   }
 #ifdef LOGPZ
-          {
-          std::stringstream sout;
-          sout << "Leaving " << __PRETTY_FUNCTION__;
-          LOGPZ_DEBUG(logger,sout.str());
-          }
+  {
+    std::stringstream sout;
+    sout << "Leaving " << __PRETTY_FUNCTION__;
+    LOGPZ_DEBUG(logger,sout.str());
+  }
 #endif
   return false;
 }

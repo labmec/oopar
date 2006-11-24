@@ -80,6 +80,12 @@ void OOPTaskControl::UpdateVersions(){
   LOGPZ_DEBUG(logger, sout.str());
 #endif      
 }
+void OOPTaskControl::Print(std::ostream & out)
+{
+  out << "TaskId:" << fTask->Id().GetId()
+    << ":Proc:" << fTask->Id().GetProcId() << ":ClassId:" << fTask->ClassId() << ":Dependency:";
+  fDataDepend.Print(out);
+}
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
@@ -102,7 +108,6 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   // the task finished executing!!!!
   //cout << __PRETTY_FUNCTION__ << " before lock for task " << tc->fTask->Id() << endl;
   OOPObjectId id = tc->fTask->Id();
-  int lClassId = tc->fTask->ClassId();
   //Guardar versoes dos dados
   //Associando TaskDependList com DataDependList
   //Objetos com WriteAccess sao atualizados com as novas versoes
@@ -137,13 +142,11 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
     LOGPZ_DEBUG(logger,sout.str());
   }
 #endif
-  cout << "Task " << id << " CId: finished before lock";
 
   TMLock lock;
   //cout << __PRETTY_FUNCTION__ << " after lock for task" << tc->fTask->Id() << endl;
   //tc->fTask->SetExecuting(false);
   tc->fExecFinished =1;
-  cout << "Task " << id << " CId: finished";
 #ifdef LOGPZ
   {
     stringstream sout;

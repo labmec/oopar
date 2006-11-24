@@ -522,7 +522,6 @@ void OOPMetaData::TransferObject (int ProcId)
   town->fVersion = this->Version();
   town->fObjPtr = this->Ptr(town->fVersion);
   this->fProc = ProcId;
-  LogDM->SendOwnTask(town);
   TM->SubmitDaemon(town);
   fAccessList.TransferAccessRequests(fObjId,ProcId);
 }
@@ -535,7 +534,6 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
-  LogDM->ReceiveOwnTask(&ms);
   switch(ms.fType) {
     case EGrantReadAccess:
     {
@@ -653,7 +651,6 @@ void OOPMetaData::RequestDelete ()
     LOGPZ_DEBUG (logger,sout.str());
 #endif    
   }
-	LogDM->LogGeneric(DM->GetProcID(),fObjId,"Calling RequestDelete");
 	
 	if (this->fProc == DM->GetProcID ()) {
 		DeleteObject ();
@@ -807,6 +804,5 @@ void OOPMetaData::PrintLog (std::ostream & out)
 void OOPMetaData::SendAccessRequest (const OOPMDataDepend & depend)
 {
 	OOPDMRequestTask *req = new OOPDMRequestTask (fProc, depend);
-	LogDM->SendReqTask(req);
 	TM->SubmitDaemon (req);
 }

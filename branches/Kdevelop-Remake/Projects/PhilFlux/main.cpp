@@ -230,30 +230,8 @@ void CreateTaskFromFile(string &file) {
 int mpimain (int argc, char **argv)
 {
 
-//  RegisterOOParRestore();
-//  RegisterPhilFluxRestore();
   CM = new OOPMPICommManager (argc, argv);
   CM->Initialize((char*)argv, argc);
-  
-  char filename[256];
-  sprintf(filename,"datalogger%d.log", CM->GetProcID());
-  OOPDataLogger * LogDM = new OOPDataLogger(filename);
-  ::LogDM = LogDM;
-  sprintf(filename,"tasklog%d.log", CM->GetProcID());  
-  TaskLog.open(filename);
-  sprintf(filename,"datalog%d.log", CM->GetProcID());  
-  DataLog.open(filename);
-  sprintf(filename,"datamanlog%d.log", CM->GetProcID());  
-  DataManLog.open(filename);
-  sprintf(filename,"transferdatalog%d.log", CM->GetProcID());  
-  TransferDataLog.open(filename);
-  sprintf(filename,"taskqueue%d.log", CM->GetProcID());  
-  TaskQueueLog.open(filename);
-  sprintf(filename,"taskmanlog%d.log", CM->GetProcID());  
-  TaskManLog.open(filename);
-  sprintf(filename,"dataqueuelog%d.log", CM->GetProcID());  
-  DataQueueLog.open(filename);
-
   TM = new OOPTaskManager (CM->GetProcID ());
   DM = new OOPDataManager (CM->GetProcID ());
 
@@ -283,7 +261,6 @@ int mpimain (int argc, char **argv)
   delete  TM;
   cout << "Deleting CM\n";
   delete  CM;
-  delete LogDM;
 
   cout << "Leaving mpimain\n";
   cout.flush();

@@ -3,7 +3,7 @@
 
 
 OOPMReturnType TTaskTest::Execute(){
-	cout << "Executing Task " << Id() << " Goint out in 5 secs\n";
+	cout << "Executing Task " << Id() << " Goint out in 1 secs\n";
 	cout.flush();
 	sleep(1);
 	IncrementWriteDependentData();

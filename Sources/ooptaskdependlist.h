@@ -20,7 +20,7 @@
 /**
 This class defines the objects to which the task has access during execution
 
-@author Edimar Cesar Rylo
+@author Philippe Devloo
 */
 class OOPTaskDependList{
 

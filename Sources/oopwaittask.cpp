@@ -28,19 +28,16 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
 
 class OOPStorageBuffer;
 
-int OOPWaitTask::gCounter = 0;
-
 OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
 {
-  pthread_cond_init(&fExecCond, NULL);
-  pthread_cond_init(&fExtCond, NULL);
-  pthread_mutex_init(&fExtMutex, NULL);
-  pthread_mutex_init(&fExecMutex, NULL);
-  LockExternal();
-} 
+  sem_init(&fMainSemaphore, 0, 0); 
+  sem_init(&fExecSemaphore, 0, 0); 
+}
 
 OOPWaitTask::~OOPWaitTask()
 {
+  sem_destroy(&fMainSemaphore);
+  sem_destroy(&fExecSemaphore);
 }
 
 
@@ -62,21 +59,9 @@ int OOPWaitTask::ClassId() const
 
 OOPMReturnType OOPWaitTask::Execute()
 {
-  pthread_mutex_lock(&fExecMutex);
-  pthread_mutex_lock(&fExtMutex);
-  pthread_cond_signal(&fExtCond);
-  pthread_mutex_unlock(&fExtMutex);
-  //sleep(10);
-  {
-    
-  }
-  pthread_cond_wait(&fExecCond, &fExecMutex);
-#ifdef LOGPZ    
-  stringstream sout;
-  sout << "Wait task is leaving execute id " << Id();
-  LOGPZ_DEBUG(logger,sout.str());
-#endif  
+  sem_post(&fMainSemaphore);
   this->IncrementWriteDependentData();
+  sem_wait(&fExecSemaphore);
   return ESuccess;
 }
 
@@ -85,10 +70,7 @@ OOPMReturnType OOPWaitTask::Execute()
  */
 void OOPWaitTask::Finish()
 {
-  gCounter--;
-  pthread_mutex_lock(&fExecMutex);
-  pthread_cond_signal(&fExecCond);
-  pthread_mutex_unlock(&fExecMutex);
+  sem_post(&fExecSemaphore);
 }
 
 
@@ -97,32 +79,7 @@ void OOPWaitTask::Finish()
  */
 void OOPWaitTask::Wait()
 {
-  if(gCounter) 
-  {
-#ifdef LOGPZ    
-    std::stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " Recursive call of wait task " << Id();
-    LOGPZ_ERROR(logger,sout.str());
-#endif    
-  }
-  gCounter++;
-//  pthread_mutex_lock(&fExtMutex);
-#ifdef OOP_MPE
-  stringstream sout;
-  sout << "TId:" << Id().GetId()
-    << ":" << Id().GetProcId() << ":Dep:";
-  fDependRequest.ShortPrint(sout);
-  OOPStateEvent evt("waittask",sout.str());
-#endif
-
-  pthread_cond_wait(&fExtCond,&fExtMutex);
-}
-
-
-/*!
-    \fn OOPWaitTask::LockExternal()
- */
-void OOPWaitTask::LockExternal()
-{
-    pthread_mutex_lock(&fExtMutex);
+  cout << "Calling sem_wait " << __PRETTY_FUNCTION__ << endl;
+  int res = sem_wait(&fMainSemaphore);
+  cout << "Returned value " << res << endl;
 }

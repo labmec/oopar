@@ -12,6 +12,8 @@
 #ifndef OOPWAITTASK_H
 #define OOPWAITTASK_H
 
+#include <semaphore.h>
+
 #include <ooptask.h>
 class OOPStorageBuffer;
 
@@ -23,41 +25,30 @@ This task creates an entry point into the OOPAR system. The Task contains two ce
 class OOPWaitTask : public OOPTask
 {
   /**
-   Mutex to control the execution of the external thread
+   * Semaphore for the Main Thread Execution
    */
-  pthread_mutex_t fExtMutex;
+  sem_t fMainSemaphore;
   /**
-   Mutex to control the execution of the execution thread
+   * Semaphore for the WaitTask execution
    */
-  pthread_mutex_t fExecMutex;
-  
-  /**
-  Condition variable to put the external thread to sleep
-  */
-  pthread_cond_t fExtCond;
-  /**
-  Condition variable to put the execution thread to sleep
-  */
-  pthread_cond_t fExecCond;
-  /**
-  Some "idiot" may want to call a wait task while another wait task is executing
-  */
-  static int gCounter;
-
-    void LockExternal();
+  sem_t fExecSemaphore;
 public:
-	OOPWaitTask(){}
-    OOPWaitTask(int Procid);
+  OOPWaitTask()
+  {
+    sem_init(&fMainSemaphore, 0, 0); 
+    sem_init(&fExecSemaphore, 0, 0); 
+  }
+  OOPWaitTask(int Procid);
 
-    ~OOPWaitTask();
+  ~OOPWaitTask();
 
-    virtual void Write(TPZStream & buf, int withclassid);
-    virtual void Read(TPZStream & buf, void * context);
-    virtual int ClassId() const;
-    virtual OOPMReturnType Execute();
-    void Finish();
-    void Wait();
-    using OOPTask::fProc;
+  virtual void Write(TPZStream & buf, int withclassid);
+  virtual void Read(TPZStream & buf, void * context);
+  virtual int ClassId() const;
+  virtual OOPMReturnType Execute();
+  void Finish();
+  void Wait();
+  using OOPTask::fProc;
 
 };
 

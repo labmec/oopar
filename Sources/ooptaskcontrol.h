@@ -59,6 +59,7 @@ class   OOPTaskControl
   pthread_t fExecutor;
   
 public:
+  void Print(std::ostream & out);
   /**
    * constructor, will initiate the data dependency list with the dependency list of the task
    */

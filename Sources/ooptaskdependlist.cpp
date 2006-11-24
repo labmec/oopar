@@ -87,7 +87,7 @@ OOPDataVersion & OOPTaskDependList::Version(int i){
   return fDependList[i].fVersion;
 }
 TPZAutoPointer<TPZSaveable> OOPTaskDependList::ObjPtr(int i){
-  if(i< fDependList.size())
+  if((unsigned)i< fDependList.size())
   {
 #ifdef LOGPZ  
 

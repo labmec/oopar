@@ -34,6 +34,11 @@ class   OOPDataManager
 {
   friend class OOPMetaData;
 public:
+  /**
+   * Dumps on disk the current state of the Manager object
+   */
+  void SnapShotMe();
+
   void PrintDataQueues(char * msg, std::ostream & out);
   /**
    * Used only for testing purposes
@@ -73,7 +78,7 @@ public:
    * @param ProcId Id of the processor where the access should occur.
    * @return 1 if the access request is compatible, 0 if not compatible
    */
-  int     SubmitAccessRequest (const OOPObjectId & TaskId,
+  int SubmitAccessRequest (const OOPObjectId & TaskId,
 			       const OOPMDataDepend & depend)
   {
     return SubmitAccessRequest (TaskId, depend, fProcessor);

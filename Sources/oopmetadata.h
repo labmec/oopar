@@ -13,15 +13,12 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include "oopaccessinfo.h"
-#include "OOPDataLogger.h"
 #include "pzsave.h"
 #include "tpzautopointer.h"
 using namespace std;
 // NOT IMPLEMENTED :
 class   OOPDataManager;
 extern OOPDataManager *DM;
-class   OOPDataLogger;
-extern OOPDataLogger *LogDM;
 class   OOPDMOwnerTask;
 /**
  * Implements some sort of tag which must be attatched to any obejct subjected

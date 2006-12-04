@@ -40,6 +40,7 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
   switch (this->fState) {
   case EReadAccess:
     if(!object.PointerBeingModified())
+    //if(object.AccessCounter(fVersion)==0)
     {
 #ifdef LOGPZ  
       stringstream sout;
@@ -55,6 +56,7 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
     break;
   case EWriteAccess:
     if (!object.PointerBeingModified ())
+    //if(object.AccessCounter(fVersion)==0)
     {
 #ifdef LOGPZ  
       stringstream sout;
@@ -188,8 +190,7 @@ bool OOPAccessInfoList::VerifyAccessRequests(OOPMetaData & object)
 #warning "No metodo TM->NotifyAccessGranted fazer a baldeação do AutoPoiter para o TaskControl"
           if(dep.State() == EWriteAccess)
           {
-            //Contador de acessos ao AutoPointer
-            //Remover o Dado do MetaData.
+            object.ClearVersion(dep.Version());    //.InvalidatePtr();
 #warning "Remover o Dado do MetaData"
           }
           i->fIsGranted = true;

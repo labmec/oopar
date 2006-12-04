@@ -244,7 +244,26 @@ void OOPMetaData::SubmitVersion(const OOPDataVersion & nextversion, TPZAutoPoint
     }
   }
 }
-
+int OOPMetaData::AccessCounter(OOPDataVersion & version)
+{
+  map<OOPDataVersion , TPZAutoPointer<TPZSaveable > >::iterator it;
+  it = fAvailableVersions.find(version);
+  if(it!=fAvailableVersions.end())
+  {
+    return it->second.Count();
+  }
+  return 0;
+}
+int OOPMetaData::AccessCounter(const OOPDataVersion & version) const
+{
+  map<OOPDataVersion , TPZAutoPointer<TPZSaveable > >::const_iterator it;
+  it = fAvailableVersions.find(version);
+  if(it!=fAvailableVersions.end())
+  {
+    return it->second.Count();
+  }
+  return 0;
+}
 bool OOPMetaData::PointerBeingModified() const{
   return f_PtrBeingModified;
 }
@@ -292,7 +311,7 @@ OOPObjectId OOPMetaData::Id () const
 {
   return fObjId;
 }
-void OOPMetaData::ClearVersion(OOPDataVersion & version)
+void OOPMetaData::ClearVersion(const OOPDataVersion & version)
 {
   map< OOPDataVersion , TPZAutoPointer < TPZSaveable > >::iterator it;
   it = fAvailableVersions.find(version);

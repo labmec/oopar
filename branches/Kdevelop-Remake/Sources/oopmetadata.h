@@ -32,10 +32,12 @@ class   OOPDMOwnerTask;
 class   OOPMetaData//:public TPZSaveable
 {
 public:
+  int AccessCounter(OOPDataVersion & version);
+  int AccessCounter(const OOPDataVersion & version) const;
   /**
    * Removes the Data pointer for version from the map of versions
    */
-  void ClearVersion(OOPDataVersion & version);
+  void ClearVersion(const OOPDataVersion & version);
   virtual ~OOPMetaData();
 
 private:

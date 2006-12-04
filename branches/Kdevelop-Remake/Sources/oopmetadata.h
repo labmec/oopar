@@ -32,7 +32,10 @@ class   OOPDMOwnerTask;
 class   OOPMetaData//:public TPZSaveable
 {
 public:
-
+  /**
+   * Removes the Data pointer for version from the map of versions
+   */
+  void ClearVersion(OOPDataVersion & version);
   virtual ~OOPMetaData();
 
 private:

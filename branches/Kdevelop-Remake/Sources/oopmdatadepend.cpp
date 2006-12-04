@@ -128,6 +128,10 @@ void OOPMDataDepend::Read (TPZStream & buf, void * context)
   fObjPtr = 0;
   
 }
+void OOPMDataDepend::InvalidatePtr()
+{
+  fObjPtr->ClearVersion(fVersion);
+}
 int OOPMDataDependList::SubmitDependencyList (const OOPObjectId & taskid)
 {
 #ifdef LOGPZ     
@@ -177,6 +181,10 @@ void OOPMDataDependList::SetExecuting (const OOPObjectId & taskid,
   vector < OOPMDataDepend >::iterator i;
   for (i = fDependList.begin (); i != fDependList.end (); i++) {
     i->ObjPtr ()->SetExecute (taskid, *i, condition);
+    if(i->State() == EWriteAccess)
+    {
+      i->InvalidatePtr();
+    }
   }
 }
 void OOPMDataDependList::ReleaseAccessRequests (const OOPObjectId & taskid)

@@ -270,8 +270,10 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
   }
   // Trace( " ClassId do objeto recebido: " );
   // Trace( obj->GetClassId() << ".\n" );
+  cout << "Desempacotando objeto\n";
   OOPTask *task = dynamic_cast<OOPTask *> (obj);
   if(task) {
+    cout << "Calling submit ---------\n";
     task->Submit();
   } else {
 #ifdef LOGPZ    

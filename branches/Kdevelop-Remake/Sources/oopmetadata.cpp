@@ -292,6 +292,20 @@ OOPObjectId OOPMetaData::Id () const
 {
   return fObjId;
 }
+void OOPMetaData::ClearVersion(OOPDataVersion & version)
+{
+  map< OOPDataVersion , TPZAutoPointer < TPZSaveable > >::iterator it;
+  it = fAvailableVersions.find(version);
+  if(it!=fAvailableVersions.end())
+  {
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Cleaning Pointer for Version\n" << it->first ;
+    LOG4CXX_DEBUG(logger,sout.str());
+#endif    
+    fAvailableVersions.erase(it);
+  }
+}
 bool OOPMetaData::CanGrantAccess () const
 {
   if (fToDelete)

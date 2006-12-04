@@ -99,6 +99,7 @@ OOPTask::ExecTime ()
 OOPObjectId
 OOPTask::Submit ()
 {
+  cout << "Inside OOPTask Submit ---------\n";
   OOPObjectId val = TM->Submit (this);
 //      fTaskId = TM->Submit (this);
   return val;

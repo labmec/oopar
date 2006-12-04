@@ -363,6 +363,7 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
   pthread_mutex_lock (&lTM->fServiceMutex);
   DM->SubmitAllObjects ();
 
+  sem_init(&lTM->fServiceSemaphore, 0,0);
   ((OOPMPICommManager *)CM)->ReceiveMessagesBlocking ();
   // this method needs to grab the lock
   lTM->TransferSubmittedTasks ();
@@ -552,7 +553,9 @@ OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 	sout << " can execute";
 	LOGPZ_DEBUG (tasklogger, sout.str ());
 #endif
-
+#warning "TransfertoExecutable invalidates the pointer"
+        //Invalidar ponteiros nos MetaDados
+        
 	TransfertoExecutable (tc->Task ()->Id ());
 	{
 #ifdef LOGPZ
@@ -651,6 +654,7 @@ OOPTaskManager::SubmitDaemon (OOPDaemonTask * task)
 OOPObjectId
 OOPTaskManager::Submit (OOPTask * task)
 {
+  cout << "Calling Submit on OOPTaskManager ";
   {
 #ifdef LOGPZ
     stringstream sout;
@@ -1232,7 +1236,9 @@ OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
       //Se estiver sendo lido mensagem de erro
       //Pois ainda nao clonamos os dados.
       tc->TaskDepend ().SetExecuting (taskid, true);
-  
+      //Invalidar ponteiros dos dados no MetaData.
+      //Baldear os ponteiros para o TC ou task.
+      
       OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(tc->Task ());
       if (dmt) {
 #ifdef LOGPZ

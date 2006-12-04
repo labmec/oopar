@@ -14,12 +14,13 @@ class   OOPMetaData;
  */
 class   OOPMDataDepend
 {
-      public:
-	~OOPMDataDepend(){}		 
-	void    Print (std::ostream & out = std::cout) const;
-	std::ostream &ShortPrint (std::ostream & out = std::cout) const;
-        std::ostream &SuperShortPrint(std::ostream &out) const;
-	void LogMe(std::ostream &out);
+public:
+  void InvalidatePtr();
+  ~OOPMDataDepend(){}		 
+  void    Print (std::ostream & out = std::cout) const;
+  std::ostream &ShortPrint (std::ostream & out = std::cout) const;
+  std::ostream &SuperShortPrint(std::ostream &out) const;
+  void LogMe(std::ostream &out);
   /**
    * Operator overloaded
    */

@@ -74,7 +74,12 @@ public:
   /**
    * operator=, otherwise the language creates one for us...
    */
-  OOPTaskDependList &operator=(const OOPTaskDependList &copy);
+  OOPTaskDependList &operator=(const OOPTaskDependList &copy)
+  {
+    if(this == &copy) return *this;
+    fDependList = copy.fDependList;
+    return *this;
+  }
 
   /**
    * Destructor, does nothing special

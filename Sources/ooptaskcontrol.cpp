@@ -58,8 +58,7 @@ void OOPTaskControl::UpdateVersions(){
   int size = TaskDepend().NElements();
   for(i=0;i<size;i++)
   {
-    if(TaskDepend().Dep(i).State() == EWriteAccess &&
-      !(fTask->GetDependencyData().Version(i) == TaskDepend().Dep(i).Version()))
+    if(TaskDepend().Dep(i).State() == EWriteAccess)
     {
 #ifdef LOGPZ
       stringstream sout;
@@ -74,6 +73,7 @@ void OOPTaskControl::UpdateVersions(){
       TaskDepend().Dep(i).ObjPtr()->SubmitVersion(nextver, objptr);
     }
   }
+  fTask->ClearDependentData();  
 #ifdef LOGPZ
   stringstream sout;
   sout << "Leaving UpdateVersion";

@@ -37,10 +37,10 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 #endif    
       return false;
   }
+  cout << "\nCounter On CanExecute " << object.AccessCounter(fVersion) << endl;
   switch (this->fState) {
   case EReadAccess:
-    if(!object.PointerBeingModified())
-    //if(object.AccessCounter(fVersion)==0)
+    if(object.AccessCounter(fVersion))
     {
 #ifdef LOGPZ  
       stringstream sout;
@@ -55,8 +55,7 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
     }
     break;
   case EWriteAccess:
-    if (!object.PointerBeingModified ())
-    //if(object.AccessCounter(fVersion)==0)
+    if(object.AccessCounter(fVersion)==1)
     {
 #ifdef LOGPZ  
       stringstream sout;

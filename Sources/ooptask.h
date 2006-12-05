@@ -35,6 +35,11 @@ private:
 
 public:
 	void IncrementWriteDependentData();
+	void ClearDependentData()
+	{
+	 OOPTaskDependList obj;
+	 fDataObjectList = obj;
+	}
 
 public:	
   /**

@@ -184,9 +184,11 @@ OOPTaskManager::TransferExecutingTasks ()
 #endif
       OOPObjectId id;
       id = auxtc->Id ();
-      auxtc->TaskDepend ().SetExecuting (id, false);
+#warning "No longer implementing SetExecuting"      
+      //auxtc->TaskDepend ().SetExecuting (id, false);
       // this method may want to grab the mutex!!!
-      auxtc->TaskDepend ().ReleaseAccessRequests (id);
+#warning "No longer implementing ReleaseAccessRequests. This is key point"      
+      //auxtc->TaskDepend ().ReleaseAccessRequests (id);
 
 
       //auxtc->TaskDepend().ClearPointers();

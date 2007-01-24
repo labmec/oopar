@@ -56,7 +56,7 @@ public:
    * @param access Access request must match release access request.
    */
   void    ReleaseAccessRequest (const OOPObjectId & TaskId,
-				const OOPMDataDepend & depend);
+				const OOPAccessTag & depend);
   /**
    * Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of 
    * access and data version must also be specified, as well as the processor where the access should occur.
@@ -68,7 +68,7 @@ public:
    * @return 1 if the access request is compatible, 0 if not compatible
    */
   int     SubmitAccessRequest (const OOPObjectId & TaskId,
-			       const OOPMDataDepend & depend,
+			       const OOPAccessTag & depend,
 			       const long ProcId);
   /**
    * Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of 
@@ -79,7 +79,7 @@ public:
    * @return 1 if the access request is compatible, 0 if not compatible
    */
   int SubmitAccessRequest (const OOPObjectId & TaskId,
-			       const OOPMDataDepend & depend)
+			       const OOPAccessTag & depend)
   {
     return SubmitAccessRequest (TaskId, depend, fProcessor);
   }
@@ -161,10 +161,15 @@ private:
    */
   map < OOPObjectId, OOPMetaData *> fObjects;
   /**
-   * Recently submtted objects
+   * Recently submitted objects
    * Still not available for the TM.
    */
   list <OOPMetaData * > fSubmittedObjects;
+  /**
+   * Holds MetaData objects which had been changed.
+   * DM receives those object at the end of a task execution
+   */
+  list <OOPMetaData * > fChangedObjects;
   /**
    * Generates a new object ID
    */
@@ -260,11 +265,11 @@ public:
   /**
    * Dependency data of the request
    */
-  OOPMDataDepend fDepend;
+  std::list<OOPAccessTag> fDependList;
   /**
    * Constructor
    */
-  OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
+  OOPDMRequestTask (int proc, const OOPAccessTag & depend);
   OOPDMRequestTask (const OOPDMRequestTask & task);
   OOPDMRequestTask () ;
     
@@ -278,28 +283,7 @@ public:
   virtual void Write (TPZStream  & buf, int withclassid = 0);
 };
 template class TPZRestoreClass<OOPDMRequestTask, TDMREQUESTTASK_ID>;
-class   OOPCurrentLocation
-{
-public:
-  OOPObjectId fObjectId;
-  long fProcessor;
-  OOPCurrentLocation (long Processor, OOPObjectId & Id)
-  {
-    fProcessor = Processor;
-    fObjectId = Id;
-  }
-  OOPCurrentLocation & operator = (const OOPCurrentLocation & loc)
-  {
-    fObjectId = loc.fObjectId;
-    fProcessor = loc.fProcessor;
-    return *this;
-  }
-  OOPCurrentLocation (const OOPCurrentLocation & copy)
-  {
-    fObjectId = copy.fObjectId;
-    fProcessor = copy.fProcessor;
-  }
-};
+
 extern OOPDataManager *DM;
 
 #endif

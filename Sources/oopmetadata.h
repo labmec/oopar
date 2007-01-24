@@ -12,7 +12,6 @@
 #include "ooppardefs.h"
 #include "oopdataversion.h"
 #include "oopobjectid.h"
-#include "oopaccessinfo.h"
 #include "pzsave.h"
 #include "tpzautopointer.h"
 using namespace std;
@@ -44,7 +43,7 @@ private:
   /**
    * List of tasks which requires specific access to this data.
    */
-  OOPAccessInfoList fAccessList;
+  OOPAccessTagMultiSet fAccessList;
   /**
    * pointer to the object
    */
@@ -58,20 +57,6 @@ private:
    * Processor where the object is located
    */
   int fProc;
-  /**
-   * Indicates in which transition state the object is
-   */
-  OOPMTransitionState fTrans;
-  /**
-   * Indicates whether the data is under delete request
-   */
-  int fToDelete;
-  /**
-   * Indicates trace of the data.
-   * It is mostly used for debugging purposes
-   */
-  int     fTrace;
-  bool f_PtrBeingModified;
   std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> > fAvailableVersions;
 public:
   void ClearAllVersions();
@@ -80,13 +65,7 @@ public:
    * Each different version is therefore stored in a map of OOPVersion to Saveable pointer.
    * This Method provides the necessary interface for submitting new versions for a given object
    */
-  void SubmitVersion(const OOPDataVersion  & nextversion, TPZAutoPointer <TPZSaveable> NewPtr);
-  /**
-   * Indicates if the associated Saveable object is being accessed with WriteAccess.
-   * Provides information for granting access policies. If necessary a copy of the pointer
-   * is provided. Allowing for a more parallel execution.
-   */
-  bool PointerBeingModified() const;		  
+  void SubmitVersion( TPZAutoPointer <TPZSaveable> NewPtr,const OOPDataVersion  & nextversion);
   /**
    * Different levels of printing.
    * Amount of information and layout are modified in each method
@@ -121,12 +100,6 @@ public:
    * Checks if some task on the task access list is satisfied by the current data state
    */
   void    VerifyAccessRequests ();
-private:
-  /**
-   * Verifies whether the transition state of the object can
-   * not be adjusted
-   */
-  void    CheckTransitionState ();
 public:
   /**
    * Submits a task which requires access on current data.
@@ -135,31 +108,23 @@ public:
    * @param processor processor for which access is requested
    */
   void    SubmitAccessRequest (const OOPObjectId & taskId,
-                               const OOPMDataDepend & depend,
+                               const OOPAccessTag & depend,
                                int processor);
 private:
   /**
    * The access request is sent to the owning processor if it cannot
    * be honoured on the local processor
    */
-  void    SendAccessRequest (const OOPMDataDepend & depend);
+  void    SendAccessRequest (const OOPAccessTag & depend);
 public:
-  /**
-   * Signals the object that the task is going into execution or not
-   */
-  void    SetExecute (const OOPObjectId & taskId,
-                      const OOPMDataDepend & depend, bool condition);
-  /**
-   * Returns pointer to the TSaveable object
-   */
-  TPZAutoPointer<TPZSaveable> Ptr (OOPDataVersion & version);
   /**
    * Transfer an object based on the parameters.
    * @param ProcId Identifies processor Id
    */
   void    TransferObject (int ProcId);
   /**
-   * Takes the appropriate action to satisfy the request. This method is used when the data belongs to this processor.
+   * Takes the appropriate action to satisfy the request.
+   * This method is used when the data belongs to this processor.
    * Takes action on an incoming message
    * @param &ms Identifies owner of the task.
    */
@@ -171,87 +136,24 @@ public:
   /**
    * Returns the processor to which the object belongs
    */
-  int     Proc () const;
+  int Proc () const;
   /**
    * returns true if the current processor is owner of the object
    */
   bool    IamOwner () const;
-    /**
-     * Attempts to delete the object pointed to by the object
-     * Issues deletion request message
-     * @param ObjId Id of object to be deleted
-     */
-	void    DeleteObject ();
-	/**
-     * Issues a request message for deletion to the owner of the data
-	 * waits for delete confirmation and finishes the deletion procedure
-     */
-	void    RequestDelete ();
-	/**
-	 * Sends a TDMOwnerTask granting the access state to the processor
-	 */
-	void    GrantAccess (OOPMDataState state, int processor);
-	/**
-     * Changes the access state of the data and notifies the task manager to try the indicated task
-     * Grants write access
-     * @param TaskId Identifies task which is to be transfered
-     * @param st Status of the data being requested
-     * @param version Identifies version of the object
-     */
-	void    GrantWriteAccess (OOPObjectId & TaskId, OOPMDataState st,
-				  OOPDataVersion & version);
-    /**
-     * Changes the access state of the data and notifies the task manager to try the indicated task
-     * Grants read access
-     * @param TaskId Identifies task which is to be transfered
-     * @param ProcId Identifies processsor which owns data
-     * @param AccessRequest Status of the data being requested
-     * @param version Identifies version of the data
-     */
-    void    GrantReadAccess (OOPObjectId TaskId, int ProcId,
-				 OOPMDataState st, OOPDataVersion version);
-    /**
-     * Communicates, when necessary, the state of access to tasks willing to access the data
-     
-	void NotifyAccessStates ();*/
-    /**
-     * Returns the version of the data
-     */
-	OOPDataVersion Version () const;
-    /**
-     * Sets trace on data
-     * @param trace Indicates trace to be followed*/
-	void    SetTrace (int trace);
-    /**
-     * Traces a message
-     * @param ms Owner of the message to be traced.
-     */
-	void    TraceMessage (OOPDMOwnerTask & ms);	// Erico
-      protected:
-    /**
-     * Traces a message based on is name.
-     * @param message identifies message to be traced
-     */
-	void    TraceMessage (char *message);
-      public:
-	/**
-	 * Returns current object Id
-	 */
-	        OOPObjectId Id () const;
   /**
-   * It releases the access posted by the Task identified by id.
-   * It erases the id entry from the task list.
-   * If any of the conditions mismatches an error message is issued.
-   * @param taskid Identifies the task from which the access request should be dropped
-   * @param depend Identifies the type of dependency
+   * Sends a TDMOwnerTask granting the access state to the processor
    */
-  void ReleaseAccess (const OOPObjectId & taskid,
-			       const OOPMDataDepend & depend);
+  void    GrantForeignAccess (OOPAccessTag & tag);
   /**
-   * Verifies whether the object can grant any type of access
-   * @return true if there are types of access which can be granted
+   * Returns the version of the data
    */
-  bool CanGrantAccess () const;
+  OOPDataVersion Version () const;
+public:
+  /**
+   * Returns current object Id
+   */
+  OOPObjectId Id () const;
 };
 //template class TPZRestoreClass<OOPMetaData,OOPMETADATA_ID>;
 /*

@@ -46,41 +46,29 @@ OOPTask::Print (std::ostream & out)
 {
   out << "OOPTask Id" << fTaskId << endl;
   out << fLabel << endl;
-  out << "Priority\t" << fPriority << endl;
   out << "Processor\t" << fProc << endl;
   out << "Data Dependence\t" << endl;
   fDependRequest.Print(out);
-  fDataObjectList.Print(out);
 }
 
-void
-OOPTask::TaskFinished ()
-{
-//  fDataDepend.ReleaseAccessRequests(fTaskId);
-// Is taken care of by the task manager
-}
 OOPTask::OOPTask (int proc)
 {
   fProc = proc;
-  fPriority = 0;
   fIsRecurrent = 0;
   fLabel = "non initialized";
-  f_MySize = 0;
 }
 OOPTask::OOPTask (const OOPTask & task):
   fProc (task.fProc),
   fTaskId (),
   fDependRequest (task.fDependRequest),
-  fDataObjectList(task.fDataObjectList),
-  fPriority (task.fPriority),
   fIsRecurrent (task.fIsRecurrent),
   fLabel (task.fLabel)
 {
 }
 void
-OOPTask::AddDependentData (const OOPMDataDepend & depend)
+OOPTask::AddDependentData (const OOPAccessTag & depend)
 {
-  fDependRequest.AppendDependency (depend);
+  fDependRequest.AppendTag(depend);
 }
 
 void
@@ -88,12 +76,6 @@ OOPTask::PrintLog (std::ostream & out, char *message)
 {
   out << "Task:" << fTaskId.GetProcId () << ":" << fTaskId.
     GetId () << ":" << message;
-}
-
-long
-OOPTask::ExecTime ()
-{
-  return -1;
 }
 
 OOPObjectId
@@ -107,11 +89,6 @@ OOPTask::Submit ()
 
 OOPDaemonTask::OOPDaemonTask (int Procid):OOPTask (Procid)
 {
-}
-long
-OOPDaemonTask::ExecTime ()
-{
-  return 0;
 }
 
 int
@@ -137,17 +114,6 @@ OOPTask::GetProcID ()
   return fProc;
 }
 
-void
-OOPTask::ChangePriority (int newpriority)
-{
-  fPriority = newpriority;
-}
-
-int
-OOPTask::Priority ()
-{
-  return fPriority;
-}
 
 OOPObjectId
 OOPTask::Id ()
@@ -162,10 +128,8 @@ OOPTask::Write (TPZStream & buf, int withclassid)
   // ObjectId packing and unpacking
   fTaskId.Write (buf);
   //Logging purpose only
-  buf.Write (&f_MySize);
   buf.Write (&fProc);		// Processor where the task should be
   // executed
-  buf.Write (&fPriority);
   buf.Write (&fIsRecurrent);
   fDependRequest.Write (buf);
 
@@ -178,18 +142,16 @@ OOPTask::Read (TPZStream & buf, void *context)
   fTaskId.Read (buf);
   // Finished OOPObjectId unpacking
   //Logging purpose only
-  buf.Read (&f_MySize);
   buf.Read (&fProc);
-  buf.Read (&fPriority);
   buf.Read (&fIsRecurrent);
-  fDependRequest.Read (buf);
+  fDependRequest.Read (buf, context);
 
 }
 
-TPZAutoPointer<TPZSaveable> 
+TPZSaveable * 
 OOPTask::GetDepObjPtr (int idepend)
 {
-  int numdep = fDataObjectList.NDepend();
+  int numdep = fDependRequest.Count();
   if (idepend < 0 || idepend >= numdep) {
 #ifdef LOGPZ
     stringstream sout;
@@ -199,33 +161,11 @@ OOPTask::GetDepObjPtr (int idepend)
 #endif
     return 0;
   }
-  return fDataObjectList.ObjPtr(idepend);
-}
-
-void
-OOPTask::IncrementDepObjVersion (int idepend)
-{
-  int numdep = fDataObjectList.NDepend ();
-  if (idepend < 0 || idepend >= numdep) {
-#ifdef LOGPZ
-    stringstream sout;
-    sout << "Dpendency Id is bigger then number of objects";
-    LOGPZ_WARN (logger, sout.str ());
-#endif
-    return;
-  }
-  fDataObjectList.IncrementVersion(idepend);
+  return fDependRequest.ObjectPtr(idepend);
 }
 
 void
 OOPTask::IncrementWriteDependentData ()
 {
-  int numdep = fDataObjectList.NDepend ();
-  int i;
-
-  for (i = 0; i < numdep; i++) {
-    if (fDataObjectList.AccessType(i) == EWriteAccess){
-      IncrementDepObjVersion(i);
-    }
-  }
+  fDependRequest.IncrementWriteDependent();
 }

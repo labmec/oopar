@@ -55,10 +55,11 @@ public:
 	/**
      * Increments version with a call to Increment method
 	 */
-	void    operator ++ ();
-	/**
-     * Streams out TDataVersion data structure
-	 */
+	void operator ++ ();
+        void operator ++ (int);
+        /**
+          * Streams out TDataVersion data structure
+          */
   void    Print (std::ostream & out = std::cout) const;
   std::ostream & ShortPrint(std::ostream &out = std::cout) const;
   /**

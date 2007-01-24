@@ -173,6 +173,11 @@ void OOPDataVersion::operator ++ ()
 {
 	this->Increment ();
 }
+void OOPDataVersion::operator ++ (int)
+{
+	this->Increment ();
+}
+
 bool OOPDataVersion::operator == (const OOPDataVersion & version) const
 {
   if (GetNLevels () != version.GetNLevels ())

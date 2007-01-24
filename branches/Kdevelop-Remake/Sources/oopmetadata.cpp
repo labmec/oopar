@@ -174,7 +174,7 @@ TPZAutoPointer<TPZSaveable> OOPMetaData::Ptr (OOPDataVersion & version)
   }
 }
 
-void OOPMetaData::SubmitVersion(const OOPDataVersion & nextversion, TPZAutoPointer <TPZSaveable> NewPtr)
+void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr,const OOPDataVersion & nextversion )
 {
 #ifdef LOGPZ
       {

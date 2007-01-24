@@ -4,6 +4,7 @@
 #include "ooptaskmanager.h"
 #include "ooppardefs.h"
 #include "oopcommmanager.h"
+
 #include <map>
 #include <stdlib.h>
 
@@ -112,7 +113,7 @@ bool OOPDataManager::HasObject (OOPObjectId & id)
   else
     return false;
 }
-void OOPDataManager::ReleaseAccessRequest (const OOPObjectId & TaskId, const OOPMDataDepend & depend){
+void OOPDataManager::ReleaseAccessRequest (const OOPObjectId & TaskId, const OOPAccessTag & depend){
   map<OOPObjectId, OOPMetaData *>::iterator it;
   it=fObjects.find(depend.Id());
   if(it!=fObjects.end()){
@@ -130,7 +131,7 @@ void OOPDataManager::ReleaseAccessRequest (const OOPObjectId & TaskId, const OOP
   }
 }
 int OOPDataManager::SubmitAccessRequest (const OOPObjectId & TaskId,
-					 const OOPMDataDepend & depend,
+					 const OOPAccessTag & depend,
 					 const long ProcId)
 {
   map <OOPObjectId, OOPMetaData * >::iterator i;
@@ -448,7 +449,7 @@ OOPMetaData *OOPDataManager::Data (OOPObjectId ObjId)
 void OOPDataManager::PrintDataQueues(char * msg, std::ostream & out){
   out << "Printing Data Queues on processor :" << fProcessor << msg << endl;
   map <OOPObjectId, OOPMetaData * >::iterator i;
-  OOPAccessInfoList auxlist;
+  OOPAccessTagList auxlist;
   for(i=fObjects.begin();i!=fObjects.end();i++){
     (*i).second->PrintLog(out);
   }
@@ -485,11 +486,17 @@ OOPDMOwnerTask::OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc):OOPDaemonTas
   EGrantVersionAccess,
   ENotifyDeleteObject,
 */
-OOPDMOwnerTask::~OOPDMOwnerTask() {
+OOPDMOwnerTask::~OOPDMOwnerTask() 
+{
+  if(fObjPtr)
+  {
+    fObjPtr = TPZAutoPointer<TPZSaveable>();
+    DM->InsertObjectChanged(fObjId);
+  }
 }
 //***********************************************************************
 OOPDMRequestTask::OOPDMRequestTask (int proc,
-				    const OOPMDataDepend & depend):OOPDaemonTask (proc), fDepend (depend)
+				    const OOPAccessTag & depend):OOPDaemonTask (proc), fDepend (depend)
 {
   fProcOrigin = DM->GetProcID ();
 
@@ -676,7 +683,7 @@ void OOPDMRequestTask::Read(TPZStream & buf, void * context)
 {
   OOPDaemonTask::Read(buf, context);
   buf.Read (&fProcOrigin);
-  fDepend.Read (buf);
+  fDepend.Read (buf, 0);
   {
     std::stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Reading request task proc origin " << fProcOrigin << " depend " << fDepend << " fProc " << fProc;

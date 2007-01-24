@@ -5,14 +5,12 @@ enum OOPMDMOwnerMessageType
   ENoMessage,
   ETransferOwnership,
   EGrantReadAccess,
-  ENotifyDeleteObject
 };
 enum OOPDMRequestMessageType
 {
   ENoRequest,
   ERequestReadAccess,
   ERequestWriteAccess,
-  ERequestDelete
 };
 //BlockingReadAccess concept no longer exists
 //longhin: 30/01/2003
@@ -25,13 +23,6 @@ enum OOPMDataState
   EReadAccess,
   EWriteAccess,
 //	EVersionAccess
-};
-enum OOPMTransitionState
-{
-  ENoTransition,
-  EToDelete
-/*	ECancelReadTransition,
-	ESuspendReadTransition*/
 };
 enum OOPMReturnType
 {

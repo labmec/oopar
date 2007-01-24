@@ -5,7 +5,7 @@ class   OOPTask;
 
 
 
-#include "oopmdatadepend.h"
+#include "oopaccesstag.h"
 #include "oopevtmanager.h"
 /**
  * class which encapsulates a task object and data dependency structure.
@@ -34,7 +34,7 @@ class   OOPTaskControl
  /**
   * Store the task dependencies since that task is now deleted by its own thread
   */
- OOPMDataDependList fDataDepend;
+ //OOPMDataDependList fDataDepend;
 
  /**
   * Store the task classid identifier since that task is now delete by it own thread
@@ -136,6 +136,6 @@ public:
 
     int ClassId() {return fClassId;}
 
-    OOPMDataDependList & TaskDepend (){return fDataDepend;}
+    OOPAccessTagMultiSet & TaskDepend (){return fTask->GetDependencyRequests();}
 };
 #endif

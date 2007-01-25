@@ -169,3 +169,8 @@ OOPTask::IncrementWriteDependentData ()
 {
   fDependRequest.IncrementWriteDependent();
 }
+
+void OOPTask::SubmitDependencyList()
+{
+  DM->SubmitAccessRequest(
+}

@@ -184,16 +184,7 @@ OOPTaskManager::TransferExecutingTasks ()
 #endif
       OOPObjectId id;
       id = auxtc->Id ();
-#warning "No longer implementing SetExecuting"      
-      //auxtc->TaskDepend ().SetExecuting (id, false);
-      // this method may want to grab the mutex!!!
-#warning "No longer implementing ReleaseAccessRequests. This is key point"      
-      //auxtc->TaskDepend ().ReleaseAccessRequests (id);
-
-
-      //auxtc->TaskDepend().ClearPointers();
-
-
+      
       fFinished.push_back (auxtc);
       list < OOPTaskControl * >::iterator keep;
       keep = sub;
@@ -250,7 +241,6 @@ OOPTaskManager::ExecuteMT (void *data)
       OOPTaskControl *tc = (*i);
       lTM->fExecutable.erase (i);
       lTM->fExecuting.push_back (tc);
-      tc->Task()->SetExecuting (true);
 #ifdef LOGPZ
       {
 	stringstream sout;
@@ -392,7 +382,6 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
       OOPTaskControl *tc = (*i);
       lTM->fExecutable.erase (i);
       lTM->fExecuting.push_back (tc);
-      tc->Task ()->SetExecuting (true);
 #ifdef LOGPZ
       {
 	stringstream sout;
@@ -515,10 +504,11 @@ OOPTaskManager::~OOPTaskManager ()
 }
 
 void
-OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
-				     const OOPMDataDepend & depend,
-				     OOPMetaData * objptr)
+OOPTaskManager::NotifyAccessGranted (const OOPAccessTag & depend)
 {
+
+#warning "Apenas colocar numa pilha"
+/*
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
 #ifdef LOGPZ
     stringstream sout;
@@ -532,7 +522,7 @@ OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
     OOPTaskControl *tc = (*i);
     if (tc->Task ()->Id () == TaskId) {
       found = true;
-      tc->TaskDepend ().GrantAccess (depend, objptr);
+      tc->Task()->GrantAccess (depend);
       {
 #ifdef OOP_MPE
         stringstream auxsout;
@@ -547,7 +537,7 @@ OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 	LOGPZ_DEBUG (tasklogger, sout.str ());
 #endif
       }
-      if (tc->TaskDepend ().CanExecute ()) {
+      if (tc->Task()->CanExecute ()) {
 #ifdef LOGPZ
 	stringstream sout;
 	sout << "Task " << TaskId << " classid " << tc->
@@ -555,9 +545,6 @@ OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
 	sout << " can execute";
 	LOGPZ_DEBUG (tasklogger, sout.str ());
 #endif
-#warning "TransfertoExecutable invalidates the pointer"
-        //Invalidar ponteiros nos MetaDados
-        
 	TransfertoExecutable (tc->Task ()->Id ());
 	{
 #ifdef LOGPZ
@@ -581,45 +568,7 @@ OOPTaskManager::NotifyAccessGranted (const OOPObjectId & TaskId,
     LOGPZ_ERROR (tasklogger, sout.str ());
 #endif
   }
-}
-void
-OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
-			      const OOPMDataDepend & depend)
-{
-  if (!pthread_equal (fExecuteThread, pthread_self ())) {
-#ifdef LOGPZ
-    stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOGPZ_ERROR (logger, sout.str ());
-#endif
-  }
-  list < OOPTaskControl * >::iterator i;
-  bool found = false;
-  for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
-    OOPTaskControl *tc = (*i);
-    if (tc->Id () == TaskId) {
-      found = true;
-      tc->TaskDepend ().RevokeAccess (depend);
-#ifdef LOGPZ
-      stringstream sout;
-      sout << "Access Revoked to taskId " << TaskId << " classid " << tc->
-	ClassId ();
-      sout << " on data " << depend.Id ();
-      LOGPZ_DEBUG (logger, sout.str ());
-#endif
-      break;
-    }
-  }
-  if (!found) {
-#ifdef LOGPZ
-    stringstream sout;
-    sout << "OOPTaskManager::RevokeAccess Task not found on current TM: File:"
-      << __FILE__ << " Line:" << __LINE__ << endl;
-    sout << "Task ";
-    TaskId.Print (sout);
-    LOGPZ_DEBUG (logger, sout.str ());
-#endif
-  }
+*/
 }
 void
 OOPTaskManager::SubmitDaemon (OOPDaemonTask * task)
@@ -935,8 +884,7 @@ OOPTaskManager::CancelTask (OOPObjectId taskid)
       sout << "Task ID " << tc->Id () << " classid " << tc->ClassId ();
       LOGPZ_DEBUG (logger, sout.str ());
 #endif
-#warning "Inserir UpdateVersions ! para devolver dados que morreriam com a tarefa com permissão escrita"
-      tc->TaskDepend ().ReleaseAccessRequests (tc->Task ()->Id ());
+      tc->Task()->ClearDependentData();
       delete tc;
       fTaskList.erase (i);
       return 1;
@@ -1066,7 +1014,7 @@ OOPTaskManager::Print (std::ostream & out)
 void
 OOPTaskManager::TransferSubmittedTasks ()
 {
-#warning "Locking and and unlocking SubmittedMutex for fSubmittedList"
+//#warning "Locking and and unlocking SubmittedMutex for fSubmittedList"
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
 #ifdef LOGPZ
     stringstream sout;
@@ -1113,13 +1061,7 @@ OOPTaskManager::TransferSubmittedTasks ()
   
         OOPTaskControl *tc = new OOPTaskControl (aux);
         fTaskList.push_back (tc);
-        if (tc->TaskDepend ().SubmitDependencyList (tc->Task ()->Id ())) {
-          // their is no incompatibility between
-          // versions
-        } else {
-          // there is an incompatibility of versions
-          CancelTask (tc->Task ()->Id ());
-        }
+        tc->Task()->SubmitDependencyList();
       }
       DM->SubmitAllObjects ();
       listsize = fSubmittedList.size ();
@@ -1188,24 +1130,10 @@ OOPTaskManager::TransferFinishedTasks ()
 	LOGPZ_DEBUG (tasklogger, sout.str ());
       }
 #endif
-      auxtc->Task ()->GetDependencyRequests ().ClearPointers ();
-      auxtc->TaskDepend () = auxtc->Task ()->GetDependencyRequests ();
+      auxtc->Task ()->ClearDependentData();
       fTaskList.push_back (auxtc);
-      if (auxtc->TaskDepend ().SubmitDependencyList (auxtc->Task ()->Id ())) {
-	// their is no incompatibility between
-	// versions
-      } else {
-#ifdef LOGPZ
-        {
-          stringstream sout;
-          sout << __PRETTY_FUNCTION__ << " task " << auxtc->
-            Id () << " classid " << auxtc->ClassId () << " is canceled";
-          LOGPZ_ERROR (tasklogger, sout.str ());
-        }
-#endif
-	// there is an incompatibility of versions
-	CancelTask (auxtc->Task ()->Id ());
-      }
+      
+      auxtc->Task()->SubmitDependencyList ();
     } else {
       delete auxtc;
     }
@@ -1233,14 +1161,6 @@ OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
   for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
     OOPTaskControl *tc = (*i);
     if (tc->Task ()->Id () == taskid) {
-      tc->Task ()->SetDependencyList (tc->TaskDepend ());
-      //Colocar o pointer beingmodified
-      //Se estiver sendo lido mensagem de erro
-      //Pois ainda nao clonamos os dados.
-      tc->TaskDepend ().SetExecuting (taskid, true);
-      //Invalidar ponteiros dos dados no MetaData.
-      //Baldear os ponteiros para o TC ou task.
-      
       OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(tc->Task ());
       if (dmt) {
 #ifdef LOGPZ
@@ -1368,7 +1288,7 @@ OOPTaskManager::Lock (TMLock & lock)
 //  cout << __PRETTY_FUNCTION__ << " Locking on fServiceMutex ";
   pthread_mutex_lock (&fServiceMutex);
 //  cout << __PRETTY_FUNCTION__ << " Locking on fServiceMutex Suceeded ";
-#warning "Formerly 'pthread_mutex_lock (&fSubmittedMutex)'"
+//#warning "Formerly 'pthread_mutex_lock (&fSubmittedMutex)'"
   fLockThread = pthread_self ();
   if (fLock) {
     std::

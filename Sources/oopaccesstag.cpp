@@ -29,7 +29,7 @@ TPZSaveable * OOPAccessTag::GetPointer()
 {
   return fObjectAutoPtr.operator->();
 }
-bool OOPAccessTag::IsMyAccessTag(OOPAccessTag & granted)
+bool OOPAccessTag::IsMyAccessTag(const OOPAccessTag & granted)
 {
   if(fObjectAutoPtr) return false;
   if(!(fObjectId == granted.fObjectId)) return false; 
@@ -43,12 +43,19 @@ void OOPAccessTag::Write (TPZStream  & buf)
 {
   fObjectId.Write (buf);
   fTaskId.Write( buf);
-  int need = fAccessMode;
+  int need = fAccessMode; 
   buf.Write (&need);
   int proc = fProcessor;
   buf.Write(&proc);
   fVersion.Write(buf);
-#warning "What should I do with the AutoPointer"  
+  if(fObjectAutoPtr)
+  {
+    fObjectAutoPtr->Write(buf, 1);
+  }else
+  {
+    int aux = -1;
+    buf.Write(&aux, 1);
+  }
 }
   /**
    * method to reconstruct the object
@@ -64,5 +71,5 @@ void OOPAccessTag::Read (TPZStream & buf, void * context)
   buf.Read(&proc);
   fProcessor = proc;
   fVersion.Read(buf);
-#warning "AutoPointer not being read, since its not being writen"  
+  this->fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(TPZSaveable::Restore(buf, context));
 }

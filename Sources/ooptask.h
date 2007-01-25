@@ -6,7 +6,7 @@
 #include "ooppardefs.h"
 #include "oopdataversion.h"
 #include "oopobjectid.h"
-//#include "oopaccesstaglist.h"
+#include "oopaccesstaglist.h"
 #include "pzsave.h"
 #include "tpzautopointer.h"
 class   OOPStorageBuffer;
@@ -23,6 +23,7 @@ class   OOPTask:public TPZSaveable
 {
 
 public:
+  void SubmitDependencyList();
   void IncrementWriteDependentData();
   void ClearDependentData()
   {
@@ -33,7 +34,7 @@ public:
   {
     return fDependRequest.CanExecute();
   }
-  void GrantAccess(OOPAccessTag & granted)
+  void GrantAccess(const OOPAccessTag & granted)
   {
     fDependRequest.GrantAccess(granted);
   }

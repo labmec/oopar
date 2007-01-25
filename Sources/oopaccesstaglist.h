@@ -17,7 +17,7 @@
 #include <set>
 #include <vector>
 
-
+class OOPDataManager;
 extern OOPDataManager *DM;
 
 
@@ -30,8 +30,8 @@ public:
   OOPAccessTagList();
 
   ~OOPAccessTagList();
-  
-  void GrantAccess(OOPAccessTag & granted);
+
+  void GrantAccess(const OOPAccessTag & granted);
   void Clear();
   void AppendTag(const OOPAccessTag & tag);
   bool CanExecute();

@@ -136,6 +136,5 @@ public:
 
     int ClassId() {return fClassId;}
 
-    OOPAccessTagMultiSet & TaskDepend (){return fTask->GetDependencyRequests();}
 };
 #endif

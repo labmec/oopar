@@ -10,7 +10,7 @@
 //
 //
 #include "oopaccesstaglist.h"
-
+#include "oopdatamanager.h"
 
 OOPAccessTagList::OOPAccessTagList()
 {
@@ -22,6 +22,8 @@ OOPAccessTagList::~OOPAccessTagList()
 }
 
 
+
+
 void OOPAccessTagList::Clear()
 {
   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
@@ -31,19 +33,20 @@ void OOPAccessTagList::Clear()
     lset.insert(it->Id());
     if(it->AccessMode() == EWriteAccess)
     {
-      DM->Submit(it->fObjectAutoPtr, it->Version());
+      DM->SubmitData(*it);
     }
+    it->ClearPointer();
   }
-  fTagList.clear();
+//  fTagList.clear();
   DM->ObjectChanged(lset);
 }
 
-void OOPAccessTagList::GrantAccess(OOPAccessTag & granted)
+void OOPAccessTagList::GrantAccess(const OOPAccessTag & granted)
 {
-  std::list<OOPAccessTag>::iterator it = fTagList.begin();
+  std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   for(;it!=fTagList.end();it++)
   {
-    if(it->IsMyAccessTag(granted))
+    if(it->IsMyAccessTag(granted)) 
     {
       *it = granted;
     }
@@ -51,7 +54,7 @@ void OOPAccessTagList::GrantAccess(OOPAccessTag & granted)
 }
 bool OOPAccessTagList::CanExecute()
 {
-  std::list<OOPAccessTag>::iterator it = fTagList.begin();
+  std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   for(;it!=fTagList.end();it++)
   {
     if(!it->CanExecute()) return false;
@@ -61,7 +64,7 @@ bool OOPAccessTagList::CanExecute()
 
 void OOPAccessTagList::IncrementWriteDependent()
 {
-  std::list<OOPAccessTag>::iterator it = fTagList.begin();
+  std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   for(;it!=fTagList.end();it++)
   {
     if(it->AccessMode() == EWriteAccess)

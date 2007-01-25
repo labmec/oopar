@@ -22,8 +22,11 @@
 
 #include "tpzautopointer.h"
 #include "pzsave.h"
+
+//#include "oopdatamanager.h"
 using namespace std;
 class   OOPMetaData;
+//extern OOPDataManager * DM;
 
 /**
  * Implements a information tag concerning access requirements from Tasks to Data.
@@ -37,6 +40,7 @@ public:
   ~OOPAccessTag();
   operator bool ();
   bool operator < (const OOPAccessTag & compare) const;
+  bool CanExecute();
 private:
   /**
    * Describes the type of access state 
@@ -73,7 +77,11 @@ public:
   void Write (TPZStream  & buf);
   void Read (TPZStream & buf, void * context);
   TPZSaveable * GetPointer();
-  bool IsMyAccessTag(OOPAccessTag & granted);
+  bool IsMyAccessTag(const OOPAccessTag & granted);
+  void ClearPointer()
+  {
+    fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(0);
+  }
   
   void IncrementVersion()
   {
@@ -129,13 +137,22 @@ public:
     fObjectId = aci.fObjectId;
     fObjectAutoPtr = aci.fObjectAutoPtr;
   }
+  OOPAccessTag (OOPObjectId & id, TPZAutoPointer<TPZSaveable> obj)
+  {
+    //fTaskId = aci.fTaskId;
+    //fAccessMode = aci.fAccessMode;
+    //fVersion = aci.fVersion;
+    //fProcessor = DM->GetProcId();
+    fObjectId = id;
+    fObjectAutoPtr = obj;
+  }
 
   bool operator == (const OOPAccessTag & other)
   {
     return (fTaskId == other.fTaskId && fAccessMode == other.fAccessMode
-			&& fVersion == other.fVersion
-			&& fProcessor == other.fProcessor);
-    }
+                        && fVersion == other.fVersion
+                        && fProcessor == other.fProcessor);
+  }
   void Print (std::ostream & out = std::cout)
   {
     out << "Data State " << fAccessMode << endl;

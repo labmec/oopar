@@ -96,16 +96,14 @@ public:
    * @param depend dependency structure including objectid, state and version.
    * @param objptr Pointer to data object.
    */
-  void NotifyAccessGranted (const OOPObjectId & TaskId,
-			    const OOPMDataDepend & depend,
-			    OOPMetaData * objptr);
+  void NotifyAccessGranted (const OOPAccessTag & depend);
   /**
    * Notifies the task that a required access was revoked on the data.
    * @param TaskId Id of the task to which the access was granted.
    * @param depend dependency structure including objectid, state and version.
    */
   void RevokeAccess (const OOPObjectId & TaskId,
-		     const OOPMDataDepend & depend);
+		     const OOPAccessTag & depend);
   /**
    * Constructor passing processor id as parameter.
    * @param proc Processor where the TM is created.

@@ -35,59 +35,35 @@ class   OOPDataManager
   friend class OOPMetaData;
 public:
   /**
-   * Dumps on disk the current state of the Manager object
+   * Initialization of the DataManager on the indicated processor
+   * @param Procid : Processor where the data manager should be initialized
    */
-  void SnapShotMe();
-
-  void PrintDataQueues(char * msg, std::ostream & out);
-  /**
-   * Used only for testing purposes
-   */
-  static void main ();
+  OOPDataManager (int Procid);
   /**
    * Simple destructor
    */
   ~OOPDataManager ();
   /**
-   * Releases the access request from TaskId on dataId and on the specifieds version and accees state
-   * @param TaskId Identifies the task from which the access shoul be released.
-   * @param dataId Identifies the data to which access is no longer required
-   * @param version Version access request must match release access request.
-   * @param access Access request must match release access request.
+   * Inserts a ObjectChanged entry on the fChangedObject list
    */
-  void    ReleaseAccessRequest (const OOPObjectId & TaskId,
-				const OOPAccessTag & depend);
+  void ObjectChanged(OOPObjectId & Id);
   /**
-   * Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of 
-   * access and data version must also be specified, as well as the processor where the access should occur.
-   * @param TaskId Id of the Task willing to access the data.
-   * @param dataId Id of the data the task is willing to access.
-   * @param version Version the task wants the data to be.
-   * @param access Type of access.
-   * @param ProcId Id of the processor where the access should occur.
-   * @return 1 if the access request is compatible, 0 if not compatible
+   * Dumps on disk the current state of the Manager object
    */
-  int     SubmitAccessRequest (const OOPObjectId & TaskId,
-			       const OOPAccessTag & depend,
-			       const long ProcId);
+  void SnapShotMe();
+
   /**
-   * Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of 
-   * access and data version must also be specified. The processor is the current processor
-   * @param TaskId Id of the Task willing to access the data.
-   * @param depend structure which defines the type of access, version and object id
-   * @param ProcId Id of the processor where the access should occur.
-   * @return 1 if the access request is compatible, 0 if not compatible
+   * Checks the list of available objects since a new version had been submitted
    */
-  int SubmitAccessRequest (const OOPObjectId & TaskId,
-			       const OOPAccessTag & depend)
-  {
-    return SubmitAccessRequest (TaskId, depend, fProcessor);
-  }
+  void ObjectChanged(std::set<OOPObjectId> & set);
   /**
-   * Initialization of the DataManager on the indicated processor
-   * @param Procid : Processor where the data manager should be initialized
+   * Submits a object to the DataManager.
+   * In this case, the object won't be assigned a new Id
    */
-  OOPDataManager (int Procid);
+  void SubmitData(OOPAccessTag & tag);
+  
+  void SubmitOwnerMessage(OOPAccessTag &tag);
+  void SubmitAccessRequest(OOPAccessTag & depend);
   /**
    * Return the processor id which owns the current object
    */
@@ -95,36 +71,15 @@ public:
   {
     return fProcessor;
   }
-  void SubmitAllObjects();
   /**
    * Register the object on the data manager
    * Submits the pointer to the TSaveable object to the DataManager
    * @param *obj : Pointer to TSaveable object which is to be submited
    * @param trace : Indicates if submited object is traceable or not
    */
-  OOPObjectId SubmitObject (TPZSaveable * obj, int trace = 0);
-  OOPObjectId SubmitObject (TPZSaveable * obj, int trace, OOPDataVersion & ver);
+  OOPObjectId SubmitObject (TPZSaveable * obj);
 private:
-  /**
-   * Deletes the object from the datastructure
-   * @param ObjId : Id of object to be deleted
-   */
-  void    DeleteObject (OOPObjectId & ObjId);
 public:
-  /**
-   * Initiates the process do delete the object
-   * follows up on the process to delete it
-   * @param ObjId : Id of object to be deleted
-   */
-  void    RequestDeleteObject (OOPObjectId & ObjId);
-  /**
-   * Transfers the object identified by ObjId to the processor identified by
-   * ProcessorId.
-   * and takes action to satisfy the request but does not follow up on the request
-   * @param ObjId : Identifier of the object to be transfered.
-   * @param ProcessorId : Identifier of processor destination.
-   */
-  void    TransferObject (OOPObjectId & ObjId, int ProcessorId);
   /**
    * Processes the updated access information from the other processors
    * @param *task Pointer to the task which (Undocumented)
@@ -135,10 +90,6 @@ public:
    * @param *task Pointer to task which (Undocumented)
    */
   void    GetUpdate (OOPDMRequestTask * task);
-  /**
-   * Returns true if object is found on the DM list
-   */
-  bool    HasObject (OOPObjectId & id);
 private:
   /**
    * Processor where the processor is located.
@@ -192,6 +143,8 @@ private:
    * Prevents simultaneos access to such queue.
    */
   pthread_mutex_t fDataMutex;
+  
+  std::list< std::pair<int, OOPAccessTag> > fMessages;
 
 };
 /**
@@ -200,43 +153,17 @@ private:
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
 public:
-  void LogMeReceived(std::ostream & out);
-  /**
-   * Generates logging information
-   */
-  void LogMe(std::ostream & out);
-  OOPMDMOwnerMessageType fType;
-  /**
-   * Access state associated with this message
-   */
-  OOPMDataState fState;
-  /**
-   * Version of the data
-   */
-  OOPDataVersion fVersion;
-  /**
-   * Holds a pointer to the object when the object data is transferred
-   */
-  TPZAutoPointer<TPZSaveable> fObjPtr;
-  /**
-   * Id of processor which originated the message
-   */
-  int fProcOrigin;
-  /**
-   * Id of object to which this object refers
-   */
-  OOPObjectId fObjId;
-  /**
-   * Used for debugging purposes, keeps track of all data by means of log files.
-   */
-  int fTrace;
+  
+  OOPAccessTag fTag;
   /**
    * Constructor
    * @param t : type of ower task
    * @param proc : processor which owns the message
    */
   OOPDMOwnerTask ();
-  OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
+  
+  OOPDMOwnerTask (OOPAccessTag &tag);
+  
   virtual ~OOPDMOwnerTask();
   virtual OOPMReturnType Execute ();
   virtual int ClassId () const
@@ -259,13 +186,9 @@ class OOPDMRequestTask : public OOPDaemonTask
 public:
   void LogMe(std::ostream & out);
   /**
-   * Id of the processor to which the request applies.
-   */
-  int fProcOrigin;
-  /**
    * Dependency data of the request
    */
-  std::list<OOPAccessTag> fDependList;
+  OOPAccessTag fDepend;
   /**
    * Constructor
    */

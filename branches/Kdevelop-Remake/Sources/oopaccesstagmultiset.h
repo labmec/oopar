@@ -11,6 +11,8 @@
 #ifndef OOPACCESSTAGMULTISET_H
 #define OOPACCESSTAGMULTISET_H
 
+#include "oopaccesstag.h"
+
 /**
 Implements multi set of data dependency objects.
 */
@@ -20,7 +22,7 @@ public:
   ~OOPAccessTagMultiSet();
   void InsertTag(OOPAccessTag & tag);
   int Count();
-  OOPAccessTag GetCompatibleRequest(OOPDataVersion & version, MDataState need);
+  OOPAccessTag GetCompatibleRequest(OOPDataVersion & version, OOPMDataState need);
   /**
    * Todos diferente de:
    * ToProc - enviar

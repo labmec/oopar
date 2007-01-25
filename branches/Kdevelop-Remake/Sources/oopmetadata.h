@@ -14,6 +14,7 @@
 #include "oopobjectid.h"
 #include "pzsave.h"
 #include "tpzautopointer.h"
+#include "oopaccesstagmultiset.h"
 using namespace std;
 // NOT IMPLEMENTED :
 class   OOPDataManager;
@@ -103,13 +104,9 @@ public:
 public:
   /**
    * Submits a task which requires access on current data.
-   * @param taskId Identifier of the task willing to access current data object.
    * @param depend dependency type requested.
-   * @param processor processor for which access is requested
    */
-  void    SubmitAccessRequest (const OOPObjectId & taskId,
-                               const OOPAccessTag & depend,
-                               int processor);
+  void    SubmitAccessRequest (const OOPAccessTag & depend);
 private:
   /**
    * The access request is sent to the owning processor if it cannot
@@ -130,10 +127,6 @@ public:
    */
   void    HandleMessage (OOPDMOwnerTask & ms);
   /**
-   * Returns the access state of this data
-   */
-  OOPMDataState State () const;
-  /**
    * Returns the processor to which the object belongs
    */
   int Proc () const;
@@ -149,33 +142,21 @@ public:
    * Returns the version of the data
    */
   OOPDataVersion Version () const;
+  
+private:
+  /**
+   * Give assess to the data of the metadata
+   */
+  TPZAutoPointer<TPZSaveable> Ptr(const OOPDataVersion &ver);
+  
 public:
   /**
    * Returns current object Id
    */
   OOPObjectId Id () const;
 };
-//template class TPZRestoreClass<OOPMetaData,OOPMETADATA_ID>;
-/*
-inline TData::TData(TSaveable *ObPtr, long ObjId, int proc, MDataState st) {
-	fObjPtr = ObPtr;
-	fObjId = ObjId;
-	fProc = proc;
-	fState = st;
-}
-*/
-/*inline MDataState
-TData::State ()
+inline int OOPMetaData::Proc () const
 {
-	return (MDataState) fAccessProcessors[DM->GetProcID ()];
-}
-*/
-     inline int OOPMetaData::Proc () const
-     {
-	     return fProc;
-     }
-     inline void OOPMetaData::SetTrace (int trace)
-{      // Erico
-	fTrace = trace;
+  return fProc;
 }
 #endif

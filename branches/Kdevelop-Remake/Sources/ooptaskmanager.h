@@ -310,27 +310,6 @@ public:
   void Signal ();
 };
 
-/**
- * Implements a task which will be registered as a daemon
- */
-class OOPTMTask:public OOPDaemonTask
-{
-public:
-
-  OOPTMTask ();
-  ~OOPTMTask ();
-  /**
-   * Simple constructor
-   */
-  OOPTMTask (int ProcId);
-private:
-  /**
-   * Returns execution type
-   */
-    OOPMReturnType Execute ();
-
-};
-
 class OOPTerminationTask:public OOPTask
 {
 public:

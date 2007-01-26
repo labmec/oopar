@@ -506,7 +506,6 @@ OOPTaskManager::~OOPTaskManager ()
 void
 OOPTaskManager::NotifyAccessGranted (const OOPAccessTag & depend)
 {
-
 #warning "Apenas colocar numa pilha"
 /*
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
@@ -1205,20 +1204,6 @@ OOPTaskManager::PrintTaskQueues (char *msg, std::ostream & out)
 
 }
 
-OOPTMTask::OOPTMTask ():OOPDaemonTask ()
-{
-  LOGPZ_DEBUG (logger, "Should Never be Called\n");
-}
-
-OOPTMTask::~OOPTMTask ()
-{
-}
-OOPMReturnType
-OOPTMTask::Execute ()
-{
-  LOGPZ_DEBUG (logger, "Should Never be Called\n");
-  return EContinue;
-}
 
 
 OOPTerminationTask::~OOPTerminationTask ()

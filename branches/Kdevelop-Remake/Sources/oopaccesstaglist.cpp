@@ -24,7 +24,7 @@ OOPAccessTagList::~OOPAccessTagList()
 
 
 
-void OOPAccessTagList::Clear()
+void OOPAccessTagList::Clear() 
 {
   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   std::set<OOPObjectId> lset;
@@ -33,9 +33,9 @@ void OOPAccessTagList::Clear()
     lset.insert(it->Id());
     if(it->AccessMode() == EWriteAccess)
     {
-      DM->SubmitData(*it);
+      DM->PostData(*it);
     }
-    it->ClearPointer();
+    it->ClearPointer(); 
   }
 //  fTagList.clear();
   DM->ObjectChanged(lset);
@@ -75,3 +75,6 @@ void OOPAccessTagList::IncrementWriteDependent()
   
 }
 
+void OOPAccessTagList::SubmitIncrementedVersions()
+{
+}

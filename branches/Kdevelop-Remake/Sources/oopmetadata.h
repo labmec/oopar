@@ -30,6 +30,7 @@ class   OOPDMOwnerTask;
 class   OOPMetaData//:public TPZSaveable
 {
 public:
+  void SubmitTag(OOPAccessTag & Tag);
   int AccessCounter(OOPDataVersion & version);
   int AccessCounter(const OOPDataVersion & version) ;
   /**

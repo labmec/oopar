@@ -1,15 +1,6 @@
 #include "oopmetadata.h"
 #include "oopdatamanager.h"
-#include "oopcommmanager.h"
 #include "ooptaskmanager.h"
-#include <vector>
-class   OOPDataVersion;
-class   OOPMetaData;
-class   OOPDMOwnerTask;
-//class OOPMDataState;
-class   OOPSaveable;
-class   OOPObjectId;
-
 
 #include <sstream>
 #include <pzlog.h>
@@ -211,9 +202,9 @@ int OOPMetaData::AccessCounter(OOPDataVersion & version)
   }
   return 0;
 }
-int OOPMetaData::AccessCounter(const OOPDataVersion & version) const
+int OOPMetaData::AccessCounter(const OOPDataVersion & version) 
 {
-  map<OOPDataVersion , TPZAutoPointer<TPZSaveable > >::const_iterator it;
+  map<OOPDataVersion , TPZAutoPointer<TPZSaveable > >::iterator it;
   it = fAvailableVersions.find(version);
   if(it!=fAvailableVersions.end())
   {
@@ -316,6 +307,7 @@ void OOPMetaData::SetId (OOPObjectId & id)
 }
 void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 {
+ /*
   {
 #ifdef LOGPZ    
     stringstream sout;
@@ -339,6 +331,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 #endif          
         }
       }*/
+     /*
       if(ms.fObjPtr)
       {
         //fObjPtr = ms.fObjPtr;
@@ -389,6 +382,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     }
     break;
   }
+      */
 }
 
 
@@ -419,16 +413,16 @@ void OOPMetaData::Print (std::ostream & out)
 	   out << " version " << it->first << " classid " << it->second->ClassId() << " count " << it->second.Count() << " pointer " << (void *) it->second.operator->() << endl;
 	}
 	out << "Owning processor " << fProc << endl;
-	out << "fAccessList size " << fAccessList.NElements () << endl;
-	fAccessList.Print(out);
+	out << "fAccessList size " << fAccessList.Count() << endl;
+	//fAccessList.Print(out);
 	out.flush ();
 }
 void OOPMetaData::ShortPrint(std::ostream & out)
 {
 #warning "Implementar correto"
 	out << "D:" << fObjId << ":" << fProc << ":V:" << /*fVersion
-	 <<*/ ":AL:" << fAccessList.NElements () << ":";
-	fAccessList.ShortPrint(out);
+	 <<*/ ":AL:" << fAccessList.Count() << ":";
+	//fAccessList.ShortPrint(out);
 	out.flush ();
 }
 void OOPMetaData::PrintLog (std::ostream & out)
@@ -437,11 +431,11 @@ void OOPMetaData::PrintLog (std::ostream & out)
 	out << "\nObj Id " << fObjId << " version " << /*fVersion
 		<< */" processor " << fProc << endl;
 	out << " OOPData structure" << endl;
-	out << "fAccessList size " << fAccessList.NElements () << endl;
-	fAccessList.Print(out);
+	out << "fAccessList size " << fAccessList.Count() << endl;
+	//fAccessList.Print(out);
 	out.flush ();
 }
-void OOPMetaData::SendAccessRequest (const OOPAccessInfoTag &tag)
+void OOPMetaData::SendAccessRequest (const OOPAccessTag &tag)
 {
 	OOPDMRequestTask *req = new OOPDMRequestTask (tag);
 	TM->SubmitDaemon (req);

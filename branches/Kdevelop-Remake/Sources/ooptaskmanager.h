@@ -199,6 +199,7 @@ public:
    * This method will release the fSubmittedMutex
    */
   void Unlock (TMLock & obj);
+  void GrantAccess(OOPAccessTag & tag);
 private:
 
   /** 

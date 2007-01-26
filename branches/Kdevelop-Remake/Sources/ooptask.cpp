@@ -172,5 +172,6 @@ OOPTask::IncrementWriteDependentData ()
 
 void OOPTask::SubmitDependencyList()
 {
-  DM->SubmitAccessRequest(
+// DM->SubmitAccessRequest();
+#warning "Submit something to DM - > Check what exactaly"
 }

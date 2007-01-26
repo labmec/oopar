@@ -20,9 +20,10 @@ class OOPAccessTagMultiSet{
 public:
   OOPAccessTagMultiSet();
   ~OOPAccessTagMultiSet();
-  void InsertTag(OOPAccessTag & tag);
+  void InsertTag(const OOPAccessTag & tag);
   int Count();
   OOPAccessTag GetCompatibleRequest(OOPDataVersion & version, OOPMDataState need);
+  OOPAccessTag IncompatibleRequest(OOPDataVersion & version);
   /**
    * Todos diferente de:
    * ToProc - enviar

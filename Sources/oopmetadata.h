@@ -1,12 +1,10 @@
 // -*- c++ -*-
 #ifndef TMETADATAH
 #define TMETADATAH
-#include "oopdataversion.h"
 
 //#include "longvec.h"
-//#include "oopdatamanager.h"
+#include "oopdatamanager.h"
 #include "ooppardefs.h"
-#include "oopdataversion.h"
 #include <deque>
 #include <set>
 #include "ooppardefs.h"
@@ -33,7 +31,7 @@ class   OOPMetaData//:public TPZSaveable
 {
 public:
   int AccessCounter(OOPDataVersion & version);
-  int AccessCounter(const OOPDataVersion & version) const;
+  int AccessCounter(const OOPDataVersion & version) ;
   /**
    * Removes the Data pointer for version from the map of versions
    */

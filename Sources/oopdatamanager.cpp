@@ -210,19 +210,7 @@ void OOPDataManager::ObjectChanged(OOPObjectId & Id)
 //////////////////////OOPDMOwnerTask////////////////////////////////////////////
 
 OOPDMOwnerTask::OOPDMOwnerTask() :OOPDaemonTask(-1) {
-  fObjPtr = 0;
-  fState = ENoAccess;
-  fProcOrigin = DM->GetProcID ();
 
-}
-OOPDMOwnerTask::OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc):OOPDaemonTask
-(proc),fVersion(), fObjId()
-			       /* , fAccessProcessors(0), fBlockingReadProcesses(0) */
-{
-  fType = t;
-  fObjPtr = 0;
-  fState = ENoAccess;
-  fProcOrigin = DM->GetProcID ();
 }
 /*
   ENoMessage,
@@ -238,69 +226,36 @@ OOPDMOwnerTask::OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc):OOPDaemonTas
 */
 OOPDMOwnerTask::~OOPDMOwnerTask() 
 {
-  if(fObjPtr)
+  if(fTag.GetPointer())
   {
-    fObjPtr = TPZAutoPointer<TPZSaveable>();
-    DM->ObjectChanged(fObjId);
+   fTag.ClearPointer();
+   OOPObjectId id = fTag.Id();
+    DM->ObjectChanged(id);
   }
 }
 //***********************************************************************
 OOPDMRequestTask::OOPDMRequestTask (int proc,
 				    const OOPAccessTag & depend):OOPDaemonTask (proc), fDepend(depend)
 {
-  fProcOrigin = DM->GetProcID ();
+  //fProcOrigin = DM->GetProcId();
 
-  {
-    std::stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " RequestTask constructed with depend " << depend << " target proc " << proc <<
-      " origin proc " << fProcOrigin;
-    LOG4CXX_DEBUG(logger,sout.str());
-  }
 }
 OOPDMRequestTask::
-OOPDMRequestTask (const OOPDMRequestTask & task):OOPDaemonTask (task),
-						 fProcOrigin (task.fProcOrigin), fDepend (task.fDepend)
+OOPDMRequestTask (const OOPDMRequestTask & task):OOPDaemonTask (task), fDepend (task.fDepend)
 {
 }
 OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
 {
-  fProcOrigin = -1;
 }
 void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 {
+#warning "Implement me"
   OOPDaemonTask::Read (buf, context);
   char type;
-  buf.Read (&type);
-  fType = (OOPMDMOwnerMessageType) type;
-  int access;
-  buf.Read (&access);
-  fState = (OOPMDataState) access;
-  //      buf->UpkLong(&fVersion);
-  fVersion.Read (buf);
-  //fObjPtr = buf->Restore ();
-#ifdef LOGPZ    
-  LOGPZ_DEBUG(logger,"Restoring fObjPtr");
-#endif  
-  
-  fObjPtr = TPZSaveable::Restore (buf,0);//, 0);
-  // buf->UpkLong(&fTaskId);
-  buf.Read (&fTrace);
-  buf.Read (&fProcOrigin);
-  // N� faz sentido !!!
-  fObjId.Read(buf);
-#ifdef LOGPZ    
-  stringstream sout;
-  sout << "Unpacking Owner task for Obj " << fObjId << " message type " 
-       <<  fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion;       
-  if(fObjPtr)
-    {
-      sout << "Class id " << fObjPtr->ClassId();
-    }
-  LOGPZ_DEBUG(logger,sout.str());
-#endif  
 }
 void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 {
+#warning "Implement me"
   {
 #ifdef LOGPZ    
     stringstream sout;
@@ -312,106 +267,6 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 #endif    
   }
   OOPDaemonTask::Write (buf, withclassid);
-  char type = fType;
-  buf.Write (&type);
-  int access = fState;
-  buf.Write (&access);
-  fVersion.Write (buf);	// buf->PkLong(&fVersion);
-  if (fObjPtr) {
-#ifdef LOGPZ    
-    stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " writing object of type " << fObjPtr->ClassId();
-    LOGPZ_DEBUG(logger,sout.str());
-#endif    
-    fObjPtr->Write (buf,1);
-  }
-  else
-    {
-      int zero = -1;
-      buf.Write (&zero);
-    }
-  buf.Write (&fTrace);
-  buf.Write (&fProcOrigin);
-  fObjId.Write (buf);	// buf->PkLong(&fObjId);
-	
-}
-void OOPDMOwnerTask::LogMe(std::ostream & out){
-  out << fProc;
-  out << "\tId "<< fObjId;
-  out << "\tSending ";
-  switch (fType)
-    {
-    case  ENoMessage:
-      out << "ENoMessage\t";
-      break;
-    case  ETransferOwnership:
-      out << "ETransferOwnership\t";
-      break;
-    case  EGrantReadAccess:
-      out << "EGrantReadAccess\t";
-      break;
-    default:
-      out << "Uninitialized fType property\t";
-      break;
-    }
-  out << "State ";
-  switch (fState )
-    {
-    case  ENoAccess:
-      out << "ENoAccess\t";
-      break;
-    case  EReadAccess:
-      out << "EReadAccess\t";
-      break;
-    case  EWriteAccess:
-      out << "EWriteAccess\t";
-      break;
-    }
-	
-  out << "Version " << fVersion << "\t";
-  out << "\tTo Processor " << fProc;
-
-  out.flush();
-
-
-	
-}
-void OOPDMOwnerTask::LogMeReceived(std::ostream & out){
-  out << fProc;
-  out << "\tId "<< fObjId;
-  out << "\tReceiving ";
-  switch (fType)
-    {
-    case  ENoMessage:
-      out << "ENoMessage\t";
-      break;
-    case  ETransferOwnership:
-      out << "ETransferOwnership\t";
-      break;
-    case  EGrantReadAccess:
-      out << "EGrantReadAccess\t";
-      break;
-    default:
-      out << "Uninitialized fType property\t";
-      break;
-    }
-  out << "State ";
-  switch (fState )
-    {
-    case  ENoAccess:
-      out << "ENoAccess\t";
-      break;
-    case  EReadAccess:
-      out << "EReadAccess\t";
-      break;
-    case  EWriteAccess:
-      out << "EWriteAccess\t";
-      break;
-    }
-	
-  out << "Version " << fVersion << "\t";
-  out << "\tFrom Processor " << fProcOrigin;
-  out.flush();
 }
 OOPMReturnType OOPDMOwnerTask::Execute ()
 {
@@ -426,13 +281,14 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 void OOPDMRequestTask::Read(TPZStream & buf, void * context)
 {
   OOPDaemonTask::Read(buf, context);
-  buf.Read (&fProcOrigin);
-  fDepend.Read (buf, 0);
+#warning "Implement me"
+#ifdef LOGPZ
   {
     std::stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Reading request task proc origin " << fProcOrigin << " fProc " << fProc;
     LOG4CXX_DEBUG(logger,sout.str());
   }
+#endif
 }
 TPZSaveable *OOPDMRequestTask::Restore (TPZStream & buf, void * context)
 {
@@ -443,10 +299,11 @@ TPZSaveable *OOPDMRequestTask::Restore (TPZStream & buf, void * context)
 void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
 {
   std::stringstream sout;
-  sout << __PRETTY_FUNCTION__ << " Writing request task proc origin " << fProcOrigin << " fProc " << fProc;
+#ifdef LOGPZ
+ sout << __PRETTY_FUNCTION__ << " Writing request task proc origin " << fProcOrigin << " fProc " << fProc;
   LOG4CXX_DEBUG(logger,sout.str());
+#endif
   OOPDaemonTask::Write (buf, withclassid);
-  buf.Write (&fProcOrigin);
   fDepend.Write (buf);
 
 }

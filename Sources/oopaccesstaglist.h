@@ -13,7 +13,6 @@
 #define OOPACCESSTAGLIST_H
 
 #include "oopaccesstag.h"
-#include "oopdatamanager.h"
 #include <set>
 #include <vector>
 

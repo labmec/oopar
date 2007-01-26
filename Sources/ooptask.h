@@ -2,14 +2,13 @@
 #ifndef TTASKH
 #define TTASKH
 #include <deque>
-//#include "oopsaveable.h"
 #include "ooppardefs.h"
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include "oopaccesstaglist.h"
 #include "pzsave.h"
 #include "tpzautopointer.h"
-class   OOPStorageBuffer;
+class OOPStorageBuffer;
 class OOPAccessTagList;
 using namespace std;
 class   OOPMetaData;

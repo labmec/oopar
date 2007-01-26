@@ -41,6 +41,10 @@ public:
   operator bool ();
   bool operator < (const OOPAccessTag & compare) const;
   bool CanExecute();
+  int Proc()
+  {
+   return fProcessor;
+  }
 private:
   /**
    * Describes the type of access state 

@@ -15,6 +15,7 @@
 #include "oopobjectid.h"
 #include <pthread.h>
 #include "tpzautopointer.h"
+
 class TPZSaveable;
 class   OOPStorageBuffer;
 class   OOPStorageBuffer;
@@ -24,6 +25,14 @@ class   OOPMetaData;
 class   OOPDMOwnerTask;
 class   OOPDMRequestTask;
 class   OOPCurrentLocation;
+
+enum DMMessageType {
+  EDMData,
+  EDMOwner,
+  EDMRequest
+};
+
+
 /**
  * Implements all the data management in the OOPar environment.
  * Acts as daemon in all processors which are part of the parallel environment.
@@ -57,13 +66,22 @@ public:
    */
   void ObjectChanged(std::set<OOPObjectId> & set);
   /**
-   * Submits a object to the DataManager.
-   * In this case, the object won't be assigned a new Id
+   * The following three methods appends objects to the fMessages list.
+   * Each of them submits messages of a different type.
+   * SubmitData appends a changed Saveable object,it differs from SubmitObject which returns a ObjectId.
+   * In this case the Object identified in the Tag already has a Id assigned to it.
    */
-  void SubmitData(OOPAccessTag & tag);
-  
-  void SubmitOwnerMessage(OOPAccessTag &tag);
-  void SubmitAccessRequest(OOPAccessTag & depend);
+  void PostData(OOPAccessTag & tag);
+  /**
+   * SubmitOwnerMessage appends a OwnerMessage to the list. OwnerMessages are basically instructions to the DM concerning
+   * some data. Later on the DM perform the required action.
+   */
+  void PostOwnerMessage(OOPAccessTag &tag);
+  /**
+   * Submits access requests to the objects maintained by the DM
+   * The object to which the AccessRequest is related to is identified on the Tag parameter
+   */
+  void PostAccessRequest(OOPAccessTag & depend);
   /**
    * Return the processor id which owns the current object
    */
@@ -78,8 +96,14 @@ public:
    * @param trace : Indicates if submited object is traceable or not
    */
   OOPObjectId SubmitObject (TPZSaveable * obj);
-private:
-public:
+  /**
+   * Moves all Posted objects from the fMessages list to the fObjects list
+   * It actually processes messages translating them in actions.
+   */
+  void SubmitAllObjects();
+  void ExtractObjectFromTag(OOPAccessTag & tag);
+  void ExtractOwnerTaskFromTag(OOPAccessTag & tag);
+  void ExtractRequestFromTag(OOPAccessTag & tag);
   /**
    * Processes the updated access information from the other processors
    * @param *task Pointer to the task which (Undocumented)
@@ -90,6 +114,7 @@ public:
    * @param *task Pointer to task which (Undocumented)
    */
   void    GetUpdate (OOPDMRequestTask * task);
+  
 private:
   /**
    * Processor where the processor is located.
@@ -110,17 +135,12 @@ private:
   /**
    * Collections of objects
    */
-  map < OOPObjectId, OOPMetaData *> fObjects;
-  /**
-   * Recently submitted objects
-   * Still not available for the TM.
-   */
-  list <OOPMetaData * > fSubmittedObjects;
+  map < OOPObjectId, OOPMetaData > fObjects;
   /**
    * Holds MetaData objects which had been changed.
    * DM receives those object at the end of a task execution
    */
-  list <OOPMetaData * > fChangedObjects;
+  list <OOPObjectId> fChangedObjects;
   /**
    * Generates a new object ID
    */
@@ -138,11 +158,7 @@ public:
    */
   //    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
 private:
-  /**
-   * Mutex for accessing the fSubmittedObjects queue.
-   * Prevents simultaneos access to such queue.
-   */
-  pthread_mutex_t fDataMutex;
+
   
   std::list< std::pair<int, OOPAccessTag> > fMessages;
 
@@ -192,7 +208,7 @@ public:
   /**
    * Constructor
    */
-  OOPDMRequestTask (int proc, const OOPAccessTag & depend);
+  OOPDMRequestTask (const OOPAccessTag & depend);
   OOPDMRequestTask (const OOPDMRequestTask & task);
   OOPDMRequestTask () ;
     

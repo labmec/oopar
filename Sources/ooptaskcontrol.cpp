@@ -23,7 +23,6 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
   if (task) {
     fTaskId = task->Id();
     fClassId = task->ClassId();
-    fDataDepend = task->GetDependencyRequests();
 #ifdef LOGPZ  
     stringstream sout;
     sout << "The data dependency of the task control for task id " << task->Id();
@@ -53,7 +52,16 @@ void OOPTaskControl::Execute()
   }
 }
 
-void OOPTaskControl::UpdateVersions(){
+void OOPTaskControl::UpdateVersions()
+{
+  fTask->ClearDependentData();  
+#ifdef LOGPZ
+  stringstream sout;
+  sout << "Leaving UpdateVersion";
+  LOGPZ_DEBUG(logger, sout.str());
+#endif      
+}
+/*
   int i = 0;
   int size = TaskDepend().NElements();
   for(i=0;i<size;i++)
@@ -73,18 +81,12 @@ void OOPTaskControl::UpdateVersions(){
       TaskDepend().Dep(i).ObjPtr()->SubmitVersion(nextver, objptr);
     }
   }
-  fTask->ClearDependentData();  
-#ifdef LOGPZ
-  stringstream sout;
-  sout << "Leaving UpdateVersion";
-  LOGPZ_DEBUG(logger, sout.str());
-#endif      
-}
+
+*/
 void OOPTaskControl::Print(std::ostream & out)
 {
   out << "TaskId:" << fTask->Id().GetId()
     << ":Proc:" << fTask->Id().GetProcId() << ":ClassId:" << fTask->ClassId() << ":Dependency:";
-  fDataDepend.Print(out);
 }
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {

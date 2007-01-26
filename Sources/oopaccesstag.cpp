@@ -39,15 +39,15 @@ bool OOPAccessTag::IsMyAccessTag(const OOPAccessTag & granted)
   if(!(fTaskId == granted.fTaskId)) return false;
   return true; 
 }
-void OOPAccessTag::Write (TPZStream  & buf)
+void OOPAccessTag::Write (TPZStream  & buf, int withclassid)
 {
-  fObjectId.Write (buf);
-  fTaskId.Write( buf);
+  fObjectId.Write (buf,withclassid);
+  fTaskId.Write( buf,withclassid);
   int need = fAccessMode; 
   buf.Write (&need);
   int proc = fProcessor;
   buf.Write(&proc);
-  fVersion.Write(buf);
+  fVersion.Write(buf,withclassid);
   if(fObjectAutoPtr)
   {
     fObjectAutoPtr->Write(buf, 1);
@@ -62,14 +62,14 @@ void OOPAccessTag::Write (TPZStream  & buf)
    */
 void OOPAccessTag::Read (TPZStream & buf, void * context)
 {
-  fObjectId.Read (buf);
-  fTaskId.Read(buf);
+  fObjectId.Read (buf,context);
+  fTaskId.Read(buf,context);
   int need = 0;
   buf.Read (&need);
   fAccessMode = (OOPMDataState) need;
   int proc = 0;
   buf.Read(&proc);
   fProcessor = proc;
-  fVersion.Read(buf);
+  fVersion.Read(buf,context);
   this->fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(TPZSaveable::Restore(buf, context));
 }

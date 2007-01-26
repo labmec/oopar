@@ -10,7 +10,7 @@
 //
 //
 #include "oopsnapshottask.h"
-//#include "oopdatamanager.h"
+#include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 
 

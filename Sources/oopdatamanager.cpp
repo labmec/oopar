@@ -5,6 +5,8 @@
 #include "ooppardefs.h"
 #include "oopcommmanager.h"
 
+#include "oopdmlock.h"
+
 #include <map>
 #include <stdlib.h>
 
@@ -42,27 +44,16 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDataManager"));
 #endif
 
+
 OOPDataManager::OOPDataManager(int Procid)
 {
   fProcessor = Procid;
   fObjId.SetProcId (Procid);
   fLastCreated = 0;	// NUMOBJECTS * Procid;
-  pthread_mutex_init(&fDataMutex, NULL);
 }
 
 OOPDataManager::~OOPDataManager ()
 {
-  map< OOPObjectId,  OOPMetaData * >::iterator i=fObjects.begin ();
-  for(;i!=fObjects.end();i++){
-#ifdef LOGPZ    
-  stringstream sout;
-  sout << "Deleting object " << i->first << " meta data ";
-  i->second->Print(sout);
-  LOGPZ_DEBUG(logger,sout.str().c_str());
-#endif  
-//    i->second->ClearAllVersions();
-    delete (i->second);
-  }
   fObjects.clear ();
 #ifdef LOGPZ    
   stringstream sout;
@@ -71,9 +62,20 @@ OOPDataManager::~OOPDataManager ()
 #endif  
 }
 
-void OOPDataManager::SubmitAccessRequest(OOPAccessTag & depend)
+void OOPDataManager::PostAccessRequest(OOPAccessTag & depend)
 {
-#warning "Still needs implementation"
+  std::pair<int, OOPAccessTag> item(EDMRequest, depend);
+  OOPDMLock lock;
+  fMessages.push_back(item);
+}
+
+
+void OOPDataManager::PostOwnerMessage(OOPAccessTag & tag)
+{
+  std::pair<int, OOPAccessTag> item(EDMOwner, tag);
+  OOPDMLock lock;
+  fMessages.push_back(item);
+}
 
 // vamos colocar o objeto numa pilhaCM
 // retornaCM
@@ -82,9 +84,9 @@ void OOPDataManager::SubmitAccessRequest(OOPAccessTag & depend)
 
 // identificar o objectid
 
-  map <OOPObjectId, OOPMetaData * >::iterator i;
+/*  map <OOPObjectId, OOPMetaData * >::iterator i;
   i=fObjects.find(depend.Id());
-  if(i!=fObjects.end()){}
+  if(i!=fObjects.end()){}*/
   // achei o objeto
   // submeter o pedido ao objeto, fim de papo
   
@@ -93,12 +95,12 @@ void OOPDataManager::SubmitAccessRequest(OOPAccessTag & depend)
   // cria o objeto metadataCM1 
   // submeta o tag
   // fim de papo 
-}
-void OOPDataManager::SubmitData(OOPAccessTag & tag)
+//}
+void OOPDataManager::PostData(OOPAccessTag & tag)
 {
-#warning "Still needs implementation"
-  //fChangedObjects
-
+  std::pair<int, OOPAccessTag> item(EDMData, tag);
+  OOPDMLock lock;
+  fMessages.push_back(item);
 }
 //void OOPDataManager::
 OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj)
@@ -107,7 +109,7 @@ OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj)
   OOPObjectId id = DM->GenerateId ();
 
   OOPAccessTag tag(id,ptr);
-  SubmitData(tag);
+  PostData(tag);
 #ifdef DEBUG
   if(!CM->GetProcID())
     {
@@ -181,29 +183,82 @@ void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
     LOGPZ_INFO(logger,sout.str());
 #endif    
   }
-  SubmitOwnerMessage( task->fTag);
+  PostOwnerMessage( task->fTag);
 }
 void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 {
-    SubmitAccessRequest (task->fDepend);
+    PostAccessRequest (task->fDepend);
 }
 OOPObjectId OOPDataManager::GenerateId ()
 {
-#warning "colocar mutex"
-  fLastCreated++;
+  int localValue = 0;
+  {
+    OOPDMLock lock;
+    fLastCreated++;
+    localValue = fLastCreated;
+  }
   OOPObjectId obj(GetProcID (), fLastCreated);
   return obj;
 }
 
 void OOPDataManager::ObjectChanged(std::set<OOPObjectId> & set)
 {
-#warning "Not implemented"
+  std::list<OOPObjectId>::iterator it;
+  for(it = fChangedObjects.begin();it != fChangedObjects.end(); it ++)
+  {
+    ObjectChanged(*it);
+  }
 }
 
 void OOPDataManager::ObjectChanged(OOPObjectId & Id)
 {
-#warning "Still needs implementation"
-  //fChangedObjects.push(Id);
+  fChangedObjects.push_back(Id);
+}
+void OOPDataManager::ExtractObjectFromTag(OOPAccessTag & tag)
+{
+  fObjects[tag.Id()].SubmitTag(tag);
+}
+void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
+{
+#warning "Take the intended action for that OwnerTask, according to the OOPMetaData"
+  OOPDMOwnerTask otask(tag);
+  fObjects[tag.Id()].HandleMessage(otask);
+}
+void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
+{
+}
+void OOPDataManager::SubmitAllObjects()
+{
+  std::list< std::pair<int, OOPAccessTag> > tempList;
+  {
+    OOPDMLock lock;
+    tempList = fMessages;
+  }
+  std::list< std::pair<int, OOPAccessTag> >::iterator it;
+  for(it = tempList.begin(); it!=tempList.end();it++)
+  {
+    switch(it->first)
+    {
+      case EDMData:
+      {
+        ExtractObjectFromTag(it->second);
+      }
+      break;
+      case EDMOwner:
+      {
+        ExtractOwnerTaskFromTag(it->second); 
+      }
+      break;
+      case EDMRequest:
+      {
+        ExtractRequestFromTag(it->second);
+      }
+      break;
+      default:
+      {
+      }
+    }
+  }
 }
 
 
@@ -234,8 +289,8 @@ OOPDMOwnerTask::~OOPDMOwnerTask()
   }
 }
 //***********************************************************************
-OOPDMRequestTask::OOPDMRequestTask (int proc,
-				    const OOPAccessTag & depend):OOPDaemonTask (proc), fDepend(depend)
+OOPDMRequestTask::OOPDMRequestTask (const OOPAccessTag & depend)
+:OOPDaemonTask (depend.Proc()), fDepend(depend)
 {
   //fProcOrigin = DM->GetProcId();
 
@@ -249,13 +304,11 @@ OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
 }
 void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 {
-#warning "Implement me"
   OOPDaemonTask::Read (buf, context);
-  char type;
+  fTag.Read( buf, context);
 }
 void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 {
-#warning "Implement me"
   {
 #ifdef LOGPZ    
     stringstream sout;
@@ -267,6 +320,7 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 #endif    
   }
   OOPDaemonTask::Write (buf, withclassid);
+  fTag.Write( buf, withclassid);
 }
 OOPMReturnType OOPDMOwnerTask::Execute ()
 {
@@ -281,7 +335,7 @@ OOPMReturnType OOPDMRequestTask::Execute ()
 void OOPDMRequestTask::Read(TPZStream & buf, void * context)
 {
   OOPDaemonTask::Read(buf, context);
-#warning "Implement me"
+  fDepend.Read( buf, context);
 #ifdef LOGPZ
   {
     std::stringstream sout;
@@ -304,7 +358,7 @@ void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
   LOG4CXX_DEBUG(logger,sout.str());
 #endif
   OOPDaemonTask::Write (buf, withclassid);
-  fDepend.Write (buf);
+  fDepend.Write (buf, withclassid); 
 
 }
 
@@ -312,3 +366,4 @@ void OOPDMRequestTask::LogMe(std::ostream & out){
   out << " Depend " << fDepend;
   out << " fProc " << fProc;
 }
+

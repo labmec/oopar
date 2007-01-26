@@ -157,14 +157,23 @@ TPZAutoPointer<TPZSaveable> OOPMetaData::Ptr (const OOPDataVersion & version)
   }
 }
 
+void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
+{
+  if(!(fObjId))
+  {
+    fObjId = Tag.Id();
+  }
+  SubmitVersion(Tag.GetPointer(), Tag.Version());
+}
+
 void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr, const OOPDataVersion & nextversion )
 {
 #ifdef LOGPZ
-      {
-      stringstream sout;
-      sout << "Submitting object id " << Id() << " classid " << NewPtr->ClassId();
-      LOGPZ_DEBUG(logger, sout.str());
-      }
+  {
+    stringstream sout;
+    sout << "Submitting object id " << Id() << " classid " << NewPtr->ClassId();
+    LOGPZ_DEBUG(logger, sout.str());
+  }
 #endif
   //std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::iterator it;
     if(fAvailableVersions.find(nextversion)==fAvailableVersions.end())
@@ -238,7 +247,10 @@ void OOPMetaData::VerifyAccessRequests ()
   {
     if(tag.Proc() != DM->GetProcID())
     {
-#warning "to be implemented"
+#warning "Verify sending of OwnerTask here"
+      OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
+      otask->Submit();
+      
       // send an owner task with the new version, so that tasks will be canceled there
     }
     else
@@ -262,8 +274,8 @@ void OOPMetaData::VerifyAccessRequests ()
     } 
     else
     {
-#warning "to be implemented"
-      // create an ownertask based on the tag
+      OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
+      otask->Submit();
     }
     tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
   }

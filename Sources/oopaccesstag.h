@@ -41,7 +41,7 @@ public:
   operator bool ();
   bool operator < (const OOPAccessTag & compare) const;
   bool CanExecute();
-  int Proc()
+  int Proc() const
   {
    return fProcessor;
   }
@@ -78,13 +78,13 @@ private:
        * @param proc Processor where the access should occur
    */
 public:
-  void Write (TPZStream  & buf);
+  void Write (TPZStream  & buf, int withclassid);
   void Read (TPZStream & buf, void * context);
   TPZSaveable * GetPointer();
   bool IsMyAccessTag(const OOPAccessTag & granted);
   void ClearPointer()
   {
-    fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(0);
+    fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(0); 
   }
   
   void IncrementVersion()

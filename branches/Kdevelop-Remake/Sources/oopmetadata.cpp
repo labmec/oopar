@@ -319,7 +319,6 @@ void OOPMetaData::SetId (OOPObjectId & id)
 }
 void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 {
- /*
   {
 #ifdef LOGPZ    
     stringstream sout;
@@ -327,29 +326,15 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
-  switch(ms.fType) {
+  switch(ms.fTag.AccessMode() ) {
     case EGrantReadAccess:
     {
-/*      if(fObjPtr && ms.fObjPtr)
+      if(ms.fTag.GetPointer())
       {
-        LOGPZ_WARN(logger, "Receives the pointer to the object again!");
-        if(ms.fProcOrigin != fProc || !(fVersion == ms.fVersion))
-        {
-#ifdef LOGPZ          
-          stringstream sout;
-          sout << __PRETTY_FUNCTION__ << "incompatible ownertask for obj " << fObjId << " version " << fVersion <<
-              " ms.fVersion " << ms.fVersion << " fProc " << fProc << " ms.fProcOrigin " << ms.fProcOrigin;
-          LOGPZ_ERROR(logger,sout.str());
-#endif          
-        }
-      }*/
-     /*
-      if(ms.fObjPtr)
-      {
-        //fObjPtr = ms.fObjPtr;
-        SubmitVersion(ms.fObjPtr,ms.fVersion);
+        SubmitVersion(ms.fTag.GetPointer(),ms.fTag.Version());
       }
-      fProc = ms.fProcOrigin;
+      fProc = ms.fTag.Proc();
+#warning "Formerly ProcOrigim from OwnerTask"//      fProcOrigin;
       {
 #ifdef LOGPZ        
         stringstream sout;
@@ -362,7 +347,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     }
     case ETransferOwnership:
     {
-      if(Ptr(ms.fVersion))
+      if(Ptr(ms.fTag.Version()))
       {
         LOGPZ_ERROR(logger, "Receiving transfer ownership for existing object !");
       }
@@ -374,11 +359,9 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
         LOGPZ_INFO(logger,sout.str());
 #endif 
       }
-      // isto deveria pelo menos gerar um log...
-      //if(fObjPtr && ms.fObjPtr) delete fObjPtr;
-      if(ms.fObjPtr)
-      {// fObjPtr = ms.fObjPtr;
-        SubmitVersion(ms.fVersion, ms.fObjPtr);
+      if(ms.fTag.GetPointer())//fObjPtr)
+      {
+        SubmitVersion(ms.fTag.GetPointer(), ms.fTag.Version() );
       }
       fProc = DM->GetProcID();
       this->VerifyAccessRequests();
@@ -394,7 +377,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     }
     break;
   }
-      */
+     
 }
 
 

@@ -15,11 +15,12 @@ lib_LIBRARIES = liboopar.a
 
 liboopar_a_SOURCES =
 
-liboopar_a_LIBADD = ../Sources/oopdatamanager.o ../Sources/ooptaskmanager.o \
-	../Sources/oopdataversion.o ../Sources/ooperror.o ../Sources/oopmetadata.o ../Sources/oopobjectid.o \
-	../Sources/oopparclass.o ../Sources/oopstorage.o ../Sources/oopstore.o \
-	../Sources/ooptask.o ../Sources/ooptaskdependlist.o ../Sources/oopmdatadepend.o ../Sources/ooptaskcontrol.o \
-	../Sources/oopaccessinfo.o ../Sources/ooppardefs.o \
-	../Sources/oopwaittask.o  ../Sources/oopmpicomm.o ../Sources/oopmpistorage.o \
-  ../Sources/ooperror.o ../Sources/OOPInt.o ../Sources/OOPDouble.o ../Sources/oopcommmanager.o ../Sources/OOPVector.o ../Sources/oopevtid.o ../Sources/oopevtmanager.o ../Sources/oopsnapshottask.o 
+liboopar_a_LIBADD = ../Sources/oopaccesstaglist.o ../Sources/oopaccesstag.o \
+	../Sources/oopdatamanager.o ../Sources/ooptaskmanager.o ../Sources/oopdataversion.o \
+	../Sources/ooperror.o ../Sources/oopmetadata.o ../Sources/oopobjectid.o \
+	../Sources/oopparclass.o ../Sources/oopstorage.o ../Sources/oopstore.o ../Sources/ooptask.o \
+	../Sources/ooptaskcontrol.o ../Sources/ooppardefs.o ../Sources/oopwaittask.o \
+	../Sources/oopmpicomm.o ../Sources/oopmpistorage.o ../Sources/ooperror.o ../Sources/OOPInt.o \
+	../Sources/OOPDouble.o ../Sources/oopcommmanager.o ../Sources/OOPVector.o \
+	../Sources/oopevtid.o ../Sources/oopevtmanager.o ../Sources/oopsnapshottask.o
 ## --| OOPar |------------------------------------------------------------------

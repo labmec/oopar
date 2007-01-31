@@ -255,13 +255,12 @@ void OOPMetaData::VerifyAccessRequests ()
     }
     else
     {
-      OOPObjectId taskid = tag.Id();
 #ifdef LOGPZ
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << taskid;
       LOG4CXX_DEBUG(logger,sout.str());
 #endif
-      TM->CancelTask (taskid);
+      TM->CancelTask(tag);
     }
     tag = fAccessList.IncompatibleRequest(version);
   }

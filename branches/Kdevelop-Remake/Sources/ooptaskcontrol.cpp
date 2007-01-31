@@ -4,7 +4,7 @@
 #include "ooptask.h"
 #include "ooperror.h"
 #include "ooptaskmanager.h"
-
+#include "ooptmlock.h"
 #include <sstream>
 #include <pzlog.h>
 #ifdef LOGPZ
@@ -122,7 +122,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   }
 #endif
   {
-  TMLock lock;
+  OOPTMLock lock;
   tc->UpdateVersions();
   }
 #ifdef LOGPZ
@@ -145,7 +145,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   }
 #endif
 
-  TMLock lock;
+  OOPTMLock lock;
   //cout << __PRETTY_FUNCTION__ << " after lock for task" << tc->fTask->Id() << endl;
   //tc->fTask->SetExecuting(false);
   tc->fExecFinished =1;
@@ -156,7 +156,6 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
     LOGPZ_DEBUG(logger,sout.str());
   }
 #endif
-  TM->Signal(lock);
   return 0;
 }
 

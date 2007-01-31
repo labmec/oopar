@@ -183,7 +183,6 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 			  cout.flush();*/
       LocalCM->Finish("ReceiveBlocking <receive error>");
     }
-    TM->WakeServiceThread();
 #ifdef DEBUG
     {
 #ifdef LOGPZ    

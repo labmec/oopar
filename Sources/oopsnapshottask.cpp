@@ -12,7 +12,7 @@
 #include "oopsnapshottask.h"
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
-
+#include "ooptmlock.h"
 
 OOPSnapShotTask::~OOPSnapShotTask()
 {
@@ -22,7 +22,7 @@ OOPSnapShotTask::~OOPSnapShotTask()
 OOPMReturnType OOPSnapShotTask::Execute(){
   cout << "Executing Task SnapShotTask on Processor " << fProc << endl;
   cout.flush();
-  TMLock lock;
+  OOPTMLock lock;
   DM->SnapShotMe();
   TM->SnapShotMe();
   IncrementWriteDependentData();

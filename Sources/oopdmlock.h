@@ -14,8 +14,6 @@
 #include "pthread.h"
 /**
 Implements a Mutex for thread safe access on the DM data structure
-
-	@author Edimar Cesar Rylo <ecrylo@uol.com.br>
 */
 class OOPDMLock{
 public:

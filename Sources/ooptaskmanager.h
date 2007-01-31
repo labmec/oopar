@@ -18,6 +18,13 @@ using namespace std;
 class OOPObjectId;
 class TMLock;
 
+
+enum TMMessageType {
+  ETMAccessGranted,
+  ETMCancelTask,
+};
+
+
 struct SszQueues
 {
   int fWaiting_sz;
@@ -49,10 +56,6 @@ class OOPTaskManager
   friend class OOPTask;
 public:
   ofstream * fMainLog;
-  
-  void WakeServiceThread(){
-    sem_post(&fServiceSemaphore);
-  }
   /**
    * Dumps on disk the current state of the Manager object
    */
@@ -86,40 +89,20 @@ public:
    */
   void CleanUpTasks ();
   /**
-   * Used for testing purposes.
-   * Checks all the public interfaces of the class
-   */
-  static void main ();
-  /**
-   * Notifies the task that a required access was granted on the data.
-   * @param TaskId Id of the task to which the access was granted.
-   * @param depend dependency structure including objectid, state and version.
-   * @param objptr Pointer to data object.
-   */
-  void NotifyAccessGranted (const OOPAccessTag & depend);
-  /**
-   * Notifies the task that a required access was revoked on the data.
-   * @param TaskId Id of the task to which the access was granted.
-   * @param depend dependency structure including objectid, state and version.
-   */
-  void RevokeAccess (const OOPObjectId & TaskId,
-		     const OOPAccessTag & depend);
-  /**
    * Constructor passing processor id as parameter.
    * @param proc Processor where the TM is created.
    */
-    OOPTaskManager (int proc);
+  OOPTaskManager (int proc);
   /**
    * Simple destructor
    */
-   ~OOPTaskManager ();
+  ~OOPTaskManager ();
   /**
    * Submits a task to the TaskManager.
    * Assigns to that task a unique Id on the environment.
    * @param task Pointer to the submitted task.
    */
 protected:
-    OOPObjectId SubmitOriginal (OOPTask * task);
 
     OOPObjectId Submit (OOPTask * task);
 public:
@@ -141,22 +124,14 @@ public:
    */
   int GlobalNumberOfTasks();
   /**
-   * Changes the priority of the task identified by Id.
-   * @param Id Id of the task having its priority changed.
-   * @param newpriority New priority assigned to the task.
+   * Inserts in the fMessages list an instruction for the cancelation of a Task.
+   * @param tag Tag contains the Id of the task which will be canceled.
    */
-  int ChangePriority (OOPObjectId & Id, int newpriority);
-  /**
-   * Cancels the task.
-   * @param taskid Id of task which will be canceled.
-   */
-  int CancelTask (OOPObjectId taskid);
-  /**
-   * Returns 1 if task does exist on the current TM
-   * @param taskid Id of the searched task
-   */
-  int ExistsTask (OOPObjectId taskid);	// returns 1 if the
+  void CancelTask (OOPAccessTag & tag);
 
+  /**
+   * Transfer Tasks from the Executing tasks list to the Finished tasks list
+   */
   void TransferExecutingTasks ();
   /**
    * Transfer the tasks which are in the fSubmittedList to the
@@ -187,20 +162,17 @@ public:
 
   static void *ExecuteMT (void *data);
 
-  /**
-   * This method will grab the fSubmittedMutex
-   */
-  void Lock (TMLock & obj);
-  /**
-   * This method will signal the condition variable
-   */
-  void Signal (TMLock & obj);
-  /**
-   * This method will release the fSubmittedMutex
-   */
-  void Unlock (TMLock & obj);
   void GrantAccess(OOPAccessTag & tag);
 private:
+  /**
+   * Post the ServiceThread semaphore
+   * Service thread now sleeps based on a semaphore type
+   * Semaphore are used instead of mutex and conditional variables combined.
+   * Semaphores avoid deadlocking in the cond_signal, cond_wait, mutex_lock and unlocking
+   */
+  void WakeServiceThread(){
+    sem_post(&fServiceSemaphore);
+  }
 
   /** 
    * Max number of threads
@@ -219,25 +191,11 @@ private:
    * Indicates if TM must continue its processing
    */
   bool fKeepGoing;
-  /**
-   * Mutual exclusion lock for the service thread
-   */
-  pthread_mutex_t fServiceMutex;
-  /**
-   * Mutual exclusion lock for the fSubmittedList queue
-   */
-  pthread_mutex_t fSubmittedMutex;
-
-  /**
-  * Condition variable to put the taskmanager thread to sleep
-  */
-  //pthread_cond_t fExecuteCondition;
   
-  sem_t fServiceSemaphore;
   /**
-   * The lock object currently holding the mutex
+   * Semaphore for the ServiceThread
    */
-  TMLock *fLock;
+  sem_t fServiceSemaphore;
 
   /**
    * Generate a unique id number
@@ -249,10 +207,6 @@ private:
   OOPTask *FindTask (OOPObjectId taskid);	// 
   /**
    * reorder the tasks according to their priority
-   */
-  void Reschedule ();
-  /**
-   * Processor where the current object is located
    */
   int fProc;
   /**
@@ -267,48 +221,34 @@ private:
   /**
    * List of tasks which can't be executed yet
    */
-    list < OOPTaskControl * >fTaskList;
+  list < OOPTaskControl * >fTaskList;
   /**
    * List of tasks which can be readily executed
    */
-    list < OOPTaskControl * >fExecutable;
-    list < OOPTaskControl * >fExecuting;
+  list < OOPTaskControl * >fExecutable;
+  list < OOPTaskControl * >fExecuting;
 
   /**
    * List of daemon tasks which can be readily executed
    */
-    list < OOPDaemonTask * >fDaemon;
+  list < OOPDaemonTask * >fDaemon;
   /**
    * List of tasks recently submitted
    */
-    list < OOPTask * >fSubmittedList;
+  list < OOPTask * >fSubmittedList;
   /**
    * List of finished tasks
    */
-    list < OOPTaskControl * >fFinished;
+  list < OOPTaskControl * >fFinished;
+  /**
+   * Holds a list of messages to the TM
+   * The messages are translated in actions to the Tasks on TM
+   * The list is composed by pairs of Type and AccessTags.
+   * Types can be TMAccessGranted or TMCancelTask
+   */
+  std::list <std::pair< TMMessageType, OOPAccessTag> > fMessages;
 };
 
-/**
- * Class which implements a lock on the task manager data structure
- */
-class TMLock
-{
-public:
-  /**
-   * This method will grab the mutex of the task manager
-   */
-  TMLock ();
-
-  /**
-   * The destructor will release the mutex
-   */
-  ~TMLock ();
-
-  /**
-   * This method will signal the condition of the task manager
-   */
-  void Signal ();
-};
 
 class OOPTerminationTask:public OOPTask
 {

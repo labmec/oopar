@@ -1,6 +1,4 @@
 #include "ooptaskcontrol.h"
-
-
 #include "ooptask.h"
 #include "ooperror.h"
 #include "ooptaskmanager.h"
@@ -11,6 +9,10 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
+#endif
+
+#ifdef OOP_MPE
+#include "oopevtmanager.h"
 #endif
 
 #include "oopcommmanager.h"
@@ -26,7 +28,7 @@ OOPTaskControl::OOPTaskControl (OOPTask * task):fTask (task)
 #ifdef LOGPZ  
     stringstream sout;
     sout << "The data dependency of the task control for task id " << task->Id();
-    fDataDepend.Print(sout);
+    Task()->PrintDependency(sout);
     LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
@@ -95,7 +97,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   stringstream sout;
   sout << "T:" << tc->fTask->Id().GetId()
     << ":" << tc->fTask->Id().GetProcId() << ":C:" << tc->fTask->ClassId() << ":D:";
-  tc->fDataDepend.ShortPrint(sout);
+  tc->Task()->PrintDependency(sout);
   OOPStateEvent evt("taskexec",sout.str());
 #endif
 #ifdef LOGPZ  
@@ -110,6 +112,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   // the task finished executing!!!!
   //cout << __PRETTY_FUNCTION__ << " before lock for task " << tc->fTask->Id() << endl;
   OOPObjectId id = tc->fTask->Id();
+  int lClassId = tc->fTask->ClassId();
   //Guardar versoes dos dados
   //Associando TaskDependList com DataDependList
   //Objetos com WriteAccess sao atualizados com as novas versoes

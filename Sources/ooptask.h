@@ -58,6 +58,9 @@ public:
    */
   void PrintLog(std::ostream & out = std::cout, char * message = "empty log message");
   void Print (std::ostream & out = std::cout);
+  void PrintDependency(std::ostream & out){
+    fDependRequest.Print(out);
+  }
   /**
    * This method is called when a task terminates its execution
    * Update information such as data access, ownership etc pending on that task.

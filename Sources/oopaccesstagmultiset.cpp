@@ -20,4 +20,12 @@ OOPAccessTagMultiSet::~OOPAccessTagMultiSet()
 {
 }
 
+void OOPAccessTagMultiSet::Print(std::ostream & out) const
+{
+  std::multiset<OOPAccessTag>::iterator it;
+  for(it = fTagMultiSet.begin(); it != fTagMultiSet.end(); it++)
+  {
+    it->Print(out);
+  }
+}
 

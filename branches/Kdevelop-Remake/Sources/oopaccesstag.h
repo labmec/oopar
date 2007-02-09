@@ -157,7 +157,7 @@ public:
                         && fVersion == other.fVersion
                         && fProcessor == other.fProcessor);
   }
-  void Print (std::ostream & out = std::cout)
+  void Print (std::ostream & out = std::cout) const
   {
     out << "Data State " << fAccessMode << endl;
     out << "Processor " << fProcessor << endl;

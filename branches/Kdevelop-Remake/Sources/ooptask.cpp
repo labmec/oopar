@@ -131,7 +131,7 @@ OOPTask::Write (TPZStream & buf, int withclassid)
   buf.Write (&fProc);		// Processor where the task should be
   // executed
   buf.Write (&fIsRecurrent);
-  fDependRequest.Write (buf);
+  fDependRequest.Write(buf, withclassid);
 
 }
 
@@ -172,6 +172,5 @@ OOPTask::IncrementWriteDependentData ()
 
 void OOPTask::SubmitDependencyList()
 {
-// DM->SubmitAccessRequest();
-#warning "Submit Tags to the DM containing AccessTags for access requirements
+  fDependRequest.PostRequests();
 }

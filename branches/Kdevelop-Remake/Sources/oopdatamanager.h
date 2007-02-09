@@ -68,8 +68,8 @@ public:
   /**
    * The following three methods appends objects to the fMessages list.
    * Each of them submits messages of a different type.
-   * SubmitData appends a changed Saveable object,it differs from SubmitObject which returns a ObjectId.
-   * In this case the Object identified in the Tag already has a Id assigned to it.
+   * PostData appends a changed Saveable object,it differs from SubmitObject which returns a ObjectId.
+   * In this case the Object identified in the Tag already has an Id assigned to it.
    */
   void PostData(OOPAccessTag & tag);
   /**

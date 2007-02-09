@@ -68,12 +68,13 @@ public:
     return fTagList.size();
   }
   void Print(std::ostream & out);
-  void Read (TPZStream & buf, void *context);
-  void Write (TPZStream & buf);
+  void Read(TPZStream & buf, void *context);
+  void Write(TPZStream & buf, int withclassid);
   /**
    * After Incrementing the DataVersions. All new versions has to be submitted to the DM
    */
   void SubmitIncrementedVersions();
+  void PostRequests();
 private:
   /**
    * Holds the list the OOPAccessTag objects

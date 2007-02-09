@@ -257,7 +257,7 @@ void OOPMetaData::VerifyAccessRequests ()
     {
 #ifdef LOGPZ
       stringstream sout;
-      sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << taskid;
+      sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << tag.Id() ;
       LOG4CXX_DEBUG(logger,sout.str());
 #endif
       TM->CancelTask(tag);
@@ -321,7 +321,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
   {
 #ifdef LOGPZ    
     stringstream sout;
-    sout << "Calling HandleMessage for obj " << fObjId << " message type " << ms.fType;
+    sout << "Calling HandleMessage for obj " << ms.fTag.Id() << " message type " << ms.fTag.AccessMode();
     LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
@@ -337,7 +337,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
 #ifdef LOGPZ        
         stringstream sout;
-        sout << "Grant read access received from proc " << ms.fProcOrigin;
+        sout << "Grant read access received from proc " << ms.fTag.Proc();
         LOGPZ_DEBUG(logger,sout.str());
 #endif        
       }
@@ -353,8 +353,8 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
 #ifdef LOGPZ
         stringstream sout;
-        sout << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fProcOrigin << " with version "<<
-          ms.fVersion << " and pointer " << ms.fObjPtr;
+        sout << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fTag.Proc() << " with version "<<
+          ms.fTag.Version() << " and pointer " << ms.fTag.GetPointer();
         LOGPZ_INFO(logger,sout.str());
 #endif 
       }
@@ -370,7 +370,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
     {
 #ifdef LOGPZ      
       stringstream sout;
-      sout << "OOPMetaData::HandleMessage "<< fObjId << " unhandled message type " << ms.fType;
+      sout << "OOPMetaData::HandleMessage "<< fObjId << " unhandled message type " << ms.fTag.AccessMode();
       LOGPZ_ERROR(logger,sout.str());
 #endif
     }

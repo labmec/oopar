@@ -312,10 +312,10 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
   {
 #ifdef LOGPZ    
     stringstream sout;
-    sout << "Packing Owner task for Obj " << fObjId << " message type " 
-	 << fType << " with objptr " << (fObjPtr != 0) << " version " << fVersion
-	 << " To Proc " << this->fProc;
-    if(fObjPtr) sout << " class id " << fObjPtr->ClassId();
+    sout << "Packing Owner task for Obj " << fTag.Id() << " message type " 
+	 << fTag.AccessMode() << " with objptr " << (fTag.GetPointer() != 0) << " version " << fTag.Version()
+	 << " To Proc " << fTag.Proc();
+    if(fTag.GetPointer()) sout << " class id " << fTag.GetPointer()->ClassId();
     LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
@@ -339,7 +339,7 @@ void OOPDMRequestTask::Read(TPZStream & buf, void * context)
 #ifdef LOGPZ
   {
     std::stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " Reading request task proc origin " << fProcOrigin << " fProc " << fProc;
+    sout << __PRETTY_FUNCTION__ << " Reading request task proc origin " << fDepend.Proc() << " fProc " << fProc;
     LOG4CXX_DEBUG(logger,sout.str());
   }
 #endif
@@ -354,7 +354,7 @@ void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
 {
   std::stringstream sout;
 #ifdef LOGPZ
- sout << __PRETTY_FUNCTION__ << " Writing request task proc origin " << fProcOrigin << " fProc " << fProc;
+ sout << __PRETTY_FUNCTION__ << " Writing request task proc origin " << fDepend.Proc() << " fProc " << fProc;
   LOG4CXX_DEBUG(logger,sout.str());
 #endif
   OOPDaemonTask::Write (buf, withclassid);

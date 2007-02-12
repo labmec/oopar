@@ -161,8 +161,10 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
 {
   if(!(fObjId))
   {
+    cout << " ID already assigned " << Tag.Id() << endl;
     fObjId = Tag.Id();
   }
+  cout << "Submitting Pointer " << Tag.GetPointer() << " with Version " << Tag.Version() << endl; 
   SubmitVersion(Tag.GetPointer(), Tag.Version());
 }
 
@@ -172,6 +174,7 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr, const OOPDa
   {
     stringstream sout;
     sout << "Submitting object id " << Id() << " classid " << NewPtr->ClassId();
+    cout << "Submitting object id " << Id() << " classid " << NewPtr->ClassId();
     LOGPZ_DEBUG(logger, sout.str());
   }
 #endif

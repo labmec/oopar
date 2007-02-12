@@ -11,7 +11,7 @@
 //
 #include "oopdmlock.h"
 
-pthread_mutex_t fLock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t OOPDMLock::fLock = PTHREAD_MUTEX_INITIALIZER;
 
 OOPDMLock::OOPDMLock()
 {

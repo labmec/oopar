@@ -31,17 +31,23 @@ public:
    * Inserts a new OOPAccessTag on the multiset container
    * @param tag : OOPAccessTag to be inserted on the multiset
    */
-  void InsertTag(const OOPAccessTag & tag);
+  void InsertTag(const OOPAccessTag & tag)
+  {
+    fTagMultiSet.insert(tag);
+  }
   /**
    * Returns the amount of elements currently stored on the multiset container
    */
-  int Count();
+  int Count()
+  {
+    return fTagMultiSet.size();
+  }
   /**
    * Returns an OOPAccessTag compatible with the given parameters.
    * @param version : OOPDataVersion against which the possible OOPAccessTag is checked.
    * @param need : The AccessMode required against which the possible OOPAccessTag is checked.
    */
-  OOPAccessTag GetCompatibleRequest(OOPDataVersion & version, OOPMDataState need);
+  OOPAccessTag GetCompatibleRequest(const OOPDataVersion & version, OOPMDataState need);
   /**
    * Returns an Incompatible OOPAccessTag.
    * Incompatibility is checked against the OOPDataVersion parameter.

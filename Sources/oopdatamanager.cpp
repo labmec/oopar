@@ -241,16 +241,19 @@ void OOPDataManager::SubmitAllObjects()
     {
       case EDMData:
       {
+        cout << "Extract Object From Tag " << endl;
         ExtractObjectFromTag(it->second);
       }
       break;
       case EDMOwner:
       {
+        cout << "Extract Owner From Tag " << endl;
         ExtractOwnerTaskFromTag(it->second); 
       }
       break;
       case EDMRequest:
       {
+        cout << "Extract Request From Tag " << endl;
         ExtractRequestFromTag(it->second);
       }
       break;
@@ -260,7 +263,10 @@ void OOPDataManager::SubmitAllObjects()
     }
   }
 }
-
+void OOPDataManager::SnapShotMe()
+{
+#warning "Still requires implementation"
+}
 
 //////////////////////OOPDMOwnerTask////////////////////////////////////////////
 

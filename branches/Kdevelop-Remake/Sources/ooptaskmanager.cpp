@@ -209,14 +209,14 @@ void OOPTaskManager::TransferExecutingTasks ()
 	disparar o thread de execu�o da tarefa.
 */
 
-void *
-OOPTaskManager::ExecuteMT (void *data)
+void * OOPTaskManager::ExecuteMT(void *data)
 {
 #ifdef LOGTIME
   tlog <<
     "time\tsubmitted\twaiting\texecutable\texecuting\tfinished\tdaemon\n";
 #endif
   OOPTaskManager *lTM = static_cast < OOPTaskManager * >(data);
+  cout << " Execute " << __LINE__ << endl;
   sem_init(&lTM->fServiceSemaphore, 0,0);
   DM->SubmitAllObjects ();
   CM->ReceiveMessages ();
@@ -238,10 +238,12 @@ OOPTaskManager::ExecuteMT (void *data)
   lTM->ExecuteDaemons ();
   while (lTM->fKeepGoing || lTM->fExecuting.size())
   {
+    //cout << " Inside first while " << __LINE__ << endl;
     CM->ReceiveMessages ();
     lTM->ExecuteDaemons ();
     while (lTM->fExecutable.size ()  && (int) lTM->fExecuting.size () < lTM->fNumberOfThreads) 
     {
+      cout << " Inside second while " << __LINE__ << endl;
       i = lTM->fExecutable.begin ();
       OOPTaskControl *tc = (*i);
       lTM->fExecutable.erase (i);

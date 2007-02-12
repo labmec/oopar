@@ -39,7 +39,7 @@ public:
 
   ~OOPAccessTag();
   operator bool ();
-  bool operator < (const OOPAccessTag & compare) const;
+  bool operator < (const OOPAccessTag & compare) const{};
   bool CanExecute();
   int Proc() const
   {
@@ -132,7 +132,7 @@ public:
    * Copy constructor
    * @param aci AccessInfo object to be copied
    */
-  OOPAccessTag (const::OOPAccessTag & aci)
+  OOPAccessTag (const OOPAccessTag & aci)
   {
     fTaskId = aci.fTaskId;
     fAccessMode = aci.fAccessMode;

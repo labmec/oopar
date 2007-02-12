@@ -127,13 +127,6 @@ public:
   */
   void AddDependentData (const OOPAccessTag & depend);
   /**
-  * Returns the estimated execution time.
-  * returns 0 if the task is instantaneous
-  * returns > 0 if estimate is known
-  * return < 0 if no estimate is known
-  */
-  virtual long ExecTime ();
-  /**
   * Execute the task, verifying that all needed data acesses are satisfied.
   */
   virtual OOPMReturnType Execute ();

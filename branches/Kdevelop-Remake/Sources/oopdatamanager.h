@@ -178,7 +178,10 @@ public:
    */
   OOPDMOwnerTask ();
   
-  OOPDMOwnerTask (OOPAccessTag &tag);
+  OOPDMOwnerTask (OOPAccessTag &tag)
+  {
+    fTag = tag;
+  }
   
   virtual ~OOPDMOwnerTask();
   virtual OOPMReturnType Execute ();

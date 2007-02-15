@@ -216,14 +216,8 @@ void * OOPTaskManager::ExecuteMT(void *data)
     "time\tsubmitted\twaiting\texecutable\texecuting\tfinished\tdaemon\n";
 #endif
   OOPTaskManager *lTM = static_cast < OOPTaskManager * >(data);
-  cout << " Calling sem_init on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
   sem_init(&lTM->fServiceSemaphore, 0,0);
-  cout << " Called sem_init on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
-  cout << " Calling DM_SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
-  DM->SubmitAllObjects ();
-  cout << " Called DM_SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
   CM->ReceiveMessages ();
-  cout << "Calling transfer submitted tasks on " << __PRETTY_FUNCTION__ << endl;
   lTM->TransferSubmittedTasks ();
   DM->SubmitAllObjects ();
   list < OOPTaskControl * >::iterator i;
@@ -243,7 +237,6 @@ void * OOPTaskManager::ExecuteMT(void *data)
   lTM->ExecuteDaemons ();
   while (lTM->fKeepGoing || lTM->fExecuting.size())
   {
-    cout << " Inside first while " << __LINE__ << endl;
     CM->ReceiveMessages ();
     lTM->ExecuteDaemons ();
     while (lTM->fExecutable.size ()  && (int) lTM->fExecuting.size () < lTM->fNumberOfThreads) 
@@ -269,9 +262,7 @@ void * OOPTaskManager::ExecuteMT(void *data)
     lTM->TransferFinishedTasks ();
     CM->ReceiveMessages ();
 
-    cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->TransferSubmittedTasks ();
-    cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->ExecuteDaemons ();
 
 #ifdef LOGTIME
@@ -606,7 +597,6 @@ OOPTaskManager::SubmitDaemon (OOPDaemonTask * task)
 
 OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 {
-  cout << "Calling Submit on OOPTaskManager ";
   {
 #ifdef LOGPZ
     stringstream sout;
@@ -700,15 +690,11 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
   
   {
     OOPTMLock lock;
-    cout << "Pushing back on TaskManager fSubmittedList --------------- " << endl; 
     fSubmittedList.push_back (task);
-    cout << "fSubmittedList size --------------- " << fSubmittedList.size() << endl;
   }
   //if (!pthread_equal (fExecuteThread, pthread_self ())) {
     //LOGPZ_DEBUG(logger,"Signal within Submit")
     //pthread_cond_signal (&fExecuteCondition);
-  cout << "TM Address on Proc " << fProc << " " << this << endl;
-  cout << "Calling SemPost --------------- " << endl; 
   sem_post(&fServiceSemaphore);
     //LOGPZ_DEBUG(logger,"Unlock within Submit")
   //pthread_mutex_unlock (&fSubmittedMutex);

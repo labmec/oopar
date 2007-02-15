@@ -316,9 +316,13 @@ std::ostream &OOPDataVersion::ShortPrint(std::ostream & out) const {
 }
 OOPDataVersion & OOPDataVersion::operator= (const OOPDataVersion & version)
 {
-	fVersion = version.GetLevelVersion ();
-	fLevelCardinality = version.GetLevelCardinality ();
-	return *this;
+  cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
+  cout << __PRETTY_FUNCTION__ << " fVersion size" << version.fVersion.size() << endl;
+  fVersion = version.fVersion;
+  cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
+  fLevelCardinality = version.fLevelCardinality;
+  cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
+  return *this;
 }
 OOPDataVersion::OOPDataVersion (const::OOPDataVersion & version)
 {
@@ -367,13 +371,13 @@ void OOPDataVersion::Increment ()
 		}
 	}
 }
-vector < int >OOPDataVersion::GetLevelCardinality () const
+vector< int > OOPDataVersion::GetLevelCardinality () const
 {
   return fLevelCardinality;
 }
-vector < int >OOPDataVersion::GetLevelVersion () const
+vector< int > OOPDataVersion::GetLevelVersion () const
 {
-     return fVersion;
+  return fVersion;
 }
 int OOPDataVersion::GetLevelCardinality (int level) const
      {

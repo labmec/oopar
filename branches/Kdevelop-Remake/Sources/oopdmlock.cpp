@@ -10,7 +10,6 @@
 //
 //
 #include "oopdmlock.h"
-
 pthread_mutex_t OOPDMLock::fLock = PTHREAD_MUTEX_INITIALIZER;
 
 OOPDMLock::OOPDMLock()

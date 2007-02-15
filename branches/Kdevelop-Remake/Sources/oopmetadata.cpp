@@ -248,26 +248,33 @@ void OOPMetaData::VerifyAccessRequests ()
   OOPAccessTag tag = fAccessList.IncompatibleRequest(version);
   while (tag)
   {
+    cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
     if(tag.Proc() != DM->GetProcID())
     {
+      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
 #warning "Verify sending of OwnerTask here"
       OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
+      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
       otask->Submit();
-      
-      // send an owner task with the new version, so that tasks will be canceled there
+      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
+     // send an owner task with the new version, so that tasks will be canceled there
     }
     else
     {
+      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
 #ifdef LOGPZ
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << tag.Id() ;
       LOG4CXX_DEBUG(logger,sout.str());
 #endif
+      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
       TM->CancelTask(tag);
     }
     tag = fAccessList.IncompatibleRequest(version);
   }
+  cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
   tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
+  cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
   while(tag)
   {
     if(tag.Proc() == DM->GetProcID())

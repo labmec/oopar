@@ -123,12 +123,18 @@ public:
    */
   OOPAccessTag & operator = (const OOPAccessTag & aci)
   {
+    cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
     fTaskId = aci.fTaskId;
+    cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
     fAccessMode = aci.fAccessMode;
+    cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
     fVersion = aci.fVersion;
+    cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
     fProcessor = aci.fProcessor;
+    cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
     fObjectId = aci.fObjectId;
-    fObjectAutoPtr = aci.fObjectAutoPtr;
+//    fObjectAutoPtr = aci.fObjectAutoPtr;
+    cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
     return *this;
   }
   /**

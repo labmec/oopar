@@ -15,7 +15,7 @@
 #include "oopsnapshottask.h"
 #include "pzlog.h"
 
-
+#include "oopaccesstag.h"
 
 #ifdef OOP_MPE
 #include "oopevtmanager.h"
@@ -51,22 +51,22 @@ int mainorig (int argc, char **argv)
 		OOPInt * inta = new OOPInt;
 		OOPInt * intb = new OOPInt;
 		OOPObjectId IdA, IdB;
-		IdA = DM->SubmitObject(inta, 1);
-		IdB = DM->SubmitObject(intb, 1);
+		IdA = DM->SubmitObject(inta);
+		IdB = DM->SubmitObject(intb);
 
 		TTaskTest * tta = new TTaskTest(0);
 		TTaskTest * ttb = new TTaskTest(1);
 		OOPDataVersion ver;
 		
-		ttb->AddDependentData(OOPMDataDepend(
-				IdA, EReadAccess, ver));
-		ttb->AddDependentData(OOPMDataDepend(
-				IdB, EWriteAccess, ver));			
-		tta->AddDependentData(OOPMDataDepend(
-				IdA, EWriteAccess, ver));
+		ttb->AddDependentData(OOPAccessTag(
+				IdA, EReadAccess, ver, 0));
+		ttb->AddDependentData(OOPAccessTag(
+				IdB, EWriteAccess, ver, 0));			
+		tta->AddDependentData(OOPAccessTag(
+				IdA, EWriteAccess, ver, 0));
 		++ver;			
-		tta->AddDependentData(OOPMDataDepend(
-				IdB, EReadAccess, ver));			
+		tta->AddDependentData(OOPAccessTag(
+				IdB, EReadAccess, ver, 0));			
 	
 	
 		cout << "Task A " << tta->Submit() << endl;
@@ -74,10 +74,10 @@ int mainorig (int argc, char **argv)
 		
 		
 		OOPWaitTask * wt = new OOPWaitTask(0);
-		wt->AddDependentData(OOPMDataDepend(
-				IdA, EWriteAccess, ver));
-		wt->AddDependentData(OOPMDataDepend(
-				IdB, EWriteAccess, ver));
+		wt->AddDependentData(OOPAccessTag(
+				IdA, EWriteAccess, ver, 0));
+		wt->AddDependentData(OOPAccessTag(
+				IdB, EWriteAccess, ver, 0));
 		cout << "Wait Task " << wt->Submit()  << endl;
 		cout << "Calling Wait Task\n";
 		wt->Wait();
@@ -129,7 +129,7 @@ int main (int argc, char **argv)
     OOPInt * inta = new OOPInt;
     //OOPInt * intb = new OOPInt;
     OOPObjectId IdA, IdB;
-    IdA = DM->SubmitObject(inta, 1);
+    IdA = DM->SubmitObject(inta);
     //IdB = DM->SubmitObject(intb, 1);
   
     TTaskTest * tta = new TTaskTest(1);
@@ -142,19 +142,19 @@ int main (int argc, char **argv)
     OOPSnapShotTask * sst2 = new OOPSnapShotTask(2);
     OOPSnapShotTask * sst3 = new OOPSnapShotTask(3);*/
     OOPDataVersion ver;
-    ttb->AddDependentData(OOPMDataDepend(
-                    IdA, EWriteAccess, ver));
+    ttb->AddDependentData(OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));
 /*		ttb->AddDependentData(OOPMDataDepend(
 				IdB, EWriteAccess, ver));			*/
     ++ver;
-    tta->AddDependentData(OOPMDataDepend(
-                    IdA, EWriteAccess, ver));
+    tta->AddDependentData(OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));
     ++ver;			
-    ttc->AddDependentData(OOPMDataDepend(
-                    IdA, EWriteAccess, ver));			
+    ttc->AddDependentData(OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));			
     ++ver;			
-    ttd->AddDependentData(OOPMDataDepend(
-                    IdA, EWriteAccess, ver));			
+    ttd->AddDependentData(OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));			
 
     cout << "Task A " << tta->Submit() << endl;
     cout << "Task B " << ttb->Submit() << endl;
@@ -170,8 +170,8 @@ int main (int argc, char **argv)
     		
     ++ver;
     OOPWaitTask * wt = new OOPWaitTask(0);
-    wt->AddDependentData(OOPMDataDepend(
-                    IdA, EReadAccess, ver));
+    wt->AddDependentData(OOPAccessTag(
+                    IdA, EReadAccess, ver, 0));
 /*		wt->AddDependentData(OOPMDataDepend(
 				IdB, EWriteAccess, ver));*/
     cout << "Wait Task " << wt->Submit()  << endl;

@@ -46,6 +46,7 @@ OOPAccessTag OOPAccessTagMultiSet::IncompatibleRequest(OOPDataVersion & version)
   {
     if(it->Version() < version)
     {
+      fTagMultiSet.erase(it);
       return *it;
     }
   }

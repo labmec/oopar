@@ -291,7 +291,18 @@ void OOPDataManager::SubmitAllObjects()
       }
     }
   }
+  VerifyAccessRequests();
+
 }
+void OOPDataManager::VerifyAccessRequests()
+{
+  std::map<OOPObjectId, OOPMetaData>::iterator it;
+  for(it = fObjects.begin(); it!=fObjects.end();it++)
+  {
+    it->second.VerifyAccessRequests();
+  }
+}
+
 void OOPDataManager::SnapShotMe()
 {
 #warning "Still requires implementation"

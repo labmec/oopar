@@ -117,6 +117,10 @@ public:
   
 private:
   /**
+   * Verifies access requests for OOPMetaData objects stores fObjects
+   */
+  void VerifyAccessRequests();
+  /**
    * Processor where the processor is located.
    */
   long    fProcessor;

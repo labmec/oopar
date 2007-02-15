@@ -1028,8 +1028,6 @@ void OOPTaskManager::TransferSubmittedTasks ()
     int listsize = fSubmittedList.size ();
     sub = fSubmittedList.begin ();
     OOPTask *aux = 0;
-    cout << "TM Address on Proc " << fProc << " " << this << endl;
-    cout << "List Size in " << __PRETTY_FUNCTION__ << " " << listsize << " ---------------" << endl;
     if (listsize) {
       aux = (*sub);
       fSubmittedList.erase (sub);
@@ -1056,6 +1054,7 @@ void OOPTaskManager::TransferSubmittedTasks ()
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << "Creating the task control ojbect for task " << aux->Id () ;
         LOGPZ_DEBUG (tasklogger, sout.str ())
+        cout << sout.str() << endl;
   #endif
   
         OOPTaskControl *tc = new OOPTaskControl (aux);

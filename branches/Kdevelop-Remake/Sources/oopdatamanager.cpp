@@ -64,6 +64,13 @@ OOPDataManager::~OOPDataManager ()
 
 void OOPDataManager::PostAccessRequest(OOPAccessTag & depend)
 {
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << "Posting Access request for Object " << depend.Id() << " from Task " << depend.TaskId();
+  sout << " Version " << depend.Version();
+  LOGPZ_INFO(logger,sout.str().c_str());
+  cout << sout.str().c_str() << endl;
+#endif  
   std::pair<int, OOPAccessTag> item(EDMRequest, depend);
   OOPDMLock lock;
   fMessages.push_back(item);
@@ -77,10 +84,10 @@ void OOPDataManager::PostOwnerMessage(OOPAccessTag & tag)
   fMessages.push_back(item);
 }
 
-// vamos colocar o objeto numa pilhaCM
-// retornaCM
+// vamos colocar o objeto numa pilha
+// retorna
 
-// outro metodo : o que fazer com esses objetosCM
+// outro metodo : o que fazer com esses objetos
 
 // identificar o objectid
 
@@ -241,24 +248,44 @@ void OOPDataManager::SubmitAllObjects()
     {
       case EDMData:
       {
-        cout << "Extract Object From Tag " << endl;
+#ifdef LOGPZ    
+        stringstream sout;
+        sout << "Extract Object From Tag called for EDMData";
+        LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif  
         ExtractObjectFromTag(it->second);
+        fMessages.erase(it);
       }
       break;
       case EDMOwner:
       {
-        cout << "Extract Owner From Tag " << endl;
+#ifdef LOGPZ    
+        stringstream sout;
+        sout << "Extract Owner From Tag called for EDMOwner";
+        LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif  
         ExtractOwnerTaskFromTag(it->second); 
+        fMessages.erase(it);
       }
       break;
       case EDMRequest:
       {
-        cout << "Extract Request From Tag " << endl;
+#ifdef LOGPZ    
+        stringstream sout;
+        sout << "Extract Request From Tag called for EDMRequest";
+        LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif  
         ExtractRequestFromTag(it->second);
+        fMessages.erase(it);
       }
       break;
       default:
       {
+#ifdef LOGPZ    
+        stringstream sout;
+        sout << "Message Submitted with wrong message type, expect trouble";
+        LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif  
       }
     }
   }

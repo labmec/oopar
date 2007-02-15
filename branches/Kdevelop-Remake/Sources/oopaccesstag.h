@@ -91,7 +91,10 @@ public:
   {
     fVersion++;
   }
-  
+  OOPObjectId TaskId() const
+  {
+    return fTaskId;
+  }
   OOPObjectId Id() const
   {
     return fObjectId;

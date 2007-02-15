@@ -220,7 +220,9 @@ void * OOPTaskManager::ExecuteMT(void *data)
   sem_init(&lTM->fServiceSemaphore, 0,0);
   DM->SubmitAllObjects ();
   CM->ReceiveMessages ();
+  cout << "Calling transfer submitted tasks " << endl;
   lTM->TransferSubmittedTasks ();
+  DM->SubmitAllObjects ();
   list < OOPTaskControl * >::iterator i;
 
   SszQueues curSz;
@@ -238,7 +240,7 @@ void * OOPTaskManager::ExecuteMT(void *data)
   lTM->ExecuteDaemons ();
   while (lTM->fKeepGoing || lTM->fExecuting.size())
   {
-    //cout << " Inside first while " << __LINE__ << endl;
+    cout << " Inside first while " << __LINE__ << endl;
     CM->ReceiveMessages ();
     lTM->ExecuteDaemons ();
     while (lTM->fExecutable.size ()  && (int) lTM->fExecuting.size () < lTM->fNumberOfThreads) 
@@ -264,8 +266,9 @@ void * OOPTaskManager::ExecuteMT(void *data)
     lTM->TransferFinishedTasks ();
     CM->ReceiveMessages ();
 
+    cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->TransferSubmittedTasks ();
-    //cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
+    cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
     lTM->ExecuteDaemons ();
 
 #ifdef LOGTIME
@@ -328,6 +331,7 @@ void * OOPTaskManager::ExecuteMT(void *data)
           //LOGPZ_DEBUG(tasklogger,sout.str().c_str());
         }
 #endif
+        cout << "Going to sleep ---------------------------------------------- TM" << endl;
 	sem_wait(&lTM->fServiceSemaphore);
       }
     }
@@ -619,7 +623,9 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
   } else {
     id = task->Id ();
     if (id.IsZeroOOP ())
+    {
       id = GenerateId ();
+    }
     task->SetTaskId (id);
   }
   {
@@ -688,10 +694,17 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 #warning "Call to discontinued fSubmittedMutex, Verify accesses on the Mutexed lists"
   //pthread_mutex_lock (&fSubmittedMutex);
   //}
-  fSubmittedList.push_back (task);
+  
+  {
+    OOPTMLock lock;
+    cout << "Pushing back on TaskManager fSubmittedList --------------- " << endl; 
+    fSubmittedList.push_back (task);
+    cout << "fSubmittedList size --------------- " << fSubmittedList.size() << endl;
+  }
   //if (!pthread_equal (fExecuteThread, pthread_self ())) {
     //LOGPZ_DEBUG(logger,"Signal within Submit")
     //pthread_cond_signal (&fExecuteCondition);
+  cout << "Calling SemPost --------------- " << endl; 
   sem_post(&fServiceSemaphore);
     //LOGPZ_DEBUG(logger,"Unlock within Submit")
   //pthread_mutex_unlock (&fSubmittedMutex);
@@ -991,7 +1004,6 @@ OOPTaskManager::Print (std::ostream & out)
 
 void OOPTaskManager::TransferSubmittedTasks ()
 {
-
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
 #ifdef LOGPZ
     stringstream sout;
@@ -1009,30 +1021,33 @@ void OOPTaskManager::TransferSubmittedTasks ()
     list < OOPTask * >::iterator sub;
     DM->SubmitAllObjects ();
   
-    int listsize = fSubmittedList.size ();
+    int listsize = TM->fSubmittedList.size ();
     sub = fSubmittedList.begin ();
     OOPTask *aux = 0;
+    cout << "List Size in " << __PRETTY_FUNCTION__ << " " << listsize << " ---------------" << endl;
     if (listsize) {
       aux = (*sub);
       fSubmittedList.erase (sub);
     }
-  
     while (aux)
     {
       //aux could be a DaemonTask
       OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(aux);
       if (aux->GetProcID () != fProc) {
+        cout << "Task is not in this processor " << __PRETTY_FUNCTION__ << " ---------------" << endl;
   #ifdef LOGPZ
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << "Transferring task " << aux->
           Id () << " from " << fProc << " to proc " << aux->GetProcID ();
         LOGPZ_DEBUG (tasklogger, sout.str ())
   #endif
-          CM->SendTask (aux);
+        CM->SendTask (aux);
       } else if (dmt) { //Checks if dmt is valid. aux was a DaemonTask
+        cout << "Task is in this processor and it's a Daemon task " << __PRETTY_FUNCTION__ << " ---------------" << endl;
         SubmitDaemon (dmt);
       } else {//Ordinary task to be executed in this processor
   #ifdef LOGPZ
+        cout << "Task is in this processor" << __PRETTY_FUNCTION__ << " ---------------" << endl;
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << "Creating the task control ojbect for task " << aux->Id () ;
         LOGPZ_DEBUG (tasklogger, sout.str ())

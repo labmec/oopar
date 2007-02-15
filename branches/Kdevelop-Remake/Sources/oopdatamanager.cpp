@@ -235,6 +235,12 @@ void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
 }
 void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
 {
+  std::map<OOPObjectId, OOPMetaData>::iterator it;
+  it = fObjects.find(tag.Id());
+  if(it != fObjects.end())
+  {
+    it->second.SubmitAccessRequest(tag);
+  }
 }
 void OOPDataManager::SubmitAllObjects()
 {

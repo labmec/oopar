@@ -216,11 +216,14 @@ void * OOPTaskManager::ExecuteMT(void *data)
     "time\tsubmitted\twaiting\texecutable\texecuting\tfinished\tdaemon\n";
 #endif
   OOPTaskManager *lTM = static_cast < OOPTaskManager * >(data);
-  cout << " Execute " << __LINE__ << endl;
+  cout << " Calling sem_init on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
   sem_init(&lTM->fServiceSemaphore, 0,0);
+  cout << " Called sem_init on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
+  cout << " Calling DM_SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
   DM->SubmitAllObjects ();
+  cout << " Called DM_SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
   CM->ReceiveMessages ();
-  cout << "Calling transfer submitted tasks " << endl;
+  cout << "Calling transfer submitted tasks on " << __PRETTY_FUNCTION__ << endl;
   lTM->TransferSubmittedTasks ();
   DM->SubmitAllObjects ();
   list < OOPTaskControl * >::iterator i;
@@ -704,6 +707,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
   //if (!pthread_equal (fExecuteThread, pthread_self ())) {
     //LOGPZ_DEBUG(logger,"Signal within Submit")
     //pthread_cond_signal (&fExecuteCondition);
+  cout << "TM Address on Proc " << fProc << " " << this << endl;
   cout << "Calling SemPost --------------- " << endl; 
   sem_post(&fServiceSemaphore);
     //LOGPZ_DEBUG(logger,"Unlock within Submit")
@@ -1021,9 +1025,10 @@ void OOPTaskManager::TransferSubmittedTasks ()
     list < OOPTask * >::iterator sub;
     DM->SubmitAllObjects ();
   
-    int listsize = TM->fSubmittedList.size ();
+    int listsize = fSubmittedList.size ();
     sub = fSubmittedList.begin ();
     OOPTask *aux = 0;
+    cout << "TM Address on Proc " << fProc << " " << this << endl;
     cout << "List Size in " << __PRETTY_FUNCTION__ << " " << listsize << " ---------------" << endl;
     if (listsize) {
       aux = (*sub);

@@ -223,7 +223,9 @@ void OOPDataManager::ObjectChanged(OOPObjectId & Id)
 }
 void OOPDataManager::ExtractObjectFromTag(OOPAccessTag & tag)
 {
+  cout << " Calling " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
   fObjects[tag.Id()].SubmitTag(tag);
+  cout << endl << " Called " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
 }
 void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
 {
@@ -236,29 +238,35 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
 }
 void OOPDataManager::SubmitAllObjects()
 {
-  std::list< std::pair<int, OOPAccessTag> > tempList;
-  {
-    OOPDMLock lock;
-    tempList = fMessages;
-  }
+  cout << " Calling DM->SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
+
+  OOPDMLock lock;
   std::list< std::pair<int, OOPAccessTag> >::iterator it;
-  for(it = tempList.begin(); it!=tempList.end();it++)
+  cout << " Calling DM->SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
+  //for(it = fMessages.begin(); it!=fMessages.end();it++)
+  it = fMessages.begin();
+  while(it != fMessages.end())
   {
     switch(it->first)
     {
       case EDMData:
       {
+  cout << " Calling DM->SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
 #ifdef LOGPZ    
         stringstream sout;
         sout << "Extract Object From Tag called for EDMData";
         LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif  
         ExtractObjectFromTag(it->second);
+  cout << " Calling DM->SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
         fMessages.erase(it);
+        it = fMessages.begin();
+  cout << " Calling DM->SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
       }
       break;
       case EDMOwner:
       {
+  cout << " Calling DM->SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
 #ifdef LOGPZ    
         stringstream sout;
         sout << "Extract Owner From Tag called for EDMOwner";
@@ -266,10 +274,12 @@ void OOPDataManager::SubmitAllObjects()
 #endif  
         ExtractOwnerTaskFromTag(it->second); 
         fMessages.erase(it);
+        it = fMessages.begin();
       }
       break;
       case EDMRequest:
       {
+  cout << " Calling DM->SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
 #ifdef LOGPZ    
         stringstream sout;
         sout << "Extract Request From Tag called for EDMRequest";
@@ -277,6 +287,7 @@ void OOPDataManager::SubmitAllObjects()
 #endif  
         ExtractRequestFromTag(it->second);
         fMessages.erase(it);
+        it = fMessages.begin();
       }
       break;
       default:
@@ -289,6 +300,7 @@ void OOPDataManager::SubmitAllObjects()
       }
     }
   }
+  cout << " Leaving DM->SubmitAllObjs... on " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
 }
 void OOPDataManager::SnapShotMe()
 {

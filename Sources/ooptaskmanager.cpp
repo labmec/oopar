@@ -1032,11 +1032,11 @@ void OOPTaskManager::TransferSubmittedTasks ()
   #endif
         CM->SendTask (aux);
       } else if (dmt) { //Checks if dmt is valid. aux was a DaemonTask
-        cout << "Task is in this processor and it's a Daemon task " << __PRETTY_FUNCTION__ << " ---------------" << endl;
+        
         SubmitDaemon (dmt);
       } else {//Ordinary task to be executed in this processor
   #ifdef LOGPZ
-        cout << "Task is in this processor" << __PRETTY_FUNCTION__ << " ---------------" << endl;
+        
         stringstream sout;
         sout << __PRETTY_FUNCTION__ << "Creating the task control ojbect for task " << aux->Id () ;
         LOGPZ_DEBUG (tasklogger, sout.str ())

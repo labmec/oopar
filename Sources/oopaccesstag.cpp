@@ -13,6 +13,7 @@
 
 OOPAccessTag::OOPAccessTag()
 {
+  fProcessor = -1;
 }
 
 

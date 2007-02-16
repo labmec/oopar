@@ -226,6 +226,7 @@ void OOPDataManager::ExtractObjectFromTag(OOPAccessTag & tag)
   cout << " Calling " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
   fObjects[tag.Id()].SubmitTag(tag);
   cout << endl << " Called " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
+  cout << "fObjects size " << fObjects.size() << endl;
 }
 void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
 {
@@ -237,9 +238,33 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
 {
   std::map<OOPObjectId, OOPMetaData>::iterator it;
   it = fObjects.find(tag.Id());
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << "Extracting Request From Tag to Object Id " << tag.Id() <<
+    " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
+    " and AccessMode " << tag.AccessMode();
+  LOGPZ_DEBUG(logger,sout.str().c_str());
+  cout << sout.str() << endl;
+
+#endif  
+  
   if(it != fObjects.end())
   {
     it->second.SubmitAccessRequest(tag);
+  }else
+  {
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << "Request submitted to non existent object Id " << tag.Id();
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+    cout << sout.str() << endl;
+    cout << "Available objects " << endl;
+    cout << fObjects.size() << endl;
+    for(it = fObjects.begin();it!=fObjects.end();it++)
+    {
+      cout << it->second.Id() << endl;
+    }
+#endif
   }
 }
 void OOPDataManager::SubmitAllObjects()
@@ -257,6 +282,7 @@ void OOPDataManager::SubmitAllObjects()
         stringstream sout;
         sout << "Extract Object From Tag called for EDMData";
         LOGPZ_DEBUG(logger,sout.str().c_str());
+        cout << sout.str() << endl;
 #endif  
         ExtractObjectFromTag(it->second);
         fMessages.erase(it);
@@ -269,6 +295,7 @@ void OOPDataManager::SubmitAllObjects()
         stringstream sout;
         sout << "Extract Owner From Tag called for EDMOwner";
         LOGPZ_DEBUG(logger,sout.str().c_str());
+        cout << sout.str() << endl;
 #endif  
         ExtractOwnerTaskFromTag(it->second); 
         fMessages.erase(it);
@@ -281,6 +308,7 @@ void OOPDataManager::SubmitAllObjects()
         stringstream sout;
         sout << "Extract Request From Tag called for EDMRequest";
         LOGPZ_DEBUG(logger,sout.str().c_str());
+        cout << sout.str() << endl;
 #endif  
         ExtractRequestFromTag(it->second);
         fMessages.erase(it);
@@ -297,8 +325,6 @@ void OOPDataManager::SubmitAllObjects()
       }
     }
   }
-  VerifyAccessRequests();
-
 }
 void OOPDataManager::VerifyAccessRequests()
 {

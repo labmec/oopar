@@ -172,5 +172,5 @@ OOPTask::IncrementWriteDependentData ()
 
 void OOPTask::SubmitDependencyList()
 {
-  fDependRequest.PostRequests();
+  fDependRequest.PostRequests(fTaskId);
 }

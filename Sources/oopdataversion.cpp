@@ -316,12 +316,8 @@ std::ostream &OOPDataVersion::ShortPrint(std::ostream & out) const {
 }
 OOPDataVersion & OOPDataVersion::operator= (const OOPDataVersion & version)
 {
-  cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
-  cout << __PRETTY_FUNCTION__ << " fVersion size " << version.fVersion.size() << endl;
   fVersion = version.fVersion;
-  cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
   fLevelCardinality = version.fLevelCardinality;
-  cout << __PRETTY_FUNCTION__ << " Inicio " << __LINE__ << endl;
   return *this;
 }
 OOPDataVersion::OOPDataVersion (const::OOPDataVersion & version)

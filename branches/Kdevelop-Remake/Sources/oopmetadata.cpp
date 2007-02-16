@@ -161,7 +161,7 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
 {
   if(!(fObjId))
   {
-    cout << " ID already assigned " << Tag.Id() << endl;
+    cout << " Assigning ID " << Tag.Id() << " To current MetaData " << endl;
     fObjId = Tag.Id();
   }
   cout << "Submitting Pointer " << Tag.GetPointer() << " with Version " << Tag.Version() << endl; 
@@ -174,8 +174,8 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr, const OOPDa
   {
     stringstream sout;
     sout << "Submitting object id " << Id() << " classid " << NewPtr->ClassId();
-    cout << "Submitting object id " << Id() << " classid " << NewPtr->ClassId();
     LOGPZ_DEBUG(logger, sout.str());
+    cout << sout.str() << endl;
   }
 #endif
   //std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::iterator it;
@@ -188,6 +188,7 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr, const OOPDa
       << " New Version will be submitted : "
       << nextversion << " with pointer " << NewPtr;
       LOGPZ_DEBUG(logger, sout.str());
+      cout << sout.str() << endl;
       }
 #endif
       std::pair<OOPDataVersion, TPZAutoPointer<TPZSaveable> > item(nextversion, NewPtr);
@@ -200,6 +201,7 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr, const OOPDa
       sout << "Inconsistency detected on SubmitVersion for " << Id()
       << " for Version " << nextversion 
       << " NO ACTION TAKEN !!!";
+      cout << sout.str() << endl;
       }
 #endif
     }
@@ -232,26 +234,34 @@ void OOPMetaData::VerifyAccessRequests ()
     sout << __PRETTY_FUNCTION__ << " Entering VerifyAccessRequests for Obj " << this->fObjId << " access requests ";
     fAccessList.Print(sout);
     LOG4CXX_DEBUG(logger,sout.str());
-
+    cout << sout.str() << endl;
 #endif
   }
+
+  cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
   if(!fAvailableVersions.size())
   {
 #ifdef LOGPZ
+    cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " VerifyAccessRequests with empty AvailableVersions " << this->fObjId;
     LOG4CXX_DEBUG(logger,sout.str());
+    cout << sout.str() << endl;
 #endif
     return;
   }
+  cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
   OOPDataVersion version = Version();
   OOPAccessTag tag = fAccessList.IncompatibleRequest(version);
   while (tag)
   {
     cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
+    cout << "Tag Proc " << tag.Proc() << endl;
+    cout << "DM->GetProcID " << DM->GetProcID() << endl;
     if(tag.Proc() != DM->GetProcID())
     {
-      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
+      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << 
+        " with Version " << tag.Version() << endl;
 #warning "Verify sending of OwnerTask here"
       OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
       cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;

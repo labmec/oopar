@@ -119,11 +119,12 @@ void OOPAccessTagList::Read(TPZStream & buf, void *context)
   }
 }
 
-void OOPAccessTagList::PostRequests()
+void OOPAccessTagList::PostRequests(OOPObjectId & Id)
 {
   int i = 0;
   for(i=0;i<fTagList.size();i++)
   {
+    fTagList[i].SetTaskId(Id);
     DM->PostAccessRequest( fTagList[i]);
   }
 }

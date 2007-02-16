@@ -74,7 +74,7 @@ public:
    * After Incrementing the DataVersions. All new versions has to be submitted to the DM
    */
   void SubmitIncrementedVersions();
-  void PostRequests();
+  void PostRequests(OOPObjectId & Id);
 private:
   /**
    * Holds the list the OOPAccessTag objects

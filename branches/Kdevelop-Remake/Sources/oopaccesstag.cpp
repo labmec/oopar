@@ -30,10 +30,10 @@ bool OOPAccessTag::CanExecute()
 {
   return fObjectAutoPtr;
 }
-TPZSaveable * OOPAccessTag::GetPointer()
+/*TPZSaveable * OOPAccessTag::GetPointer()
 {
   return fObjectAutoPtr.operator->();
-}
+}*/
 bool OOPAccessTag::IsMyAccessTag(const OOPAccessTag & granted)
 {
   if(fObjectAutoPtr) return false;

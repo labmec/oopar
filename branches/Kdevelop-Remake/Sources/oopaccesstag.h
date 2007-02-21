@@ -25,7 +25,6 @@
 
 //#include "oopdatamanager.h"
 using namespace std;
-class   OOPMetaData;
 //extern OOPDataManager * DM;
 
 /**
@@ -39,7 +38,20 @@ public:
 
   ~OOPAccessTag();
   operator bool ();
-  bool operator < (const OOPAccessTag & compare) const{};
+  bool operator < (const OOPAccessTag & compare) const
+  {
+    if(this->fVersion < compare.fVersion) return true;
+    if(!(this->fVersion == compare.fVersion)) return false;
+    if(this->fAccessMode == EReadAccess && compare.fAccessMode != this->fAccessMode) return true;
+    if(this->fAccessMode != compare.fAccessMode) return false;
+    if(this->fProcessor < compare.fProcessor) return true;
+    if(this->fProcessor != compare.fProcessor) return false;
+    if(this->fObjectAutoPtr.operator->() < compare.fObjectAutoPtr.operator->()) return true;
+    if(this->fObjectAutoPtr.operator->() != compare.fObjectAutoPtr.operator->()) return false;
+    if(this->fObjectId < compare.fObjectId) return true;
+    if(this->fObjectId != compare.fObjectId) return false;
+    return false;
+  }
   bool CanExecute();
   int Proc() const
   {
@@ -84,7 +96,12 @@ private:
 public:
   void Write (TPZStream  & buf, int withclassid);
   void Read (TPZStream & buf, void * context);
-  TPZSaveable * GetPointer();
+//  TPZSaveable * GetPointer();
+  
+  TPZAutoPointer<TPZSaveable> AutoPointer() const
+  {
+    return this->fObjectAutoPtr;
+  }
   bool IsMyAccessTag(const OOPAccessTag & granted);
   void ClearPointer()
   {
@@ -154,6 +171,8 @@ public:
     //fAccessMode = aci.fAccessMode;
     //fVersion = aci.fVersion;
     //fProcessor = DM->GetProcId();
+    fProcessor = 0;
+    fAccessMode = EReadAccess;
     fObjectId = id;
     fObjectAutoPtr = obj;
   }
@@ -166,10 +185,11 @@ public:
   }
   void Print (std::ostream & out = std::cout) const
   {
+    out << "Object Id " << fObjectId;
+    out << "  Version " << fVersion << endl;
     out << "Data State " << fAccessMode << endl;
     out << "Processor " << fProcessor << endl;
     out << "TaskId " << fTaskId << endl;
-    out << "Version" << fVersion << endl;
   }
   void ShortPrint (std::ostream & out = std::cout) const
   {
@@ -179,7 +199,6 @@ public:
     out << "V:" << fVersion;
   }
 
-  bool CanExecute (const OOPMetaData & object) const;
   OOPMDataState AccessMode() const
   {
     return fAccessMode;
@@ -187,6 +206,11 @@ public:
   OOPDataVersion Version() const
   {
     return fVersion;
+  }
+  
+  void SetProcessor(int proc)
+  {
+    fProcessor = proc;
   }
 };
 

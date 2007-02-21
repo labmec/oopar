@@ -21,7 +21,7 @@ class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 class   OOPSaveable;
 using namespace std;
-class   OOPMetaData;
+//class   OOPMetaData;
 class   OOPDMOwnerTask;
 class   OOPDMRequestTask;
 class   OOPCurrentLocation;
@@ -41,7 +41,7 @@ enum DMMessageType {
  */
 class   OOPDataManager
 {
-  friend class OOPMetaData;
+//  friend class OOPMetaData;
 public:
   /**
    * Initialization of the DataManager on the indicated processor
@@ -55,7 +55,7 @@ public:
   /**
    * Inserts a ObjectChanged entry on the fChangedObject list
    */
-  void ObjectChanged(OOPObjectId & Id);
+  void ObjectChanged(const OOPObjectId & Id);
   /**
    * Dumps on disk the current state of the Manager object
    */

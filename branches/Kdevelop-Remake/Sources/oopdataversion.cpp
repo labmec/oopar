@@ -226,75 +226,50 @@ bool OOPDataVersion::operator == (const OOPDataVersion & version) const
 }
 bool OOPDataVersion::operator < (const OOPDataVersion & version) const
 {
-  bool result = true;
-  if (GetNLevels () != version.GetNLevels ()){
-    result = false;
+  unsigned int minlevel = GetNLevels() < version.GetNLevels() ? GetNLevels() : version.GetNLevels();
+  unsigned int i = 0;
+  for (i = 0; i < minlevel; i++) {
+    // Returns false if my version is older than the one
+    // requested.
+    if (GetLevelVersion (i) < version.GetLevelVersion (i)) return true;
+    if (GetLevelVersion (i) != version.GetLevelVersion (i)) return false;
   }
-  if (result){
-        
-    unsigned int i = 0;
-    for (i = 0; i < fVersion.size (); i++) {
-      // Returns false if my version is older than the one
-      // requested.
-      if (!(GetLevelVersion (i) < version.GetLevelVersion (i)))
-      {
-        result=false;
-        break;
-      }
-      // Returns false if in any common level, the cardinality is
-      // not the same
-      if (GetLevelCardinality (i) !=
-          version.GetLevelCardinality (i))
-      {
-        result = false;
-        break;
-      }
-    }
+  for(i = 0; i< minlevel; i++)
+  {
+    // Returns false if in any common level, the cardinality is
+    // not the same
+    if (GetLevelCardinality (i) < version.GetLevelCardinality (i)) return true;
+    if (GetLevelCardinality (i) != version.GetLevelCardinality (i)) return false;
   }
-#ifdef LOGPZ_PARANOID
-  stringstream sout;
-  sout << __PRETTY_FUNCTION__ << " Returning " << result << " " << *this << " < " << version;
-  LOGPZ_DEBUG(logger,sout.str());
-#endif
-  
-  return result;
+  if (GetNLevels () < version.GetNLevels ()) return true;
+  return false;
 }
 bool OOPDataVersion::operator >= (const OOPDataVersion & version)
 {
-	if (GetNLevels () != version.GetNLevels ())
-		return false;
-	unsigned int i = 0;
-	for (i = 0; i < fVersion.size (); i++) {
-		// Returns false if my version is older than the one
-		// requested.
-		if (!(GetLevelVersion (i) >= version.GetLevelVersion (i)))
-			return false;
-		// Returns false if in any common level, the cardinality is
-		// not the same
-		if (GetLevelCardinality (i) !=
-		    version.GetLevelCardinality (i))
-			return false;
-	}
-	return true;
+  if(this->operator >(version)) return true;
+  if(! this->operator<(version)) return true;
+  return false;
 }
 
 bool OOPDataVersion::operator > (const OOPDataVersion & version)
 {
-	if (GetNLevels () != version.GetNLevels ())
-		return false;
-	unsigned int i = 0;
-	for (i = 0; i < fVersion.size (); i++) {
-		// Returns false if my version is older than the one
-		// requested.
-		if (GetLevelVersion (i) < version.GetLevelVersion (i))
-			return false;
-		// Returns false if in any common level, the cardinality is
-		// not the same
-		if (GetLevelCardinality (i) !=
-		    version.GetLevelCardinality (i))
-			return false;
-	}
-	return true;
+  unsigned int minlevel = GetNLevels() < version.GetNLevels() ? GetNLevels() : version.GetNLevels();
+  unsigned int i = 0;
+  for (i = 0; i < minlevel; i++) {
+    // Returns false if my version is older than the one
+    // requested.
+    if (GetLevelVersion (i) > version.GetLevelVersion (i)) return true;
+    if (GetLevelVersion (i) != version.GetLevelVersion (i)) return false;
+  }
+  for(i = 0; i< minlevel; i++)
+  {
+    // Returns false if in any common level, the cardinality is
+    // not the same
+    if (GetLevelCardinality (i) > version.GetLevelCardinality (i)) return true;
+    if (GetLevelCardinality (i) != version.GetLevelCardinality (i)) return false;
+  }
+  if (GetNLevels () > version.GetNLevels ()) return true;
+  return false;
 }
 void OOPDataVersion::Print (std::ostream & out) const
 {

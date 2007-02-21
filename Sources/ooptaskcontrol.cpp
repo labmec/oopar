@@ -56,7 +56,7 @@ void OOPTaskControl::Execute()
 
 void OOPTaskControl::UpdateVersions()
 {
-  fTask->ClearDependentData();  
+  fTask->ReleaseDepObjPtr();
 #ifdef LOGPZ
   stringstream sout;
   sout << "Leaving UpdateVersion";
@@ -89,6 +89,7 @@ void OOPTaskControl::Print(std::ostream & out)
 {
   out << "TaskId:" << fTask->Id().GetId()
     << ":Proc:" << fTask->Id().GetProcId() << ":ClassId:" << fTask->ClassId() << ":Dependency:";
+  Task()->PrintDependency(out);
 }
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
@@ -169,7 +170,7 @@ void OOPTaskControl::Join()
 #ifdef LOGPZ    
     stringstream sout;
     sout << __FUNCTION__ << " called by the taskcontrol object itself";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str());
 #endif    
     return;
   }
@@ -181,7 +182,7 @@ void OOPTaskControl::Join()
 #ifdef LOGPZ    
     stringstream sout;
     sout << __FUNCTION__ << __LINE__ << " join operation failed with result " << result;
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str());
 #endif
   }
 }

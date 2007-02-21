@@ -11,7 +11,7 @@
 class OOPStorageBuffer;
 class OOPAccessTagList;
 using namespace std;
-class   OOPMetaData;
+//class   OOPMetaData;
 /**
  * Implements a abstract Task on the environment.
  * Any task which are going to parallelized on OOPar must be derived from TTask
@@ -24,6 +24,15 @@ class   OOPTask:public TPZSaveable
 public:
   void SubmitDependencyList();
   void IncrementWriteDependentData();
+  
+  /**
+   * Release access to the pointers, submit write dependent data to the DataManager and
+   * notify the DM that the access count of the objects has changed
+   */
+  void ReleaseDepObjPtr()
+  {
+    fDependRequest.SubmitIncrementedVersions();
+  }
   void ClearDependentData()
   {
     fDependRequest.Clear();

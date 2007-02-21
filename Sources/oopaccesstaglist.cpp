@@ -88,6 +88,19 @@ void OOPAccessTagList::SubmitIncrementedVersions()
   Ou ainda, fazer as duas coisas ?
   Não há chamadas para esse método, Must Delete ?
  */
+   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
+  for(;it!=fTagList.end();it++)
+  {
+    if(it->AccessMode() == EWriteAccess)
+    {
+      DM->PostData(*it);
+    }
+    it->ClearPointer();
+  }
+  for(it=fTagList.begin();it!=fTagList.end();it++)
+  {
+    DM->ObjectChanged(it->Id());
+  }
 }
 void OOPAccessTagList::Print(std::ostream & out)
 {
@@ -121,9 +134,11 @@ void OOPAccessTagList::Read(TPZStream & buf, void *context)
 
 void OOPAccessTagList::PostRequests(OOPObjectId & Id)
 {
+  int processor = DM->GetProcID();
   int i = 0;
   for(i=0;i<fTagList.size();i++)
   {
+    fTagList[i].SetProcessor(processor);
     fTagList[i].SetTaskId(Id);
     DM->PostAccessRequest( fTagList[i]);
   }

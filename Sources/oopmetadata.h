@@ -2,9 +2,6 @@
 #ifndef TMETADATAH
 #define TMETADATAH
 
-//#include "longvec.h"
-#include "oopdatamanager.h"
-#include "ooppardefs.h"
 #include <deque>
 #include <set>
 #include "ooppardefs.h"
@@ -65,7 +62,7 @@ public:
    * Each different version is therefore stored in a map of OOPVersion to Saveable pointer.
    * This Method provides the necessary interface for submitting new versions for a given object
    */
-  void SubmitVersion( TPZAutoPointer <TPZSaveable> NewPtr,const OOPDataVersion  & nextversion);
+  void SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr,const OOPDataVersion  & nextversion);
   /**
    * Different levels of printing.
    * Amount of information and layout are modified in each method
@@ -81,7 +78,9 @@ public:
   /**
    * Empty constructor
    */
-  OOPMetaData (){}
+  OOPMetaData ();
+  OOPMetaData (const OOPMetaData &copy);
+  OOPMetaData &operator=(const OOPMetaData &copy);
   /**
    * Constructor
    * @param *ObPtr Pointer to object TSaveable

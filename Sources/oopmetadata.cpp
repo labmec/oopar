@@ -18,9 +18,20 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMetaData"));
 #include "oopevtid.h"
 #endif
 
+OOPMetaData::OOPMetaData ()
+{
+#ifdef LOGPZ
+  LOGPZ_DEBUG(logger,"Empty constructor for metadata");
+#endif
+  fProc = -1;
+}
+
 OOPMetaData::OOPMetaData (TPZAutoPointer<TPZSaveable> ObPtr, const OOPObjectId & ObjId,
 			  const int ProcId, const OOPDataVersion & ver)
 {
+#ifdef LOGPZ
+  LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
+#endif
   fProc = ProcId;
   fObjId = ObjId;
   SubmitVersion(ObPtr,ver);
@@ -30,8 +41,31 @@ OOPMetaData::OOPMetaData (TPZAutoPointer<TPZSaveable> ObPtr, const OOPObjectId &
 OOPMetaData::OOPMetaData (const OOPObjectId & ObjId,
 			  const int ProcId)
 {
+#ifdef LOGPZ
+  LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
+#endif
   fProc = ProcId;
   fObjId = ObjId;
+}
+
+OOPMetaData::OOPMetaData (const OOPMetaData &copy) : fAccessList(copy.fAccessList),
+  fObjId(copy.fObjId),fProc(copy.fProc),fAvailableVersions(copy.fAvailableVersions)
+{
+#ifdef LOGPZ
+  LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
+#endif
+}
+
+OOPMetaData &OOPMetaData::operator=(const OOPMetaData &copy)
+{
+  fProc = copy.fProc;
+  fObjId = copy.fObjId;
+  fAccessList = copy.fAccessList;
+  fAvailableVersions = copy.fAvailableVersions;
+#ifdef LOGPZ
+  LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
+#endif
+  return *this;
 }
 
 OOPMetaData::~OOPMetaData()
@@ -159,16 +193,41 @@ TPZAutoPointer<TPZSaveable> OOPMetaData::Ptr (const OOPDataVersion & version)
 
 void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
 {
-  if(!(fObjId))
+#ifdef LOGPZ
   {
-    cout << " Assigning ID " << Tag.Id() << " To current MetaData " << endl;
-    fObjId = Tag.Id();
+    std::stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Tag = ";
+    Tag.Print(sout);
+    LOGPZ_DEBUG(logger,sout.str());
   }
-  cout << "Submitting Pointer " << Tag.GetPointer() << " with Version " << Tag.Version() << endl; 
-  SubmitVersion(Tag.GetPointer(), Tag.Version());
+#endif
+  if(fObjId || !Tag.Id())
+  {
+#ifdef LOGPZ
+    {
+      std::stringstream sout;
+      sout << __PRETTY_FUNCTION__ << " Tag = ";
+      Tag.Print(sout);
+      sout << "Object Id " << fObjId;
+      LOGPZ_ERROR(logger,sout.str());
+    }
+#endif
+    cout << " ID already assigned " << Tag.Id() << endl;
+  }
+  fObjId = Tag.Id();
+  TPZAutoPointer<TPZSaveable> point(Tag.AutoPointer());
+  SubmitVersion(point, Tag.Version());
+#ifdef LOGPZ
+{
+  std::stringstream sout;
+  sout << __PRETTY_FUNCTION__;
+  this->PrintLog(sout);
+  LOGPZ_DEBUG(logger,sout.str());
+}
+#endif
 }
 
-void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr, const OOPDataVersion & nextversion )
+void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr, const OOPDataVersion & nextversion )
 {
 #ifdef LOGPZ
   {
@@ -184,8 +243,8 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr, const OOPDa
 #ifdef LOGPZ
       {
       stringstream sout;
-      sout << "More than one Task accessing object " << Id()
-      << " New Version will be submitted : "
+      sout << "Submitting a new version for object " << Id()
+          << " New Version is : "
       << nextversion << " with pointer " << NewPtr;
       LOGPZ_DEBUG(logger, sout.str());
       cout << sout.str() << endl;
@@ -201,7 +260,7 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> NewPtr, const OOPDa
       sout << "Inconsistency detected on SubmitVersion for " << Id()
       << " for Version " << nextversion 
       << " NO ACTION TAKEN !!!";
-      cout << sout.str() << endl;
+      LOGPZ_ERROR(logger, sout.str());
       }
 #endif
     }
@@ -348,9 +407,10 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
   switch(ms.fTag.AccessMode() ) {
     case EGrantReadAccess:
     {
-      if(ms.fTag.GetPointer())
+      if(ms.fTag.AutoPointer())
       {
-        SubmitVersion(ms.fTag.GetPointer(),ms.fTag.Version());
+        TPZAutoPointer<TPZSaveable> point(ms.fTag.AutoPointer());
+        SubmitVersion(point,ms.fTag.Version());
       }
       fProc = ms.fTag.Proc();
 #warning "Formerly ProcOrigim from OwnerTask"//      fProcOrigin;
@@ -374,13 +434,14 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 #ifdef LOGPZ
         stringstream sout;
         sout << "Receiving transfer ownership for Obj " << fObjId << " from processor " << ms.fTag.Proc() << " with version "<<
-          ms.fTag.Version() << " and pointer " << ms.fTag.GetPointer();
+          ms.fTag.Version() << " and pointer " << ms.fTag.AutoPointer();
         LOGPZ_INFO(logger,sout.str());
 #endif 
       }
-      if(ms.fTag.GetPointer())//fObjPtr)
+      if(ms.fTag.AutoPointer())//fObjPtr)
       {
-        SubmitVersion(ms.fTag.GetPointer(), ms.fTag.Version() );
+        TPZAutoPointer<TPZSaveable> point(ms.fTag.AutoPointer());
+        SubmitVersion(point, ms.fTag.Version() );
       }
       fProc = DM->GetProcID();
       this->VerifyAccessRequests();

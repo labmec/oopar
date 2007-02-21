@@ -54,7 +54,7 @@ public:
    */
   TPZSaveable * ObjectPtr(int idepend)
   {
-    return fTagList[idepend].GetPointer();
+    return fTagList[idepend].AutoPointer().operator->();
   }
   /**
    * Atomically increments all data versions to which the access mode was WriteAccess

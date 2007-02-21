@@ -95,9 +95,7 @@ bool OOPObjectId::operator == (const OOPObjectId & obj) const
 }
 bool OOPObjectId::operator >= (const OOPObjectId & obj) const
 {
-	if ((fId >= obj.GetId ()) && (fProcId >= obj.GetProcId ()))
-		return true;
-	return false;
+  return !operator<(obj);
 }
 bool OOPObjectId::operator >= (int val) const
 {

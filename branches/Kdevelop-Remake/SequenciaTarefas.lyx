@@ -1,0 +1,251 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass article
+\language brazil
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Section*
+
+Explicações sobre o funcionamento do OOPar
+\layout Subsection*
+
+Sequencia de eventos em torno de tarefas
+\layout Standard
+
+Quando uma tarefa é submetida ao TM, a seguinte sequencia de eventos deve
+ ocorrer
+\layout Subsubsection*
+
+Submissão de tarefas
+\layout Standard
+
+Na submissão da tarefa, a sua lista de dependências deve ser encaminhada
+ para o DM.
+ A submissão dessas dependências é feita no método 
+\emph on 
+SubmitDependencyList
+\emph default 
+.
+ O método de OOPTask encaminha esta chamada para 
+\emph on 
+PostAccessRequests
+\emph default 
+ da classe 
+\emph on 
+OOPAccessTagList.
+ 
+\emph default 
+Visto que os objetos não 
+\emph on 
+sabem
+\emph default 
+ o processador associados ao pedido, passamos o processador atual aos objetos
+ da lista.
+\layout Subsubsection*
+
+finalizando a tarefa
+\layout Standard
+
+Na finalização da tarefa, os dados que foram modificados (acesso para escrito)
+ devem ser resubmetidos ao DM.
+ Em seguido os ponteiros para os dados (
+\emph on 
+TPZAutoPointer
+\emph default 
+) devem ser zerados.
+ Finalmente, o DM é notificado que o número de acessos dos objetos foi modificad
+o.
+\layout Standard
+
+A resubmissão dos objetos é feito no método 
+\emph on 
+SubmitIncrementedVersions()
+\emph default 
+ da classe OOPAccessTagList.
+ O método correspondente da classe OOPTask é 
+\emph on 
+ReleaseDepObjPtr()
+\emph default 
+.
+\layout Standard
+
+O método chamado dentro do OOPTaskControl é 
+\emph on 
+UpdateVersions()
+\emph default 
+
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Estranhamente, todas as operações necessárias estavem programadas neste
+ método, mas estavem comentadas.
+\end_inset 
+
+.
+ 
+\layout Section*
+
+Funcionamento de autopointer
+\layout Standard
+
+O objeto autopointer é um objeto que 
+\emph on 
+administra
+\emph default 
+ o objeto em torno do qual foi criado.
+ Isto significa que somente um objeto autopointer pode ser criado em torno
+ de um objeto TPZSaveable.
+ Caso contrario, no destrutor do TPZAutoPointer o destrutor do objeto sera
+ chamado, independemente que este objeto é referenciado por outro autopointer.
+\layout Standard
+
+No código que existia, somente tinha metodo GetPointer que devolvia um ponteiro
+ para TPZSaveable.
+ Implicitamente este ponteira era convertido em TPZAutoPointer no método
+ Submit da class OOPMetaData.
+ Modifiquei o método Submit, trocando o argumento de objeto AutoPointer
+ para uma referencia para AutoPointer.
+ Isto tem como consequencia que o codigo nao compila caso tenta se passar
+ um objeto TPZSaveable * para o método.
+\layout Standard
+
+O método GetPointer somente pode ser utilizado excepcionalmente.
+ Foi colocado para satisfazer o objeto OOPTask.
+ Utiliza o método AutoPointer sempre.
+\layout Subsection*
+
+Como depurar um autopointer
+\layout Standard
+
+A chave do autopointer esta no seu mechanismo de contagem de objetos referenciad
+os.
+ Quando algum erro acontecer, é normalmente devido ao destrutor do objeto
+ a qual aponta.
+\layout Standard
+
+Normalmente, sabe-se qual deveria ser o contador do autopointer, porque
+ sabe-se quais objetos na estrutura de dados referenciam o mesmo objeto
+\emph on 
+ referenciado
+\emph default 
+.
+ Caso o contador esta errado, precisa-se procurar saber porque.
+\layout Standard
+
+Outra maneira é colocando um breakpoint na linha de codigo onde o destrutor
+ do objeto referenciado é chamado.
+ Olha-se o 
+\emph on 
+framestack
+\emph default 
+ do código para saber onde o destrutor do autopointer é chamado e tenta-se
+ entender porque o contador estava zerado.
+\layout Section*
+
+O que significa o operador < para OOPAccessTag
+\layout Standard
+
+O accesstag esta armazenado em um multiset dentro do metadata.
+ Por isso esta classe deve implementar o operador <.
+ Este operador vai determinar a ordem dentro da qual os objetos sao armazenados
+ dentro do 
+\emph on 
+container
+\emph default 
+.
+\layout Standard
+
+Nota que somente quando os objetos são 
+\emph on 
+iguais
+\emph default 
+ o operador < vai retornar false para ambos 
+\begin_inset Formula $A<B$
+\end_inset 
+
+ e 
+\begin_inset Formula $B<A$
+\end_inset 
+
+.
+\layout Standard
+
+Qual ordem queremos dar a esses objetos? O multiset contém o conjunto de
+ pedidos de acess.
+ O metadata vai utilizar o multiset para comparar a versão de um objeto
+ com a versão que cada um dos pedidos precisa.
+ Seria então lógico de ordenar os objetos por versão.
+\layout Standard
+
+Caso as versões são iguais, sabemos que um pedido de acesso a leitura tem
+ prioridade de consessão sobre um pedido de acesso a escrito.
+ Faria sentido colocar os objetos com acesso a leitura antes dos objetos
+ de acesso a escrito.
+\layout Standard
+
+A ordem dos processores não tem importância.
+\layout Standard
+
+Finalmente pode ser utilizado a comparação do ponteiro do objeto referenciado.
+\layout Subsection*
+
+Como calcular um operador de dados em sequencia
+\layout Standard
+
+Caso tem-se um vetor (conjunto de) objetos para os quais deseja-se estabelecer
+ uma comparação, existe a possibilidade de proseguir da seguinte forma:
+\layout Standard
+
+Percorrer os objetos em ordem
+\layout Standard
+
+Caso 
+\begin_inset Formula $A[i]<B[i]$
+\end_inset 
+
+ return true; 
+\layout Standard
+
+Caso 
+\begin_inset Formula $A[i]!=B[i]$
+\end_inset 
+
+ return false; (poderia ser 
+\begin_inset Formula $B[i]>A[i]$
+\end_inset 
+
+)
+\layout Standard
+
+Existem diversas outras maneiras para comparar uma sequencia de objetos
+ (pense por exemplo em comparar dois numeros impressos).
+ O importante é que a operação == deve poder ser implementada como 
+\begin_inset Formula $!(A<B)&&!(B<A)$
+\end_inset 
+
+.
+\layout Standard
+
+Adaptei a programação das classes OOPDataVersion, OOPAccessTag e OOPObjectId.
+\the_end

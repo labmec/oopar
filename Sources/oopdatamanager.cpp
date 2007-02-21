@@ -298,8 +298,8 @@ void OOPDataManager::SubmitAllObjects()
     fMessages.clear();
   }
   std::list< std::pair<int, OOPAccessTag> >::iterator it;
-  it = fMessages.begin();
-  while(it != fMessages.end())
+  it = tempList.begin();
+  while(it != tempList.end())
   {
     switch(it->first)
     {

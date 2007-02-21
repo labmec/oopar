@@ -299,7 +299,7 @@ void OOPDataManager::SubmitAllObjects()
   }
   std::list< std::pair<int, OOPAccessTag> >::iterator it;
   it = tempList.begin();
-  while(it != tempList.end())
+  for(it = tempList.begin();it != tempList.end();it++)
   {
     switch(it->first)
     {
@@ -312,8 +312,6 @@ void OOPDataManager::SubmitAllObjects()
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractObjectFromTag(it->second);
-        fMessages.erase(it);
-        it = fMessages.begin();
       }
       break;
       case EDMOwner:
@@ -325,8 +323,6 @@ void OOPDataManager::SubmitAllObjects()
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractOwnerTaskFromTag(it->second); 
-        fMessages.erase(it);
-        it = fMessages.begin();
       }
       break;
       case EDMRequest:
@@ -338,8 +334,6 @@ void OOPDataManager::SubmitAllObjects()
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractRequestFromTag(it->second);
-        fMessages.erase(it);
-        it = fMessages.begin();
       }
       break;
       default:

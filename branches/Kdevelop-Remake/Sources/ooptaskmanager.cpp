@@ -125,6 +125,13 @@ void OOPTaskManager::SnapShotMe()
 void OOPTaskManager::GrantAccess(OOPAccessTag & tag)
 {
   std::pair< TMMessageType, OOPAccessTag> item(ETMAccessGranted, tag);
+#ifdef LOGPZ
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Granting Access ";
+  //cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
+  LOGPZ_DEBUG (logger, sout.str ());
+
+#endif
   OOPTMLock lock;
   fMessages.push_back(item);
 }
@@ -231,6 +238,7 @@ void * OOPTaskManager::ExecuteMT(void *data)
     std::stringstream sout;
     sout << "Entering task list loop";
     LOGPZ_DEBUG (logger, sout.str ());
+    cout << sout.str() << endl;
   }
 #endif
   lTM->fKeepGoing = true;
@@ -239,7 +247,8 @@ void * OOPTaskManager::ExecuteMT(void *data)
   {
     CM->ReceiveMessages ();
     lTM->ExecuteDaemons ();
-    while (lTM->fExecutable.size ()  && (int) lTM->fExecuting.size () < lTM->fNumberOfThreads) 
+    lTM->HandleMessages();
+    while (lTM->fExecutable.size ()  && (int) lTM->fExecuting.size() < lTM->fNumberOfThreads) 
     {
       cout << " Inside second while " << __LINE__ << endl;
       i = lTM->fExecutable.begin ();
@@ -258,6 +267,8 @@ void * OOPTaskManager::ExecuteMT(void *data)
       lTM->TransferExecutingTasks ();
       DM->SubmitAllObjects ();
     }
+    DM->SubmitAllObjects ();
+    
     lTM->TransferExecutingTasks ();
     lTM->TransferFinishedTasks ();
     CM->ReceiveMessages ();
@@ -330,6 +341,7 @@ void * OOPTaskManager::ExecuteMT(void *data)
       }
     }
   }
+  cout << " Keep Going " << lTM->fKeepGoing << " size " << lTM->fExecuting.size() << " -----------------------  " << endl;
 #ifdef LOGPZ
   {
     std::stringstream sout;
@@ -1188,8 +1200,135 @@ OOPTaskManager::PrintTaskQueues (char *msg, std::ostream & out)
     out << (*j)->Id () << endl;
 
 }
+void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
+{
+  if (!pthread_equal (fExecuteThread, pthread_self ())) {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
+    LOGPZ_ERROR (logger, sout.str ());
+#endif
+  }
+  list < OOPTaskControl * >::iterator i;
+  bool found = false;
+  for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
+    OOPTaskControl *tc = (*i);
+    if (tc->Task ()->Id () == tag.TaskId()) {
+      found = true;
+      tc->Task()->GrantAccess (tag);
+      {
+#ifdef OOP_MPE
+        stringstream auxsout;
+        auxsout << "T:" << tag.TaskId() << " " << tag.AccessMode();
+        OOPSoloEvent solo("grantaccess", auxsout.str());
+#endif
+#ifdef LOGPZ
+	stringstream sout;
+	sout << "Access Granted to taskId " << tag.TaskId() << " classid " << tc->Task()->ClassId();
+	sout << " on data " << tag.Id ();
+	LOGPZ_DEBUG (tasklogger, sout.str ());
+#endif
+      }
+      if (tc->Task()->CanExecute ()) {
+#ifdef LOGPZ
+	stringstream sout;
+	sout << "Task " << tag.TaskId() << " classid " << tc->ClassId ();
+	sout << " can execute";
+	LOGPZ_DEBUG (tasklogger, sout.str ());
+#endif
+	TransfertoExecutable (tc->Task ()->Id ());
+	{
+#ifdef LOGPZ
+	  stringstream sout;
+	  sout << "OOPTaskManager task is executable " << tag.TaskId() <<
+	    " classid " << tc->ClassId ();
+	  LOGPZ_DEBUG (tasklogger, sout.str ());
+#endif
+	}
+      }
+      break;
+    }
+  }
+  if (!found) {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << "Task not found on current TM: File:" << __FILE__ <<
+      " Line:" << __LINE__ << endl;
+    sout << " Task ";
+    tag.TaskId().Print (sout);
+    LOGPZ_ERROR (tasklogger, sout.str ());
+#endif
+  }
+  
+}
+void OOPTaskManager::ExtractCancelTaskFromTag(const OOPAccessTag & tag)
+{
+  cout << "NOT IMPLEMENTED !!!!!" << endl;
+} 
 
-
+void OOPTaskManager::HandleMessages()
+{
+  std::list< std::pair<int, OOPAccessTag> > tempList;
+  {
+    OOPTMLock lock;
+#ifdef LOG4CXX
+    if(fMessages.size())
+    {
+      std::stringstream sout;
+      sout << "Copying the following objects to a temporary list\n";
+      std::list< std::pair<int, OOPAccessTag> >::iterator it;
+      for(it=fMessages.begin(); it!= fMessages.end(); it++)
+      {
+        sout << "Message type " << it->first << std::endl;
+        sout << "AccessTag ";
+        it->second.Print(sout);
+        LOGPZ_DEBUG(logger,sout.str());
+      }
+    }
+#endif
+    tempList = fMessages;
+    fMessages.clear();
+  }
+  std::list< std::pair<int, OOPAccessTag> >::iterator it;
+  it = tempList.begin();
+  for(it = tempList.begin();it != tempList.end();it++)
+  {
+    switch(it->first)
+    {
+      case ETMAccessGranted:
+      {
+#ifdef LOG4CXX
+        std::stringstream sout;
+        sout << "Access Granted according to Tag ";
+        it->second.Print(sout);
+        LOGPZ_DEBUG(logger,sout.str());
+#endif
+        ExtractGrantAccessFromTag(it->second);
+      }
+      break;
+      case ETMCancelTask:
+      {
+#ifdef LOG4CXX
+        std::stringstream sout;
+        sout << "Extract CancelTask according to Tag ";
+        it->second.Print(sout);
+        LOGPZ_DEBUG(logger,sout.str());
+#endif
+        ExtractCancelTaskFromTag(it->second); 
+      }
+      break;
+      default:
+      {
+#ifdef LOGPZ    
+        stringstream sout;
+        sout << "Message Submitted with wrong message type, expect trouble";
+        LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif  
+      }
+    }
+  }
+  
+}
 
 OOPTerminationTask::~OOPTerminationTask ()
 {

@@ -5,6 +5,11 @@
 #include <pthread.h>
 #endif
 #include "ooptask.h"
+
+#ifdef OOP_MPE
+#include "oopevtmanager.h"
+#endif
+
 #include <list>
 #include <set>
 
@@ -246,7 +251,13 @@ private:
    * The list is composed by pairs of Type and AccessTags.
    * Types can be TMAccessGranted or TMCancelTask
    */
-  std::list <std::pair< TMMessageType, OOPAccessTag> > fMessages;
+  std::list <std::pair< int, OOPAccessTag> > fMessages;
+  /**
+   * Handles the messages contained on the fMessages list
+   */
+  void HandleMessages();
+  void ExtractGrantAccessFromTag(const OOPAccessTag & tag);
+  void ExtractCancelTaskFromTag(const OOPAccessTag & tag); 
 };
 
 

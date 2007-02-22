@@ -159,8 +159,11 @@ int main (int argc, char **argv)
     ttd->AddDependentData(OOPAccessTag(
                     IdA, EWriteAccess, ver,0));
 
-    cout << "Task A " << tta->Submit() << endl;
-//    cout << "Task B " << ttb->Submit() << endl;
+//    cout << "Task A " << tta->Submit() << endl;
+//    TM->TransferSubmittedTasks();
+    cout << "Task B " << ttb->Submit() << endl;
+//    TM->TransferSubmittedTasks();
+//    DM->SubmitAllObjects();
 //    cout << "Task C " << ttc->Submit() << endl;
 //    cout << "Task D " << ttd->Submit() << endl;
 		
@@ -211,6 +214,9 @@ int main (int argc, char **argv)
 }
 #endif
   sleep(3);
+  TM->SetKeepGoing(false);
+  sleep(1);
+  TM->Wait();
   cout << "Deleting DM\n";
   delete  DM;
   cout << "Deleting TM\n";

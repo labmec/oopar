@@ -102,6 +102,11 @@ public:
   {
     return this->fObjectAutoPtr;
   }
+  
+  void SetAutoPointer(TPZAutoPointer<TPZSaveable> pointer)
+  {
+    fObjectAutoPtr = pointer;
+  }
   bool IsMyAccessTag(const OOPAccessTag & granted);
   void ClearPointer()
   {

@@ -215,6 +215,7 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
     cout << " ID already assigned " << Tag.Id() << endl;
   }
   fObjId = Tag.Id();
+  fProc = fObjId.GetProcId();
   TPZAutoPointer<TPZSaveable> point(Tag.AutoPointer());
   SubmitVersion(point, Tag.Version());
 #ifdef LOGPZ
@@ -222,7 +223,8 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
   std::stringstream sout;
   sout << __PRETTY_FUNCTION__;
   this->PrintLog(sout);
-  LOGPZ_DEBUG(logger,sout.str());
+   LOGPZ_DEBUG(logger,sout.str());
+  cout << sout.str();
 }
 #endif
 }
@@ -297,7 +299,6 @@ void OOPMetaData::VerifyAccessRequests ()
 #endif
   }
 
-  cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
   if(!fAvailableVersions.size())
   {
 #ifdef LOGPZ
@@ -309,28 +310,29 @@ void OOPMetaData::VerifyAccessRequests ()
 #endif
     return;
   }
-  cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
-  OOPDataVersion version = Version();
+  std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::reverse_iterator verit = fAvailableVersions.rbegin();
+  if(verit == fAvailableVersions.rend()) 
+  {
+#ifdef LOGPZ
+      LOGPZ_DEBUG(logger,"Size of available versions empty leaving");
+#endif
+    return;
+  }
+  OOPDataVersion version = verit->first;
   OOPAccessTag tag = fAccessList.IncompatibleRequest(version);
   while (tag)
   {
-    cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
-    cout << "Tag Proc " << tag.Proc() << endl;
-    cout << "DM->GetProcID " << DM->GetProcID() << endl;
     if(tag.Proc() != DM->GetProcID())
     {
       cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << 
         " with Version " << tag.Version() << endl;
 #warning "Verify sending of OwnerTask here"
       OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
-      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
       otask->Submit();
-      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
      // send an owner task with the new version, so that tasks will be canceled there
     }
     else
     {
-      cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
 #ifdef LOGPZ
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << tag.Id() ;
@@ -341,11 +343,18 @@ void OOPMetaData::VerifyAccessRequests ()
     }
     tag = fAccessList.IncompatibleRequest(version);
   }
-  cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
   tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
-  cout << "Calling " << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
   while(tag)
   {
+    tag.SetAutoPointer(verit->second);
+#ifdef LOGPZ
+    {
+      std::stringstream sout;
+      sout << "Granting access to tag : ";
+      tag.Print(sout);
+      LOGPZ_DEBUG(logger,sout.str());
+    }
+#endif
     if(tag.Proc() == DM->GetProcID())
     {
       TM->GrantAccess(tag);
@@ -357,6 +366,37 @@ void OOPMetaData::VerifyAccessRequests ()
     }
     tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
   }
+  tag = fAccessList.GetCompatibleRequest(version,EWriteAccess);
+  if(tag)
+  {
+    tag.SetAutoPointer(verit->second);
+#ifdef LOGPZ
+    {
+      std::stringstream sout;
+      sout << "Granting access to tag : ";
+      tag.Print(sout);
+      LOGPZ_DEBUG(logger,sout.str());
+    }
+#endif
+    fAvailableVersions.erase(verit->first);
+
+    if(tag.Proc() == DM->GetProcID())
+    {
+      TM->GrantAccess(tag);
+    } 
+    else
+    {
+      OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
+      otask->Submit();
+    }
+  }
+#ifdef LOGPZ
+  {
+    std::stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " leaving";
+    LOGPZ_DEBUG(logger,sout.str());
+  }
+#endif
   
 }
 OOPObjectId OOPMetaData::Id () const

@@ -254,25 +254,13 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
   cout << sout.str() << endl;
 
 #endif  
-  
-  if(it != fObjects.end())
+  if(it == fObjects.end())
   {
-    it->second.SubmitAccessRequest(tag);
-  }else
-  {
-#ifdef LOGPZ    
-    stringstream sout;
-    sout << "Request submitted to non existent object Id " << tag.Id();
-    LOGPZ_DEBUG(logger,sout.str().c_str());
-    cout << sout.str() << endl;
-    cout << "Available objects " << endl;
-    cout << fObjects.size() << endl;
-    for(it = fObjects.begin();it!=fObjects.end();it++)
-    {
-      cout << it->second.Id() << endl;
-    }
-#endif
+    int proc = tag.Id().GetProcId();
+    OOPMetaData meta(tag.Id(),proc);
+    fObjects[tag.Id()] = meta;
   }
+  fObjects[tag.Id()].SubmitAccessRequest(tag);
 }
 void OOPDataManager::SubmitAllObjects()
 {

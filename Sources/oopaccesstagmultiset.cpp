@@ -30,17 +30,21 @@ void OOPAccessTagMultiSet::Print(std::ostream & out) const
 }
 OOPAccessTag OOPAccessTagMultiSet::GetCompatibleRequest(const OOPDataVersion & version, OOPMDataState need)
 {
+  OOPAccessTag result;
   std::multiset<OOPAccessTag>::iterator it;
   for(it = fTagMultiSet.begin(); it != fTagMultiSet.end(); it++)
   {
     if((it->Version() == version) && (it->AccessMode() == need))
     {
-      return *it;
+      result = *it;
+      fTagMultiSet.erase(it);
     }
   }
+  return result;
 }
 OOPAccessTag OOPAccessTagMultiSet::IncompatibleRequest(OOPDataVersion & version)
 {
+  OOPAccessTag result;
   std::multiset<OOPAccessTag>::iterator it;
   for(it = fTagMultiSet.begin(); it != fTagMultiSet.end(); it++)
   {
@@ -50,5 +54,6 @@ OOPAccessTag OOPAccessTagMultiSet::IncompatibleRequest(OOPDataVersion & version)
       return *it;
     }
   }
+  return result;
 }
 

@@ -325,7 +325,7 @@ void * OOPTaskManager::ExecuteMT(void *data)
           //LOGPZ_DEBUG(tasklogger,sout.str().c_str());
         }
 #endif
-        cout << "Going to sleep ---------------------------------------------- TM" << endl;
+        //cout << "Going to sleep ---------------------------------------------- TM" << endl;
 	sem_wait(&lTM->fServiceSemaphore);
       }
     }
@@ -1001,22 +1001,19 @@ void OOPTaskManager::TransferSubmittedTasks ()
     LOGPZ_DEBUG (logger, sout.str ());
 #endif
   }
-  //cout << __PRETTY_FUNCTION__ << " Locking on fSubmittedMutex \n";
-  //pthread_mutex_lock(&fSubmittedMutex);
-#warning "pthread_mutex_lock(&fSubmittedMutex);"
   
   //cout << __PRETTY_FUNCTION__ << " Locking on fSubmittedMutex Succeded \n";
+  DM->SubmitAllObjects ();
   {
     OOPTMLock lock;
     list < OOPTask * >::iterator sub;
-    DM->SubmitAllObjects ();
   
     int listsize = fSubmittedList.size ();
     sub = fSubmittedList.begin ();
     OOPTask *aux = 0;
     if (listsize) {
       aux = (*sub);
-      fSubmittedList.erase (sub);
+      fSubmittedList.pop_front();
     }
     while (aux)
     {
@@ -1047,19 +1044,17 @@ void OOPTaskManager::TransferSubmittedTasks ()
         fTaskList.push_back (tc);
         tc->Task()->SubmitDependencyList();
       }
-      DM->SubmitAllObjects ();
       listsize = fSubmittedList.size ();
       sub = fSubmittedList.begin ();
       aux = 0;
       if (listsize) {
         aux = (*sub);
-        fSubmittedList.erase (sub);
+        fSubmittedList.pop_front();
       }
     }
-    WakeServiceThread();
   }
-  //cout << __PRETTY_FUNCTION__ << " UnLocking on fSubmittedMutex \n";
-#warning "pthread_mutex_unlock(&fSubmittedMutex);"
+  WakeServiceThread();
+  DM->SubmitAllObjects();
 }
 void OOPTaskManager::TransferFinishedTasks ()
 {

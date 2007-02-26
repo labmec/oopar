@@ -12,6 +12,18 @@
 #include "oopaccesstaglist.h"
 #include "oopdatamanager.h"
 
+#include <pzlog.h>
+#ifdef LOG4CXX
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDataManager"));
+#endif
+
+
 OOPAccessTagList::OOPAccessTagList()
 {
 }
@@ -134,12 +146,31 @@ void OOPAccessTagList::Read(TPZStream & buf, void *context)
 
 void OOPAccessTagList::PostRequests(OOPObjectId & Id)
 {
+#ifdef LOGPZ
+  {
+  stringstream sout;
+  sout << "Posting Access Requests for Task " << Id;
+  LOGPZ_DEBUG(logger,sout.str().c_str());
+  }
+#endif
   int processor = DM->GetProcID();
   int i = 0;
+#ifdef LOGPZ
+  stringstream sout;
+#endif
   for(i=0;i<fTagList.size();i++)
   {
+#ifdef LOGPZ
+    sout << "Data " << fTagList[i].Id() << " ";
+    sout << "Access " << fTagList[i].AccessMode() << " ";
+    sout << "Processor " << processor << endl;
+#endif    
     fTagList[i].SetProcessor(processor);
     fTagList[i].SetTaskId(Id);
     DM->PostAccessRequest( fTagList[i]);
   }
+#ifdef LOGPZ
+  LOGPZ_DEBUG(logger,sout.str());
+#endif
+  
 }

@@ -310,7 +310,7 @@ void OOPMetaData::VerifyAccessRequests ()
 #endif
     return;
   }
-  std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::reverse_iterator verit = fAvailableVersions.rbegin();
+  std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::reverse_iterator testit,verit = fAvailableVersions.rbegin();
   if(verit == fAvailableVersions.rend()) 
   {
 #ifdef LOGPZ
@@ -319,6 +319,9 @@ void OOPMetaData::VerifyAccessRequests ()
     return;
   }
   OOPDataVersion version = verit->first;
+  cout << " Count of verit" << verit->second.Count() << endl;
+  testit = fAvailableVersions.rbegin();
+  cout << " Count of testit" << testit->second.Count() << endl;
   OOPAccessTag tag = fAccessList.IncompatibleRequest(version);
   while (tag)
   {
@@ -366,28 +369,31 @@ void OOPMetaData::VerifyAccessRequests ()
     }
     tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
   }
-  tag = fAccessList.GetCompatibleRequest(version,EWriteAccess);
-  if(tag)
+  if(verit->second.Count() == 1)
   {
-    tag.SetAutoPointer(verit->second);
-#ifdef LOGPZ
+    tag = fAccessList.GetCompatibleRequest(version,EWriteAccess);
+    if(tag)
     {
-      std::stringstream sout;
-      sout << "Granting access to tag : ";
-      tag.Print(sout);
-      LOGPZ_DEBUG(logger,sout.str());
-    }
-#endif
-    fAvailableVersions.erase(verit->first);
-
-    if(tag.Proc() == DM->GetProcID())
-    {
-      TM->GrantAccess(tag);
-    } 
-    else
-    {
-      OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
-      otask->Submit();
+      tag.SetAutoPointer(verit->second);
+  #ifdef LOGPZ
+      {
+        std::stringstream sout;
+        sout << "Granting access to tag : ";
+        tag.Print(sout);
+        LOGPZ_DEBUG(logger,sout.str());
+      }
+  #endif
+      fAvailableVersions.erase(verit->first);
+  
+      if(tag.Proc() == DM->GetProcID())
+      {
+        TM->GrantAccess(tag);
+      } 
+      else
+      {
+        OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
+        otask->Submit();
+      }
     }
   }
 #ifdef LOGPZ

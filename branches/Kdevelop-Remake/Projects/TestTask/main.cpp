@@ -108,8 +108,99 @@ int mainorig (int argc, char **argv)
 	return 0;
 	
 }
-int main (int argc, char **argv)
+int debugmpimain(int argc, char **argv)
+{
+  CM = new OOPMPICommManager (argc, argv); 
+  TM = new OOPTaskManager (CM->GetProcID ());
+  DM = new OOPDataManager (CM->GetProcID ());
+  
 
+  TM->Execute();
+  if(!CM->GetProcID())
+  {
+    OOPInt * inta = new OOPInt;
+  
+    OOPObjectId IdA;
+    IdA = DM->SubmitObject(inta);
+    cout << "Submitted OOPInt object Id " << IdA << endl;
+    TTaskTest * tta = new TTaskTest(0);
+    TTaskTest * ttb = new TTaskTest(1);
+    OOPDataVersion ver;
+    tta->AddDependentData(OOPAccessTag(
+                      IdA, EWriteAccess, ver,0));
+    tta->Submit();
+    ++ver;
+    ttb->AddDependentData( OOPAccessTag(
+                      IdA, EWriteAccess, ver,0));
+    ttb->Submit();
+    ++ver;
+  }
+  TM->Wait();
+/*  OOPTerminationTask * tt = new OOPTerminationTask(0);
+  tt->AddDependentData(  OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));
+                    
+  tt->Submit();*/
+    
+  return 0;
+}
+int debugmain(int argc, char **argv)
+{
+  CM = new OOPMPICommManager ();//(argc, argv); 
+  TM = new OOPTaskManager (0);//CM->GetProcID ());
+  DM = new OOPDataManager (0);//CM->GetProcID ());
+  
+  OOPInt * inta = new OOPInt;
+
+  OOPObjectId IdA;
+  IdA = DM->SubmitObject(inta);
+  cout << "Submitted OOPInt object Id " << IdA << endl;
+  
+  DM->SnapShotMe();
+
+
+  TTaskTest * tta = new TTaskTest(0);
+  TTaskTest * ttb = new TTaskTest(0);
+  OOPDataVersion ver;
+  tta->AddDependentData(OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));
+  tta->Submit();
+  DM->SnapShotMe();
+  ++ver;
+  ttb->AddDependentData( OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));
+  ttb->Submit();
+  ++ver;
+  DM->SnapShotMe();
+  OOPTerminationTask * tt = new OOPTerminationTask(0);
+  tt->AddDependentData(  OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));
+                    
+  //colocar para dentro do Execute do TM
+  tt->Submit();
+ // DM->HandleMessages();
+  DM->SnapShotMe();
+  TM->SetKeepGoing( true);
+  int inp;
+  while (TM->KeepRunning())
+  {
+    TM->TransferSubmittedTasks();
+    DM->HandleMessages();
+    TM->HandleMessages();
+  DM->SnapShotMe();
+    DM->VerifyAccessRequests();
+    TM->TriggerTasks();
+    TM->WaitWakeUpCall();
+  }
+  
+  return 0;
+}
+int main(int argc, char **argv)
+{
+  debugmain(argc, argv);
+  return 0;
+}
+int mpimain (int argc, char **argv)
 {
   CM = new OOPMPICommManager (argc, argv); 
 #ifdef LOG4CXX
@@ -133,6 +224,7 @@ int main (int argc, char **argv)
     //OOPInt * intb = new OOPInt;
     OOPObjectId IdA, IdB;
     IdA = DM->SubmitObject(inta);
+    cout << "Submitted OOPInt object Id " << IdA << endl;
     //IdB = DM->SubmitObject(intb, 1);
   
     TTaskTest * tta = new TTaskTest(0);
@@ -159,8 +251,8 @@ int main (int argc, char **argv)
     ttd->AddDependentData(OOPAccessTag(
                     IdA, EWriteAccess, ver,0));
 
-//    cout << "Task A " << tta->Submit() << endl;
-//    TM->TransferSubmittedTasks();
+/*    cout << "Task A " << tta->Submit() << endl;
+    TM->TransferSubmittedTasks();*/
     cout << "Task B " << ttb->Submit() << endl;
 //    TM->TransferSubmittedTasks();
 //    DM->SubmitAllObjects();
@@ -180,20 +272,20 @@ int main (int argc, char **argv)
                     IdA, EReadAccess, ver,0));
 /*		wt->AddDependentData(OOPMDataDepend(
 				IdB, EWriteAccess, ver));*/
-//    cout << "Wait Task " << wt->Submit()  << endl;
-//     cout << "Calling Wait Task\n";
-//     wt->Wait();
-//     wt->Finish();
-//     cout << "Wait task finished\n";
-//     int iproc;
-//     for(iproc=1; iproc<CM->NumProcessors(); iproc++)
-//     {
-//       OOPTerminationTask *task = new OOPTerminationTask(iproc);
-//       task->Submit();
-//     }
-//     sleep(1);
-//     OOPTerminationTask *task = new OOPTerminationTask(0);
-//     task->Submit();
+    cout << "Wait Task " << wt->Submit()  << endl;
+    cout << "Calling Wait Task\n";
+    wt->Wait();
+    wt->Finish();
+    cout << "Wait task finished\n";
+    int iproc;
+    for(iproc=1; iproc<CM->NumProcessors(); iproc++)
+    {
+      OOPTerminationTask *task = new OOPTerminationTask(iproc);
+      task->Submit();
+    }
+    sleep(1);
+    OOPTerminationTask *task = new OOPTerminationTask(0);
+    task->Submit();
   }
 // 	 
 //   TM->Wait();
@@ -203,11 +295,13 @@ int main (int argc, char **argv)
     LOGPZ_DEBUG(logger,"before SubmitAllObjects");
   }
 #endif
+/**
   int ic;
   for(ic=0; ic<1000; ic++)
   {
     DM->SubmitAllObjects();
   }
+*/
 #ifdef LOGPZ
 {
   LOGPZ_DEBUG(logger,"after SubmitAllObjects");

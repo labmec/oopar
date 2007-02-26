@@ -19,6 +19,7 @@ OOPAccessTag::OOPAccessTag()
 
 OOPAccessTag::~OOPAccessTag()
 {
+  fProcessor = -1;
 }
 OOPAccessTag::operator bool ()
 {

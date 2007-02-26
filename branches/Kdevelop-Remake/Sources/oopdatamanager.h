@@ -53,6 +53,11 @@ public:
    */
   ~OOPDataManager ();
   /**
+   * Encapsulates the call for SubmittAllObjects.
+   * Only for minemonic reasons
+   */
+  void HandleMessages();
+  /**
    * Inserts a ObjectChanged entry on the fChangedObject list
    */
   void ObjectChanged(const OOPObjectId & Id);
@@ -115,11 +120,11 @@ public:
    */
   void    GetUpdate (OOPDMRequestTask * task);
   
-private:
   /**
    * Verifies access requests for OOPMetaData objects stores fObjects
    */
   void VerifyAccessRequests();
+private:
   /**
    * Processor where the processor is located.
    */

@@ -168,16 +168,29 @@ public:
   static void *ExecuteMT (void *data);
 
   void GrantAccess(OOPAccessTag & tag);
-private:
   /**
    * Post the ServiceThread semaphore
    * Service thread now sleeps based on a semaphore type
    * Semaphore are used instead of mutex and conditional variables combined.
    * Semaphores avoid deadlocking in the cond_signal, cond_wait, mutex_lock and unlocking
    */
-  void WakeServiceThread(){
+  void WakeUpCall(){
+    //cout << __PRETTY_FUNCTION__ << " Called " << endl;
     sem_post(&fServiceSemaphore);
   }
+  /**
+   * Returns true if the service thread has work to do
+   */
+  bool KeepRunning();
+  void WaitWakeUpCall();
+  void TriggerTasks();
+
+  /**
+   * Handles the messages contained on the fMessages list
+   */
+  void HandleMessages();
+
+private:
 
   /** 
    * Max number of threads
@@ -252,10 +265,6 @@ private:
    * Types can be TMAccessGranted or TMCancelTask
    */
   std::list <std::pair< int, OOPAccessTag> > fMessages;
-  /**
-   * Handles the messages contained on the fMessages list
-   */
-  void HandleMessages();
   void ExtractGrantAccessFromTag(const OOPAccessTag & tag);
   void ExtractCancelTaskFromTag(const OOPAccessTag & tag); 
 };

@@ -3,11 +3,14 @@
 
 
 OOPMReturnType TTaskTest::Execute(){
-	cout << "Executing Task " << Id() << " Goint out in 1 secs\n";
-	cout.flush();
-	sleep(1);
-	IncrementWriteDependentData();
-	return ESuccess;
+  int wait = 0;
+  wait = 3;  
+  cout << "Executing Task " << Id() << " Goint out in " << wait << " secs\n";
+  cout.flush();
+  sleep(wait);
+  IncrementWriteDependentData();
+  cout << "Leaving Executing Task " << endl;
+  return ESuccess;
 }
 
 void TTaskTest::Write(TPZStream & buf, int withclassid){

@@ -168,9 +168,19 @@ void
 OOPTask::IncrementWriteDependentData ()
 {
   fDependRequest.IncrementWriteDependent();
+  TM->WakeUpCall();
 }
 
 void OOPTask::SubmitDependencyList()
 {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Submitting Dependency List for Task" <<
+      fTaskId;
+    LOGPZ_DEBUG(logger, sout.str ());
+#ifdef VERBOSE
+    cout << sout.str() << endl;
+#endif
+#endif
   fDependRequest.PostRequests(fTaskId);
 }

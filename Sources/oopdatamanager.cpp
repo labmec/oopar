@@ -112,12 +112,11 @@ void OOPDataManager::PostData(OOPAccessTag & tag)
 //void OOPDataManager::
 OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj)
 {
-  TPZAutoPointer<TPZSaveable> ptr(obj);
   OOPObjectId id = DM->GenerateId ();
-
+  TPZAutoPointer<TPZSaveable> ptr(obj);
   OOPAccessTag tag(id,ptr);
   PostData(tag);
-#ifdef DEBUG
+#ifdef DEBUGPARANOID
   if(!CM->GetProcID())
     {
       std::ostringstream FileName, FileName2,command,subdir1,subdir2,subdir3;
@@ -232,8 +231,6 @@ void OOPDataManager::ExtractObjectFromTag(OOPAccessTag & tag)
   LOGPZ_DEBUG(logger,sout.str());
 #endif
   fObjects[tag.Id()].SubmitTag(tag);
-  cout << endl << " Called " << __PRETTY_FUNCTION__ <<  __LINE__ << endl;
-  cout << "fObjects size " << fObjects.size() << endl;
 }
 void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
 {
@@ -251,8 +248,9 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
     " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
     " and AccessMode " << tag.AccessMode();
   LOGPZ_DEBUG(logger,sout.str().c_str());
+#ifdef VERBOSE  
   cout << sout.str() << endl;
-
+#endif
 #endif  
   if(it == fObjects.end())
   {
@@ -261,6 +259,10 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
     fObjects[tag.Id()] = meta;
   }
   fObjects[tag.Id()].SubmitAccessRequest(tag);
+}
+void OOPDataManager::HandleMessages()
+{
+  SubmitAllObjects();
 }
 void OOPDataManager::SubmitAllObjects()
 {
@@ -285,9 +287,10 @@ void OOPDataManager::SubmitAllObjects()
     tempList = fMessages;
     fMessages.clear();
   }
+  SnapShotMe();
   std::list< std::pair<int, OOPAccessTag> >::iterator it;
   it = tempList.begin();
-  for(it = tempList.begin();it != tempList.end();it++)
+  while(it != tempList.end())
   {
     switch(it->first)
     {
@@ -300,6 +303,7 @@ void OOPDataManager::SubmitAllObjects()
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractObjectFromTag(it->second);
+        SnapShotMe();
       }
       break;
       case EDMOwner:
@@ -310,7 +314,8 @@ void OOPDataManager::SubmitAllObjects()
         it->second.Print(sout);
         LOGPZ_DEBUG(logger,sout.str());
 #endif
-        ExtractOwnerTaskFromTag(it->second); 
+        ExtractOwnerTaskFromTag(it->second);
+         
       }
       break;
       case EDMRequest:
@@ -322,6 +327,7 @@ void OOPDataManager::SubmitAllObjects()
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractRequestFromTag(it->second);
+        SnapShotMe();
       }
       break;
       default:
@@ -333,19 +339,46 @@ void OOPDataManager::SubmitAllObjects()
 #endif  
       }
     }
+    tempList.erase(it);
+    it=tempList.begin();
+    SnapShotMe();
+  }
+  if (tempList.size())
+  {
+    //Notify TM that there are new messages for the DM
+    //TM->WakeUpCall();
   }
 }
 void OOPDataManager::VerifyAccessRequests()
 {
-  std::map<OOPObjectId, OOPMetaData>::iterator it;
-  for(it = fObjects.begin(); it!=fObjects.end();it++)
+  std::list<OOPObjectId> tmpList;
   {
-    it->second.VerifyAccessRequests();
+    OOPDMLock lock;
+    tmpList = fChangedObjects;
+    fChangedObjects.clear();
+  }
+  std::list< OOPObjectId >::iterator itlst;
+  itlst = tmpList.begin();
+  while(itlst != tmpList.end())
+  {
+    std::map<OOPObjectId, OOPMetaData>::iterator it;
+    it = fObjects.find(*itlst);
+    if(it!=fObjects.end())
+    {
+      it->second.VerifyAccessRequests();
+    }
+    tmpList.erase(itlst);
+    itlst = tmpList.begin();
   }
 }
 
 void OOPDataManager::SnapShotMe()
 {
+  map < OOPObjectId, OOPMetaData >::iterator it = fObjects.begin();
+  for(;it!= fObjects.end();it++)
+  {
+    it->second.Print(cout);
+  }
 #warning "Still requires implementation"
 }
 

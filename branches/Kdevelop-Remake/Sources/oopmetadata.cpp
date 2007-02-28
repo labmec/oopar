@@ -319,9 +319,6 @@ void OOPMetaData::VerifyAccessRequests ()
     return;
   }
   OOPDataVersion version = verit->first;
-  cout << " Count of verit" << verit->second.Count() << endl;
-  testit = fAvailableVersions.rbegin();
-  cout << " Count of testit" << testit->second.Count() << endl;
   OOPAccessTag tag = fAccessList.IncompatibleRequest(version);
   while (tag)
   {
@@ -535,7 +532,7 @@ void OOPMetaData::Print (std::ostream & out)
 	}
 	out << "Owning processor " << fProc << endl;
 	out << "fAccessList size " << fAccessList.Count() << endl;
-	//fAccessList.Print(out);
+	fAccessList.Print(out);
 	out.flush ();
 }
 void OOPMetaData::ShortPrint(std::ostream & out)
@@ -553,7 +550,7 @@ void OOPMetaData::PrintLog (std::ostream & out)
 		<< */" processor " << fProc << endl;
 	out << " OOPData structure" << endl;
 	out << "fAccessList size " << fAccessList.Count() << endl;
-	//fAccessList.Print(out);
+	fAccessList.Print(out);
 	out.flush ();
 }
 void OOPMetaData::SendAccessRequest (const OOPAccessTag &tag)

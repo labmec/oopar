@@ -44,12 +44,10 @@ class OOPTerminationTask;
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
-using namespace
-  log4cxx::helpers;
-static LoggerPtr
-logger (Logger::getLogger ("OOPAR.OOPTaskManager"));
-static LoggerPtr
-tasklogger (Logger::getLogger ("OOPAR.OOPTaskManager.task"));
+using namespace log4cxx::helpers;
+
+static LoggerPtr logger (Logger::getLogger ("OOPar.OOPTaskManager"));
+static LoggerPtr tasklogger (Logger::getLogger ("OOPar.OOPTaskManager.OOPTask"));
 #endif
 
 static ofstream
@@ -127,7 +125,7 @@ void OOPTaskManager::GrantAccess(OOPAccessTag & tag)
   std::pair< TMMessageType, OOPAccessTag> item(ETMAccessGranted, tag);
 #ifdef LOGPZ
   stringstream sout;
-  sout << __PRETTY_FUNCTION__ << " Granting Access ";
+  sout << "Task " << tag.TaskId() << " Received Access from Request " << tag.AccessModeString();
   LOGPZ_DEBUG (logger, sout.str ());
 #ifdef VERBOSE
   cout << sout.str() << endl;
@@ -150,20 +148,18 @@ OOPTaskManager::NumberOfThreads ()
 
 void OOPTaskManager::TransferExecutingTasks ()
 {
+#warning "Verify the necessity of this thread self check"
 #ifdef CHECKTHREADSELF
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
 #ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    //cout << __PRETTY_FUNCTION__ << " called by foreign thread\n";
     LOGPZ_ERROR (logger, sout.str ());
-
 #endif
     return;
   }
 #endif
   list < OOPTaskControl * >::iterator sub;
-  //int listsize = fExecuting.size();
   sub = fExecuting.begin ();
   OOPTaskControl *auxtc = 0;
   while (sub != fExecuting.end ()) {
@@ -171,34 +167,36 @@ void OOPTaskManager::TransferExecutingTasks ()
     auxtc = (*sub);
     {
       OOPTMLock lock;
-      //pthread_mutex_lock(&fExecutingMutex);
       if (auxtc) {
-  //      cout << __PRETTY_FUNCTION__ << " AUX TC VALID " << __LINE__ << endl;
         isfinished = auxtc->TaskFinished ();
       } else {
   #ifdef LOGPZ
         stringstream sout;
         sout << __FUNCTION__ << " I dont understand \n";
-        //cout << __FUNCTION__ << " I dont understand \n";
         LOGPZ_ERROR (logger, sout.str ());
   #endif
       }
-      // cout << __PRETTY_FUNCTION__ << " and line " << __LINE__ << endl;
-      //aqui é um ponto
-      //WakeUpCall();
-      //pthread_mutex_unlock(&fExecutingMutex);
     }
     
     if (isfinished) {
-      //cout << __PRETTY_FUNCTION__ << " IS FINISHED and line " << __LINE__ <<
-      //" taskid " << auxtc->Id() <<  endl;
+#ifdef LOGPZ
+      {
+      stringstream sout;
+      sout << "Task " << auxtc->Id() << " Finshed\nCalling TaskControl->Join()\n";
+      LOGPZ_ERROR (logger, sout.str ());
+      }
+#endif
+    
       auxtc->Join ();
       WakeUpCall();
 #ifdef LOGPZ
+      {
       stringstream sout;
-      sout << __PRETTY_FUNCTION__ << "Task finished " << auxtc->
+      sout << "TaskControl::ThreadExec Joined ServiceThread\n";
+      sout << "Task finished " << auxtc->
 	Id () << " classid " << auxtc->ClassId ();
       LOGPZ_DEBUG (tasklogger, sout.str ());
+      }
 #endif
       OOPObjectId id;
       id = auxtc->Id ();
@@ -207,19 +205,14 @@ void OOPTaskManager::TransferExecutingTasks ()
       list < OOPTaskControl * >::iterator keep;
       keep = sub;
       fExecuting.erase (keep);
-      // a finished task may have sneeked in during the unlock/lock sequence
       sub = fExecuting.begin ();
     } else {
       sub++;
     }
   }
-
 }
 
 #ifdef OOP_MPI
-/**
-	disparar o thread de execuï¿½o da tarefa.
-*/
 
 void * OOPTaskManager::ExecuteMT(void *data)
 {
@@ -341,7 +334,6 @@ void * OOPTaskManager::ExecuteMT(void *data)
           //LOGPZ_DEBUG(tasklogger,sout.str().c_str());
         }
 #endif
-        //cout << "Going to sleep ---------------------------------------------- TM" << endl;
 	sem_wait(&lTM->fServiceSemaphore);
       }
     }
@@ -363,22 +355,53 @@ void *
 OOPTaskManager::ExecuteMTBlocking (void *data)
 {
   OOPTaskManager *lTM = static_cast < OOPTaskManager * >(data);
-
-  //Trigger Listen thread for the CM
   cout << "Obtaining CM Object " << endl;
-  ((OOPMPICommManager *)CM)->ReceiveMessagesBlocking();  
-  
+  OOPMPICommManager * MPICM = NULL;
+  MPICM = static_cast<OOPMPICommManager *>(CM);
+  if(!MPICM)
+  {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << "MPICommManager not valid ! Bailing out\nRETURNING NULL FROM SERVICE THREAD!\nFAREWELL" << endl;
+    LOGPZ_ERROR(logger, sout.str());
+#endif
+    return NULL;
+  }
+  if(MPICM->ReceiveMessagesBlocking())
+  {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << "MPICommManager Could not initialize the receiving thread !\nRETURNING NULL FROM SERVICE THREAD!\nFAREWELL" << endl;
+    LOGPZ_ERROR(logger, sout.str());
+#endif
+    return NULL;
+  }
+  {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << "Setting KeepGoing Flag to true and entering TM Inifinit loop" << endl;
+    LOGPZ_DEBUG(logger, sout.str());
+#endif
+    return NULL;
+  }
   lTM->SetKeepGoing( true);
-  int inp;
-  while (TM->KeepRunning())
+  while (lTM->KeepRunning())
   {
     lTM->TransferSubmittedTasks();
     DM->HandleMessages();
     lTM->HandleMessages();
-    DM->VerifyAccessRequests();
+    DM->FlushData();
     lTM->TriggerTasks();
     lTM->WaitWakeUpCall();
   }
+  {
+#ifdef LOGPZ
+  stringstream sout;
+  sout << "Leaving TM Inifinit loop\nHopefully TM was shutdown by a TerminationTask." << endl;
+  LOGPZ_DEBUG(logger, sout.str());
+#endif
+  }
+  
 }
 void OOPTaskManager::TriggerTasks()
 {
@@ -386,7 +409,6 @@ void OOPTaskManager::TriggerTasks()
   //while (fExecutable.size()  && (int) fExecuting.size()) 
   while ((int)fExecutable.size())//  || (int)fExecuting.size())
   {
-    cout << "Inside TriggerTask While " << endl;
     i = fExecutable.begin ();
     OOPTaskControl *tc = (*i);
     fExecutable.erase (i);
@@ -408,9 +430,27 @@ void OOPTaskManager::TriggerTasks()
 }
 void OOPTaskManager::WaitWakeUpCall()
 {
-  cout << " Going to sleep in " << __PRETTY_FUNCTION__ << endl;
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Going to sleep in " << __PRETTY_FUNCTION__ << endl;
+    LOGPZ_DEBUG (tasklogger, sout.str ());
+#ifdef VERBOSE
+    cout << sout.str() << endl;
+#endif
+  }
+#endif
   sem_wait(&fServiceSemaphore);
-  cout << " Awaken in " << __PRETTY_FUNCTION__ << endl; 
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Awaken from sem_wait in " << __PRETTY_FUNCTION__ << endl;
+    LOGPZ_DEBUG (tasklogger, sout.str ());
+#ifdef VERBOSE
+    cout << sout.str() << endl;
+#endif
+  }
+#endif
 }
 
 bool OOPTaskManager::KeepRunning()
@@ -720,7 +760,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 #ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Task with id " << task->
-      Id () << " submitted for processor" << task->
+      Id () << " submitted for processor " << task->
       GetProcID () << " classid " << task->ClassId ();
     LOGPZ_DEBUG (tasklogger, sout.str ());
 #endif
@@ -1192,37 +1232,7 @@ void OOPTaskManager::TransferFinishedTasks ()
       LOGPZ_DEBUG (tasklogger, sout.str ());
     }
 #endif
-    if (auxtc->Task () && auxtc->Task ()->IsRecurrent ()
-	&& auxtc->Task ()->GetProcID () != fProc) {
-#ifdef LOGPZ
-      {
-	stringstream sout;
-	sout << __PRETTY_FUNCTION__ << " task " << auxtc->
-	  Id () << " classid " << auxtc->
-	  ClassId () << " transferred from " << fProc << " to " << auxtc->
-	  Task ()->GetProcID ();
-	LOGPZ_DEBUG (tasklogger, sout.str ());
-      }
-#endif
-      CM->SendTask (auxtc->Task ());
-      auxtc->ZeroTask ();
-      delete auxtc;
-    } else if (auxtc->Task () && auxtc->Task ()->IsRecurrent ()) {
-#ifdef LOGPZ
-      {
-	stringstream sout;
-	sout << __PRETTY_FUNCTION__ << " task " << auxtc->
-	  Id () << " classid " << auxtc->ClassId () << " resubmitted";
-	LOGPZ_DEBUG (tasklogger, sout.str ());
-      }
-#endif
-      auxtc->Task ()->ClearDependentData();
-      fTaskList.push_back (auxtc);
-      
-      auxtc->Task()->SubmitDependencyList ();
-    } else {
-      delete auxtc;
-    }
+    delete auxtc;
     listsize = fFinished.size ();
     auxtc = 0;
     sub = fFinished.begin ();

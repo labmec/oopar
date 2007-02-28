@@ -21,17 +21,7 @@ static LoggerPtr
 logger (Logger::getLogger ("OOPAR.OOPTask"));
 #endif
 
-void
-OOPTask::SetRecurrence (bool recurrence)
-{
-  fIsRecurrent = recurrence;
-}
 
-int
-OOPTask::IsRecurrent ()
-{
-  return fIsRecurrent;
-}
 
 class OOPStorageBuffer;
 class OOPStorageBuffer;
@@ -54,14 +44,12 @@ OOPTask::Print (std::ostream & out)
 OOPTask::OOPTask (int proc)
 {
   fProc = proc;
-  fIsRecurrent = 0;
   fLabel = "non initialized";
 }
 OOPTask::OOPTask (const OOPTask & task):
   fProc (task.fProc),
   fTaskId (),
   fDependRequest (task.fDependRequest),
-  fIsRecurrent (task.fIsRecurrent),
   fLabel (task.fLabel)
 {
 }
@@ -130,7 +118,6 @@ OOPTask::Write (TPZStream & buf, int withclassid)
   //Logging purpose only
   buf.Write (&fProc);		// Processor where the task should be
   // executed
-  buf.Write (&fIsRecurrent);
   fDependRequest.Write(buf, withclassid);
 
 }
@@ -143,7 +130,6 @@ OOPTask::Read (TPZStream & buf, void *context)
   // Finished OOPObjectId unpacking
   //Logging purpose only
   buf.Read (&fProc);
-  buf.Read (&fIsRecurrent);
   fDependRequest.Read (buf, context);
 
 }

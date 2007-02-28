@@ -41,12 +41,21 @@ class   OOPObjectId;
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDataManager"));
+static LoggerPtr logger(Logger::getLogger("OOPar.OOPDataManager"));
+static LoggerPtr taglogger(Logger::getLogger("OOPar.OOPDataManager.OOPAccessTag"));
+static LoggerPtr HandleMsglogger(Logger::getLogger("OOPar.OOPDataManager.DMHandleMessages"));
+static LoggerPtr PostMsglogger(Logger::getLogger("OOPar.OOPDataManager.DMPostMessages"));
+
 #endif
 
 
 OOPDataManager::OOPDataManager(int Procid)
 {
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << "Creating DM";
+  LOGPZ_INFO(logger,sout.str());
+#endif  
   fProcessor = Procid;
   fObjId.SetProcId (Procid);
   fLastCreated = 0;	// NUMOBJECTS * Procid;
@@ -68,8 +77,7 @@ void OOPDataManager::PostAccessRequest(OOPAccessTag & depend)
   stringstream sout;
   sout << "Posting Access request for Object " << depend.Id() << " from Task " << depend.TaskId();
   sout << " Version " << depend.Version();
-  LOGPZ_INFO(logger,sout.str().c_str());
-  cout << sout.str().c_str() << endl;
+  LOGPZ_DEBUG(PostMsglogger,sout.str());
 #endif  
   std::pair<int, OOPAccessTag> item(EDMRequest, depend);
   OOPDMLock lock;
@@ -80,6 +88,12 @@ void OOPDataManager::PostAccessRequest(OOPAccessTag & depend)
 void OOPDataManager::PostOwnerMessage(OOPAccessTag & tag)
 {
   std::pair<int, OOPAccessTag> item(EDMOwner, tag);
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << "Posting OwnerMessage for Object " << tag.Id() << " from Task " << tag.TaskId();
+  sout << " Version " << tag.Version() << " AccessMode:" << tag.AccessMode();
+  LOGPZ_DEBUG(PostMsglogger,sout.str());
+#endif  
   OOPDMLock lock;
   fMessages.push_back(item);
 }
@@ -106,6 +120,12 @@ void OOPDataManager::PostOwnerMessage(OOPAccessTag & tag)
 void OOPDataManager::PostData(OOPAccessTag & tag)
 {
   std::pair<int, OOPAccessTag> item(EDMData, tag);
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << "Posting Data for Object " << tag.Id();
+  sout << " with Version " << tag.Version() << " In processor:" << tag.Proc();
+  LOGPZ_DEBUG(PostMsglogger,sout.str());
+#endif  
   OOPDMLock lock;
   fMessages.push_back(item);
 }
@@ -174,7 +194,7 @@ OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj)
 #ifdef LOGPZ      
     {
       stringstream sout;
-      sout << "creating metadata with object of classid  " << obj->ClassId() << " and object id " << id;
+      sout << "Creating metadata with object of classid " << obj->ClassId() << " and object id " << id;
       LOGPZ_DEBUG(logger,sout.str());
     }
 #endif
@@ -184,16 +204,21 @@ void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 {
   {
 #ifdef LOGPZ    
-    stringstream sout;
-    sout << "Calling GetUpdate(OOPDMOwnerTask)"; 
-    LOGPZ_INFO(logger,sout.str());
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Posting Owner Task"; 
+  LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
   PostOwnerMessage( task->fTag);
 }
 void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 {
-    PostAccessRequest (task->fDepend);
+#ifdef LOGPZ
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Posting AccessRequest from Task"; 
+  LOGPZ_DEBUG(logger,sout.str());
+#endif    
+  PostAccessRequest(task->fDepend);
 }
 OOPObjectId OOPDataManager::GenerateId ()
 {
@@ -210,11 +235,22 @@ OOPObjectId OOPDataManager::GenerateId ()
 void OOPDataManager::ObjectChanged(std::set<OOPObjectId> & set)
 {
 
+#ifdef LOGPZ
+  stringstream sout;
+  sout << "Changed Objects for the following IDs\n"; 
+#endif    
   std::list<OOPObjectId>::iterator it;
   for(it = fChangedObjects.begin();it != fChangedObjects.end(); it ++)
   {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << "Id:" << *it; 
+#endif    
     ObjectChanged(*it);
   }
+#ifdef LOGPZ
+  LOGPZ_DEBUG(logger,sout.str());
+#endif    
 }
 
 void OOPDataManager::ObjectChanged(const OOPObjectId & Id)
@@ -226,15 +262,20 @@ void OOPDataManager::ExtractObjectFromTag(OOPAccessTag & tag)
 {
 #ifdef LOGPZ
   std::stringstream sout;
-  sout << __PRETTY_FUNCTION__ << " tag = ";
+  sout << __PRETTY_FUNCTION__ << " Extracting object from tag = ";
   tag.Print(sout);
-  LOGPZ_DEBUG(logger,sout.str());
+  LOGPZ_DEBUG(HandleMsglogger,sout.str());
 #endif
   fObjects[tag.Id()].SubmitTag(tag);
 }
 void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
 {
-#warning "Take the intended action for that OwnerTask, according to the OOPMetaData"
+#ifdef LOGPZ
+  std::stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Extracting OwnerTask from tag = ";
+  tag.Print(sout);
+  LOGPZ_DEBUG(HandleMsglogger,sout.str());
+#endif
   OOPDMOwnerTask otask(tag);
   fObjects[tag.Id()].HandleMessage(otask);
 }
@@ -247,7 +288,7 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
   sout << "Extracting Request From Tag to Object Id " << tag.Id() <<
     " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
     " and AccessMode " << tag.AccessMode();
-  LOGPZ_DEBUG(logger,sout.str().c_str());
+  LOGPZ_DEBUG(logger,sout.str());
 #ifdef VERBOSE  
   cout << sout.str() << endl;
 #endif
@@ -269,7 +310,7 @@ void OOPDataManager::SubmitAllObjects()
   std::list< std::pair<int, OOPAccessTag> > tempList;
   {
     OOPDMLock lock;
-#ifdef LOG4CXX
+#ifdef LOGPZ
     if(fMessages.size())
     {
       std::stringstream sout;
@@ -349,7 +390,7 @@ void OOPDataManager::SubmitAllObjects()
     //TM->WakeUpCall();
   }
 }
-void OOPDataManager::VerifyAccessRequests()
+void OOPDataManager::FlushData()
 {
   std::list<OOPObjectId> tmpList;
   {
@@ -374,12 +415,12 @@ void OOPDataManager::VerifyAccessRequests()
 
 void OOPDataManager::SnapShotMe()
 {
+#warning "Implementation still incomplete"
   map < OOPObjectId, OOPMetaData >::iterator it = fObjects.begin();
   for(;it!= fObjects.end();it++)
   {
     it->second.Print(cout);
   }
-#warning "Still requires implementation"
 }
 
 //////////////////////OOPDMOwnerTask////////////////////////////////////////////
@@ -403,8 +444,8 @@ OOPDMOwnerTask::~OOPDMOwnerTask()
 {
   if(fTag.AutoPointer())
   {
-   fTag.ClearPointer();
-   OOPObjectId id = fTag.Id();
+    fTag.ClearPointer();
+    OOPObjectId id = fTag.Id();
     DM->ObjectChanged(id);
   }
 }
@@ -412,8 +453,6 @@ OOPDMOwnerTask::~OOPDMOwnerTask()
 OOPDMRequestTask::OOPDMRequestTask (const OOPAccessTag & depend)
 :OOPDaemonTask (depend.Proc()), fDepend(depend)
 {
-  //fProcOrigin = DM->GetProcId();
-
 }
 OOPDMRequestTask::
 OOPDMRequestTask (const OOPDMRequestTask & task):OOPDaemonTask (task), fDepend (task.fDepend)
@@ -445,11 +484,21 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 OOPMReturnType OOPDMOwnerTask::Execute ()
 {
   DM->GetUpdate (this);
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Called ";
+  LOGPZ_DEBUG(logger,sout.str());
+#endif    
   return ESuccess;
 }
 OOPMReturnType OOPDMRequestTask::Execute ()
 {
   DM->GetUpdate (this);
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << __PRETTY_FUNCTION__ << " Called ";
+  LOGPZ_DEBUG(logger,sout.str());
+#endif    
   return ESuccess;
 }
 void OOPDMRequestTask::Read(TPZStream & buf, void * context)

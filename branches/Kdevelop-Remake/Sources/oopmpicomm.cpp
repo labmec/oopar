@@ -49,7 +49,6 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
   //MPE_Describe_state( 1, 2, "Running", "yellow" );
   //MPE_Describe_state( 3, 4, "Idle", "yellow" );
 #endif	
-	
   f_argc = argc;
   f_argv = argv;
   cout << "MPI_Init Called\n";
@@ -59,7 +58,7 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
   pthread_cond_init(&fReceiveCond, NULL);       
   sem_init(&fReceiveSemaphore, 0, 0);
   fKeepReceiving = true;
-        
+
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
@@ -143,6 +142,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
   }
 #endif
   delete pTask;
+  TM->WakeUpCall();
   return 1;
 };
 int OOPMPICommManager::ReceiveMessages ()
@@ -159,8 +159,18 @@ int OOPMPICommManager::ReceiveMessages ()
 };
 int OOPMPICommManager::ReceiveMessagesBlocking()
 {
-  return pthread_create(&fReceiveThread, NULL, ReceiveMsgBlocking, this);
-  
+  int res = -1;
+  res = pthread_create(&fReceiveThread, NULL, ReceiveMsgBlocking, this);
+  if(res)
+  {
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Fail to create Blocking Receive thread";
+    LOGPZ_DEBUG(logger,sout.str());
+    cout << sout.str() << endl;
+#endif
+  }
+  return res;
 }
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
   OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
@@ -179,8 +189,8 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
     int ret = LocalCM->f_buffer.ReceiveBlocking();
     // se houver erro, Kill
     if (ret <= 0) {
-      /*                  cout << "--------------" << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
-			  cout.flush();*/
+      cout << "--------------" << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
+      cout.flush();
       LocalCM->Finish("ReceiveBlocking <receive error>");
     }
 #ifdef DEBUG
@@ -192,16 +202,11 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 #endif    
     }
 #endif
-    LocalCM->ProcessMessage (LocalCM->f_buffer);
-                
+    cout << "+++++++++++++++++++++++++++++++++++++++ Leaving ReceiveThread infinit loop " << LocalCM->f_myself << endl;
+    LocalCM->ProcessMessage(LocalCM->f_buffer);
   }
   cout << "Leaving ReceiveThread infinit loop " << LocalCM->f_myself << endl;
-
   sem_post(&LocalCM->fReceiveSemaphore);
-  //sleep(3);
-  //pthread_cond_signal(&LocalCM->fReceiveCond);
-  //pthread_mutex_unlock(&LocalCM->fReceiveMutex);
-  cout.flush();
   return NULL;
 }
 void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
@@ -259,9 +264,10 @@ int OOPMPICommManager::ReceiveBlocking ()
 
   return 1;
 };
-int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
+int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 {
   
+  cout << "Calling msg.Restore !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
   TPZSaveable *obj = msg.Restore ();
   if (obj == NULL) {
     Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );

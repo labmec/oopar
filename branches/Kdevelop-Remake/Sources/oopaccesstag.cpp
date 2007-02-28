@@ -79,3 +79,23 @@ void OOPAccessTag::Read (TPZStream & buf, void * context)
   fVersion.Read(buf,context);
   this->fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(TPZSaveable::Restore(buf, context));
 }
+std::string OOPAccessTag::AccessModeString()
+{
+  switch(fAccessMode ) {
+    case EReadAccess:
+    {
+      return std::string("ReadAccess");
+      break;
+    }
+    case EWriteAccess:
+    {
+      return std::string("WriteAccess");
+      break;
+    }
+    default:
+    {
+      return std::string("NoAccess");
+      break;
+    }
+  }
+}

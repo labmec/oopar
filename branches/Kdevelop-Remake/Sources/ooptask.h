@@ -80,7 +80,7 @@ public:
    * @param Procid Id of processor where the object is being created
    */
 //#warning "Gustavo, implementa o construtor vazio por favor!!"
-  OOPTask():fProc(-1) , fIsRecurrent(0), fLabel("non initialized"){}
+  OOPTask():fProc(-1) ,  fLabel("non initialized"){}
   OOPTask (int Procid);
   OOPTask (const OOPTask & task);
   virtual ~ OOPTask ()
@@ -97,8 +97,6 @@ public:
   void SetDependencyList(const OOPAccessTagList & deplist)
   {
     fDependRequest = deplist;
-/*    fDataObjectList.SetDependency(deplist);
-    fDependRequest.ClearPointers();*/
   }
   /**
    * Sets the id of current object
@@ -194,11 +192,6 @@ protected:
   */
   OOPAccessTagList fDependRequest;
 
-/**
- * Indicates when a task is recurrent.
- * @since 12/06/2003 
- */
-  int fIsRecurrent;
   /**
    * Holds a brief description of the task purpose
    */

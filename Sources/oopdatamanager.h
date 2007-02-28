@@ -123,7 +123,7 @@ public:
   /**
    * Verifies access requests for OOPMetaData objects stores fObjects
    */
-  void VerifyAccessRequests();
+  void FlushData();
 private:
   /**
    * Processor where the processor is located.

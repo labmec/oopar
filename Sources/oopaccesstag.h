@@ -35,6 +35,12 @@ using namespace std;
 class OOPAccessTag{
 public:
   OOPAccessTag();
+  
+/*      
+ENoAccess,
+  EReadAccess,
+  EWriteAccess,    */
+  std::string AccessModeString();
 
   ~OOPAccessTag();
   operator bool ();
@@ -192,7 +198,22 @@ public:
   {
     out << "Object Id " << fObjectId;
     out << "  Version " << fVersion << endl;
-    out << "Data State " << fAccessMode << endl;
+    switch(fAccessMode){
+      case EReadAccess:
+      {
+        out << "AccessMode ReadAccess" << endl;
+      }
+      break;
+      case EWriteAccess:
+      {
+        out << "AccessMode WriteAccess" << endl;
+      }
+      break;
+      default:
+      {
+        out << "AccessMode NoAccess defined" << endl;
+      }
+    }
     out << "Processor " << fProcessor << endl;
     out << "TaskId " << fTaskId << endl;
   }

@@ -265,26 +265,28 @@ bool OOPMPIStorageBuffer::TestReceive() {
  */
 TPZSaveable *OOPMPIStorageBuffer::Restore () { 
 #ifndef BLOCKING
-	if(!TestReceive()) {
-		LOGPZ_WARN(logger,"Restore called at the wrong moment\n");
-		return NULL;
-	}
- #endif       
-	f_isreceiving = 0;
-	f_recv_position = 0;
+  if(!TestReceive()) {
+    LOGPZ_WARN(logger,"Restore called at the wrong moment\n");
+    return NULL;
+  }
+#endif       
+  f_isreceiving = 0;
+  f_recv_position = 0;
 #ifdef OOP_MPE
-        MPE_Log_receive(f_status.MPI_SOURCE, f_status.MPI_TAG, f_recv_position);
+#warning "With the following line uncommented, code is crashing"
+//  MPE_Log_receive(f_status.MPI_SOURCE, f_status.MPI_TAG, f_recv_position);
 //        cout << " Origin " << f_status.MPI_SOURCE << " Tag " << f_status.MPI_TAG << endl;
 #endif	
-       
-	TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
-	{
-		stringstream sout;
-		sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId();
-		LOGPZ_DEBUG(logger,sout.str().c_str());
-	}
-	//MPI_Request_free(&f_request);
-	return obj;
+  cout << " Calling TPZSaveable::Restore(*this, 0); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
+  {
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId();
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+    cout << sout.str() << endl;
+  }
+  //MPI_Request_free(&f_request);
+  return obj;
 }
 
 int OOPMPIStorageBuffer::ReceiveBlocking ()

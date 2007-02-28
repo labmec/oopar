@@ -20,7 +20,7 @@
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDataManager"));
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskManager"));
 #endif
 
 
@@ -150,7 +150,7 @@ void OOPAccessTagList::PostRequests(OOPObjectId & Id)
   {
   stringstream sout;
   sout << "Posting Access Requests for Task " << Id;
-  LOGPZ_DEBUG(logger,sout.str().c_str());
+  LOGPZ_DEBUG(logger,sout.str());
   }
 #endif
   int processor = DM->GetProcID();
@@ -162,10 +162,10 @@ void OOPAccessTagList::PostRequests(OOPObjectId & Id)
   {
 #ifdef LOGPZ
     sout << "Data " << fTagList[i].Id() << " ";
-    sout << "Access " << fTagList[i].AccessMode() << " ";
-    sout << "Processor " << processor << endl;
+    sout << "Access " << fTagList[i].AccessModeString() << " ";
+    sout << "Processor " << fTagList[i].Proc() << endl;
 #endif    
-    fTagList[i].SetProcessor(processor);
+    //fTagList[i].SetProcessor(processor);
     fTagList[i].SetTaskId(Id);
     DM->PostAccessRequest( fTagList[i]);
   }

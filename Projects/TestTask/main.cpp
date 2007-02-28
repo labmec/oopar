@@ -111,21 +111,35 @@ int mainorig (int argc, char **argv)
 int debugmpimain(int argc, char **argv)
 {
   CM = new OOPMPICommManager (argc, argv); 
+#ifdef LOG4CXX
+  std::stringstream sin;
+  sin << "log4cxxclient" << CM->GetProcID() << ".cfg";
+  log4cxx::PropertyConfigurator::configure(sin.str()); 
+#endif
+
+#ifdef OOP_MPE
+  gEvtDB.AddStateEvent("taskexec","Task Execution", "blue",CM->GetProcID()==0);
+  gEvtDB.AddStateEvent("waittask","Wait Task Call","red",CM->GetProcID()==0);
+  gEvtDB.AddSoloEvent("grantaccess","Grant Access", "green",CM->GetProcID()==0);
+  gEvtDB.AddSoloEvent("incrementversion","Inc Version", "red",CM->GetProcID()==0);
+#endif
   TM = new OOPTaskManager (CM->GetProcID ());
   DM = new OOPDataManager (CM->GetProcID ());
   
 
   TM->Execute();
+  OOPObjectId IdA;
+  OOPDataVersion ver;
   if(!CM->GetProcID())
   {
     OOPInt * inta = new OOPInt;
   
-    OOPObjectId IdA;
+    
     IdA = DM->SubmitObject(inta);
     cout << "Submitted OOPInt object Id " << IdA << endl;
     TTaskTest * tta = new TTaskTest(0);
     TTaskTest * ttb = new TTaskTest(1);
-    OOPDataVersion ver;
+    
     tta->AddDependentData(OOPAccessTag(
                       IdA, EWriteAccess, ver,0));
     tta->Submit();
@@ -134,61 +148,79 @@ int debugmpimain(int argc, char **argv)
                       IdA, EWriteAccess, ver,0));
     ttb->Submit();
     ++ver;
+/*    OOPWaitTask * wt = new OOPWaitTask(0);
+    wt->AddDependentData(  OOPAccessTag(
+                      IdA, EWriteAccess, ver,0));
+    wt->Submit();
+    wt->Wait();*/
   }
+/*  OOPTerminationTask * tt = new OOPTerminationTask(CM->GetProcID());
+  tt->AddDependentData( OOPAccessTag(
+                      IdA, EWriteAccess, ver,CM->GetProcID()));
+  tt->Submit();  */
   TM->Wait();
-/*  OOPTerminationTask * tt = new OOPTerminationTask(0);
-  tt->AddDependentData(  OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
-                    
-  tt->Submit();*/
+
     
   return 0;
 }
 int debugmain(int argc, char **argv)
 {
+#ifdef LOG4CXX
+  std::stringstream sin;
+  sin << "log4cxxclient0.cfg";
+  log4cxx::PropertyConfigurator::configure(sin.str()); 
+#endif
   CM = new OOPMPICommManager ();//(argc, argv); 
   TM = new OOPTaskManager (0);//CM->GetProcID ());
   DM = new OOPDataManager (0);//CM->GetProcID ());
   
   OOPInt * inta = new OOPInt;
-
-  OOPObjectId IdA;
-  IdA = DM->SubmitObject(inta);
-  cout << "Submitted OOPInt object Id " << IdA << endl;
+  OOPInt * intb = new OOPInt;
   
-  DM->SnapShotMe();
-
+  OOPObjectId IdA, IdB;
+  IdA = DM->SubmitObject(inta);
+  IdB = DM->SubmitObject(intb);
 
   TTaskTest * tta = new TTaskTest(0);
   TTaskTest * ttb = new TTaskTest(0);
-  OOPDataVersion ver;
+  TTaskTest * ttc = new TTaskTest(0);
+  OOPDataVersion ver, verB;
   tta->AddDependentData(OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
+                    IdA, EReadAccess, ver,0));
+  tta->AddDependentData(OOPAccessTag(
+                    IdB, EWriteAccess, verB,0));
   tta->Submit();
-  DM->SnapShotMe();
-  ++ver;
+  //++ver;
+  ++verB;
   ttb->AddDependentData( OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
+                    IdA, EReadAccess, ver,0));
+  ttb->AddDependentData( OOPAccessTag(
+                    IdB, EReadAccess, verB,0));
   ttb->Submit();
+  ttc->AddDependentData( OOPAccessTag(
+                    IdA, EWriteAccess, ver,0));
+  ttc->AddDependentData( OOPAccessTag(
+                    IdB, EWriteAccess, verB,0));
+  ttc->Submit();
   ++ver;
-  DM->SnapShotMe();
+  ++verB;
   OOPTerminationTask * tt = new OOPTerminationTask(0);
   tt->AddDependentData(  OOPAccessTag(
                     IdA, EWriteAccess, ver,0));
+  tt->AddDependentData(  OOPAccessTag(
+                    IdB, EWriteAccess, verB,0));
                     
-  //colocar para dentro do Execute do TM
   tt->Submit();
- // DM->HandleMessages();
-  DM->SnapShotMe();
+  
+  //colocar para dentro do Execute do TM
+  //TM->ExecuteMTBlocking(TM);
   TM->SetKeepGoing( true);
-  int inp;
   while (TM->KeepRunning())
   {
     TM->TransferSubmittedTasks();
     DM->HandleMessages();
     TM->HandleMessages();
-  DM->SnapShotMe();
-    DM->VerifyAccessRequests();
+    DM->FlushData();
     TM->TriggerTasks();
     TM->WaitWakeUpCall();
   }
@@ -197,7 +229,8 @@ int debugmain(int argc, char **argv)
 }
 int main(int argc, char **argv)
 {
-  debugmain(argc, argv);
+  debugmpimain(argc, argv);
+  //debugmain(argc, argv);
   return 0;
 }
 int mpimain (int argc, char **argv)

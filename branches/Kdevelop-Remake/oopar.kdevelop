@@ -1,8 +1,8 @@
 <?xml version = '1.0'?>
 <kdevelop>
   <general>
-    <author>Edimar Cesar Rylo</author>
-    <email>ecrylo@uol.com.br</email>
+    <author>Gustavo Camargo Longhin</author>
+    <email>longhin@labmec.fec.unicamp.br</email>
     <version>$VERSION$</version>
     <projectmanagement>KDevAutoProject</projectmanagement>
     <primarylanguage>C++</primarylanguage>
@@ -14,14 +14,14 @@
   </general>
   <kdevautoproject>
     <general>
-      <activetarget>Sources/liboopar.a</activetarget>
+      <activetarget>Projects/TestTask/main</activetarget>
       <useconfiguration>debug_mpe_logged</useconfiguration>
     </general>
     <run>
-      <mainprogram>src/oopar</mainprogram>
+      <mainprogram>Projects/TestTask/main</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
-      <programargs/>
+      <programargs>-np 4 ./main</programargs>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
@@ -43,7 +43,7 @@
         <cxxflags>-no-inline -O0 -g3</cxxflags>
         <envvars/>
         <topsourcedir/>
-        <cppflags>-DMPICH_IGNORE_CXX_SEEK</cppflags>
+        <cppflags>-DMPICH_IGNORE_CXX_SEEK -DBLOCKING</cppflags>
         <ldflags/>
         <ccompilerbinary>mpicc</ccompilerbinary>
         <cxxcompilerbinary>mpicxx</cxxcompilerbinary>
@@ -87,10 +87,10 @@
       </debug_CFD>
       <debug_mpe_logged>
         <envvars/>
-        <configargs>--enable-debug=full --enable-mpi=yes --enable-mpe=yes --with-mpi-dir=/home/longhin/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=/home/longhin/Projetos/PZInstall --prefix=/home/longhin/Projetos/OOParInstall</configargs>
+        <configargs>--enable-debug=full --enable-mpi=yes --enable-mpe=yes --with-mpi-dir=/home/longhin/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=/home/longhin/Projetos/PZInstall --prefix=/home/longhin/Projetos/OOParInstall --enable-log4cxx=yes</configargs>
         <builddir>debug_mpe_logged</builddir>
         <topsourcedir/>
-        <cppflags>-DMPICH_IGNORE_CXX_SEEK</cppflags>
+        <cppflags>-DMPICH_IGNORE_CXX_SEEK -DBLOCKING</cppflags>
         <ldflags/>
         <ccompiler>kdevgccoptions</ccompiler>
         <cxxcompiler>kdevgppoptions</cxxcompiler>
@@ -113,18 +113,19 @@
       <dontact>false</dontact>
       <makebin/>
       <prio>0</prio>
+      <runmultiplejobs>false</runmultiplejobs>
     </make>
   </kdevautoproject>
   <kdevdebugger>
     <general>
-      <dbgshell>libtool</dbgshell>
-      <programargs/>
+      <dbgshell/>
+      <programargs>-np 4 ./main</programargs>
       <gdbpath/>
       <configGdbScript/>
       <runShellScript/>
       <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
-      <separatetty>false</separatetty>
+      <separatetty>true</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
     </general>
     <display>
@@ -239,4 +240,11 @@
       <hidepatterns>*.o,*.lo,CVS</hidepatterns>
     </tree>
   </kdevfileview>
+  <kdevdocumentation>
+    <projectdoc>
+      <docsystem/>
+      <docurl/>
+      <usermanualurl/>
+    </projectdoc>
+  </kdevdocumentation>
 </kdevelop>

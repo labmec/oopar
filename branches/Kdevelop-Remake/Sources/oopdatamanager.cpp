@@ -489,6 +489,7 @@ OOPMReturnType OOPDMOwnerTask::Execute ()
   sout << __PRETTY_FUNCTION__ << " Called ";
   LOGPZ_DEBUG(logger,sout.str());
 #endif    
+  TM->WakeUpCall();
   return ESuccess;
 }
 OOPMReturnType OOPDMRequestTask::Execute ()
@@ -499,6 +500,7 @@ OOPMReturnType OOPDMRequestTask::Execute ()
   sout << __PRETTY_FUNCTION__ << " Called ";
   LOGPZ_DEBUG(logger,sout.str());
 #endif    
+  TM->WakeUpCall();
   return ESuccess;
 }
 void OOPDMRequestTask::Read(TPZStream & buf, void * context)

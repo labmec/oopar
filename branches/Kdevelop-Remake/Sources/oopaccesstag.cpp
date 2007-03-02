@@ -11,6 +11,12 @@
 //
 #include "oopaccesstag.h"
 
+#include <pzlog.h>
+
+#ifdef LOG4CXX
+static LoggerPtr logger(Logger::getLogger("OOPar.OOPAccessTag"));
+#endif
+
 OOPAccessTag::OOPAccessTag()
 {
   fProcessor = -1;
@@ -47,18 +53,20 @@ bool OOPAccessTag::IsMyAccessTag(const OOPAccessTag & granted)
 }
 void OOPAccessTag::Write (TPZStream  & buf, int withclassid)
 {
-  fObjectId.Write (buf,withclassid);
-  fTaskId.Write( buf,withclassid);
+  fObjectId.Write (buf, 0);
+  fTaskId.Write( buf, 0);
   int need = fAccessMode; 
   buf.Write (&need);
   int proc = fProcessor;
   buf.Write(&proc);
-  fVersion.Write(buf,withclassid);
+  fVersion.Write(buf, 0);
   if(fObjectAutoPtr)
   {
+    LOG4CXX_DEBUG(logger,"writing with pointer");
     fObjectAutoPtr->Write(buf, 1);
   }else
   {
+    LOG4CXX_DEBUG(logger,"writing -1");
     int aux = -1;
     buf.Write(&aux, 1);
   }
@@ -72,12 +80,23 @@ void OOPAccessTag::Read (TPZStream & buf, void * context)
   fTaskId.Read(buf,context);
   int need = 0;
   buf.Read (&need);
-  fAccessMode = (OOPMDataState) need;
+  fAccessMode = (OOPMDataState) need; 
   int proc = 0;
   buf.Read(&proc);
   fProcessor = proc;
   fVersion.Read(buf,context);
-  this->fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(TPZSaveable::Restore(buf, context));
+  TPZSaveable * r = TPZSaveable::Restore(buf, context);
+  {
+    std::stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " pointer read " << r;
+    if(r) sout << r->ClassId();
+    LOGPZ_DEBUG(logger,sout.str());
+  }
+  if(r)
+  {
+    this->fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(r);
+  }
+  
 }
 std::string OOPAccessTag::AccessModeString()
 {

@@ -118,7 +118,13 @@ OOPTask::Write (TPZStream & buf, int withclassid)
   //Logging purpose only
   buf.Write (&fProc);		// Processor where the task should be
   // executed
-  fDependRequest.Write(buf, withclassid);
+  fDependRequest.Write(buf,0);//, withclassid);
+#ifdef LOGPZ
+  stringstream sout;
+  sout << "Writing Task type C:" << ClassId() << " ObjID:" << Id();
+  fDependRequest.Print( sout);
+  LOGPZ_DEBUG(logger, sout.str ());
+#endif
 
 }
 
@@ -131,6 +137,12 @@ OOPTask::Read (TPZStream & buf, void *context)
   //Logging purpose only
   buf.Read (&fProc);
   fDependRequest.Read (buf, context);
+#ifdef LOGPZ
+  stringstream sout;
+  sout << "Read Task type C:" << ClassId() << " ObjID:" << Id();
+  fDependRequest.Print( sout);
+  LOGPZ_DEBUG(logger, sout.str ());
+#endif
 
 }
 

@@ -94,6 +94,7 @@ void OOPDataManager::PostForeignAccessRequest(OOPAccessTag & depend)
   std::pair<int, OOPAccessTag> item(EDMForeignRequest, depend);
   OOPDMLock lock;
   fMessages.push_back(item);
+  TM->WakeUpCall();
 }
 
 
@@ -311,29 +312,14 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
 #endif
 #endif  
 
-  if(tag.Proc() == CM->GetProcID()){
-    if(it == fObjects.end())
-    {
-      int proc = tag.Id().GetProcId();
-      OOPMetaData meta(tag.Id(),proc);
-      fObjects[tag.Id()] = meta;
-    }
-    fObjects[tag.Id()].SubmitAccessRequest(tag);
-  }
-  else
+  if(it == fObjects.end())
   {
-#ifdef LOGPZ    
-    stringstream sout;
-    sout << "Sending Request Task for Obj: " << tag.Id() <<
-    " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
-    " and AccessMode " << tag.AccessMode() << " To processor " << tag.Id().GetProcId();
-    LOGPZ_DEBUG(logger,sout.str());
-#endif
-    tag.SetProcessor( CM->GetProcID());
-    OOPDMRequestTask * req = new OOPDMRequestTask(tag);
-    req->Submit();
-    TM->WakeUpCall();
+    int proc = tag.Id().GetProcId();
+    OOPMetaData meta(tag.Id(),proc);
+    fObjects[tag.Id()] = meta;
   }
+  fObjects[tag.Id()].SubmitAccessRequest(tag);
+
 }
 void OOPDataManager::ExtractForeignRequestFromTag(OOPAccessTag & tag)
 {
@@ -520,8 +506,8 @@ OOPDMOwnerTask::~OOPDMOwnerTask()
 }
 //***********************************************************************
 #warning "Verify if this is the case for the target processor"
-OOPDMRequestTask::OOPDMRequestTask (const OOPAccessTag & depend)
-:OOPDaemonTask (depend.Id().GetProcId()), fDepend(depend)
+OOPDMRequestTask::OOPDMRequestTask (int processor, const OOPAccessTag & depend)
+:OOPDaemonTask (processor), fDepend(depend)
 {
 	
 }
@@ -571,7 +557,7 @@ OOPMReturnType OOPDMRequestTask::Execute ()
   sout << __PRETTY_FUNCTION__ << " Called ";
   LOGPZ_DEBUG(logger,sout.str());
 #endif    
-  TM->WakeUpCall();
+  //TM->WakeUpCall();
   return ESuccess;
 }
 void OOPDMRequestTask::Read(TPZStream & buf, void * context)

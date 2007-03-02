@@ -224,7 +224,7 @@ public:
   /**
    * Constructor
    */
-  OOPDMRequestTask (const OOPAccessTag & depend);
+  OOPDMRequestTask (int processor, const OOPAccessTag & depend);
   OOPDMRequestTask (const OOPDMRequestTask & task);
   OOPDMRequestTask () ;
     

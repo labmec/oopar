@@ -438,6 +438,11 @@ bool OOPMetaData::IamOwner () const
 void OOPMetaData::SubmitAccessRequest (const OOPAccessTag &tag)
 {
   fAccessList.InsertTag(tag);
+  // isto precisa melhorar. Basta ter uma versao compativel com a versao do tag...
+  if(! IamOwner() && fAvailableVersions.find(tag.Version()) == fAvailableVersions.end())
+  {
+    SendAccessRequest(tag);
+  }
   VerifyAccessRequests();
 }
 
@@ -462,6 +467,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         TPZAutoPointer<TPZSaveable> point(ms.fTag.AutoPointer());
         SubmitVersion(point,ms.fTag.Version());
+        ms.fTag.ClearPointer();
       }
       fProc = ms.fTag.Proc();
 #warning "Formerly ProcOrigim from OwnerTask"//      fProcOrigin;
@@ -493,6 +499,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
         TPZAutoPointer<TPZSaveable> point(ms.fTag.AutoPointer());
         SubmitVersion(point, ms.fTag.Version() );
+        ms.fTag.ClearPointer();
       }
       fProc = DM->GetProcID();
       this->VerifyAccessRequests();
@@ -563,6 +570,6 @@ void OOPMetaData::PrintLog (std::ostream & out)
 }
 void OOPMetaData::SendAccessRequest (const OOPAccessTag &tag)
 {
-	OOPDMRequestTask *req = new OOPDMRequestTask (tag);
-	TM->SubmitDaemon (req);
+  OOPDMRequestTask *req = new OOPDMRequestTask (Proc(),tag);
+  TM->SubmitDaemon (req);
 }

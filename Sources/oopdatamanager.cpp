@@ -75,11 +75,23 @@ void OOPDataManager::PostAccessRequest(OOPAccessTag & depend)
 {
 #ifdef LOGPZ    
   stringstream sout;
-  sout << "Posting Access request for Object " << depend.Id() << " from Task " << depend.TaskId();
+  sout << "Posting Access request for Object " << depend.Id() << " from Task " << depend.TaskId() << " To Processor " << depend.Proc();
   sout << " Version " << depend.Version();
   LOGPZ_DEBUG(PostMsglogger,sout.str());
 #endif  
   std::pair<int, OOPAccessTag> item(EDMRequest, depend);
+  OOPDMLock lock;
+  fMessages.push_back(item);
+}
+void OOPDataManager::PostForeignAccessRequest(OOPAccessTag & depend)
+{
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << "Posting Foreign Access request for Object " << depend.Id() << " from Task " << depend.TaskId() << " To Processor " << depend.Proc();
+  sout << " Version " << depend.Version();
+  LOGPZ_DEBUG(PostMsglogger,sout.str());
+#endif  
+  std::pair<int, OOPAccessTag> item(EDMForeignRequest, depend);
   OOPDMLock lock;
   fMessages.push_back(item);
 }
@@ -209,16 +221,18 @@ void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
   LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
+  PostAccessRequest(task->fTag);
   PostOwnerMessage( task->fTag);
+  
 }
 void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 {
 #ifdef LOGPZ
   stringstream sout;
-  sout << __PRETTY_FUNCTION__ << " Posting AccessRequest from Task"; 
+  sout << __PRETTY_FUNCTION__ << " Posting AccessRequest Originated in processor " << task->fDepend.Proc(); 
   LOGPZ_DEBUG(logger,sout.str());
 #endif    
-  PostAccessRequest(task->fDepend);
+  PostForeignAccessRequest(task->fDepend);
 }
 OOPObjectId OOPDataManager::GenerateId ()
 {
@@ -276,8 +290,11 @@ void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
   tag.Print(sout);
   LOGPZ_DEBUG(HandleMsglogger,sout.str());
 #endif
-  OOPDMOwnerTask otask(tag);
-  fObjects[tag.Id()].HandleMessage(otask);
+  fObjects[tag.Id()].SubmitTag(tag);
+  
+/*  OOPDMOwnerTask otask(tag);
+#warning "HERE IS THE POINT"
+  fObjects[tag.Id()].HandleMessage(otask);*/
 }
 void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
 {
@@ -287,12 +304,52 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
   stringstream sout;
   sout << "Extracting Request From Tag to Object Id " << tag.Id() <<
     " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
-    " and AccessMode " << tag.AccessMode();
+    " and AccessMode " << tag.AccessMode() << " processor " << tag.Proc();
   LOGPZ_DEBUG(logger,sout.str());
 #ifdef VERBOSE  
   cout << sout.str() << endl;
 #endif
 #endif  
+
+  if(tag.Proc() == CM->GetProcID()){
+    if(it == fObjects.end())
+    {
+      int proc = tag.Id().GetProcId();
+      OOPMetaData meta(tag.Id(),proc);
+      fObjects[tag.Id()] = meta;
+    }
+    fObjects[tag.Id()].SubmitAccessRequest(tag);
+  }
+  else
+  {
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << "Sending Request Task for Obj: " << tag.Id() <<
+    " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
+    " and AccessMode " << tag.AccessMode() << " To processor " << tag.Id().GetProcId();
+    LOGPZ_DEBUG(logger,sout.str());
+#endif
+    tag.SetProcessor( CM->GetProcID());
+    OOPDMRequestTask * req = new OOPDMRequestTask(tag);
+    req->Submit();
+    TM->WakeUpCall();
+  }
+}
+void OOPDataManager::ExtractForeignRequestFromTag(OOPAccessTag & tag)
+{
+  std::map<OOPObjectId, OOPMetaData>::iterator it;
+  it = fObjects.find(tag.Id());
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << "Extracting Request From Tag to Object Id " << tag.Id() <<
+    " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
+    " and AccessMode " << tag.AccessMode() << " processor " << tag.Proc();
+  LOGPZ_DEBUG(logger,sout.str());
+#ifdef VERBOSE  
+  cout << sout.str() << endl;
+#endif
+#endif  
+
   if(it == fObjects.end())
   {
     int proc = tag.Id().GetProcId();
@@ -371,6 +428,18 @@ void OOPDataManager::SubmitAllObjects()
         SnapShotMe();
       }
       break;
+      case EDMForeignRequest:
+      {
+#ifdef LOG4CXX
+        std::stringstream sout;
+        sout << "Extract Foreign Request message From Tag ";
+        it->second.Print(sout);
+        LOGPZ_DEBUG(logger,sout.str());
+#endif
+        ExtractForeignRequestFromTag(it->second);
+        SnapShotMe();
+      }
+      break;
       default:
       {
 #ifdef LOGPZ    
@@ -387,7 +456,7 @@ void OOPDataManager::SubmitAllObjects()
   if (tempList.size())
   {
     //Notify TM that there are new messages for the DM
-    //TM->WakeUpCall();
+    TM->WakeUpCall();
   }
 }
 void OOPDataManager::FlushData()
@@ -450,9 +519,11 @@ OOPDMOwnerTask::~OOPDMOwnerTask()
   }
 }
 //***********************************************************************
+#warning "Verify if this is the case for the target processor"
 OOPDMRequestTask::OOPDMRequestTask (const OOPAccessTag & depend)
-:OOPDaemonTask (depend.Proc()), fDepend(depend)
+:OOPDaemonTask (depend.Id().GetProcId()), fDepend(depend)
 {
+	
 }
 OOPDMRequestTask::
 OOPDMRequestTask (const OOPDMRequestTask & task):OOPDaemonTask (task), fDepend (task.fDepend)

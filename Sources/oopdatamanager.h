@@ -29,7 +29,8 @@ class   OOPCurrentLocation;
 enum DMMessageType {
   EDMData,
   EDMOwner,
-  EDMRequest
+  EDMRequest,
+  EDMForeignRequest
 };
 
 
@@ -87,6 +88,7 @@ public:
    * The object to which the AccessRequest is related to is identified on the Tag parameter
    */
   void PostAccessRequest(OOPAccessTag & depend);
+  void PostForeignAccessRequest(OOPAccessTag & depend);
   /**
    * Return the processor id which owns the current object
    */
@@ -109,6 +111,7 @@ public:
   void ExtractObjectFromTag(OOPAccessTag & tag);
   void ExtractOwnerTaskFromTag(OOPAccessTag & tag);
   void ExtractRequestFromTag(OOPAccessTag & tag);
+  void ExtractForeignRequestFromTag(OOPAccessTag & tag);
   /**
    * Processes the updated access information from the other processors
    * @param *task Pointer to the task which (Undocumented)
@@ -189,6 +192,7 @@ public:
   
   OOPDMOwnerTask (OOPAccessTag &tag)
   {
+    fProc = tag.Proc();
     fTag = tag;
   }
   

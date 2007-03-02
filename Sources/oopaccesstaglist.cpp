@@ -72,7 +72,17 @@ bool OOPAccessTagList::CanExecute()
   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   for(;it!=fTagList.end();it++)
   {
-    if(!it->CanExecute()) return false;
+    if(!it->CanExecute())
+    {
+#ifdef LOGPZ
+      {
+        stringstream sout;
+        sout << "CanExecute returned FALSE on Id " << it->Id();
+        LOGPZ_DEBUG(logger,sout.str());
+      }
+#endif
+      return false;
+    }
   }
   return true;
 }
@@ -157,6 +167,7 @@ void OOPAccessTagList::PostRequests(OOPObjectId & Id)
   int i = 0;
 #ifdef LOGPZ
   stringstream sout;
+  sout << "with AccessTagList with size " << fTagList.size() << endl;
 #endif
   for(i=0;i<fTagList.size();i++)
   {

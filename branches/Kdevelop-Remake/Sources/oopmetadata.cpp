@@ -441,7 +441,12 @@ void OOPMetaData::SubmitAccessRequest (const OOPAccessTag &tag)
   // isto precisa melhorar. Basta ter uma versao compativel com a versao do tag...
   if(! IamOwner() && fAvailableVersions.find(tag.Version()) == fAvailableVersions.end())
   {
-    SendAccessRequest(tag);
+    OOPAccessTag localtag(tag);
+    localtag.SetProcessor(DM->GetProcID());
+    OOPObjectId zero;
+    localtag.SetTaskId(zero);
+
+    SendAccessRequest(localtag);
   }
   VerifyAccessRequests();
 }

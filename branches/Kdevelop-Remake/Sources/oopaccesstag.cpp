@@ -58,6 +58,9 @@ void OOPAccessTag::Write (TPZStream  & buf, int withclassid)
   int need = fAccessMode; 
   buf.Write (&need);
   int proc = fProcessor;
+  stringstream sout;
+  sout << "Fucking fProcessor Write " << proc;
+  LOG4CXX_DEBUG(logger,sout.str());
   buf.Write(&proc);
   fVersion.Write(buf, 0);
   if(fObjectAutoPtr)
@@ -83,6 +86,9 @@ void OOPAccessTag::Read (TPZStream & buf, void * context)
   fAccessMode = (OOPMDataState) need; 
   int proc = 0;
   buf.Read(&proc);
+  stringstream sout;
+  sout << "Fucking fProcessor Read " << proc;
+  LOG4CXX_DEBUG(logger,sout.str());
   fProcessor = proc;
   fVersion.Read(buf,context);
   TPZSaveable * r = TPZSaveable::Restore(buf, context);

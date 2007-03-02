@@ -196,7 +196,7 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
 #ifdef LOGPZ
   {
     std::stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " Tag = ";
+    sout << __PRETTY_FUNCTION__ << " Tag ";
     Tag.Print(sout);
     LOGPZ_DEBUG(logger,sout.str());
   }
@@ -206,26 +206,24 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
 #ifdef LOGPZ
     {
       std::stringstream sout;
-      sout << __PRETTY_FUNCTION__ << " Tag = ";
+      sout << __PRETTY_FUNCTION__ << " Tag ";
       Tag.Print(sout);
-      sout << "Object Id " << fObjId;
-      LOGPZ_ERROR(logger,sout.str());
+      sout << " Object Id " << fObjId;
+      LOGPZ_DEBUG(logger,sout.str());
     }
 #endif
-    cout << " ID already assigned " << Tag.Id() << endl;
   }
   fObjId = Tag.Id();
   fProc = fObjId.GetProcId();
   TPZAutoPointer<TPZSaveable> point(Tag.AutoPointer());
   SubmitVersion(point, Tag.Version());
 #ifdef LOGPZ
-{
-  std::stringstream sout;
-  sout << __PRETTY_FUNCTION__;
-  this->PrintLog(sout);
-   LOGPZ_DEBUG(logger,sout.str());
-  cout << sout.str();
-}
+/*  {
+    std::stringstream sout;
+    sout << __PRETTY_FUNCTION__;
+    this->PrintLog(sout);
+    LOGPZ_DEBUG(logger,sout.str());
+  }*/
 #endif
 }
 
@@ -240,32 +238,34 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr, const OOPD
   }
 #endif
   //std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::iterator it;
-    if(fAvailableVersions.find(nextversion)==fAvailableVersions.end())
-    {
+  if(fAvailableVersions.find(nextversion)==fAvailableVersions.end())
+  {
 #ifdef LOGPZ
-      {
-      stringstream sout;
-      sout << "Submitting a new version for object " << Id()
-          << " New Version is : "
-      << nextversion << " with pointer " << NewPtr;
-      LOGPZ_DEBUG(logger, sout.str());
-      cout << sout.str() << endl;
-      }
-#endif
-      std::pair<OOPDataVersion, TPZAutoPointer<TPZSaveable> > item(nextversion, NewPtr);
-      fAvailableVersions.insert(item);
-    } else
     {
-#ifdef LOGPZ
-      {
-      stringstream sout;
-      sout << "Inconsistency detected on SubmitVersion for " << Id()
-      << " for Version " << nextversion 
-      << " NO ACTION TAKEN !!!";
-      LOGPZ_ERROR(logger, sout.str());
-      }
-#endif
+    stringstream sout;
+    sout << "Submitting a new version for object " << Id()
+        << " New Version is : "
+    << nextversion << " with pointer " << NewPtr;
+    sout << " Current AccessList ";
+    fAccessList.Print(sout);
+    LOGPZ_DEBUG(logger, sout.str());
     }
+#endif
+    std::pair<OOPDataVersion, TPZAutoPointer<TPZSaveable> > item(nextversion, NewPtr);
+    fAvailableVersions.insert(item);
+  } else
+  {
+#ifdef LOGPZ
+    {
+    stringstream sout;
+    sout << "Inconsistency detected on SubmitVersion for " << Id()
+    << " for Version " << nextversion 
+    << " NO ACTION TAKEN !!!";
+    LOGPZ_ERROR(logger, sout.str());
+    }
+#endif
+  }
+  TM->WakeUpCall();
 }
 int OOPMetaData::AccessCounter(OOPDataVersion & version)
 {
@@ -314,7 +314,7 @@ void OOPMetaData::VerifyAccessRequests ()
   if(verit == fAvailableVersions.rend()) 
   {
 #ifdef LOGPZ
-      LOGPZ_DEBUG(logger,"Size of available versions empty leaving");
+    LOGPZ_DEBUG(logger,"Size of available versions empty leaving");
 #endif
     return;
   }
@@ -366,6 +366,13 @@ void OOPMetaData::VerifyAccessRequests ()
     }
     tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
   }
+  #ifdef LOGPZ
+  {
+    std::stringstream sout;
+    sout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!verit->second.Count() : " << verit->second.Count();
+    LOGPZ_DEBUG(logger,sout.str());
+  }
+  #endif
   if(verit->second.Count() == 1)
   {
     tag = fAccessList.GetCompatibleRequest(version,EWriteAccess);
@@ -436,10 +443,11 @@ void OOPMetaData::SubmitAccessRequest (const OOPAccessTag &tag)
 
 void OOPMetaData::SetId (OOPObjectId & id)
 {
-	fObjId = id;
+  fObjId = id;
 }
 void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
 {
+#warning "Does this make sense ? , for my simple example it does !"
   {
 #ifdef LOGPZ    
     stringstream sout;
@@ -460,7 +468,7 @@ void OOPMetaData::HandleMessage (OOPDMOwnerTask & ms)
       {
 #ifdef LOGPZ        
         stringstream sout;
-        sout << "Grant read access received from proc " << ms.fTag.Proc();
+        sout << "Grant read access received for proc " << ms.fTag.Proc();
         LOGPZ_DEBUG(logger,sout.str());
 #endif        
       }

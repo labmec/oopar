@@ -185,7 +185,7 @@ void OOPTaskManager::TransferExecutingTasks ()
       {
       stringstream sout;
       sout << "Task " << auxtc->Id() << " Finshed\nCalling TaskControl->Join()\n";
-      LOGPZ_ERROR (logger, sout.str ());
+      LOGPZ_DEBUG (logger, sout.str ());
       }
 #endif
     
@@ -442,6 +442,9 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
       LOGPZ_DEBUG(ServiceLogger, sout.str());
       #endif
     }
+    DM->HandleMessages();
+    lTM->HandleMessages();
+    DM->FlushData();
     lTM->WaitWakeUpCall();
     {
       stringstream sout;
@@ -464,6 +467,13 @@ void OOPTaskManager::TriggerTasks()
 {
   std::list< OOPTaskControl * >::iterator i;
   //while (fExecutable.size()  && (int) fExecuting.size()) 
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "TriggerTask : fExecutable.size() = " << fExecutable.size(); 
+    LOGPZ_DEBUG (tasklogger, sout.str ());
+  }
+#endif
   while ((int)fExecutable.size())//  || (int)fExecuting.size())
   {
     i = fExecutable.begin ();
@@ -921,11 +931,11 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
     fSubmittedList.push_back (task);
   }
   //if (!pthread_equal (fExecuteThread, pthread_self ())) {
-    //LOGPZ_DEBUG(logger,"Signal within Submit")
-    //pthread_cond_signal (&fExecuteCondition);
+  //LOGPZ_DEBUG(logger,"Signal within Submit")
+  //pthread_cond_signal (&fExecuteCondition);
   //sem_post(&fServiceSemaphore);
   WakeUpCall();
-    //LOGPZ_DEBUG(logger,"Unlock within Submit")
+  //LOGPZ_DEBUG(logger,"Unlock within Submit")
   //pthread_mutex_unlock (&fSubmittedMutex);
   //}
   return id;
@@ -1120,11 +1130,49 @@ OOPTaskManager::ExecuteDaemons ()
 #endif
   }
   list < OOPDaemonTask * >::iterator i;
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Triggering " << fDaemon.size() << " Daemon Task(s)"; 
+    LOGPZ_DEBUG (logger, sout.str ());
+  }
+#endif
   while (fDaemon.size ()) {
     i = fDaemon.begin ();
+#ifdef LOGPZ
+    OOPDMRequestTask * req = dynamic_cast<OOPDMRequestTask *>((*i));
+    if(req)
+    {
+      stringstream sout;
+      sout << "Daemon Task is a RequestTask with tag ";
+      req->fDepend.Print(sout);
+      LOGPZ_DEBUG(logger, sout.str());
+    }
+    OOPDMOwnerTask * own = dynamic_cast<OOPDMOwnerTask *>((*i));
+    if(own)
+    {
+      stringstream sout;
+      sout << "Daemon Task is a OwnerTask";
+      LOGPZ_DEBUG(logger, sout.str());
+    }
+#endif    
     if ((*i)->GetProcID () != DM->GetProcID ()) {
+#ifdef LOGPZ
+      {
+        stringstream sout;
+        sout << "Daemon task is for a different processor ! Calling CM->SendTask()"; 
+        LOGPZ_DEBUG (logger, sout.str ());
+      }
+#endif
       CM->SendTask ((*i));
-    } else { 
+    } else {
+#ifdef LOGPZ
+      {
+        stringstream sout;
+        sout << "Triggering Daemon task on current processor";
+        LOGPZ_DEBUG (logger, sout.str ());
+      }
+#endif
       (*i)->Execute ();
       delete (*i);
     }
@@ -1241,12 +1289,24 @@ void OOPTaskManager::TransferSubmittedTasks ()
     if (listsize) {
       aux = (*sub);
       fSubmittedList.pop_front();
+    }else
+    {
+#ifdef LOGPZ
+      stringstream sout;
+      sout << __PRETTY_FUNCTION__ << " fSubmittedList.size () ZERO";
+      LOGPZ_DEBUG (logger, sout.str ());
+#endif
     }
     while (aux)
     {
       //aux could be a DaemonTask
       OOPDaemonTask *dmt = dynamic_cast < OOPDaemonTask * >(aux);
       if (dmt) { //Checks if dmt is valid. aux was a DaemonTask
+#ifdef LOGPZ
+        stringstream sout;
+        sout << "Submitting Daemon task on TransferSubmitted Tasks";
+        LOGPZ_DEBUG (tasklogger, sout.str ())
+#endif        
         SubmitDaemon (dmt);
       } else {//Ordinary task to be executed in this processor
   #ifdef LOGPZ

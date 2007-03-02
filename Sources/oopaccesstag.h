@@ -214,15 +214,17 @@ public:
         out << "AccessMode NoAccess defined" << endl;
       }
     }
-    out << "Processor " << fProcessor << endl;
-    out << "TaskId " << fTaskId << endl;
+    out << " Processor " << fProcessor << endl;
+    out << " TaskId " << fTaskId << endl;
+    out << " Has Pointer " << fObjectAutoPtr << endl;
   }
   void ShortPrint (std::ostream & out = std::cout) const
   {
     out << "S:" << fAccessMode << ";";
     out << "P:" << fProcessor << ";";
     out << "T:" << fTaskId << ";";
-    out << "V:" << fVersion;
+    out << "V:" << fVersion << ";";
+    out << "D:" << fObjectAutoPtr;
   }
 
   OOPMDataState AccessMode() const

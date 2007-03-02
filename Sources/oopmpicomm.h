@@ -29,6 +29,8 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * Simple destructor
    */
   ~OOPMPICommManager ();
+  void SetKeepReceiving(bool go);
+ private:	
   /**
    * Opens Communication, initializing all the processes. 
    * If this processor was created by user, returns the 
@@ -36,7 +38,6 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * @param *process_name
    * @param num_of_process
    */
- private:	
   int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v);
  public:
   void UnlockReceiveBlocking();

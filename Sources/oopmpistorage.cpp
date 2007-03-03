@@ -253,11 +253,6 @@ bool OOPMPIStorageBuffer::TestReceive() {
 /*#else
 	ret_test=MPI_Test (&f_request, &test_flag, &status);
 #endif*/
-#ifdef DEBUG
-	/*	cout << "Test returned " << ret_test << endl;
-	cout << "Flag " << test_flag << endl;
-	cout.flush();*/
-#endif	
 	return test_flag;
 }
 /**
@@ -277,14 +272,14 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 //  MPE_Log_receive(f_status.MPI_SOURCE, f_status.MPI_TAG, f_recv_position);
 //        cout << " Origin " << f_status.MPI_SOURCE << " Tag " << f_status.MPI_TAG << endl;
 #endif	
-  cout << " Calling TPZSaveable::Restore(*this, 0); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
   TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
+#ifdef LOGPZ
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId();
     LOGPZ_DEBUG(logger,sout.str().c_str());
-    cout << sout.str() << endl;
   }
+#endif
   //MPI_Request_free(&f_request);
   return obj;
 }

@@ -132,6 +132,18 @@ void OOPAccessTagList::Print(std::ostream & out)
     it->Print(out);
   }
 }
+
+void OOPAccessTagList::ShortPrint(std::ostream & out)
+{
+  std::vector<OOPAccessTag>::iterator it;
+  for(it = fTagList.begin(); it != fTagList.end(); it++)
+  {
+    it->ShortPrint(out);
+    out << std::endl;
+  }
+}
+
+
 void OOPAccessTagList::Write (TPZStream  & buf, int withclassid)
 {
   int size = fTagList.size();
@@ -171,13 +183,13 @@ void OOPAccessTagList::PostRequests(OOPObjectId & Id)
 #endif
   for(i=0;i<fTagList.size();i++)
   {
+    fTagList[i].SetProcessor(processor);
+    fTagList[i].SetTaskId(Id);
 #ifdef LOGPZ
     sout << "Data " << fTagList[i].Id() << " ";
     sout << "Access " << fTagList[i].AccessModeString() << " ";
     sout << "Processor " << fTagList[i].Proc() << endl;
 #endif    
-    //fTagList[i].SetProcessor(processor);
-    fTagList[i].SetTaskId(Id);
     DM->PostAccessRequest( fTagList[i]);
   }
 #ifdef LOGPZ

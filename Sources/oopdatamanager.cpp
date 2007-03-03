@@ -104,7 +104,7 @@ void OOPDataManager::PostOwnerMessage(OOPAccessTag & tag)
 #ifdef LOGPZ    
   stringstream sout;
   sout << "Posting OwnerMessage for Object " << tag.Id() << " from Task " << tag.TaskId();
-  sout << " Version " << tag.Version() << " AccessMode:" << tag.AccessMode();
+  sout << " Version " << tag.Version() << " AccessMode:" << tag.AccessMode() << " Pointer " << tag.AutoPointer();
   LOGPZ_DEBUG(PostMsglogger,sout.str());
 #endif  
   OOPDMLock lock;
@@ -200,10 +200,6 @@ OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj)
       delete []compare;    
     }
 #endif
-  //cout << __PRETTY_FUNCTION__ << " ENTERING\n";
-  //cout.flush();
-  //cout.flush();
-  //cout << __PRETTY_FUNCTION__ << " generate id\n";
 #ifdef LOGPZ      
     {
       stringstream sout;
@@ -222,7 +218,6 @@ void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
   LOGPZ_DEBUG(logger,sout.str());
 #endif    
   }
-  PostAccessRequest(task->fTag);
   PostOwnerMessage( task->fTag);
   
 }
@@ -278,7 +273,7 @@ void OOPDataManager::ExtractObjectFromTag(OOPAccessTag & tag)
 #ifdef LOGPZ
   std::stringstream sout;
   sout << __PRETTY_FUNCTION__ << " Extracting object from tag = ";
-  tag.Print(sout);
+  tag.ShortPrint(sout);
   LOGPZ_DEBUG(HandleMsglogger,sout.str());
 #endif
   fObjects[tag.Id()].SubmitTag(tag);
@@ -288,10 +283,10 @@ void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
 #ifdef LOGPZ
   std::stringstream sout;
   sout << __PRETTY_FUNCTION__ << " Extracting OwnerTask from tag = ";
-  tag.Print(sout);
+  tag.ShortPrint(sout);
   LOGPZ_DEBUG(HandleMsglogger,sout.str());
 #endif
-  fObjects[tag.Id()].SubmitTag(tag);
+  fObjects[tag.Id()].HandleOwnerMessage(tag);
   
 /*  OOPDMOwnerTask otask(tag);
 #warning "HERE IS THE POINT"
@@ -303,13 +298,9 @@ void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
   it = fObjects.find(tag.Id());
 #ifdef LOGPZ    
   stringstream sout;
-  sout << "Extracting Request From Tag to Object Id " << tag.Id() <<
-    " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
-    " and AccessMode " << tag.AccessMode() << " processor " << tag.Proc();
+  sout << "Extracting Request From Tag ";
+  tag.ShortPrint(sout);
   LOGPZ_DEBUG(logger,sout.str());
-#ifdef VERBOSE  
-  cout << sout.str() << endl;
-#endif
 #endif  
 
   if(it == fObjects.end())
@@ -327,13 +318,9 @@ void OOPDataManager::ExtractForeignRequestFromTag(OOPAccessTag & tag)
   it = fObjects.find(tag.Id());
 #ifdef LOGPZ    
   stringstream sout;
-  sout << "Extracting Request From Tag to Object Id " << tag.Id() <<
-    " From TaskId " << tag.TaskId() << " with Version " << tag.Version() <<
-    " and AccessMode " << tag.AccessMode() << " processor " << tag.Proc();
+  sout << "Extracting Request From Tag ";
+  tag.ShortPrint(sout);
   LOGPZ_DEBUG(logger,sout.str());
-#ifdef VERBOSE  
-  cout << sout.str() << endl;
-#endif
 #endif  
 
   if(it == fObjects.end())
@@ -353,25 +340,9 @@ void OOPDataManager::SubmitAllObjects()
   std::list< std::pair<int, OOPAccessTag> > tempList;
   {
     OOPDMLock lock;
-#ifdef LOGPZ
-    if(fMessages.size())
-    {
-      std::stringstream sout;
-      sout << "Copying the following objects to a temporary list\n";
-      std::list< std::pair<int, OOPAccessTag> >::iterator it;
-      for(it=fMessages.begin(); it!= fMessages.end(); it++)
-      {
-        sout << "Message type " << it->first << std::endl;
-        sout << "AccessTag ";
-        it->second.Print(sout);
-        LOGPZ_DEBUG(logger,sout.str());
-      }
-    }
-#endif
     tempList = fMessages;
     fMessages.clear();
   }
-  SnapShotMe();
   std::list< std::pair<int, OOPAccessTag> >::iterator it;
   it = tempList.begin();
   while(it != tempList.end())
@@ -383,11 +354,10 @@ void OOPDataManager::SubmitAllObjects()
 #ifdef LOG4CXX
         std::stringstream sout;
         sout << "Extract Object From Tag ";
-        it->second.Print(sout);
+        it->second.ShortPrint(sout);
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractObjectFromTag(it->second);
-        SnapShotMe();
       }
       break;
       case EDMOwner:
@@ -395,7 +365,7 @@ void OOPDataManager::SubmitAllObjects()
 #ifdef LOG4CXX
         std::stringstream sout;
         sout << "Extract OwnerMessage From Tag ";
-        it->second.Print(sout);
+        it->second.ShortPrint(sout);
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractOwnerTaskFromTag(it->second);
@@ -407,11 +377,10 @@ void OOPDataManager::SubmitAllObjects()
 #ifdef LOG4CXX
         std::stringstream sout;
         sout << "Extract Request message From Tag ";
-        it->second.Print(sout);
+        it->second.ShortPrint(sout);
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractRequestFromTag(it->second);
-        SnapShotMe();
       }
       break;
       case EDMForeignRequest:
@@ -419,11 +388,10 @@ void OOPDataManager::SubmitAllObjects()
 #ifdef LOG4CXX
         std::stringstream sout;
         sout << "Extract Foreign Request message From Tag ";
-        it->second.Print(sout);
+        it->second.ShortPrint(sout);
         LOGPZ_DEBUG(logger,sout.str());
 #endif
         ExtractForeignRequestFromTag(it->second);
-        SnapShotMe();
       }
       break;
       default:
@@ -437,7 +405,6 @@ void OOPDataManager::SubmitAllObjects()
     }
     tempList.erase(it);
     it=tempList.begin();
-    SnapShotMe();
   }
   if (tempList.size())
   {

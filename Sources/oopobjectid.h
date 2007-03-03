@@ -112,11 +112,11 @@ class   OOPObjectId
     /**
      * Prints TObjectId data 
      */
-	void    Print (std::ostream & out = std::cout) const;
+	void    Print (std::ostream & out) const;
     /**
      * Prints TObjectId data 
      */
-	std::ostream & ShortPrint (std::ostream & out = std::cout) const;
+	std::ostream & ShortPrint (std::ostream & out) const;
       private:
     /**
      * Id of object 

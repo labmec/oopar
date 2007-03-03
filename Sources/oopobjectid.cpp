@@ -59,7 +59,7 @@ int OOPObjectId::main ()
 	sout << TestDeQue.size () << endl;
 	deque < OOPObjectId * >::iterator i;
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
-		(*i)->Print ();
+		(*i)->Print (sout);
 	}
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		if ((*i)->operator== (idteste)) {
@@ -68,11 +68,11 @@ int OOPObjectId::main ()
 	}
  
 	sout << TestDeQue.size () ;
-  LOGPZ_DEBUG(logger,sout.str());
-	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
-		(*i)->Print ();
+ 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
+		(*i)->Print (sout);
 	}
-	OOPObjectId *pt2 = new OOPObjectId;
+ LOGPZ_DEBUG(logger,sout.str());
+ OOPObjectId *pt2 = new OOPObjectId;
 	pt2->SetId (30);
 	pt2->SetProcId (2);
 	deque < OOPObjectId * >::iterator fd;
@@ -123,8 +123,6 @@ bool OOPObjectId::operator < (const OOPObjectId & id) const
 }
 OOPObjectId & OOPObjectId::operator= (const OOPObjectId & obj)
 {
-  //:wq
-  //std::cout << __PRETTY_FUNCTION__ << "fdp!!!!!!!!!!!!!!!!\n\n\n\n";
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 	return *this;
@@ -162,7 +160,6 @@ void OOPObjectId::SetId (int id)
 }
 OOPObjectId::OOPObjectId (const::OOPObjectId & obj)
 {
-  //std::cout << __PRETTY_FUNCTION__ << "fdp!!!!!!!!!!!!!!!!\n\n\n\n";
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 }

@@ -139,51 +139,19 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
     delete pTask;
     return -1;
   }
-  {
-#ifdef LOGPZ
-    stringstream sout;
-    sout << "Write Task to the buffer";
-    LOGPZ_DEBUG(logger,sout.str());
-#endif
-  }
   pTask->Write (f_buffer, 1);
-  {
-#ifdef LOGPZ 
-    stringstream sout;
-    sout << "Sending the buffer";
-    LOGPZ_DEBUG(logger,sout.str());
-#endif 
-  }
   f_buffer.Send(process_id);
-  {
-#ifdef LOGPZ
-    stringstream sout;
-    sout << "Message Sent";
-    LOGPZ_DEBUG(logger,sout.str());
-#endif
-  }
   delete pTask;
-#ifdef LOGPZ
-  {
-    stringstream sout;
-    sout << "Sending TM a WakeUpCall";
-    LOGPZ_DEBUG(logger,sout.str());
-  }
-#endif
-  
-  TM->WakeUpCall();
   return 1;
 };
 int OOPMPICommManager::ReceiveMessages ()
 {
-  //    if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID() <<   "\n";
 
   f_buffer.Receive();
   while(f_buffer.TestReceive()) {
     ProcessMessage(f_buffer);
     f_buffer.Receive();
   }
-  //  if(!CM->GetProcID()) cout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID() <<   "\n";
   return 1;
 };
 int OOPMPICommManager::ReceiveMessagesBlocking()
@@ -320,7 +288,6 @@ int OOPMPICommManager::ReceiveBlocking ()
 int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 {
   
-  cout << "Calling msg.Restore !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
   TPZSaveable *obj = msg.Restore ();
   if (obj == NULL) {
     Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
@@ -328,10 +295,8 @@ int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
   }
   // Trace( " ClassId do objeto recebido: " );
   // Trace( obj->GetClassId() << ".\n" );
-  cout << "Desempacotando objeto\n";
   OOPTask *task = dynamic_cast<OOPTask *> (obj);
   if(task) {
-    cout << "Calling submit ---------\n";
     task->Submit();
   } else {
 #ifdef LOGPZ    

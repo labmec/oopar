@@ -79,7 +79,5 @@ void OOPWaitTask::Finish()
  */
 void OOPWaitTask::Wait()
 {
-  cout << "Calling sem_wait " << __PRETTY_FUNCTION__ << endl;
   int res = sem_wait(&fMainSemaphore);
-  cout << "Returned value " << res << endl;
 }

@@ -68,6 +68,7 @@ public:
     return fTagList.size();
   }
   void Print(std::ostream & out);
+  void ShortPrint(std::ostream & out);
   void Read(TPZStream & buf, void *context);
   void Write(TPZStream & buf, int withclassid);
   /**

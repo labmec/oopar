@@ -60,8 +60,8 @@ public:
         /**
           * Streams out TDataVersion data structure
           */
-  void    Print (std::ostream & out = std::cout) const;
-  std::ostream & ShortPrint(std::ostream &out = std::cout) const;
+  void    Print (std::ostream & out) const;
+  std::ostream & ShortPrint(std::ostream &out) const;
   /**
    * Operator overloaded
    */

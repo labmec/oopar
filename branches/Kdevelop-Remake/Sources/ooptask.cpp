@@ -69,9 +69,7 @@ OOPTask::PrintLog (std::ostream & out, char *message)
 OOPObjectId
 OOPTask::Submit ()
 {
-  cout << "Inside OOPTask Submit ---------\n";
   OOPObjectId val = TM->Submit (this);
-//      fTaskId = TM->Submit (this);
   return val;
 }
 
@@ -121,8 +119,8 @@ OOPTask::Write (TPZStream & buf, int withclassid)
   fDependRequest.Write(buf,0);//, withclassid);
 #ifdef LOGPZ
   stringstream sout;
-  sout << "Writing Task type C:" << ClassId() << " ObjID:" << Id();
-  fDependRequest.Print( sout);
+  sout << "Writing Task ClassId: " << ClassId() << " ObjID: " << Id() << " Depend list \n";
+  fDependRequest.ShortPrint( sout);
   LOGPZ_DEBUG(logger, sout.str ());
 #endif
 
@@ -139,8 +137,8 @@ OOPTask::Read (TPZStream & buf, void *context)
   fDependRequest.Read (buf, context);
 #ifdef LOGPZ
   stringstream sout;
-  sout << "Read Task type C:" << ClassId() << " ObjID:" << Id();
-  fDependRequest.Print( sout);
+  sout << "Read Task ClassId: " << ClassId() << " ObjID:" << Id();
+  fDependRequest.ShortPrint( sout);
   LOGPZ_DEBUG(logger, sout.str ());
 #endif
 
@@ -176,9 +174,6 @@ void OOPTask::SubmitDependencyList()
     sout << __PRETTY_FUNCTION__ << " Submitting Dependency List for Task" <<
       fTaskId;
     LOGPZ_DEBUG(logger, sout.str ());
-#ifdef VERBOSE
-    cout << sout.str() << endl;
-#endif
 #endif
   fDependRequest.PostRequests(fTaskId);
 }

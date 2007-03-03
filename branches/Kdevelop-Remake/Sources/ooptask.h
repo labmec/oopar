@@ -65,8 +65,8 @@ public:
    * @since 16/08/2003
    * @author Gustavo C Longhin
    */
-  void PrintLog(std::ostream & out = std::cout, char * message = "empty log message");
-  void Print (std::ostream & out = std::cout);
+  void PrintLog(std::ostream & out, char * message = "empty log message");
+  void Print (std::ostream & out);
   void PrintDependency(std::ostream & out){
     fDependRequest.Print(out);
   }

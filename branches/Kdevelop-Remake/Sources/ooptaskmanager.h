@@ -175,7 +175,6 @@ public:
    * Semaphores avoid deadlocking in the cond_signal, cond_wait, mutex_lock and unlocking
    */
   void WakeUpCall(){
-    //cout << __PRETTY_FUNCTION__ << " Called " << endl;
     sem_post(&fServiceSemaphore);
   }
   /**

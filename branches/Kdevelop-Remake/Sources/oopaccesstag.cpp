@@ -58,18 +58,13 @@ void OOPAccessTag::Write (TPZStream  & buf, int withclassid)
   int need = fAccessMode; 
   buf.Write (&need);
   int proc = fProcessor;
-  stringstream sout;
-  sout << "Fucking fProcessor Write " << proc;
-  LOG4CXX_DEBUG(logger,sout.str());
   buf.Write(&proc);
   fVersion.Write(buf, 0);
   if(fObjectAutoPtr)
   {
-    LOG4CXX_DEBUG(logger,"writing with pointer");
     fObjectAutoPtr->Write(buf, 1);
   }else
   {
-    LOG4CXX_DEBUG(logger,"writing -1");
     int aux = -1;
     buf.Write(&aux, 1);
   }
@@ -86,18 +81,9 @@ void OOPAccessTag::Read (TPZStream & buf, void * context)
   fAccessMode = (OOPMDataState) need; 
   int proc = 0;
   buf.Read(&proc);
-  stringstream sout;
-  sout << "Fucking fProcessor Read " << proc;
-  LOG4CXX_DEBUG(logger,sout.str());
   fProcessor = proc;
   fVersion.Read(buf,context);
   TPZSaveable * r = TPZSaveable::Restore(buf, context);
-  {
-    std::stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " pointer read " << r;
-    if(r) sout << r->ClassId();
-    LOGPZ_DEBUG(logger,sout.str());
-  }
   if(r)
   {
     this->fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(r);

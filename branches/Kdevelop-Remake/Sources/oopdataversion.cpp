@@ -68,7 +68,7 @@ void OOPDataVersion::GetData (vector < int >&card, vector < int >&version)
 
 void OOPDataVersion::main ()
 {
-	int i = 0;
+/*	int i = 0;
 	OOPDataVersion version (4);
 	version.Print ();
 	version.IncrementLevel (8);
@@ -123,7 +123,7 @@ void OOPDataVersion::main ()
 	OOPDataVersion vers2;
 	vers2 = version;
 	OOPDataVersion vers3 (vers2);
-	vers2.Print ();
+	vers2.Print ();*/
 }
 void OOPDataVersion::SetLevelVersion (int level, int version)
 {

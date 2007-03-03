@@ -67,9 +67,9 @@ public:
    * Different levels of printing.
    * Amount of information and layout are modified in each method
    */
-  void PrintLog (std::ostream & out = std::cout);
-  void Print (std::ostream & out = std::cout);
-  void ShortPrint(std::ostream & out = std::cout);
+  void PrintLog (std::ostream & out);
+  void Print (std::ostream & out);
+  void ShortPrint(std::ostream & out);
   /**
    * Sets the Id of current data
    * @param id Id to be set
@@ -123,7 +123,7 @@ public:
    * Takes action on an incoming message
    * @param &ms Identifies owner of the task.
    */
-  void    HandleMessage (OOPDMOwnerTask & ms);
+  void    HandleOwnerMessage (OOPAccessTag & ms);
   /**
    * Returns the processor to which the object belongs
    */

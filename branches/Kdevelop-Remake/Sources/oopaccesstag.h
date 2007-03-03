@@ -194,7 +194,7 @@ public:
                         && fVersion == other.fVersion
                         && fProcessor == other.fProcessor);
   }
-  void Print (std::ostream & out = std::cout) const
+  void Print (std::ostream & out) const
   {
     out << "Object Id " << fObjectId;
     out << "  Version " << fVersion << endl;
@@ -218,7 +218,7 @@ public:
     out << " TaskId " << fTaskId << endl;
     out << " Has Pointer " << fObjectAutoPtr << endl;
   }
-  void ShortPrint (std::ostream & out = std::cout) const
+  void ShortPrint (std::ostream & out) const
   {
     out << "S:" << fAccessMode << ";";
     out << "P:" << fProcessor << ";";

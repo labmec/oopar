@@ -144,11 +144,6 @@ public:
    */
   void TransferSubmittedTasks ();
   /**
-   * Transfer the finished tasks to the tasklist if they are recurrent
-   * else delete the finished tasks
-   */
-  void TransferFinishedTasks ();
-  /**
    * Indicate to the TaskManager that a given task can execute
    */
   void TransfertoExecutable (const OOPObjectId & taskid);

@@ -147,8 +147,6 @@ OOPTaskManager::NumberOfThreads ()
 
 void OOPTaskManager::TransferExecutingTasks ()
 {
-#warning "Verify the necessity of this thread self check"
-#ifdef CHECKTHREADSELF
   if (!pthread_equal (fExecuteThread, pthread_self ())) {
 #ifdef LOGPZ
     stringstream sout;
@@ -157,7 +155,6 @@ void OOPTaskManager::TransferExecutingTasks ()
 #endif
     return;
   }
-#endif
   list < OOPTaskControl * >::iterator sub;
   sub = fExecuting.begin ();
   OOPTaskControl *auxtc = 0;
@@ -197,10 +194,7 @@ void OOPTaskManager::TransferExecutingTasks ()
       LOGPZ_DEBUG (tasklogger, sout.str ());
       }
 #endif
-      OOPObjectId id;
-      id = auxtc->Id ();
-      
-      fFinished.push_back (auxtc);
+      delete auxtc;
       list < OOPTaskControl * >::iterator keep;
       keep = sub;
       fExecuting.erase (keep);
@@ -265,7 +259,6 @@ void * OOPTaskManager::ExecuteMT(void *data)
     DM->SubmitAllObjects ();
     
     lTM->TransferExecutingTasks ();
-    lTM->TransferFinishedTasks ();
     CM->ReceiveMessages ();
 
     lTM->TransferSubmittedTasks ();
@@ -483,7 +476,6 @@ void OOPTaskManager::TriggerTasks()
     TransferExecutingTasks ();
   }
   TransferExecutingTasks ();
-  TransferFinishedTasks ();
   ExecuteDaemons ();
 }
 void OOPTaskManager::WaitWakeUpCall()
@@ -779,13 +771,6 @@ OOPTaskManager::NotifyAccessGranted (const OOPAccessTag & depend)
 void
 OOPTaskManager::SubmitDaemon (OOPDaemonTask * task)
 {
-  if (!pthread_equal (fExecuteThread, pthread_self ())) {
-#ifdef LOGPZ
-    stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOGPZ_DEBUG (logger, sout.str ());
-#endif
-  }
   if (task->GetProcID () != this->fProc) {
 #ifdef LOGPZ
     stringstream sout;
@@ -804,7 +789,9 @@ OOPTaskManager::SubmitDaemon (OOPDaemonTask * task)
       << task->ClassId ();
     LOGPZ_DEBUG (logger, sout.str ());
 #endif
+    OOPTMLock lock;
     fDaemon.push_back (task);
+    WakeUpCall();
   }
 }
 
@@ -906,7 +893,6 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
   }else
   {
     OOPTMLock lock;
-    task->SubmitDependencyList();
     fSubmittedList.push_back (task);
   }
   WakeUpCall();
@@ -1265,15 +1251,17 @@ void OOPTaskManager::TransferSubmittedTasks ()
 #ifdef LOGPZ
         stringstream sout;
         sout << "Submitting Daemon task on TransferSubmitted Tasks";
-        LOGPZ_DEBUG (tasklogger, sout.str ())
+        LOGPZ_ERROR (tasklogger, sout.str ())
 #endif        
         SubmitDaemon (dmt);
       } else {//Ordinary task to be executed in this processor
+        aux->SubmitDependencyList();
   #ifdef LOGPZ
         stringstream sout;
         sout << "Creating the task control ojbect for task " << aux->Id () ;
         LOGPZ_DEBUG (tasklogger, sout.str ())
   #endif
+
   
         OOPTaskControl *tc = new OOPTaskControl(aux);
         if(aux->CanExecute())
@@ -1299,44 +1287,6 @@ void OOPTaskManager::TransferSubmittedTasks ()
       }
     }
   }
-}
-void OOPTaskManager::TransferFinishedTasks ()
-{
-  if (!pthread_equal (fExecuteThread, pthread_self ())) {
-#ifdef LOGPZ
-    stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOGPZ_DEBUG (tasklogger, sout.str ());
-#endif
-  }
-  list < OOPTaskControl * >::iterator sub;
-  int listsize = fFinished.size ();
-  if (!listsize)
-  {
-#ifdef LOGPZ
-    stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " fFinished is empty, returning from here ";
-    LOGPZ_DEBUG (tasklogger, sout.str ());
-#endif
-    return;
-  }
-  for(sub=fFinished.begin ();sub!=fFinished.end();sub++)
-  {
-    OOPTaskControl *auxtc = *sub;
-    if(auxtc) 
-    {
-#ifdef LOGPZ
-      {
-        stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " task " << auxtc->
-          Id () << " classid " << auxtc->ClassId () << " finished";
-        LOGPZ_DEBUG (tasklogger, sout.str ());
-      }
-#endif
-      delete auxtc;
-    }
-  }
-  fFinished.clear();
 }
 
 void

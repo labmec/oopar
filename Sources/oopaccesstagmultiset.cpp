@@ -12,6 +12,12 @@
 #include "oopaccesstagmultiset.h"
 #include "oopdatamanager.h"
 
+#include "pzlog.h"
+
+#ifdef LOGPZ
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPAccessTagMultiset"));
+#endif
+
 OOPAccessTagMultiSet::OOPAccessTagMultiSet()
 {
 }
@@ -72,8 +78,17 @@ bool OOPAccessTagMultiSet::HasSimilarRequest(OOPAccessTag tag)
     OOPAccessTag loctag(*it);
     loctag.SetTaskId(zeroid);
     loctag.SetProcessor(processor);
-    if(tag == loctag) return true;
+    if(tag == loctag) 
+    {
+#ifdef LOGPZ
+      LOGPZ_DEBUG(logger,"HasSimilarRequest returning true")
+#endif
+      return true;
+    }
   }
+#ifdef LOGPZ
+  LOGPZ_DEBUG(logger,"HasSimilarRequest returning false")
+#endif
   return false;
   
 }

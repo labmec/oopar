@@ -259,6 +259,7 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr, const OOPD
     }
 #endif
   }
+  VerifyAccessRequests();
   TM->WakeUpCall();
 }
 int OOPMetaData::AccessCounter(OOPDataVersion & version)
@@ -422,17 +423,22 @@ bool OOPMetaData::IamOwner () const
 
 void OOPMetaData::SubmitAccessRequest (const OOPAccessTag &tag)
 {
-  fAccessList.InsertTag(tag);
   // isto precisa melhorar. Basta ter uma versao compativel com a versao do tag...
   if(! IamOwner() && fAvailableVersions.find(tag.Version()) == fAvailableVersions.end() &&
        !fAccessList.HasSimilarRequest(tag))
   {
+#ifdef LOGPZ
+    {
+      LOGPZ_DEBUG(logger,"Sending an access request to a foreign processor")
+    }
+#endif
     OOPAccessTag localtag(tag);
     localtag.SetProcessor(DM->GetProcID());
     OOPObjectId zero;
     localtag.SetTaskId(zero);
     SendAccessRequest(localtag);
   }
+  fAccessList.InsertTag(tag);
   VerifyAccessRequests();
 }
 

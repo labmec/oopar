@@ -489,6 +489,15 @@ void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 {
   OOPDaemonTask::Read (buf, context);
   fTag.Read( buf, context);
+  int size;
+  buf.Read(&size,1);
+  int i;
+  for(i=0; i<size; i++)
+  {
+    OOPAccessTag tag;
+    tag.Read(buf,0);
+    fTransferRequests.insert(tag);
+  }
 }
 void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 {
@@ -503,7 +512,15 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 #endif    
   }
   OOPDaemonTask::Write (buf, withclassid);
-  fTag.Write( buf, withclassid);
+  fTag.Write( buf, 0);
+  int size = fTransferRequests.size();
+  buf.Write(&size,1);
+  std::set<OOPAccessTag>::iterator it;
+  for(it=fTransferRequests.begin(); it!=fTransferRequests.end(); it++)
+  {
+    OOPAccessTag tag(*it);
+    tag.Write(buf,0);
+  }
 }
 OOPMReturnType OOPDMOwnerTask::Execute ()
 {

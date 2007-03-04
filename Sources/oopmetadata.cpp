@@ -316,6 +316,8 @@ void OOPMetaData::VerifyAccessRequests ()
     if(tag.Proc() != DM->GetProcID())
     {
 #warning "Verify sending of OwnerTask here"
+      tag.SetAccessMode(EReadAccess);
+      tag.SetAutoPointer(verit->second);
       OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
       otask->Submit();
      // send an owner task with the new version, so that tasks will be canceled there
@@ -338,7 +340,7 @@ void OOPMetaData::VerifyAccessRequests ()
 #ifdef LOGPZ
     {
       std::stringstream sout;
-      sout << "Granting access to tag : ";
+      sout << "Granting read access to tag : ";
       tag.Print(sout);
       LOGPZ_DEBUG(logger,sout.str());
     }
@@ -376,7 +378,9 @@ void OOPMetaData::VerifyAccessRequests ()
       } 
       else
       {
-        OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
+        std::set<OOPAccessTag> requests;
+        fAccessList.GetProcessorAccessRequests(tag.Proc(),requests);
+        OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag,requests);
         otask->Submit();
       }
     }
@@ -420,13 +424,13 @@ void OOPMetaData::SubmitAccessRequest (const OOPAccessTag &tag)
 {
   fAccessList.InsertTag(tag);
   // isto precisa melhorar. Basta ter uma versao compativel com a versao do tag...
-  if(! IamOwner() && fAvailableVersions.find(tag.Version()) == fAvailableVersions.end())
+  if(! IamOwner() && fAvailableVersions.find(tag.Version()) == fAvailableVersions.end() &&
+       !fAccessList.HasSimilarRequest(tag))
   {
     OOPAccessTag localtag(tag);
     localtag.SetProcessor(DM->GetProcID());
     OOPObjectId zero;
     localtag.SetTaskId(zero);
-
     SendAccessRequest(localtag);
   }
   VerifyAccessRequests();

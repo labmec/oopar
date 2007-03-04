@@ -593,7 +593,8 @@ Quando um request task deve ser encaminhado
 \layout Standard
 
 Quando uma tarefa pede acesso a um dado que esta sendo administrado por
- outro processador, pode ser que uma request task precisa ser encaminhada.
+ outro processador e que a versão requisitada não se encontra no processador,
+ pode ser que uma request task precisa ser encaminhada.
  O que interesse é quando tal pedido não precisa ser encaminhado.
 \layout Standard
 
@@ -619,6 +620,4 @@ Como mencionado anteriormente, existe diferença entre o pedido encaminhado
 ados em pedidos de processador.
  Programou-se o método GetProcessorAccessRequests(int processor, std::set<OOPAcc
 essTag> &requestlist) na classe OOPAccessTagMultiSet
-\layout Standard
-
 \the_end

@@ -231,6 +231,10 @@ public:
   {
     return fAccessMode;
   }
+  void SetAccessMode(OOPMDataState state)
+  {
+    fAccessMode = state;
+  }
   OOPDataVersion Version() const
   {
     return fVersion;

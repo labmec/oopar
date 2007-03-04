@@ -182,7 +182,19 @@ class   OOPDMOwnerTask:public OOPDaemonTask
 {
 public:
   
+  /// data associated with the owner task
+  /**
+  * fAccessMode : whether the owner task is granting read or write access
+  * fObjectAutoPtr : pointer to the data
+  * fObjectId : id of the object associated with the owner task
+  * fProcessor : processor which originated the owner task
+  * fTaskId : not used
+  * fVersion : version of the object being transmitted
+  */
   OOPAccessTag fTag;
+  
+  /// set of access requests that need to be submitted when changing ownership
+  std::set<OOPAccessTag> fTransferRequests;
   /**
    * Constructor
    * @param t : type of ower task
@@ -190,12 +202,15 @@ public:
    */
   OOPDMOwnerTask ();
   
-  OOPDMOwnerTask (OOPAccessTag &tag)
+  OOPDMOwnerTask (OOPAccessTag &tag): OOPDaemonTask(tag.Proc()), fTag(tag)
   {
-    fProc = tag.Proc();
-    fTag = tag;
   }
   
+  OOPDMOwnerTask (OOPAccessTag &tag, std::set<OOPAccessTag> &requests) :
+      OOPDaemonTask(tag.Proc()), fTag(tag),fTransferRequests(requests)
+  {
+  }
+
   virtual ~OOPDMOwnerTask();
   virtual OOPMReturnType Execute ();
   virtual int ClassId () const

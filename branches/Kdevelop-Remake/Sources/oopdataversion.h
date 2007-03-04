@@ -50,8 +50,10 @@ public:
 	/**
 	 * Returns true when the state of the current data is sufficient
 	 * for a task to start executing
+  * the current object stands for the requested version
+  * the parameter stands for the version of the data
 	 */
-	bool    CanExecute (const OOPDataVersion & version) const;
+	bool    CanExecute (const OOPDataVersion & dataversion) const;
 	/**
      * Increments version with a call to Increment method
 	 */

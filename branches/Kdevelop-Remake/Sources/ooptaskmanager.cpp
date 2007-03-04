@@ -816,9 +816,11 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
   if (dmt) {
 #ifdef LOGPZ
     stringstream sout;
-    sout << "Task Submitted is a daemon";
+    sout << "Task Submitted is a daemon classid = " << task->ClassId();
     LOGPZ_DEBUG (logger, sout.str ());
 #endif
+    SubmitDaemon(dmt);
+    return id;
   } else {
     id = task->Id ();
     if (id.IsZeroOOP ())
@@ -907,14 +909,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
     task->SubmitDependencyList();
     fSubmittedList.push_back (task);
   }
-  //if (!pthread_equal (fExecuteThread, pthread_self ())) {
-  //LOGPZ_DEBUG(logger,"Signal within Submit")
-  //pthread_cond_signal (&fExecuteCondition);
-  //sem_post(&fServiceSemaphore);
   WakeUpCall();
-  //LOGPZ_DEBUG(logger,"Unlock within Submit")
-  //pthread_mutex_unlock (&fSubmittedMutex);
-  //}
   return id;
 }
 /*
@@ -1143,7 +1138,7 @@ OOPTaskManager::ExecuteDaemons ()
       (*i)->Execute ();
       delete (*i);
     }
-    fDaemon.erase (i);
+    fDaemon.pop_front();
   }
 }
 void
@@ -1315,7 +1310,6 @@ void OOPTaskManager::TransferFinishedTasks ()
 #endif
   }
   list < OOPTaskControl * >::iterator sub;
-#warning "Not sure if this is necessary, Locking anyway"
   int listsize = fFinished.size ();
   if (!listsize)
   {
@@ -1326,30 +1320,23 @@ void OOPTaskManager::TransferFinishedTasks ()
 #endif
     return;
   }
-  sub = fFinished.begin ();
-  OOPTaskControl *auxtc = 0;
-  if (listsize) {
-    auxtc = (*sub);
-    fFinished.erase (sub);
-  }
-  while (auxtc) {
-#ifdef LOGPZ
+  for(sub=fFinished.begin ();sub!=fFinished.end();sub++)
+  {
+    OOPTaskControl *auxtc = *sub;
+    if(auxtc) 
     {
-      stringstream sout;
-      sout << __PRETTY_FUNCTION__ << " task " << auxtc->
-	Id () << " classid " << auxtc->ClassId () << " finished";
-      LOGPZ_DEBUG (tasklogger, sout.str ());
-    }
+#ifdef LOGPZ
+      {
+        stringstream sout;
+        sout << __PRETTY_FUNCTION__ << " task " << auxtc->
+          Id () << " classid " << auxtc->ClassId () << " finished";
+        LOGPZ_DEBUG (tasklogger, sout.str ());
+      }
 #endif
-    delete auxtc;
-    listsize = fFinished.size ();
-    auxtc = 0;
-    sub = fFinished.begin ();
-    if (listsize) {
-      auxtc = (*sub);
-      fFinished.erase (sub);
+      delete auxtc;
     }
   }
+  fFinished.clear();
 }
 
 void

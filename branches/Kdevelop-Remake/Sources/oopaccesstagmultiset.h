@@ -63,6 +63,12 @@ public:
    * Prints the content of the multiset
    */
   void Print(std::ostream & out) const;
+  
+  /// Verifies whether a similar access request exists within the list of requests
+  bool HasSimilarRequest(OOPAccessTag tag);
+  
+  /// generates the set of accesstags that need to be sent when changing the owning processor
+  void GetProcessorAccessRequests(int processor, std::set<OOPAccessTag> &requests);
 
 private:
   /**

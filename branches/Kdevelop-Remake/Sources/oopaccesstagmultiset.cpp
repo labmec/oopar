@@ -104,9 +104,23 @@ void OOPAccessTagMultiSet::GetProcessorAccessRequests(int processor, std::set<OO
     if(it->Proc() != processor)
     {
       OOPAccessTag tag(*it);
-      tag.SetTaskId(zeroid);
-      tag.SetProcessor(locproc);
+      if(tag.TaskId())
+      {
+        tag.SetProcessor(locproc);
+        tag.SetTaskId(zeroid);
+      }
       requests.insert(tag);
+    }
+  }
+  // retain only the access requests related to the current processor, 
+  
+  std::multiset<OOPAccessTag> copy(fTagMultiSet);
+  fTagMultiSet.clear();
+  for(it=copy.begin(); it!=copy.end(); it++)
+  {
+    if(it->Proc() == locproc)
+    {
+      fTagMultiSet.insert(*it);
     }
   }
 }

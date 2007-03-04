@@ -219,7 +219,12 @@ void OOPDataManager::GetUpdate (OOPDMOwnerTask * task)
 #endif    
   }
   PostOwnerMessage( task->fTag);
-  
+  std::set<OOPAccessTag>::iterator it;
+  for(it = task->fTransferRequests.begin(); it!= task->fTransferRequests.end(); it++)
+  {
+    OOPAccessTag tag(*it);
+    this->PostAccessRequest(tag);
+  }  
 }
 void OOPDataManager::GetUpdate (OOPDMRequestTask * task)
 {

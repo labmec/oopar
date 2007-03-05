@@ -314,7 +314,7 @@ void OOPMPICommManager::Finish(char * msg){
   cout.flush();
   f_buffer.CancelRequest();
   cout << "Processor " << f_myself  << " reached synchronization point !" << endl;
-  MPI_Barrier( MPI_COMM_WORLD );
+//  MPI_Barrier( MPI_COMM_WORLD );
   cout << "Calling Finilize for " << f_myself << endl;
   cout.flush();
   MPI_Finalize();
@@ -332,24 +332,40 @@ int OOPMPICommManager::SendMessages(){
   return 0;
 }
 
-void OOPMPICommManager::UnlockReceiveBlocking(){
-  fKeepReceiving = false;
-  MPI_Barrier( MPI_COMM_WORLD );
-  cout << " ProcID " << CM->GetProcID() << " Synchronizing Termination Requests !" << endl;
-  if (CM->GetProcID()==0){
-    OOPTerminationTask * tt = new OOPTerminationTask(f_num_proc - 1);
-    CM->SendTask(tt);
-  }else{
-  
-    OOPTerminationTask * tt = new OOPTerminationTask(CM->GetProcID()-1);
-    CM->SendTask(tt);
+void OOPMPICommManager::UnlockReceiveBlocking()
+{
+#ifdef LOGPZ
+  {    
+    std::stringstream sout;
+    sout << "Setting KeepReceiving flag to FALSE on Processor " << CM->GetProcID();
+    LOGPZ_DEBUG(logger,sout.str());
+    cout << sout.str() << endl;
   }
+#endif
+  fKeepReceiving = false;
+  int ret;
+  int tag = 0;
+  char * buff = new char[1];
+  ret = MPI_Send (&buff[0], 0, MPI_PACKED, CM->GetProcID(), tag, MPI_COMM_WORLD);
+#ifdef LOGPZ
+  {    
+    std::stringstream sout;
+    sout << "Waiting for ReceiveThread sinalization on Processor " << CM->GetProcID();
+    LOGPZ_DEBUG(logger,sout.str());
+    cout << sout.str() << endl;
+  }
+  delete [] buff;
+#endif
+  //pthread_join(fReceiveThread, NULL);
   sem_wait(&((OOPMPICommManager *)CM)->fReceiveSemaphore);
-  //pthread_mutex_lock(&((OOPMPICommManager *)CM)->fReceiveMutex);
-  cout << " ProcID " << CM->GetProcID() << " Waiting for ReceiveThread sinalization ..." << endl;
-  //pthread_cond_wait(&((OOPMPICommManager *)CM)->fReceiveCond,&((OOPMPICommManager *)CM)->fReceiveMutex);
-  cout << " ProcID " << CM->GetProcID() << " Got it !" << endl;
-  
+#ifdef LOGPZ
+  {    
+    std::stringstream sout;
+    sout << "Processor " << CM->GetProcID() << " Received ReceiveThread termination confirmation";
+    LOGPZ_DEBUG(logger,sout.str());
+    cout << sout.str() << endl;
+  }
+#endif
 }
 
 #endif

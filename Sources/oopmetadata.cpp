@@ -383,6 +383,7 @@ void OOPMetaData::VerifyAccessRequests ()
         fAccessList.GetProcessorAccessRequests(tag.Proc(),requests);
         OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag,requests);
         otask->Submit();
+        fProc = tag.Proc();
       }
     }
   }
@@ -424,6 +425,20 @@ bool OOPMetaData::IamOwner () const
 void OOPMetaData::SubmitAccessRequest (const OOPAccessTag &tag)
 {
   // isto precisa melhorar. Basta ter uma versao compativel com a versao do tag...
+  if(!IamOwner() && tag.Proc() != DM->GetProcID())
+  {
+#ifdef LOGPZ
+    {
+      stringstream sout;
+      sout << "Rerouting an AccessRequest from Proc " << tag.Proc() << " to proc " << Proc() << " with Tag ";
+      tag.ShortPrint( sout);
+      LOGPZ_DEBUG(logger,sout.str());
+    }
+#endif
+    OOPDMRequestTask * req = new OOPDMRequestTask(Proc(), tag);
+    TM->SubmitDaemon(req);
+    return;
+  }
   if(! IamOwner() && fAvailableVersions.find(tag.Version()) == fAvailableVersions.end() &&
        !fAccessList.HasSimilarRequest(tag))
   {
@@ -511,7 +526,6 @@ void OOPMetaData::HandleOwnerMessage (OOPAccessTag & ownertag)
     }
     break;
   }
-     
 }
 
 

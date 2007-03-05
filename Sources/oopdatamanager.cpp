@@ -254,7 +254,7 @@ void OOPDataManager::ObjectChanged(std::set<OOPObjectId> & set)
   stringstream sout;
   sout << "Changed Objects for the following IDs\n"; 
 #endif    
-  std::list<OOPObjectId>::iterator it;
+  std::set<OOPObjectId>::iterator it;
   for(it = fChangedObjects.begin();it != fChangedObjects.end(); it ++)
   {
 #ifdef LOGPZ
@@ -270,14 +270,17 @@ void OOPDataManager::ObjectChanged(std::set<OOPObjectId> & set)
 
 void OOPDataManager::ObjectChanged(const OOPObjectId & Id)
 {
-  OOPDMLock lock;
-  fChangedObjects.push_back(Id);
+  {
+    OOPDMLock lock;
+    fChangedObjects.insert(Id);
+  }
+  TM->WakeUpCall();
 }
 void OOPDataManager::ExtractObjectFromTag(OOPAccessTag & tag)
 {
 #ifdef LOGPZ
   std::stringstream sout;
-  sout << __PRETTY_FUNCTION__ << " Extracting object from tag = ";
+  sout << "Extracting object from tag = ";
   tag.ShortPrint(sout);
   LOGPZ_DEBUG(HandleMsglogger,sout.str());
 #endif
@@ -287,7 +290,7 @@ void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
 {
 #ifdef LOGPZ
   std::stringstream sout;
-  sout << __PRETTY_FUNCTION__ << " Extracting OwnerTask from tag = ";
+  sout << "Extracting OwnerTask from tag = ";
   tag.ShortPrint(sout);
   LOGPZ_DEBUG(HandleMsglogger,sout.str());
 #endif
@@ -419,13 +422,13 @@ void OOPDataManager::SubmitAllObjects()
 }
 void OOPDataManager::FlushData()
 {
-  std::list<OOPObjectId> tmpList;
+  std::set<OOPObjectId> tmpList;
   {
     OOPDMLock lock;
     tmpList = fChangedObjects;
     fChangedObjects.clear();
   }
-  std::list< OOPObjectId >::iterator itlst;
+  std::set< OOPObjectId >::iterator itlst;
   itlst = tmpList.begin();
   while(itlst != tmpList.end())
   {

@@ -152,7 +152,7 @@ private:
    * Holds MetaData objects which had been changed.
    * DM receives those object at the end of a task execution
    */
-  list <OOPObjectId> fChangedObjects;
+  set <OOPObjectId> fChangedObjects;
   /**
    * Generates a new object ID
    */

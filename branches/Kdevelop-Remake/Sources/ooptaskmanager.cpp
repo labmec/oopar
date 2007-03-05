@@ -426,9 +426,9 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
       LOGPZ_DEBUG(ServiceLogger, sout.str());
       #endif
     }
-    DM->HandleMessages();
+/*    DM->HandleMessages();
     lTM->HandleMessages();
-    DM->FlushData();
+    DM->FlushData();*/
     lTM->WaitWakeUpCall();
     {
       stringstream sout;
@@ -1164,9 +1164,36 @@ OOPTaskManager::Wait ()
 {
 
   pthread_join (fExecuteThread, NULL);
-  MPI_Barrier(MPI_COMM_WORLD);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "ServiceThread on Processor " << CM->GetProcID() << " joined main application execution thread\n";
+    sout << "TM's ServiceThread no longer exists !";
+    
+    LOGPZ_DEBUG (logger, sout.str ());
+    cout << sout.str() << endl;
+  }
+#endif
 #ifdef BLOCKING
+  MPI_Barrier(MPI_COMM_WORLD);
   ((OOPMPICommManager *)CM)->UnlockReceiveBlocking(); 
+#endif
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Synchronizing MPI environment with MPI_Barrier on Processor " << CM->GetProcID();
+    LOGPZ_DEBUG (logger, sout.str ());
+    cout << sout.str() << endl;
+  }
+#endif
+  MPI_Barrier(MPI_COMM_WORLD);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Leaving MPI_Barrier on processor " << CM->GetProcID();
+    LOGPZ_DEBUG (logger, sout.str ());
+    cout << sout.str() << endl;
+  }
 #endif
 }
 
@@ -1480,11 +1507,17 @@ OOPTask (term)
 OOPMReturnType
 OOPTerminationTask::Execute ()
 {
+#ifdef LOGPZ
+  stringstream sout;
+  sout << "Executing TerminationTask on Processor " << CM->GetProcID();
+  LOGPZ_DEBUG(logger, sout.str());
+  cout << sout.str() << endl;
+#endif
   {
   OOPTMLock lock;
   TM->SetKeepGoing (false);
   }
-  sleep(1);
+  //sleep(1);
   IncrementWriteDependentData();
   return ESuccess;
 }

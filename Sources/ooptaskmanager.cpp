@@ -21,7 +21,7 @@
 #include <iostream>
 
 #include <sys/time.h>
-
+#include <errno.h>
 #ifdef OOP_MPE
 class OOPSoloEvent;
 #endif
@@ -157,8 +157,7 @@ OOPTaskManager::ExecuteMT (void *data)
   list < OOPTaskControl * >::iterator i;
 
   SszQueues curSz;
-  curSz.set (lTM->fTaskList.size (), lTM->fExecutable.size (),
-	     lTM->fExecuting.size ());
+  curSz.set (lTM->fTaskList.size (), lTM->fExecutable.size (), lTM->fExecuting.size ());
 
 #ifdef LOGPZ
   {
@@ -212,63 +211,73 @@ OOPTaskManager::ExecuteMT (void *data)
     //wait
 
 #ifdef LOGTIME
-    if (!curSz.
-	IsEqual (lTM->fTaskList.size (), lTM->fExecutable.size (),
-		 lTM->fExecuting.size ())) {
+    if (!curSz.IsEqual (lTM->fTaskList.size (), lTM->fExecutable.size (), lTM->fExecuting.size ()))
+    {
       timeval curtime;
       gettimeofday (&curtime, 0);
-
       tlog << curtime.tv_sec << ":" << curtime.tv_usec << "\t"
-	<< lTM->fSubmittedList.size () << "\t"
-	<< lTM->fTaskList.size () << "\t"
-	<< lTM->fExecutable.size () << "\t"
-	<< lTM->fExecuting.size () << "\t"
-	<< lTM->fFinished.size () << "\t"
-	<< lTM->fDaemon.size () << std::endl;
-      curSz.set (lTM->fTaskList.size (), lTM->fExecutable.size (),
-		 lTM->fExecuting.size ());
+           << lTM->fSubmittedList.size () << "\t"
+           << lTM->fTaskList.size () << "\t"
+           << lTM->fExecutable.size () << "\t"
+           << lTM->fExecuting.size () << "\t"
+           << lTM->fFinished.size () << "\t"
+           << lTM->fDaemon.size () << std::endl;
+      curSz.set (lTM->fTaskList.size (), lTM->fExecutable.size (),lTM->fExecuting.size ());
     }
 #endif
-
+    DM->DeletePendingObj();
 
     if (!lTM->HasWorkTodo ()) {
       if (CM->NumProcessors () > 1) {
-	timeval now;
-	gettimeofday (&now, 0);
-	now.tv_usec += 1000;
-	now.tv_sec += now.tv_usec / 1000000;
-	now.tv_usec %= 1000000;
-	timespec next;
-	next.tv_sec = now.tv_sec;
-	next.tv_nsec = now.tv_usec * 1000;
-	
+        timeval now;
+        gettimeofday (&now, 0);
+        now.tv_usec += 1000;
+        now.tv_sec += now.tv_usec / 1000000;
+        now.tv_usec %= 1000000;
+        timespec next;
+        next.tv_sec = now.tv_sec;
+        next.tv_nsec = now.tv_usec * 1000;
+
 #ifdef LOGPZ
-      {
-        std::stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " going to sleep";
-        LOGPZ_DEBUG(tasklogger,sout.str().c_str());
-      }
+        {
+          std::stringstream sout;
+          sout << __PRETTY_FUNCTION__ << " going to sleep";
+          LOGPZ_DEBUG(tasklogger,sout.str().c_str());
+        }
 #endif
         int retval = 0;
-	retval = pthread_cond_timedwait (&lTM->fExecuteCondition,
-				&lTM->fSubmittedMutex, &next);
-
+        retval = pthread_cond_timedwait (&lTM->fExecuteCondition,
+                                         &lTM->fSubmittedMutex, &next);
         if(retval == ETIMEDOUT){
           LOGPZ_DEBUG(tasklogger,"TimedWait TimedOut");
         }else{
           LOGPZ_DEBUG(tasklogger,"TimedWait Signaled");
         }
-      } else {
-#ifdef LOGPZ
+      } else
       {
-        std::stringstream sout;
-        sout << __PRETTY_FUNCTION__ << " going to sleep";
-        LOGPZ_DEBUG(tasklogger,sout.str().c_str());
-      }
+#ifdef LOGPZ
+        {
+          std::stringstream sout;
+          sout << __PRETTY_FUNCTION__ << " going to sleep indefinetely number of executing tasks "
+              << lTM->fExecuting.size () << " keepgoing = " << lTM->fKeepGoing ;
+          LOGPZ_DEBUG(tasklogger,sout.str().c_str());
+        }
 #endif
-	pthread_cond_wait (&lTM->fExecuteCondition, &lTM->fSubmittedMutex);
+        if (lTM->fKeepGoing || lTM->fExecuting.size())
+        {
+          pthread_cond_wait (&lTM->fExecuteCondition, &lTM->fSubmittedMutex);
+        }
+#ifdef LOGPZ
+        {
+          std::stringstream sout;
+          sout << __PRETTY_FUNCTION__ << "Waking up, someone gave me a signal... "
+              << lTM->fExecuting.size ();
+          LOGPZ_DEBUG(tasklogger,sout.str().c_str());
+        }
+#endif
       }
     }
+
   }
 #ifdef LOGPZ
       {
@@ -277,7 +286,7 @@ OOPTaskManager::ExecuteMT (void *data)
         LOGPZ_DEBUG(tasklogger,sout.str().c_str());
       }
 #endif
-  
+
   CM->SendMessages ();
   pthread_mutex_unlock (&lTM->fSubmittedMutex);
 
@@ -391,8 +400,8 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
       }
     }
   }
-  
-  
+
+
   pthread_mutex_unlock (&lTM->fSubmittedMutex);
   //Sinalizar liberação do thread
 
@@ -499,6 +508,9 @@ OOPTaskManager::RevokeAccess (const OOPObjectId & TaskId,
     OOPTaskControl *tc = (*i);
     if (tc->Id () == TaskId) {
       found = true;
+#ifdef LOGPZ
+      LOGPZ_DEBUG (logger,__PRETTY_FUNCTION__);
+#endif
       tc->Depend ().RevokeAccess (depend);
 #ifdef LOGPZ
       stringstream sout;
@@ -758,7 +770,7 @@ OOPTaskManager::ExecuteDaemons ()
     i = fDaemon.begin ();
     if ((*i)->GetProcID () != DM->GetProcID ()) {
       CM->SendTask ((*i));
-    } else { 
+    } else {
       (*i)->Execute ();
       delete (*i);
     }
@@ -805,14 +817,29 @@ OOPTaskManager::Wait ()
   MPI_Barrier(MPI_COMM_WORLD);
 #ifdef BLOCKING
   cout << " Unlocking BlockingReceive Thread hopefully going down in a few seconds " << endl;
-  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking(); 
+  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
 #endif
 }
 
 void
 OOPTaskManager::SetKeepGoing (bool go)
 {
+#ifdef LOG4CXX
+  {
+    std::stringstream sout;
+    sout << " called with status = " << go ;
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+  }
+#endif
   fKeepGoing = go;
+#ifdef LOG4CXX
+{
+  std::stringstream sout;
+  sout << " fKeepGoing now = " << fKeepGoing ;
+  LOGPZ_DEBUG(logger,sout.str().c_str());
+}
+#endif
+
 }
 
 OOPObjectId
@@ -1096,7 +1123,7 @@ OOPTerminationTask::Execute ()
   TM->Signal(lock);
   }
   LOGPZ_DEBUG (logger, "Depois do Lock\n");
-  sleep(1);
+  //sleep(1);
   return ESuccess;
 }
 

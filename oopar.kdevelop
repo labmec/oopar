@@ -15,7 +15,7 @@
   <kdevautoproject>
     <general>
       <activetarget>src/oopar</activetarget>
-      <useconfiguration>debug</useconfiguration>
+      <useconfiguration>opt_LabMeC_Embraer</useconfiguration>
     </general>
     <run>
       <mainprogram>src/oopar</mainprogram>
@@ -42,14 +42,14 @@
         <f77compiler>kdevpgf77options</f77compiler>
         <cxxflags>-no-inline -O0 -g3</cxxflags>
         <envvars/>
-        <topsourcedir></topsourcedir>
+        <topsourcedir/>
         <cppflags>-DMPICH_IGNORE_CXX_SEEK -m64 </cppflags>
-        <ldflags></ldflags>
+        <ldflags/>
         <ccompilerbinary>/home/cluster/proj/proj076/longhin/Projetos/MPIDebug/bin/mpicc</ccompilerbinary>
         <cxxcompilerbinary>/home/cluster/proj/proj076/longhin/Projetos/MPIDebug/bin/mpicxx</cxxcompilerbinary>
         <f77compilerbinary>/home/cluster/proj/proj076/longhin/Projetos/MPIDebug/bin/mpif77</f77compilerbinary>
-        <cflags></cflags>
-        <f77flags></f77flags>
+        <cflags/>
+        <f77flags/>
       </debug>
       <default>
         <envvars/>
@@ -85,6 +85,40 @@
         <cxxflags/>
         <f77flags/>
       </debug_CFD>
+      <opt_LabMeC>
+        <envvars/>
+        <configargs>--prefix=/hd/cesar/Embraer/install/oopar4phil --enable-mpi=yes --with-mpi-dir=/hd/cesar/Embraer/install/mpi --with-pz-dir=/hd/cesar/Embraer/install/pz4phil --enable-mpe=no --enable-log4cxx=yes --with-log4cxx-dir=/hd/cesar/Embraer/install</configargs>
+        <builddir>opt_LabMeC</builddir>
+        <topsourcedir/>
+        <cppflags>-DMPICH_IGNORE_CXX_SEEK</cppflags>
+        <ldflags/>
+        <ccompiler>kdevgccoptions</ccompiler>
+        <cxxcompiler>kdevgppoptions</cxxcompiler>
+        <f77compiler>kdevpgf77options</f77compiler>
+        <ccompilerbinary>/usr/bin/gcc-3.3.6</ccompilerbinary>
+        <cxxcompilerbinary>/usr/bin/g++-3.3.6</cxxcompilerbinary>
+        <f77compilerbinary/>
+        <cflags/>
+        <cxxflags/>
+        <f77flags/>
+      </opt_LabMeC>
+      <opt_LabMeC_Embraer>
+        <envvars/>
+        <configargs>--prefix=/hd/cesar/Embraer/install/oopar_opt32 --enable-mpi=yes --with-mpi-dir=/hd/cesar/Embraer/install/mpi --with-pz-dir=/hd/cesar/Embraer/install/pz_opt32 --enable-mpe=no --enable-log4cxx=no</configargs>
+        <builddir>opt_LabMeC_Embraer</builddir>
+        <topsourcedir/>
+        <cppflags>-DMPICH_IGNORE_CXX_SEEK</cppflags>
+        <ldflags/>
+        <ccompiler>kdevgccoptions</ccompiler>
+        <cxxcompiler>kdevgppoptions</cxxcompiler>
+        <f77compiler>kdevpgf77options</f77compiler>
+        <ccompilerbinary>/usr/bin/gcc-3.3.6</ccompilerbinary>
+        <cxxcompilerbinary>/usr/bin/g++-3.3.6</cxxcompilerbinary>
+        <f77compilerbinary/>
+        <cflags/>
+        <cxxflags/>
+        <f77flags/>
+      </opt_LabMeC_Embraer>
     </configurations>
     <make>
       <envvars>
@@ -92,10 +126,11 @@
         <envvar value="1" name="WANT_AUTOMAKE_1_6" />
       </envvars>
       <abortonerror>true</abortonerror>
-      <numberofjobs>4</numberofjobs>
+      <numberofjobs>2</numberofjobs>
       <dontact>false</dontact>
       <makebin/>
       <prio>0</prio>
+      <runmultiplejobs>true</runmultiplejobs>
     </make>
   </kdevautoproject>
   <kdevdebugger>
@@ -191,7 +226,7 @@
     </codecompletion>
     <references/>
     <creategettersetter>
-      <prefixGet/>
+      <prefixGet></prefixGet>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>

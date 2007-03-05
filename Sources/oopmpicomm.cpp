@@ -51,34 +51,34 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
 	f_myself = -1;
 	f_num_proc = 0;
 	fReceiveThreadExists=false;
-	// f_proc = (int *) NULL; 
+	// f_proc = (int *) NULL;
   	cout << "Initializing MPI !\n Calling MPI_Init\n";
 	cout.flush();
-	MPI_Init(&argc,&argv); 
+	MPI_Init(&argc,&argv);
 	Initialize((char*)argv, argc);
 #	ifdef OOP_MPE
 	//MPE_Init_log();
 	//MPE_Describe_state( 1, 2, "Running", "yellow" );
 	//MPE_Describe_state( 3, 4, "Idle", "yellow" );
-#	endif	
-	
+#	endif
+
 	f_argc = argc;
 	f_argv = argv;
   	cout << "MPI_Init Called\n";
 	cout.flush();
 	fReceiveThread = 0;
-        pthread_mutex_init(&fReceiveMutex, NULL);       
-        pthread_cond_init(&fReceiveCond, NULL);       
+        pthread_mutex_init(&fReceiveMutex, NULL);
+        pthread_cond_init(&fReceiveCond, NULL);
         sem_init(&fReceiveSemaphore, 0, 0);
         fKeepReceiving = true;
-        
+
 }
 OOPMPICommManager::~OOPMPICommManager ()
 {
 	Finish("Terminating MPICommManager");
 }
  // Diferente de PVM, o argumento Destino em mpi nao eh o endereco absoluto
- // do 
+ // do
   // destino, mas o relativo. ou seja, o comando MPI_INIT inicializa os
   // processos e para cada um destina um numero inteiro diferente, a partir
   // de 0,
@@ -96,16 +96,16 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 }
 int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
-	
+
 
 #	ifdef DEBUGALL
 	{
-#		ifdef LOGPZ    
+#		ifdef LOGPZ
 		stringstream sout;
-		sout <<  __PRETTY_FUNCTION__ << " Sending task " << pTask->ClassId() << 
+		sout <<  __PRETTY_FUNCTION__ << " Sending task " << pTask->ClassId() <<
 			" to proc " << pTask->GetProcID ();
 		LOGPZ_DEBUG(logger,sout.str());
-#		endif    
+#		endif
 	}
 #	endif
 	int process_id = pTask->GetProcID ();	// processo onde ptask deve
@@ -137,11 +137,11 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 	pTask->Write (f_buffer, 1);
 #	ifdef DEBUGALL
  	{
-#		ifdef LOGPZ    
+#		ifdef LOGPZ
 		stringstream sout;
 		sout <<  __PRETTY_FUNCTION__ << " Sending the buffer";
 		LOGPZ_DEBUG(logger,sout.str());
-#		endif    
+#		endif
   	}
 #	endif
 	f_buffer.Send(process_id);
@@ -178,12 +178,12 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
         //pthread_mutex_lock(&LocalCM->fReceiveMutex);
 #	ifdef DEBUG
   	{
-#		ifdef LOGPZ    
+#		ifdef LOGPZ
     		stringstream sout;
     		sout << __PRETTY_FUNCTION__ << "ReceiveMsgBlocking ";
     		LOGPZ_DEBUG(logger,sout.str());
 #		endif
-	} 
+	}
 #	endif
 
         while (LocalCM->fKeepReceiving){
@@ -196,15 +196,15 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t){
 		}
 #		ifdef DEBUG
 		{
-#			ifdef LOGPZ    
+#			ifdef LOGPZ
 			stringstream sout;
 			sout << __PRETTY_FUNCTION__ << "Calling ProcessMessage";
 			LOGPZ_DEBUG(logger,sout.str());
-#			endif    
+#			endif
   		}
 #		endif
 		LocalCM->ProcessMessage (LocalCM->f_buffer);
-                
+
 	}
         cout << "Leaving ReceiveThread infinit loop " << LocalCM->f_myself << endl;
 
@@ -222,7 +222,7 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
   	LOGPZ_DEBUG(logger,"ReceiveMsgBlocking \n");
 #	endif
 	while (1){
-		
+
 		OOPMPIStorageBuffer msg;
 		pthread_mutex_lock(&fCommunicate);
 		int ret = msg.ReceiveBlocking();
@@ -237,19 +237,19 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
 		LocalCM->ProcessMessage (msg);
 	}
 	return NULL;
-	
+
 }
 
 int OOPMPICommManager::ReceiveBlocking ()
 {
 	if(!CM->GetProcID()){
-#		ifdef LOGPZ    
+#		ifdef LOGPZ
 		stringstream sout;
 		sout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID();
 		LOGPZ_DEBUG(logger,sout.str());
 #		endif
   	}
-	
+
 	f_buffer.ReceiveBlocking();
 	if(f_buffer.TestReceive()) {
 		ProcessMessage (f_buffer);
@@ -261,7 +261,7 @@ int OOPMPICommManager::ReceiveBlocking ()
 //  sleep(1);
 #	endif
 	if(!CM->GetProcID()){
-#		ifdef LOGPZ    
+#		ifdef LOGPZ
 		stringstream sout;
 		sout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID();
 		LOGPZ_DEBUG(logger,sout.str());
@@ -276,7 +276,7 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 	TPZSaveable *obj = msg.Restore ();
 	if (obj == NULL) {
 		Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
-                //return 1;              
+                //return 1;
 	}
 	// Trace( " ClassId do objeto recebido: " );
 	// Trace( obj->GetClassId() << ".\n" );
@@ -284,10 +284,10 @@ int OOPMPICommManager::ProcessMessage (OOPMPIStorageBuffer & msg)
 	if(task) {
 		task->Submit();
 	} else {
-#		ifdef LOGPZ    
+#		ifdef LOGPZ
 		std::stringstream sout;
 		sout << "OOPMPICommManager::ProcessMessage received an object which is not a task";
-		LOGPZ_DEBUG(logger,sout.str());
+		LOGPZ_DEBUG(logger,sout.str().c_str());
 #		endif
 		delete obj;
 	}
@@ -325,7 +325,7 @@ void OOPMPICommManager::UnlockReceiveBlocking(){
     OOPTerminationTask * tt = new OOPTerminationTask(f_num_proc - 1);
     CM->SendTask(tt);
   }else{
-  
+
     OOPTerminationTask * tt = new OOPTerminationTask(CM->GetProcID()-1);
     CM->SendTask(tt);
   }
@@ -334,5 +334,5 @@ void OOPMPICommManager::UnlockReceiveBlocking(){
   cout << " ProcID " << CM->GetProcID() << " Waiting for ReceiveThread sinalization ..." << endl;
   //pthread_cond_wait(&((OOPMPICommManager *)CM)->fReceiveCond,&((OOPMPICommManager *)CM)->fReceiveMutex);
   cout << " ProcID " << CM->GetProcID() << " Got it !" << endl;
-  
+
 }

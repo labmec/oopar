@@ -20,11 +20,11 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPAccessInfo"));
 bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 {
   if (fIsGranted || fIsAccessing) {
-#ifdef LOGPZ  
+#ifdef LOGPZ
     stringstream sout;
     sout << "OOPAccessInfo::CanExecute should not be called for an object which is being accessed\n";
     LOGPZ_WARN(logger, sout.str());
-#endif    
+#endif
     return false;
   }
 	// if the version is not right, don't even consider granting access
@@ -62,11 +62,11 @@ bool OOPAccessInfo::CanExecute (const OOPMetaData & object) const
 		break;
 	default:
     {
-#ifdef LOGPZ    
+#ifdef LOGPZ
       stringstream sout;
       sout << "OOPAccessInfo::CanExecute inconsistent\n";
       LOGPZ_WARN(logger, sout.str());
-#endif      
+#endif
     }
 		break;
 	}
@@ -89,7 +89,7 @@ void OOPAccessInfoList::AddAccessRequest (const OOPObjectId & taskid,
     LOG4CXX_ERROR(logger,sout.str());
     return;
   }
-  
+
   if(find(fList.begin(),fList.end(),(tmp)) != fList.end())
   {
     stringstream sout;
@@ -116,15 +116,15 @@ bool OOPAccessInfoList::VerifyAccessRequests (const OOPMetaData & object,
 {
 #ifdef LOGPZ
   stringstream sout;
-#endif  
+#endif
 	ac = fList.end ();
 	if (!object.CanGrantAccess ())
 	{
-#ifdef LOGPZ  
-    stringstream sout;  
+#ifdef LOGPZ
+    stringstream sout;
     sout <<  __PRETTY_FUNCTION__ << "VerifyAccessRequests object returned CanGrantAccess false\n";
     LOGPZ_WARN (logger, sout.str());
-#endif    
+#endif
     return false;
 	}
 	list < OOPAccessInfo >::iterator i;
@@ -210,11 +210,11 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
 		// can't cancel executing tasks
     bool AmICompatibleResult = true;
     if(!i->fIsAccessing) AmICompatibleResult = (i->fVersion).AmICompatible (version);
-#ifdef PZLOG    
-    if(!AmICompatibleResult) 
+#ifdef PZLOG
+    if(!AmICompatibleResult)
     {
       stringstream sout;
-      sout << "False AmICompatible from " << __PRETTY_FUNCTION__ 
+      sout << "False AmICompatible from " << __PRETTY_FUNCTION__
           << " Access request is ";
       i->Print(sout);
       sout << "Version = " << version << " taskid " << taskid;
@@ -226,7 +226,7 @@ bool OOPAccessInfoList::HasIncompatibleTask (const OOPDataVersion & version,
       {
         // This is a different processor requesting
         // access
-#ifdef PZLOG        
+#ifdef PZLOG
 	stringstream sout;
         sout << "Deleting access request ";
         i->Print(sout);
@@ -285,8 +285,8 @@ bool OOPAccessInfoList::HasVersionAccessGranted () const
 	return false;
 }
 
-void 
-OOPAccessInfoList::PostPoneWriteAccessGranted () 
+void
+OOPAccessInfoList::PostPoneWriteAccessGranted ()
 {
 	list < OOPAccessInfo >::iterator i = fList.begin ();
 	while (i != fList.end ()) {
@@ -309,15 +309,15 @@ void OOPAccessInfoList::ReleaseAccess (const OOPObjectId & taskid,
 		i++;
 	}
 	if(i == fList.end()) {
-#ifdef LOGPZ  
+#ifdef LOGPZ
     stringstream sout;
     sout << "InfoList::ReleaseAccess didn't find Task Id = " << taskid << " depend = " << depend <<endl;
     LOGPZ_INFO(logger, sout.str());
-#endif    
+#endif
 		Print(cout);
 		cout.flush();
 	}
-	
+
 }
 bool OOPAccessInfoList::HasAccessGranted (const OOPObjectId & taskid,
                                           const OOPMDataDepend & depend) const
@@ -420,11 +420,17 @@ void OOPAccessInfoList::RevokeAccessAndCancel ()
 			taskid = i->fTaskId;
 			OOPMDataDepend depend (taskid, i->fState,
 					       i->fVersion);
+#ifdef LOG4CXX
+      LOGPZ_DEBUG (logger,__PRETTY_FUNCTION__);
+#endif
 			TM->RevokeAccess (taskid, depend);
 		}
 		else if (i->fTaskId == taskid && i->fIsGranted) {
 			OOPMDataDepend depend (taskid, i->fState,
 					       i->fVersion);
+#ifdef LOG4CXX
+      LOGPZ_DEBUG (logger,__PRETTY_FUNCTION__);
+#endif
 			TM->RevokeAccess (taskid, depend);
 		}
 		i++;
@@ -445,15 +451,18 @@ void OOPAccessInfoList::RevokeWriteAccess (const OOPMetaData & obj)
   {
     if (i->fIsAccessing)
     {
-#ifdef LOGPZ    
+#ifdef LOGPZ
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << "cant revoke access for an executing task taskid " << i->fTaskId << " obj " << obj.Id();
       LOGPZ_ERROR(logger,sout.str());
-#endif      
+#endif
     }
     else if (i->fIsGranted && !(i->fState == EReadAccess))
     {
       OOPMDataDepend depend (obj.Id(), i->fState, i->fVersion);
+#ifdef LOG4CXX
+      LOGPZ_DEBUG (logger,__PRETTY_FUNCTION__);
+#endif
       TM->RevokeAccess (i->fTaskId, depend);
       i->fIsGranted=0;
     }
@@ -519,7 +528,7 @@ void OOPAccessInfoList::TransferAccessRequests(OOPObjectId &id, int processor) {
 	}
 }
 /**
- * Resend the granted access requests (because a read access has been 
+ * Resend the granted access requests (because a read access has been
  * canceled)
 void OOPAccessInfoList::ResendGrantedAccessRequests(OOPObjectId &id, int owningproc) {
 	list < OOPAccessInfo >::iterator i = fList.begin ();

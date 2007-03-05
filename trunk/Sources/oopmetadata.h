@@ -35,7 +35,7 @@ class   OOPMetaData:public TPZSaveable
 {
 public:
 
-  virtual ~OOPMetaData(){}
+  virtual ~OOPMetaData();
 
 private:
 	/**
@@ -85,13 +85,13 @@ private:
 	int     fToDelete;
      /**
       * Processors accessing current data for read access.
-	  * 
+	  *
 	  * Whenever the data has read access, the vector contains only the id of that processor
       */
 	        set < int >fReadAccessProcessors;
      /**
       * Processors accessing current data with access.
-	  * 
+	  *
 	  * Whenever the data has suspended read access, the vector contains only the id of that processor
       */
 	        set < int >fSuspendAccessProcessors;
@@ -102,7 +102,7 @@ private:
 	int     fTrace;
 
 public:
-		  
+
 	void PrintLog (std::ostream & out = std::cout);
 	void    Print (std::ostream & out = std::cout);
         void ShortPrint(std::ostream & out = std::cout);
@@ -134,7 +134,7 @@ public:
 	        OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
 			     const int proc);
 	OOPMetaData (TPZSaveable * ObPtr, const OOPObjectId & ObjId,
-			  const int ProcId, const OOPDataVersion ver);				 
+			  const int ProcId, const OOPDataVersion ver);
 	virtual int ClassId () const
 	{
 		return OOPMETADATA_ID;
@@ -291,7 +291,7 @@ public:
 				    OOPMDataState st, OOPDataVersion version);
     /**
      * Communicates, when necessary, the state of access to tasks willing to access the data
-     
+
 	void NotifyAccessStates ();*/
     /**
      * Returns the version of the data

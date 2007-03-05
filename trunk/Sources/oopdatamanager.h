@@ -52,7 +52,7 @@ public:
 	void    ReleaseAccessRequest (const OOPObjectId & TaskId,
 				      const OOPMDataDepend & depend);
 	/**
-	* Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of 
+	* Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of
 	* access and data version must also be specified, as well as the processor where the access should occur.
 	* @param TaskId Id of the Task willing to access the data.
 	* @param dataId Id of the data the task is willing to access.
@@ -65,7 +65,7 @@ public:
 				     const OOPMDataDepend & depend,
 				     const long ProcId);
 	/**
-	* Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of 
+	* Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of
 	* access and data version must also be specified. The processor is the current processor
 	* @param TaskId Id of the Task willing to access the data.
 	* @param depend structure which defines the type of access, version and object id
@@ -110,7 +110,7 @@ public:
 	* follows up on the process to delete it
 	* @param ObjId : Id of object to be deleted
 	*/
-	void    RequestDeleteObject (OOPObjectId & ObjId);
+	void    RequestDeleteObject (OOPObjectId /*&*/ ObjId);
 	/**
 	* Transfers the object identified by ObjId to the processor identified by
 	* ProcessorId.
@@ -133,6 +133,13 @@ public:
 	 * Returns true if object is found on the DM list
 	 */
 	bool    HasObject (OOPObjectId & id);
+
+
+  /**
+   * Delete the meta datas into the pending list
+   */
+  void DeletePendingObj();
+
       private:
 	/**
 	* Processor where the processor is located.
@@ -172,7 +179,7 @@ public:
     /**
      * Returns the Data Version object of the Meta data identified by Id.
      * Necessary for inquiring the current version of the MetaData object.
-     * @param Id Identifies the object to be inquired 
+     * @param Id Identifies the object to be inquired
      */
 //    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
 private:
@@ -182,6 +189,15 @@ private:
 	*/
 	pthread_mutex_t fDataMutex;
 
+  /**
+   * list of OOPMetaData to be deleted
+   */
+  std::list<OOPMetaData *> fMetaDataDelList;
+
+  /**
+   * list of OOPMetaData requesting to be deleted
+   */
+  std::list<OOPObjectId> fRequestDelete;
 };
 /**
  * Implements a task which owns (Undocumented)
@@ -261,7 +277,7 @@ class   OOPDMRequestTask:public OOPDaemonTask
 	OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
 	OOPDMRequestTask (const OOPDMRequestTask & task);
 	OOPDMRequestTask () ;
-	  
+
 	virtual OOPMReturnType Execute ();
 	virtual int ClassId () const
 	{

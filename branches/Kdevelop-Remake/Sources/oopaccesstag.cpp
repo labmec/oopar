@@ -29,7 +29,6 @@ OOPAccessTag::~OOPAccessTag()
 }
 OOPAccessTag::operator bool ()
 {
-#warning "What validates the existence of my tag ? "
   return fObjectId.operator bool();
 }
 

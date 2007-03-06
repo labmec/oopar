@@ -45,6 +45,7 @@ static LoggerPtr logger(Logger::getLogger("OOPar.OOPDataManager"));
 static LoggerPtr taglogger(Logger::getLogger("OOPar.OOPDataManager.OOPAccessTag"));
 static LoggerPtr HandleMsglogger(Logger::getLogger("OOPar.OOPDataManager.DMHandleMessages"));
 static LoggerPtr PostMsglogger(Logger::getLogger("OOPar.OOPDataManager.DMPostMessages"));
+static LoggerPtr ServiceLogger(Logger::getLogger("OOPar.OOPDataManager.ServiceLogger"));
 
 #endif
 
@@ -59,15 +60,29 @@ OOPDataManager::OOPDataManager(int Procid)
   fProcessor = Procid;
   fObjId.SetProcId (Procid);
   fLastCreated = 0;	// NUMOBJECTS * Procid;
+  fKeepGoing = false;
+  sem_init(&fServiceSemaphore, 0, 0);
+  fServiceThread = 0;  
 }
 
 OOPDataManager::~OOPDataManager ()
 {
   fObjects.clear ();
 #ifdef LOGPZ    
-  stringstream sout;
-  sout << "Terminating DM";
-  LOGPZ_INFO(logger,sout.str().c_str());
+  {
+    stringstream sout;
+    sout << "Terminating DM Service Thread";
+    LOGPZ_INFO(logger,sout.str().c_str());
+  }
+#endif
+  DM->WakeUpCall();
+  pthread_join(fServiceThread, NULL);
+#ifdef LOGPZ    
+  {
+    stringstream sout;
+    sout << "Terminating DM ";
+    LOGPZ_INFO(logger,sout.str().c_str());
+  }
 #endif  
 }
 
@@ -80,8 +95,10 @@ void OOPDataManager::PostAccessRequest(OOPAccessTag & depend)
   LOGPZ_DEBUG(PostMsglogger,sout.str());
 #endif  
   std::pair<int, OOPAccessTag> item(EDMRequest, depend);
-  OOPDMLock lock;
-  fMessages.push_back(item);
+  {
+    OOPDMLock lock;
+    fMessages.push_back(item);
+  }
 }
 void OOPDataManager::PostForeignAccessRequest(OOPAccessTag & depend)
 {
@@ -92,9 +109,10 @@ void OOPDataManager::PostForeignAccessRequest(OOPAccessTag & depend)
   LOGPZ_DEBUG(PostMsglogger,sout.str());
 #endif  
   std::pair<int, OOPAccessTag> item(EDMForeignRequest, depend);
-  OOPDMLock lock;
-  fMessages.push_back(item);
-  TM->WakeUpCall();
+  {
+    OOPDMLock lock;
+    fMessages.push_back(item);
+  }
 }
 
 
@@ -106,9 +124,11 @@ void OOPDataManager::PostOwnerMessage(OOPAccessTag & tag)
   sout << "Posting OwnerMessage for Object " << tag.Id() << " from Task " << tag.TaskId();
   sout << " Version " << tag.Version() << " AccessMode:" << tag.AccessMode() << " Pointer " << tag.AutoPointer();
   LOGPZ_DEBUG(PostMsglogger,sout.str());
-#endif  
-  OOPDMLock lock;
-  fMessages.push_back(item);
+#endif
+  {
+    OOPDMLock lock;
+    fMessages.push_back(item);
+  }
 }
 
 // vamos colocar o objeto numa pilha
@@ -139,8 +159,10 @@ void OOPDataManager::PostData(OOPAccessTag & tag)
   sout << " with Version " << tag.Version() << " In processor:" << tag.Proc();
   LOGPZ_DEBUG(PostMsglogger,sout.str());
 #endif  
-  OOPDMLock lock;
-  fMessages.push_back(item);
+  {
+    OOPDMLock lock;
+    fMessages.push_back(item);
+  }
 }
 //void OOPDataManager::
 OOPObjectId OOPDataManager::SubmitObject (TPZSaveable * obj)
@@ -274,7 +296,7 @@ void OOPDataManager::ObjectChanged(const OOPObjectId & Id)
     OOPDMLock lock;
     fChangedObjects.insert(Id);
   }
-  TM->WakeUpCall();
+  DM->WakeUpCall();
 }
 void OOPDataManager::ExtractObjectFromTag(OOPAccessTag & tag)
 {
@@ -295,10 +317,6 @@ void OOPDataManager::ExtractOwnerTaskFromTag(OOPAccessTag & tag)
   LOGPZ_DEBUG(HandleMsglogger,sout.str());
 #endif
   fObjects[tag.Id()].HandleOwnerMessage(tag);
-  
-/*  OOPDMOwnerTask otask(tag);
-#warning "HERE IS THE POINT"
-  fObjects[tag.Id()].HandleMessage(otask);*/
 }
 void OOPDataManager::ExtractRequestFromTag(OOPAccessTag & tag)
 {
@@ -417,8 +435,70 @@ void OOPDataManager::SubmitAllObjects()
   if (tempList.size())
   {
     //Notify TM that there are new messages for the DM
-    TM->WakeUpCall();
+    DM->WakeUpCall();
   }
+}
+int OOPDataManager::StartService()
+{
+  int res = -1;
+  res = pthread_create(&fServiceThread, NULL, ServiceThread, this);
+  if(res)
+  {
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << __PRETTY_FUNCTION__ << " Fail to create DM Service THREAD";
+    LOGPZ_DEBUG(logger,sout.str());
+    cout << sout.str() << endl;
+#endif
+  }
+  return res;
+}
+void * OOPDataManager::ServiceThread(void * data)
+{
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Starting service thread for DM";
+    LOGPZ_DEBUG(logger, sout.str());
+  }
+#endif
+  OOPDataManager * lDM = static_cast<OOPDataManager *>(data);
+  lDM->fKeepGoing = true;
+  while(lDM->fKeepGoing)
+  {
+    {
+      stringstream sout;
+      sout << "Calling DM->HandleMessages()";
+      #ifdef LOGPZ
+      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      #endif
+    }
+    DM->HandleMessages();
+    {
+      stringstream sout;
+      sout << "Called DM->HandleMessages() | Calling lDM->FlushData()";
+      #ifdef LOGPZ
+      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      #endif
+    }
+    DM->FlushData();
+    {
+      stringstream sout;
+      sout << "Called DM->FlushData() | Going to Sleep on WaitWakeUpCall()";
+      #ifdef LOGPZ
+      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      #endif
+    }
+    lDM->WaitWakeUpCall();
+    {
+      stringstream sout;
+      sout << "Woke Up | One more round ------------------------------------------------------------------" << endl;
+      #ifdef LOGPZ
+      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      #endif
+    }
+  }
+  return NULL;
 }
 void OOPDataManager::FlushData()
 {
@@ -538,7 +618,7 @@ OOPMReturnType OOPDMOwnerTask::Execute ()
   sout << __PRETTY_FUNCTION__ << " Called ";
   LOGPZ_DEBUG(logger,sout.str());
 #endif    
-  TM->WakeUpCall();
+  DM->WakeUpCall();
   return ESuccess;
 }
 OOPMReturnType OOPDMRequestTask::Execute ()

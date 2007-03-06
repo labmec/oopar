@@ -227,11 +227,9 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
     LOGPZ_DEBUG(logger,sout.str());
   }
 #endif    
-  sem_post(&LocalCM->fReceiveSemaphore);
   return NULL;
 }
 void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
-  //OOPMPICommManager *CM=(OOPMPICommManager *)(t);
   OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
 #ifdef DEBUG
   LOGPZ_DEBUG(logger,"ReceiveMsgBlocking \n");
@@ -356,8 +354,7 @@ void OOPMPICommManager::UnlockReceiveBlocking()
   }
   delete [] buff;
 #endif
-  //pthread_join(fReceiveThread, NULL);
-  sem_wait(&((OOPMPICommManager *)CM)->fReceiveSemaphore);
+  pthread_join(fReceiveThread, NULL);
 #ifdef LOGPZ
   {    
     std::stringstream sout;

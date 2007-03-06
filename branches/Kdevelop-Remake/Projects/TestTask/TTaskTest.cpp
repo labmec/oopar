@@ -1,11 +1,14 @@
 #include "TTaskTest.h"
-
+#include "OOPInt.h"
 
 
 OOPMReturnType TTaskTest::Execute(){
   int wait = 0;
   wait = 3;  
   cout << "Executing Task " << Id() << " Goint out in " << wait << " secs\n";
+  OOPInt * lint = dynamic_cast<OOPInt*>(fDependRequest.ObjectPtr( 0));
+  lint->fValue = lint->fValue + 1000;
+  cout << "Value of Int " << lint->fValue << endl;;
   cout.flush();
   sleep(wait);
   IncrementWriteDependentData();

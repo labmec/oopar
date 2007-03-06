@@ -31,6 +31,7 @@ using namespace std;
  * Implements a information tag concerning access requirements from Tasks to Data.
  * Assumes responsibility from three discontinued classe OOPAccessInfo,
  * OOPDataDepend and OOPTaskDepend.
+ * OOPAccessTag is the new OOPar access currency, OOPAccessTags are axchanged among processors, tasks, etc.
  */
 class OOPAccessTag{
 public:

@@ -57,10 +57,6 @@ int OOPSaveable::Pack (OOPStorageBuffer * buf)
 /*** Unpack ***/
 int OOPSaveable::Unpack (OOPStorageBuffer * buf)
 {
-#ifndef WIN32
-#warning "Unpack on the OOPSaveable class is empty ! Should it exist ?"
-#warning "Shouldn't it be virtual ?"
-#endif
 	return 1;
 }
 

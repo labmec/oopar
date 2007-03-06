@@ -121,10 +121,6 @@ public:
    */
   int NumberOfTasks();
   /**
-   * Returns true if there is a chance of finding an executable task
-   */
-  bool HasWorkTodo();
-  /**
    * Returns the total number of task on the environment.
    */
   int GlobalNumberOfTasks();
@@ -139,28 +135,19 @@ public:
    */
   void TransferExecutingTasks ();
   /**
-   * Transfer the tasks which are in the fSubmittedList to the
-   * fTaskList, registering their dependencies
-   */
-  void TransferSubmittedTasks ();
-  /**
    * Indicate to the TaskManager that a given task can execute
    */
   void TransfertoExecutable (const OOPObjectId & taskid);
   /**
-   * Execute all daemons which are in the list
-   */
-  void ExecuteDaemons ();
-  /**
-   * Very important method for the whole OOPar environment.
-   * Starts all task which has their data access requests granted from the DM.
-   * At least one call to one of the task managers should performed for the OOPar to start.
+   * Main method for the whole OOPar environment.
+   * OOPar is TM centered. So the TM::Execute starts the kernel of the oopar environment.
+   * Inside Execute the CM as well as the DM service threads are triggered.
+   * The termination of the OOPar environment is obtained by terminating the TM Service Thread which is triggered by
+   * the Execute Method.
    */
   void Execute ();
   static void *ReceiveMessages (void *data);
   static void * ExecuteMTBlocking (void *data);
-
-  static void *ExecuteMT (void *data);
 
   void GrantAccess(OOPAccessTag & tag);
   /**
@@ -241,18 +228,6 @@ private:
   list < OOPTaskControl * >fExecuting;
 
   /**
-   * List of daemon tasks which can be readily executed
-   */
-  list < OOPDaemonTask * >fDaemon;
-  /**
-   * List of tasks recently submitted
-   */
-  list < OOPTask * >fSubmittedList;
-  /**
-   * List of finished tasks
-   */
-  list < OOPTaskControl * >fFinished;
-  /**
    * Holds a list of messages to the TM
    * The messages are translated in actions to the Tasks on TM
    * The list is composed by pairs of Type and AccessTags.
@@ -261,6 +236,9 @@ private:
   std::list <std::pair< int, OOPAccessTag> > fMessages;
   void ExtractGrantAccessFromTag(const OOPAccessTag & tag);
   void ExtractCancelTaskFromTag(const OOPAccessTag & tag); 
+  
+  void ExecuteDaemon(OOPTask * dmt);
+  void InsertTask(OOPTask * task);
 };
 
 

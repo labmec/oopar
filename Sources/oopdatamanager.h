@@ -14,6 +14,7 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include <pthread.h>
+#include <semaphore.h>
 #include "tpzautopointer.h"
 
 class TPZSaveable;
@@ -127,7 +128,33 @@ public:
    * Verifies access requests for OOPMetaData objects stores fObjects
    */
   void FlushData();
+  void WaitWakeUpCall()
+  {
+    sem_wait(&fServiceSemaphore);
+  }
+  void WakeUpCall()
+  {
+    sem_post(&fServiceSemaphore);
+  }
+  void SetKeepGoing(bool go)
+  {
+    fKeepGoing = go;
+  }
+  int StartService();
 private:
+  pthread_t fServiceThread;
+  /**
+   * Service thread execution method for the DM
+   */
+  static void * ServiceThread(void * data);
+  /**
+   * Semaphore for the DM service thread
+   */
+  sem_t fServiceSemaphore;
+  /**
+   * Indicates wether ServiceThread should keep running
+   */
+  bool fKeepGoing;
   /**
    * Processor where the processor is located.
    */

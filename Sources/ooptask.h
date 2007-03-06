@@ -79,7 +79,6 @@ public:
    * Constructor based on a processor-id
    * @param Procid Id of processor where the object is being created
    */
-//#warning "Gustavo, implementa o construtor vazio por favor!!"
   OOPTask():fProc(-1) ,  fLabel("non initialized"){}
   OOPTask (int Procid);
   OOPTask (const OOPTask & task);

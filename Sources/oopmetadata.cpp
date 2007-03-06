@@ -140,7 +140,6 @@ TPZAutoPointer<TPZSaveable> OOPMetaData::Ptr (const OOPDataVersion & version)
     << " Going for the first compatible version : ";
     for(it=fAvailableVersions.begin();it!=fAvailableVersions.end();it++) sout << it->first << " {" << (it->first == version) << "} ";
     LOGPZ_DEBUG(logger, sout.str());
-#warning "Imprimir versoes"    
 #endif
   
     std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::reverse_iterator rit;
@@ -316,7 +315,6 @@ void OOPMetaData::VerifyAccessRequests ()
   {
     if(tag.Proc() != DM->GetProcID())
     {
-#warning "Verify sending of OwnerTask here"
       tag.SetAccessMode(EReadAccess);
       tag.SetAutoPointer(verit->second);
       OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
@@ -562,7 +560,6 @@ void OOPMetaData::Print (std::ostream & out)
 }
 void OOPMetaData::ShortPrint(std::ostream & out)
 {
-#warning "Implementar correto"
 	out << "D:" << fObjId << ":" << fProc << ":V:" << /*fVersion
 	 <<*/ ":AL:" << fAccessList.Count() << ":";
 	//fAccessList.ShortPrint(out);
@@ -570,7 +567,6 @@ void OOPMetaData::ShortPrint(std::ostream & out)
 }
 void OOPMetaData::PrintLog (std::ostream & out)
 {
-#warning "Implementar correto"
 	out << "\nObj Id " << fObjId << " version " << /*fVersion
 		<< */" processor " << fProc << endl;
 	out << " OOPData structure" << endl;

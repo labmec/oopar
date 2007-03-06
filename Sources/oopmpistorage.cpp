@@ -31,12 +31,18 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMPIStorageBuffer"));
 #endif
 
 
-void OOPMPIStorageBuffer::ExpandBuffer (int more_dimension)
+void OOPMPIStorageBuffer::ExpandBuffer(int more_dimension)
 {
-	f_send_buffr.Resize(f_send_buffr.NElements()+more_dimension);
-	if (more_dimension < 0) {
-#warning "Finish("ExpandBuffer <Cannot accept negative number as an argument>");"
-	}
+  f_send_buffr.Resize(f_send_buffr.NElements()+more_dimension);
+  if (more_dimension < 0)
+  {
+    stringstream sout;
+    sout << "Expanding buffer to invalid size " << more_dimension;
+    cout << sout.str() << endl;
+#ifdef LOGPZ
+    LOGPZ_DEBUG(logger,sout.str());
+#endif
+  }
 }
 int OOPMPIStorageBuffer::ResetBuffer (int size)
 {
@@ -267,11 +273,6 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
 #endif       
   f_isreceiving = 0;
   f_recv_position = 0;
-#ifdef OOP_MPE
-#warning "With the following line uncommented, code is crashing"
-//  MPE_Log_receive(f_status.MPI_SOURCE, f_status.MPI_TAG, f_recv_position);
-//        cout << " Origin " << f_status.MPI_SOURCE << " Tag " << f_status.MPI_TAG << endl;
-#endif	
   TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
 #ifdef LOGPZ
   {
@@ -280,7 +281,6 @@ TPZSaveable *OOPMPIStorageBuffer::Restore () {
     LOGPZ_DEBUG(logger,sout.str().c_str());
   }
 #endif
-  //MPI_Request_free(&f_request);
   return obj;
 }
 

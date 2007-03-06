@@ -139,6 +139,7 @@ int debugmpimain(int argc, char **argv)
     cout << "Submitted OOPInt object Id " << IdA << endl;
     TTaskTest * tta = new TTaskTest(0);
     TTaskTest * ttb = new TTaskTest(1);
+    TTaskTest * ttc = new TTaskTest(2);
     
     tta->AddDependentData(OOPAccessTag(
                       IdA, EWriteAccess, ver,0));
@@ -148,19 +149,40 @@ int debugmpimain(int argc, char **argv)
                       IdA, EWriteAccess, ver,0));
     ttb->Submit();
     ++ver;
-/*    OOPWaitTask * wt = new OOPWaitTask(0);
+    ttc->AddDependentData( OOPAccessTag(
+                      IdA, EWriteAccess, ver,0));
+    sleep(7);
+    cout << "Acordou -----------------------------------" << endl;
+    ttc->Submit();
+    ++ver;
+    OOPWaitTask * wt = new OOPWaitTask(0);
     wt->AddDependentData(  OOPAccessTag(
                       IdA, EWriteAccess, ver,0));
     wt->Submit();
-    wt->Wait();*/
+    wt->Wait();
+    wt->Finish();
+    int i;
+    for(i = 1;i< CM->NumProcessors();i++)
+    {
+      OOPTerminationTask * tt = new OOPTerminationTask(i);
+      tt->Submit();
+    }
+    //sleep(1);
+    OOPTerminationTask * tt = new OOPTerminationTask(0);
+    tt->Submit();
   }
-/*  OOPTerminationTask * tt = new OOPTerminationTask(CM->GetProcID());
-  tt->AddDependentData( OOPAccessTag(
-                      IdA, EWriteAccess, ver,CM->GetProcID()));
-  tt->Submit();  */
   TM->Wait();
+  //sleep(2);
+  int proc = CM->GetProcID();
+  cout << "Deleting DM on Processor " << proc << endl;
+  delete  DM;
+  cout << "Deleting TM on Processor " << proc << endl;
+  delete  TM;
+  cout << "Deleting CM on Processor " << proc << endl;
+  delete  CM;
 
-    
+  cout << "Leaving mpimain\n";
+  cout.flush();
   return 0;
 }
 int debugmain(int argc, char **argv)
@@ -217,7 +239,7 @@ int debugmain(int argc, char **argv)
   TM->SetKeepGoing( true);
   while (TM->KeepRunning())
   {
-    TM->TransferSubmittedTasks();
+//    TM->TransferSubmittedTasks();
     DM->HandleMessages();
     TM->HandleMessages();
     DM->FlushData();

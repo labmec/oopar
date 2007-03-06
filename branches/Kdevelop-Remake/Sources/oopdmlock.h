@@ -13,7 +13,9 @@
 #define OOPDMLOCK_H
 #include "pthread.h"
 /**
-Implements a Mutex for thread safe access on the DM data structure
+Implements a lock for the DataManager
+ * Has its pthread_mutex_t component defined as static, and initialized outside the class scope.
+ * All accesses to the DM data structure (lists mostly) are protected by a calling the lock on this mutex.
 */
 class OOPDMLock{
 public:

@@ -23,9 +23,19 @@ using namespace std;
 class OOPObjectId;
 class TMLock;
 
-
+/**
+ * Identifies types of messages which are handled by the TaskManager 
+ */
 enum TMMessageType {
+  /**
+   * Message which will be translated on a Access granted information.
+   * Access can be either Read, or Write access. 
+   */
   ETMAccessGranted,
+
+  /**
+   * Identifies a message which translate on the task cancelation action 
+   */
   ETMCancelTask,
 };
 
@@ -53,8 +63,7 @@ struct SszQueues
 /**
  * Implements the manager of tasks on the environment.
  * All parallelized task are submitted to environment through the TaskManager.
- * Along with Communication Manager and Data Manager, Task Manager acts as daemon on all nodes
- * present on the environment.
+ * Along with Communication Manager and Data Manager, Task Manager acts as daemon on all nodes present on the environment.
  */
 class OOPTaskManager
 {
@@ -242,6 +251,9 @@ private:
 };
 
 
+/**
+ * Implements a task which will terminate the OOPar environment execution. Is implemented as a task, so it is possible to assign some data dependency with the termination action. Terminates the execution of three service thread, the TM, the CM and the DM. 
+ */
 class OOPTerminationTask:public OOPTask
 {
 public:

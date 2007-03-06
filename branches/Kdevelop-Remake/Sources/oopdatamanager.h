@@ -27,10 +27,30 @@ class   OOPDMOwnerTask;
 class   OOPDMRequestTask;
 class   OOPCurrentLocation;
 
+/**
+ * Identifies possible messages submitted to the DataManager.
+ * A brief description of each type are also available. 
+ */
 enum DMMessageType {
+  /**
+   * Identifies a message which carries a Data object along with the OOPAccessTag.
+   * This message will be translated on the creation of a OOPMetaData object with a AutoPointer valid on the TPZSaveable object. 
+   */
   EDMData,
+
+  /**
+   * Identifies a message which will be translated in the OOPDMOwnerMessage. 
+   */
   EDMOwner,
+
+  /**
+   * Identifies a message which will generate a AccessRequest posted on the current processor 
+   */
   EDMRequest,
+
+  /**
+   * Identifies a message which will be translated on AccessRequest task submitted to a different processor. Foreign access request. 
+   */
   EDMForeignRequest
 };
 

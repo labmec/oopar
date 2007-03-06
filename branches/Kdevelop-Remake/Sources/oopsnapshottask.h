@@ -18,7 +18,8 @@ class OOPDataManager;
 
 
 /**
-Implements a task which on its execute method, takes a snapshot of the TM and DM data strutucture
+Implements a task which on its execute method, takes a snapshot of the TM and DM data strutucture.
+ * Still experimental
 
 @author Gustavo C Longhin
 */

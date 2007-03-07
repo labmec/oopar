@@ -46,6 +46,7 @@ OOPAccessTag OOPAccessTagMultiSet::GetCompatibleRequest(const OOPDataVersion & v
     {
       result = *it;
       fTagMultiSet.erase(it);
+      break;
     }
   }
   return result;
@@ -58,8 +59,9 @@ OOPAccessTag OOPAccessTagMultiSet::IncompatibleRequest(OOPDataVersion & version)
   {
     if(it->Version() < version)
     {
+      result = *it;
       fTagMultiSet.erase(it);
-      return *it;
+      break;
     }
   }
   return result;

@@ -102,15 +102,7 @@ void OOPAccessTagList::IncrementWriteDependent()
 
 void OOPAccessTagList::SubmitIncrementedVersions()
 {
-#warning "Not sure here see questions "
-/**
-  Para cada Tag, na lista, verificar quem tinha acesso escrita ?
-  Para cada um submeter ao MetaData a nova versão e o novo ponteiro ?
-  Ou ... Apenas postar na fila de mensagens que existe dado alterado ?
-  Ou ainda, fazer as duas coisas ?
-  Não há chamadas para esse método, Must Delete ?
- */
-   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
+  std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   for(;it!=fTagList.end();it++)
   {
     if(it->AccessMode() == EWriteAccess)
@@ -181,7 +173,7 @@ void OOPAccessTagList::PostRequests(OOPObjectId & Id)
   stringstream sout;
   sout << "with AccessTagList with size " << fTagList.size() << endl;
 #endif
-  for(i=0;i<fTagList.size();i++)
+  for(i=0;i<(signed int)fTagList.size();i++)
   {
     fTagList[i].SetProcessor(processor);
     fTagList[i].SetTaskId(Id);

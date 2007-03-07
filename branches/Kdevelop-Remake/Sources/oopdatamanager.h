@@ -86,7 +86,7 @@ public:
   /**
    * Dumps on disk the current state of the Manager object
    */
-  void SnapShotMe();
+  void SnapShotMe(std::ostream & out);
 
   /**
    * Checks the list of available objects since a new version had been submitted

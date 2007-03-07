@@ -19,7 +19,7 @@
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
+static LoggerPtr logger(Logger::getLogger("OOPar.WaitTask"));
 #endif
 
 #ifdef OOP_MPE
@@ -59,9 +59,30 @@ int OOPWaitTask::ClassId() const
 
 OOPMReturnType OOPWaitTask::Execute()
 {
-  sem_post(&fMainSemaphore);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Inside Execute of WaitTask ID " << Id() << " Posting fMainSemaphore";
+    LOGPZ_DEBUG(logger, sout.str());
+  }
+#endif
   this->IncrementWriteDependentData();
+  sem_post(&fMainSemaphore);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " << Id() << " waiting post on fExecSemaphore";
+    LOGPZ_DEBUG(logger, sout.str());
+  }
+#endif
   sem_wait(&fExecSemaphore);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " <<  Id() << " Leaving execute";
+    LOGPZ_DEBUG(logger, sout.str());
+  }
+#endif
   return ESuccess;
 }
 
@@ -70,6 +91,13 @@ OOPMReturnType OOPWaitTask::Execute()
  */
 void OOPWaitTask::Finish()
 {
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " << Id() << " Finished ! Posting fExecSemaphore";
+    LOGPZ_DEBUG(logger, sout.str());
+  }
+#endif
   sem_post(&fExecSemaphore);
 }
 
@@ -79,5 +107,19 @@ void OOPWaitTask::Finish()
  */
 void OOPWaitTask::Wait()
 {
-  int res = sem_wait(&fMainSemaphore);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " << Id() << " Waiting for Post in fMainSemaphore";
+    LOGPZ_DEBUG(logger, sout.str());
+  }
+#endif
+  sem_wait(&fMainSemaphore);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " << Id() << " fMainSemaphore Posted ! Leaving Wait";
+    LOGPZ_DEBUG(logger, sout.str());
+  }
+#endif
 }

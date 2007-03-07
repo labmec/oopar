@@ -23,8 +23,8 @@ OOPMReturnType OOPSnapShotTask::Execute(){
   cout << "Executing Task SnapShotTask on Processor " << fProc << endl;
   cout.flush();
   OOPTMLock lock;
-  DM->SnapShotMe();
-  TM->SnapShotMe();
+  DM->SnapShotMe(cout);
+  TM->SnapShotMe(cout);
   IncrementWriteDependentData();
   return ESuccess;
 }

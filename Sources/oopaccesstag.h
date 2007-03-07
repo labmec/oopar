@@ -36,6 +36,10 @@ using namespace std;
 class OOPAccessTag{
 public:
   OOPAccessTag();
+  int Count() const
+  {
+    return fObjectAutoPtr.Count();
+  }
   
 /*      
 ENoAccess,
@@ -221,11 +225,13 @@ public:
   }
   void ShortPrint (std::ostream & out) const
   {
+    out << "Id:" << fObjectId << ";";
     out << "S:" << fAccessMode << ";";
     out << "P:" << fProcessor << ";";
     out << "T:" << fTaskId << ";";
     out << "V:" << fVersion << ";";
-    out << "D:" << fObjectAutoPtr;
+    out << "D:" << fObjectAutoPtr << ";";
+    out << "Cnt:" << Count();
   }
 
   OOPMDataState AccessMode() const

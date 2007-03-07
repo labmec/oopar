@@ -18,11 +18,12 @@
 class OOPStorageBuffer;
 
 /**
-This task creates an entry point into the OOPAR system. The Task contains two central methods. Wait() will cause the calling thread to sleep till the data dependency of the task is satisfied. Finish() will release the datadependency from the OOPAR system.
+ * This task creates an entry point into the OOPAR system. The Task contains two central methods. Wait() will cause the calling 
+ * thread to sleep till the data dependency of the task is satisfied. Finish() will release the datadependency from the OOPAR 
+ * system.
  * Uses semaphore for synchronization.
-
-@author Philippe R. B. Devloo
-*/
+ * @author Philippe R. B. Devloo
+ */
 class OOPWaitTask : public OOPTask
 {
   /**

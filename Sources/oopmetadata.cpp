@@ -11,7 +11,7 @@
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMetaData"));
+static LoggerPtr logger(Logger::getLogger("OOPar.OOPDataManager"));
 #endif
 
 #ifdef OOP_MPE
@@ -195,7 +195,7 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
 #ifdef LOGPZ
   {
     std::stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " Tag ";
+    sout << "Submitting Tag ";
     Tag.ShortPrint(sout);
     LOGPZ_DEBUG(logger,sout.str());
   }
@@ -205,7 +205,7 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
 #ifdef LOGPZ
     {
       std::stringstream sout;
-      sout << __PRETTY_FUNCTION__ << " Tag ";
+      sout << "Id of Tag missmatch Id of MetaData: Tag";
       Tag.ShortPrint(sout);
       sout << " Object Id " << fObjId;
       LOGPZ_ERROR(logger,sout.str());
@@ -218,6 +218,7 @@ void OOPMetaData::SubmitTag(OOPAccessTag & Tag)
     fProc = fObjId.GetProcId();
   }
   TPZAutoPointer<TPZSaveable> point(Tag.AutoPointer());
+  Tag.ClearPointer();
   SubmitVersion(point, Tag.Version());
 }
 
@@ -226,7 +227,7 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr, const OOPD
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Submitting object id " << Id() << " classid " << NewPtr->ClassId();
+    sout << "Submitting Version for object id " << Id() << " classid " << NewPtr->ClassId();
     LOGPZ_DEBUG(logger, sout.str());
   }
 #endif
@@ -245,7 +246,9 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr, const OOPD
     }
 #endif
     std::pair<OOPDataVersion, TPZAutoPointer<TPZSaveable> > item(nextversion, NewPtr);
+    NewPtr = TPZAutoPointer<TPZSaveable>();
     fAvailableVersions.insert(item);
+    item.second = NewPtr; 
   } else
   {
 #ifdef LOGPZ
@@ -259,7 +262,7 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr, const OOPD
 #endif
   }
   VerifyAccessRequests();
-  TM->WakeUpCall();
+  DM->WakeUpCall();
 }
 int OOPMetaData::AccessCounter(OOPDataVersion & version)
 {
@@ -286,7 +289,7 @@ void OOPMetaData::VerifyAccessRequests ()
   {
 #ifdef LOGPZ
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " Entering VerifyAccessRequests for Obj " << this->fObjId << " access requests ";
+    sout << "Entering VerifyAccessRequests for Obj " << this->fObjId << " access requests ";
     fAccessList.Print(sout);
     LOG4CXX_DEBUG(logger,sout.str());
 #endif
@@ -296,7 +299,7 @@ void OOPMetaData::VerifyAccessRequests ()
   {
 #ifdef LOGPZ
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " VerifyAccessRequests with empty AvailableVersions " << this->fObjId;
+    sout << "VerifyAccessRequests with empty AvailableVersions " << this->fObjId;
     LOG4CXX_DEBUG(logger,sout.str());
 #endif
     return;
@@ -325,7 +328,7 @@ void OOPMetaData::VerifyAccessRequests ()
     {
 #ifdef LOGPZ
       stringstream sout;
-      sout << __PRETTY_FUNCTION__ << " OOPMetaData::Verify.. task canceled " << tag.Id() ;
+      sout << "Task cancelation from tag with ObjectId " << tag.Id() ;
       LOG4CXX_DEBUG(logger,sout.str());
 #endif
       TM->CancelTask(tag);
@@ -336,20 +339,29 @@ void OOPMetaData::VerifyAccessRequests ()
   while(tag)
   {
     tag.SetAutoPointer(verit->second);
-#ifdef LOGPZ
-    {
-      std::stringstream sout;
-      sout << "Granting read access to tag : ";
-      tag.Print(sout);
-      LOGPZ_DEBUG(logger,sout.str());
-    }
-#endif
     if(tag.Proc() == DM->GetProcID())
     {
+#ifdef LOGPZ
+      {
+        std::stringstream sout;
+        sout << "Granting Local EReadAccess on Object " << fObjId << " according to Tag:";
+        tag.ShortPrint(sout);
+        LOGPZ_DEBUG(logger,sout.str());
+      }
+#endif
       TM->GrantAccess(tag);
     } 
     else
     {
+#ifdef LOGPZ
+      {
+        std::stringstream sout;
+        sout << "Generating OwnerTask for ReadAccess from Proc " << DM->GetProcID() << " to Proc " 
+              << tag.Proc() << " with Tag:";
+        tag.ShortPrint(sout);
+        LOGPZ_DEBUG(logger,sout.str());
+      }
+#endif
       OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
       otask->Submit();
     }
@@ -361,22 +373,30 @@ void OOPMetaData::VerifyAccessRequests ()
     if(tag)
     {
       tag.SetAutoPointer(verit->second);
-  #ifdef LOGPZ
-      {
-        std::stringstream sout;
-        sout << "Granting access to tag : ";
-        tag.ShortPrint(sout);
-        LOGPZ_DEBUG(logger,sout.str());
-      }
-  #endif
       fAvailableVersions.erase(verit->first);
-  
       if(tag.Proc() == DM->GetProcID())
       {
+#ifdef LOGPZ
+        {
+          std::stringstream sout;
+          sout << "Granting Local EWriteAccess on Object " << fObjId << " according to Tag:";
+          tag.ShortPrint(sout);
+          LOGPZ_DEBUG(logger,sout.str());
+        }
+#endif
         TM->GrantAccess(tag);
       } 
       else
       {
+#ifdef LOGPZ
+        {
+          std::stringstream sout;
+          sout << "Generating OwnerTask for EWriteAccess from Proc " << DM->GetProcID() << " to Proc " 
+                << tag.Proc() << " with Tag:";
+          tag.ShortPrint(sout);
+          LOGPZ_DEBUG(logger,sout.str());
+        }
+#endif
         std::set<OOPAccessTag> requests;
         fAccessList.GetProcessorAccessRequests(tag.Proc(),requests);
         OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag,requests);
@@ -384,6 +404,17 @@ void OOPMetaData::VerifyAccessRequests ()
         fProc = tag.Proc();
       }
     }
+  }
+  else
+  {
+#ifdef LOGPZ
+    {
+      std::stringstream sout;
+      sout << "Access Counter not equal to '1' while Trying EWriteAccess verification: Count: "
+      << verit->second.Count() << " for ObjectId " << fObjId;
+      LOGPZ_DEBUG(logger,sout.str());
+    }
+#endif
   }
 #ifdef LOGPZ
   {

@@ -21,6 +21,8 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskManager"));
+static LoggerPtr AccessLogger(Logger::getLogger("OOPar.OOPDataManager.OOPAccessTag"));
+static LoggerPtr tasklogger (Logger::getLogger ("OOPar.OOPTaskManager.OOPTask"));
 #endif
 
 
@@ -109,6 +111,12 @@ void OOPAccessTagList::SubmitIncrementedVersions()
     {
       DM->PostData(*it);
     }
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << "Releasing Access according to Tag:";
+    it->ShortPrint(sout);
+    LOGPZ_DEBUG(AccessLogger,sout.str());
+#endif  
     it->ClearPointer();
   }
   for(it=fTagList.begin();it!=fTagList.end();it++)
@@ -161,31 +169,26 @@ void OOPAccessTagList::Read(TPZStream & buf, void *context)
 void OOPAccessTagList::PostRequests(OOPObjectId & Id)
 {
 #ifdef LOGPZ
-  {
   stringstream sout;
-  sout << "Posting Access Requests for Task " << Id;
-  LOGPZ_DEBUG(logger,sout.str());
-  }
+  sout << "Posting Access Requests for Task T:" << Id;
 #endif
   int processor = DM->GetProcID();
   int i = 0;
 #ifdef LOGPZ
-  stringstream sout;
-  sout << "with AccessTagList with size " << fTagList.size() << endl;
+  sout << " with " << fTagList.size() << " Tag(s):";
 #endif
   for(i=0;i<(signed int)fTagList.size();i++)
   {
     fTagList[i].SetProcessor(processor);
     fTagList[i].SetTaskId(Id);
 #ifdef LOGPZ
-    sout << "Data " << fTagList[i].Id() << " ";
-    sout << "Access " << fTagList[i].AccessModeString() << " ";
-    sout << "Processor " << fTagList[i].Proc() << endl;
+    fTagList[i].ShortPrint(sout);
 #endif    
     DM->PostAccessRequest( fTagList[i]);
   }
 #ifdef LOGPZ
   LOGPZ_DEBUG(logger,sout.str());
+  LOGPZ_DEBUG(tasklogger,sout.str());
 #endif
   
 }

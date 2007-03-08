@@ -171,8 +171,7 @@ void OOPTask::SubmitDependencyList()
 {
 #ifdef LOGPZ
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " Submitting Dependency List for Task" <<
-      fTaskId;
+    sout << "Submitting Access Requests for Task " << fTaskId;
     LOGPZ_DEBUG(logger, sout.str ());
 #endif
   fDependRequest.PostRequests(fTaskId);

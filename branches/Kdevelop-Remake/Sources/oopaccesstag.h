@@ -183,10 +183,6 @@ public:
   }
   OOPAccessTag (OOPObjectId & id, TPZAutoPointer<TPZSaveable> obj)
   {
-    //fTaskId = aci.fTaskId;
-    //fAccessMode = aci.fAccessMode;
-    //fVersion = aci.fVersion;
-    //fProcessor = DM->GetProcId();
     fProcessor = 0;
     fAccessMode = EReadAccess;
     fObjectId = id;
@@ -225,13 +221,14 @@ public:
   }
   void ShortPrint (std::ostream & out) const
   {
-    out << "Id:" << fObjectId << ";";
-    out << "S:" << fAccessMode << ";";
-    out << "P:" << fProcessor << ";";
-    out << "T:" << fTaskId << ";";
-    out << "V:" << fVersion << ";";
-    out << "D:" << fObjectAutoPtr << ";";
-    out << "Cnt:" << Count();
+    out << "Id:" << fObjectId << "|";
+    string access = (fAccessMode == 2 ? string("W") : string("R")); 
+    out << "S:" << access << "|";
+    out << "P:" << fProcessor << "|";
+    out << "T:" << fTaskId << "|";
+    out << "V:" << fVersion << "|";
+    out << "D:" << fObjectAutoPtr << "|";
+    out << "Cnt:" << Count() << "||";
   }
 
   OOPMDataState AccessMode() const

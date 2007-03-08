@@ -115,7 +115,8 @@ public:
    * Submits a daemon task to the TaskManager.
    * @param task Pointer to the submitted task.
    */
-  void SubmitDaemon(OOPDaemonTask * task);
+//  void SubmitDaemon(OOPDaemonTask * task);
+  void ExecuteDaemon(OOPTask * dmt);
   /**
    * Returns the number tasks currently being managed by this data manager
    */
@@ -123,7 +124,7 @@ public:
   /**
    * Returns true if there is a chance of finding an executable task
    */
-  bool HasWorkTodo();
+  //bool HasWorkTodo();
   /**
    * Returns the total number of task on the environment.
    */
@@ -150,7 +151,7 @@ public:
   /**
    * Execute all daemons which are in the list
    */
-  void ExecuteDaemons ();
+  //void ExecuteDaemons ();
   /**
    * Very important method for the whole OOPar environment.
    * Starts all task which has their data access requests granted from the DM.
@@ -243,7 +244,7 @@ private:
   /**
    * List of daemon tasks which can be readily executed
    */
-  list < OOPDaemonTask * >fDaemon;
+  //list < OOPDaemonTask * >fDaemon;
   /**
    * List of tasks recently submitted
    */
@@ -251,7 +252,7 @@ private:
   /**
    * List of finished tasks
    */
-  list < OOPTaskControl * >fFinished;
+  //list < OOPTaskControl * >fFinished;
   /**
    * Holds a list of messages to the TM
    * The messages are translated in actions to the Tasks on TM

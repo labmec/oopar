@@ -9,6 +9,7 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
+static LoggerPtr tasklogger (Logger::getLogger ("OOPar.OOPTaskManager.OOPTask"));
 #endif
 
 #ifdef OOP_MPE
@@ -91,43 +92,27 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
 #ifdef LOGPZ  
   {
     stringstream sout;
-    sout << "Task " << tc->fTask->Id() << " started";
-    LOGPZ_DEBUG(logger,sout.str());
+    sout << "Task T:" << tc->fTask->Id() << " Started";
+    LOGPZ_DEBUG(tasklogger,sout.str());
   }
 #endif  
   tc->fExecStarted = 1;
   tc->fTask->Execute();
   OOPObjectId id = tc->fTask->Id();
   int lClassId = tc->fTask->ClassId();
-  //Guardar versoes dos dados
-  //Associando TaskDependList com DataDependList
-  //Objetos com WriteAccess sao atualizados com as novas versoes
-  //VerifyAccessRequest feito dentro do submit do metadata. 
 #ifdef LOGPZ
   {
   stringstream sout;
-  sout << __PRETTY_FUNCTION__ << "Task finished, calling updateversions";
-  LOGPZ_DEBUG(logger,sout.str());
+  sout << "Task T:" << tc->fTask->Id() << " Finished";
+  LOGPZ_DEBUG(tasklogger,sout.str());
   }
 #endif
   tc->UpdateVersions();
-#ifdef LOGPZ
-  {
-    stringstream sout;
-    sout << "Task " << id << " CId:" << lClassId << " finished before lock";
-    LOGPZ_DEBUG(logger,sout.str());
-  }
-#endif
 
-  OOPTMLock lock;
-  tc->fExecFinished =1;
-#ifdef LOGPZ
   {
-    stringstream sout;
-    sout << "Task " << id << " CId:" << lClassId << " finished";
-    LOGPZ_DEBUG(logger,sout.str());
+    OOPTMLock lock;
+    tc->fExecFinished =1;
   }
-#endif
   TM->WakeUpCall();
   return 0;
 }

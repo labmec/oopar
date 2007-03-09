@@ -42,22 +42,34 @@ OOPAccessTag OOPAccessTagMultiSet::GetCompatibleRequest(const OOPDataVersion & v
   std::multiset<OOPAccessTag>::iterator it;
   for(it = fTagMultiSet.begin(); it != fTagMultiSet.end(); it++)
   {
+#ifdef LOGPZ
+      stringstream sout;
+      sout << "it->Version().CanExecute(version) " << it->Version().CanExecute(version) <<
+        " need " << need;
+      LOGPZ_DEBUG(logger,sout.str());
+#endif
     if((it->Version().CanExecute(version)) && (it->AccessMode() == need))
     {
       result = *it;
+#ifdef LOGPZ
+      stringstream sout;
+      sout << "returning and deleting tag: ";
+      result.ShortPrint( sout);
+      LOGPZ_DEBUG(logger,sout.str());
+#endif
       fTagMultiSet.erase(it);
       break;
     }
   }
   return result;
 }
-OOPAccessTag OOPAccessTagMultiSet::IncompatibleRequest(OOPDataVersion & version)
+OOPAccessTag OOPAccessTagMultiSet::IncompatibleRequest(OOPDataVersion & dataversion)
 {
   OOPAccessTag result;
   std::multiset<OOPAccessTag>::iterator it;
   for(it = fTagMultiSet.begin(); it != fTagMultiSet.end(); it++)
   {
-    if(it->Version() < version)
+    if(! it->Version().AmICompatible(dataversion))
     {
       result = *it;
       fTagMultiSet.erase(it);

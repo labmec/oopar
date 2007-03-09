@@ -22,6 +22,7 @@ using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskManager"));
 static LoggerPtr AccessLogger(Logger::getLogger("OOPar.OOPDataManager.OOPAccessTag"));
+static LoggerPtr MetaLogger(Logger::getLogger("OOPar.OOPDataManager.MetaData"));
 static LoggerPtr tasklogger (Logger::getLogger ("OOPar.OOPTaskManager.OOPTask"));
 #endif
 
@@ -112,10 +113,17 @@ void OOPAccessTagList::SubmitIncrementedVersions()
       DM->PostData(*it);
     }
 #ifdef LOGPZ    
-    stringstream sout;
-    sout << "Releasing Access according to Tag:";
-    it->ShortPrint(sout);
-    LOGPZ_DEBUG(AccessLogger,sout.str());
+    {
+      stringstream sout;
+      sout << "Releasing Access according to Tag:";
+      it->ShortPrint(sout);
+      LOGPZ_DEBUG(AccessLogger,sout.str());
+    }
+    {
+      stringstream sout;
+      sout << "Object Id:" << it->Id() << " Released from Task T:" << it->TaskId();
+      LOGPZ_INFO(MetaLogger, sout.str());
+    }
 #endif  
     it->ClearPointer();
   }
@@ -139,7 +147,7 @@ void OOPAccessTagList::ShortPrint(std::ostream & out)
   for(it = fTagList.begin(); it != fTagList.end(); it++)
   {
     it->ShortPrint(out);
-    out << std::endl;
+    out << "||";
   }
 }
 

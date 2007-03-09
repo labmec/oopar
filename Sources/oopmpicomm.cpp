@@ -118,13 +118,13 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 #endif    
   }
   int process_id = pTask->GetProcID ();
-  if (process_id >= f_num_proc) {
+  if (process_id >= f_num_proc || process_id < 0) {
     stringstream sout;
     sout << "Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !";
 #ifdef LOGPZ  
     LOGPZ_ERROR(logger,sout.str());
 #endif
-    Finish("Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !");
+    //Finish("Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !");
     delete pTask;
     return -1;
   }

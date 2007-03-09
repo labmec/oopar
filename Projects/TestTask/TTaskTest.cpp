@@ -4,7 +4,7 @@
 
 OOPMReturnType TTaskTest::Execute(){
   int wait = 0;
-  wait = 3;  
+  wait = 1;  
   cout << "Executing Task " << Id() << " Goint out in " << wait << " secs\n";
   OOPInt * lint = dynamic_cast<OOPInt*>(fDependRequest.ObjectPtr( 0));
   lint->fValue = lint->fValue + 1000;

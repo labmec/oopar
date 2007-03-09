@@ -151,7 +151,7 @@ int debugmpimain(int argc, char **argv)
     ++ver;
     ttc->AddDependentData( OOPAccessTag(
                       IdA, EWriteAccess, ver,0));
-    sleep(7);
+    sleep(4);
     cout << "Acordou -----------------------------------" << endl;
     ttc->Submit();
     ++ver;
@@ -161,6 +161,7 @@ int debugmpimain(int argc, char **argv)
     wt->Submit();
     wt->Wait();
     wt->Finish();
+    DM->Data(IdA).DeleteMe();
     int i;
     for(i = 1;i< CM->NumProcessors();i++)
     {

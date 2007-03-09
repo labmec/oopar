@@ -222,8 +222,8 @@ public:
   void ShortPrint (std::ostream & out) const
   {
     out << "Id:" << fObjectId << "|";
-    string access = (fAccessMode == 2 ? string("W") : string("R")); 
-    out << "S:" << access << "|";
+    //string access = (fAccessMode == 2 ? string("W") : string("R")); 
+    out << "S:" << fAccessMode << "|";
     out << "P:" << fProcessor << "|";
     out << "T:" << fTaskId << "|";
     out << "V:" << fVersion << "|";

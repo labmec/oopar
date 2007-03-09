@@ -24,16 +24,17 @@ noinst_LIBRARIES = liboopar.a
 
 
 liboopar_a_SOURCES = oopaccesstag.cpp oopaccesstaglist.cpp oopdatamanager.cpp \
-		ooptaskmanager.cpp oopdataversion.cpp ooperror.cpp oopmetadata.cpp oopobjectid.cpp \
-		oopparclass.cpp ooptask.cpp ooptaskcontrol.cpp oopwaittask.cpp oopcommmanager.cpp \
-		oopevtid.cpp oopevtmanager.cpp oopstorage.cpp oopstorage.h oopstore.cpp \
-		ooppardefs.cpp ooppardefs.h oopmpicomm.cpp oopmpicomm.h oopmpistorage.cpp \
-		oopmpistorage.h OOPInt.cpp OOPInt.h OOPVector.cpp OOPVector.h OOPDouble.cpp OOPDouble.h \
-		oopsnapshottask.cpp oopaccesstagmultiset.cpp oopdmlock.cpp ooptmlock.cpp
+			ooptaskmanager.cpp oopdataversion.cpp ooperror.cpp oopmetadata.cpp oopobjectid.cpp \
+			oopparclass.cpp ooptask.cpp ooptaskcontrol.cpp oopwaittask.cpp oopcommmanager.cpp \
+			oopevtid.cpp oopevtmanager.cpp oopstorage.cpp oopstorage.h oopstore.cpp \
+			ooppardefs.cpp ooppardefs.h oopmpicomm.cpp oopmpicomm.h oopmpistorage.cpp \
+			oopmpistorage.h OOPInt.cpp OOPInt.h OOPVector.cpp OOPVector.h OOPDouble.cpp OOPDouble.h \
+			oopsnapshottask.cpp oopaccesstagmultiset.cpp oopdmlock.cpp ooptmlock.cpp \
+	oopdelobjecttask.cpp
 	
 
 ## --| OOPar |------------------------------------------------------------------
 
 noinst_HEADERS = oopsnapshottask.h oopaccesstag.h oopaccesstaglist.h \
-		oopmpicomm.h oopmpistorage.h oopmpicomm.cpp oopmpistorage.cpp oopaccesstagmultiset.h \
-		oopdmlock.h ooptmlock.h
+			oopmpicomm.h oopmpistorage.h oopmpicomm.cpp oopmpistorage.cpp oopaccesstagmultiset.h \
+			oopdmlock.h ooptmlock.h oopdelobjecttask.h

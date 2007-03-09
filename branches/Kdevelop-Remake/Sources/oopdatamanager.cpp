@@ -138,6 +138,18 @@ void OOPDataManager::PostOwnerMessage(OOPAccessTag & tag)
   }
   DM->WakeUpCall();
 }
+void OOPDataManager::RequestDelete(OOPObjectId & Id)
+{
+#ifdef LOGPZ    
+  stringstream sout;
+  sout << "Submitting Delete Request for Object Id:" << Id;
+  LOGPZ_DEBUG(MetaLogger,sout.str());
+#endif  
+  OOPDataVersion ver;
+  ver.SetLevelVersion( 0,-1);
+  OOPAccessTag tag(Id, EDelete, ver, -1);
+  PostAccessRequest( tag);
+}
 
 // vamos colocar o objeto numa pilha
 // retorna
@@ -160,17 +172,21 @@ void OOPDataManager::PostOwnerMessage(OOPAccessTag & tag)
 //}
 void OOPDataManager::PostData(OOPAccessTag & tag)
 {
-  std::pair<int, OOPAccessTag> item(EDMData, tag);
-  tag.ClearPointer();
-#ifdef LOGPZ    
-  stringstream sout;
-  sout << "Posting Data for Object Id:" << tag.Id();
-  sout << " with Version " << tag.Version() << " In processor:" << tag.Proc() << " with Counter " << item.second.Count();
-  LOGPZ_DEBUG(logger,sout.str());
-#endif  
   {
-    OOPDMLock lock;
-    fMessages.push_back(item);
+    std::pair<int, OOPAccessTag> item(EDMData, tag);
+    tag.ClearPointer();
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << "Posting Data for Object Id:" << tag.Id();
+    sout << " with Version " << tag.Version() << " In processor:" << tag.Proc() << " with Counter " << item.second.Count()
+    << " item " ;
+    item.second.ShortPrint(sout);
+    LOGPZ_DEBUG(logger,sout.str());
+#endif  
+    {
+      OOPDMLock lock;
+      fMessages.push_back(item);
+    }
   }
   DM->WakeUpCall();
 }
@@ -484,6 +500,8 @@ void * OOPDataManager::ServiceThread(void * data)
       #endif
     }
   }
+  DM->HandleMessages();
+  DM->FlushData();
   return NULL;
 }
 void OOPDataManager::FlushData()
@@ -502,7 +520,18 @@ void OOPDataManager::FlushData()
     it = fObjects.find(*itlst);
     if(it!=fObjects.end())
     {
-      it->second.VerifyAccessRequests();
+      if(it->second.ShouldDelete())
+      {
+#ifdef LOGPZ
+        stringstream sout;
+        sout << "Deleting Object Id:" << *itlst << " Marked for Deletion";
+        LOGPZ_INFO(MetaLogger, sout.str());
+#endif
+        fObjects.erase(*itlst);
+      }else
+      {
+        it->second.VerifyAccessRequests();
+      }
     }
     tmpList.erase(itlst);
     itlst = tmpList.begin();

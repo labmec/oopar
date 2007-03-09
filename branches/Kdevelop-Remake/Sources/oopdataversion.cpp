@@ -23,47 +23,44 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDataVersion"));
 
 void OOPDataVersion::Write (TPZStream & buf, int)
 {
-	int aux = fVersion.size ();
-	buf.Write (&aux);
-	vector < int >::iterator ivl;
-	for (ivl = fVersion.begin (); ivl != fVersion.end (); ivl++)
-		buf.Write (&*ivl);
-	aux = fLevelCardinality.size ();
-	buf.Write (&aux);
-	for (ivl = fLevelCardinality.begin ();
-	     ivl != fLevelCardinality.end (); ivl++)
-		buf.Write (&*ivl);
-	
+  int aux = fVersion.size ();
+  buf.Write (&aux);
+  vector < int >::iterator ivl;
+  for (ivl = fVersion.begin (); ivl != fVersion.end (); ivl++)
+    buf.Write (&*ivl);
+  aux = fLevelCardinality.size ();
+  buf.Write (&aux);
+  for (ivl = fLevelCardinality.begin ();ivl != fLevelCardinality.end (); ivl++)
+    buf.Write (&*ivl);
 }
 void OOPDataVersion::Read (TPZStream & buf, void * context)
 {
-	int aux = 0, size = 0;
-	buf.Read (&size);
-	fVersion.resize (0);
-	int i;
-	for (i = 0; i < size; i++) {
-		buf.Read (&aux);
-		fVersion.push_back (aux);
-	}
-	buf.Read (&size);
-	fLevelCardinality.resize (0);
-	for (i = 0; i < size; i++) {
-		buf.Read (&aux);
-		fLevelCardinality.push_back (aux);
-	}
-	// vector<int>::iterator ivc = aux_vc.begin();
-	/* buf->UpkInt(&aux_vc[0],aux); i->fVersion.SetData(aux_vc,aux_vl); */
-	
+  int aux = 0, size = 0;
+  buf.Read (&size);
+  fVersion.resize (0);
+  int i;
+  for (i = 0; i < size; i++) {
+    buf.Read (&aux);
+    fVersion.push_back (aux);
+  }
+  buf.Read (&size);
+  fLevelCardinality.resize (0);
+  for (i = 0; i < size; i++) {
+    buf.Read (&aux);
+    fLevelCardinality.push_back (aux);
+  }
+  // vector<int>::iterator ivc = aux_vc.begin();
+  /* buf->UpkInt(&aux_vc[0],aux); i->fVersion.SetData(aux_vc,aux_vl); */
 }
 void OOPDataVersion::SetData (vector < int >&card, vector < int >&version)
 {
-	fVersion = version;
-	fLevelCardinality = card;
+  fVersion = version;
+  fLevelCardinality = card;
 }
 void OOPDataVersion::GetData (vector < int >&card, vector < int >&version)
 {
-	version = fVersion;
-	card = fLevelCardinality;
+  version = fVersion;
+  card = fLevelCardinality;
 }
 
 void OOPDataVersion::main ()
@@ -127,55 +124,56 @@ void OOPDataVersion::main ()
 }
 void OOPDataVersion::SetLevelVersion (int level, int version)
 {
-	if (!(level < (int) fVersion.size ()))
-		exit (-1);
-	fVersion[level] = version;
+  if (!(level < (int) fVersion.size ()))
+    exit (-1);
+  fVersion[level] = version;
 }
 void OOPDataVersion::SetLevelCardinality (int level, int depth)
 {
-	if (!(level < (int) fLevelCardinality.size ()))
-		exit (-1);
-	fLevelCardinality[level] = depth;
+  if (!(level < (int) fLevelCardinality.size ()))
+    exit (-1);
+  fLevelCardinality[level] = depth;
 }
-     bool OOPDataVersion::AmICompatible (const OOPDataVersion & version) const
-     {
-	     unsigned int i = 0;
-	     for (i = 0; i < fVersion.size (); i++)
-	     {
-		     if (GetLevelVersion (i) != -1) {
-				 if(i>=version.fVersion.size()) return true;
-			     if (GetLevelVersion (i) <
-				     version.GetLevelVersion (i)) {
+bool OOPDataVersion::AmICompatible (const OOPDataVersion & dataversion) const
+{
+  unsigned int i = 0;
+  for (i = 0; i < fVersion.size (); i++)
+  {
+    if (GetLevelVersion (i) != -1) 
+    {
+      if(i>=dataversion.fVersion.size()) return true;
+      if (GetLevelVersion (i) < dataversion.GetLevelVersion (i)) 
+      {
 #ifdef LOGPZ_PARANOID
-             stringstream sout;
-             LOGPZ_WARN(logger, "AmICompatible returned false");
-				     sout << "My version ";
-				     Print (sout);
-				     sout << "Other version ";
-				     version.Print (sout);
-             LOGPZ_DEBUG(logger,sout.str());
+        stringstream sout;
+        LOGPZ_WARN(logger, "AmICompatible returned false");
+                        sout << "My version ";
+                        Print (sout);
+                        sout << "Other version ";
+                        version.Print (sout);
+        LOGPZ_DEBUG(logger,sout.str());
 #endif
-				     return false;
-			     }
-		     }
-		     else
-		     {
-			     break;
-		     }
-	     }
-	     return true;
-     }
+        return false;
+      }
+    }
+    else
+    {
+      break;
+    }
+  }
+  return true;
+}
 const char *OOPDataVersion::MyName ()
 {
-	return typeid (this).name ();
+  return typeid (this).name ();
 }
 void OOPDataVersion::operator ++ ()
 {
-	this->Increment ();
+  this->Increment ();
 }
 void OOPDataVersion::operator ++ (int)
 {
-	this->Increment ();
+  this->Increment ();
 }
 
 bool OOPDataVersion::operator == (const OOPDataVersion & version) const
@@ -284,10 +282,10 @@ void OOPDataVersion::Print (std::ostream & out) const
   }
 }
 std::ostream &OOPDataVersion::ShortPrint(std::ostream & out) const {
-	int nl = GetNLevels(), i;
-	for(i=0; i<nl; i++) out << GetLevelVersion(i) << '/' <<
-		GetLevelCardinality(i) << ':';
-	return out;
+  int nl = GetNLevels(), i;
+  for(i=0; i<nl; i++) out << GetLevelVersion(i) << '/' <<
+          GetLevelCardinality(i) << ':';
+  return out;
 }
 OOPDataVersion & OOPDataVersion::operator= (const OOPDataVersion & version)
 {
@@ -297,50 +295,49 @@ OOPDataVersion & OOPDataVersion::operator= (const OOPDataVersion & version)
 }
 OOPDataVersion::OOPDataVersion (const::OOPDataVersion & version)
 {
-	fLevelCardinality = version.GetLevelCardinality ();
-	fVersion = version.GetLevelVersion ();
+  fLevelCardinality = version.GetLevelCardinality ();
+  fVersion = version.GetLevelVersion ();
 }
 void OOPDataVersion::IncrementLevel (int cardinality)
 {
-	fVersion.push_back (0);
-	fLevelCardinality.push_back (cardinality);
+  fVersion.push_back (0);
+  fLevelCardinality.push_back (cardinality);
 }
 void OOPDataVersion::DecreaseLevel ()
 {
-	fVersion.pop_back ();
-	fLevelCardinality.pop_back ();
+  fVersion.pop_back ();
+  fLevelCardinality.pop_back ();
 }
 void OOPDataVersion::Increment ()
 {
-	if (!fVersion.size ()) {
-          LOGPZ_ERROR(logger, "Something wrong - fVersion.size() = 0");
-          return;
-	}
-	fVersion[fVersion.size () - 1]++;
-	// Checks whether fVersion grows indefinetely 
-#ifdef DEBUG
-	// Print ();
-#endif
-	if (fLevelCardinality[fVersion.size () - 1] == -1)
-		return;
-	if (fVersion[fVersion.size () - 1] >
-	     fLevelCardinality[fVersion.size () - 1]) {
+  if (!fVersion.size ()) {
+    LOGPZ_ERROR(logger, "Something wrong - fVersion.size() = 0");
+    return;
+  }
+  fVersion[fVersion.size () - 1]++;
+  // Checks whether fVersion grows indefinetely 
+  if (fLevelCardinality[fVersion.size () - 1] == -1)
+    return;
+  if (fVersion[fVersion.size () - 1] > fLevelCardinality[fVersion.size () - 1]) 
+  {
 #ifdef LOGPZ_PARANOID        
-          stringstream sout;
-          sout << "Inconsistent data version incrementation" <<
-			__FILE__ << __LINE__;
-          LOGPZ_ERROR(logger,sout.str());
+    stringstream sout;
+    sout << "Inconsistent data version incrementation" <<
+                  __FILE__ << __LINE__;
+    LOGPZ_ERROR(logger,sout.str());
 #endif    
-          return;
-	}
-	if (fVersion[fVersion.size () - 1] ==
-	    fLevelCardinality[fVersion.size () - 1]) {
-		if (fVersion.size () > 1) {
-			fVersion.pop_back ();
-			fLevelCardinality.pop_back ();
-			Increment ();
-		}
-	}
+    return;
+  }
+  if (fVersion[fVersion.size () - 1] ==
+      fLevelCardinality[fVersion.size () - 1]) 
+  {
+    if (fVersion.size () > 1) 
+    {
+      fVersion.pop_back ();
+      fLevelCardinality.pop_back ();
+      Increment ();
+    }
+  }
 }
 vector< int > OOPDataVersion::GetLevelCardinality () const
 {
@@ -411,6 +408,11 @@ bool OOPDataVersion::CanExecute (const OOPDataVersion & dataversion) const
   {
     if (GetLevelVersion (i) != dataversion.GetLevelVersion (i) && GetLevelVersion (i) != -1)
     {
+#ifdef LOGPZ         
+      stringstream sout;
+      sout << "GetLevelVersion( i): " << GetLevelVersion( i) << " DataVersion " << dataversion.GetLevelVersion (i); 
+      LOGPZ_DEBUG(logger,sout.str());
+#endif         
       can_I = false;
     }
   }

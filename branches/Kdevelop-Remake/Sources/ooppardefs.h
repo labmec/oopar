@@ -22,7 +22,7 @@ enum OOPMDataState
   ENoAccess,
   EReadAccess,
   EWriteAccess,
-//	EVersionAccess
+  EDelete
 };
 enum OOPMReturnType
 {
@@ -42,9 +42,10 @@ enum OOPMReturnType
 #define OOPMETADATA_ID 3005
 #define TTERMINATIONTASK_ID 3006
 #define TSNAPSHOTTASK_ID 3007
+#define TDELOBJECTTASK_ID 3008
 
-#define OOPDOUBLE_ID 3007
-#define OOPINT_ID 3008
+#define OOPDOUBLE_ID 3009
+#define OOPINT_ID 3010
 
 
 

@@ -112,19 +112,14 @@ protected:
     OOPObjectId Submit (OOPTask * task);
 public:
   /**
-   * Submits a daemon task to the TaskManager.
+   * Executes a daemon task as soon as it is submitted to the current task manager
    * @param task Pointer to the submitted task.
    */
-//  void SubmitDaemon(OOPDaemonTask * task);
   void ExecuteDaemon(OOPTask * dmt);
   /**
    * Returns the number tasks currently being managed by this data manager
    */
   int NumberOfTasks();
-  /**
-   * Returns true if there is a chance of finding an executable task
-   */
-  //bool HasWorkTodo();
   /**
    * Returns the total number of task on the environment.
    */
@@ -149,23 +144,25 @@ public:
    */
   void TransfertoExecutable (const OOPObjectId & taskid);
   /**
-   * Execute all daemons which are in the list
-   */
-  //void ExecuteDaemons ();
-  /**
-   * Very important method for the whole OOPar environment.
-   * Starts all task which has their data access requests granted from the DM.
-   * At least one call to one of the task managers should performed for the OOPar to start.
+   * Triggers the Service Thread method for the OOPar environment.
    */
   void Execute ();
-  static void *ReceiveMessages (void *data);
+  /**
+   * ServiceThread execution method for the TM
+   * This method also triggers the services threads for the remaining Managers
+   */
   static void * ExecuteMTBlocking (void *data);
 
-  static void *ExecuteMT (void *data);
-
+  /**
+   * Grants access to task identified in the Tag Object
+   * The tag represents a Task requiring access to a Data.
+   * With this method the Requirement represented in the tag is satisfied.
+   */
   void GrantAccess(OOPAccessTag & tag);
   /**
-   * Post the ServiceThread semaphore
+   * The TM ServiceThread goes to sleep when it had completed all its tasks.
+   * New tasks submissions should wake the ServiceThread  Up. This is performed calling WakeUpCall()
+   * It Posts a sem_post on the ServiceThread semaphore which went to sleep by calling a sem_wait
    * Service thread now sleeps based on a semaphore type
    * Semaphore are used instead of mutex and conditional variables combined.
    * Semaphores avoid deadlocking in the cond_signal, cond_wait, mutex_lock and unlocking
@@ -177,7 +174,15 @@ public:
    * Returns true if the service thread has work to do
    */
   bool KeepRunning();
+  /**
+   * Puts the TM ServiceThread to sleep since there is nothing else to do.
+   * The ServiceThread then needs to be awaken by a call to WakeUpCall()
+   */
   void WaitWakeUpCall();
+  /**
+   * Whenever possible, tasks which can be executed by this method.
+   * Complies with the data protection of the TM data structure
+   */
   void TriggerTasks();
 
   /**
@@ -199,7 +204,6 @@ private:
    * Thread which owns the lock
    */
   pthread_t fLockThread;
-
   /**
    * Indicates if TM must continue its processing
    */
@@ -239,20 +243,15 @@ private:
    * List of tasks which can be readily executed
    */
   list < OOPTaskControl * >fExecutable;
+  /**
+   * List of executing tasks
+   */
   list < OOPTaskControl * >fExecuting;
 
-  /**
-   * List of daemon tasks which can be readily executed
-   */
-  //list < OOPDaemonTask * >fDaemon;
   /**
    * List of tasks recently submitted
    */
   list < OOPTask * >fSubmittedList;
-  /**
-   * List of finished tasks
-   */
-  //list < OOPTaskControl * >fFinished;
   /**
    * Holds a list of messages to the TM
    * The messages are translated in actions to the Tasks on TM
@@ -260,11 +259,20 @@ private:
    * Types can be TMAccessGranted or TMCancelTask
    */
   std::list <std::pair< int, OOPAccessTag> > fMessages;
+  /**
+   * Translates a GrantAccess message to its necessary action on the TM context
+   */
   void ExtractGrantAccessFromTag(const OOPAccessTag & tag);
+  /**
+   * Translates a CancelTask message to its necessary action on the TM context
+   */
   void ExtractCancelTaskFromTag(const OOPAccessTag & tag); 
 };
 
-
+/**
+ * Implements a class which is responsible for turning Off both TM and DM.
+ * In its execute method it calls SetKeepGoing() for both managers setting them to false.
+ */
 class OOPTerminationTask:public OOPTask
 {
 public:
@@ -293,46 +301,6 @@ public:
 };
 template class TPZRestoreClass < OOPTerminationTask, TTERMINATIONTASK_ID >;
 
-/*
-  enum TTMMessageType {
-  ENoTaskMessage, // indicates that the task message was no initialized
-  ETaskFinished,	// indicate that the task finished successfully
-  ETaskAborted,	// indicate that the task was aborted
-  ETaskMoved,		// indicate that the task was moved to a different processor
-  ENewTask,		// signal the criation of a new task
-  ETaskSubmit,	// indicating a task being submitted
-  EAddDependence, // adding a dependence to a task
-  EChangePriority	// changing the priority of the task
-  };
-  class TTMMessageTask : public TDaemonTask {
-  // task which will be sent to the other processors when
-  //      a task terminated successfully, aborted or was deleted
-  public:
-  TObjectId fTaskId;				// task id of the task which changed
-  int fMessageOrigin;			// processor from which the message originated
-  int fMessageDestination;	// processor to which the data is destinated
-  int fProcDestination;		// data with reference to the message
-  int fProcOrigin;			// data with reference to the message
-  int fPriority;				// data with reference to the message
-  long fTaskDependence;		// data with reference to EAddDependence
-  TTMMessageType fMessage;
-  TTask *fTask;				// data with reference to the message
-  TTMMessageTask(int ProcId);
-  virtual MReturnType Execute();
-  virtual long GetClassID() { return TTMMESSAGETASK_ID; }
-  virtual int Unpack( TReceiveStorage *buf );
-  static TSaveable *Restore(TReceiveStorage *buf);
-  
-  virtual int Pack( TSendStorage *buf );
-  // Apenas para DEBUG.
-  //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
-  //  virtual void Print() { Debug( "  TSaveable::Print." ); }
-  virtual char *ClassName()    { return( "TTMMessageTask" ); }
-  virtual int DerivedFrom(long Classid); // returns  true if the object
-  //  belongs to a class which is derived from a class
-  //  with id classid
-  virtual int DerivedFrom(char *classname); // a class with name classname
-  };*/
 
 extern OOPTaskManager *TM;
 #endif

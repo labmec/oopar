@@ -27,6 +27,8 @@ class   OOPDMOwnerTask;
 class   OOPMetaData//:public TPZSaveable
 {
 public:
+  void DeleteMe();
+  bool ShouldDelete(){return fShouldDelete;}
   void SubmitTag(OOPAccessTag & Tag);
   int AccessCounter(OOPDataVersion & version);
   int AccessCounter(const OOPDataVersion & version) ;
@@ -99,6 +101,7 @@ public:
    * Checks if some task on the task access list is satisfied by the current data state
    */
   void    VerifyAccessRequests ();
+  bool fShouldDelete;
 public:
   /**
    * Submits a task which requires access on current data.

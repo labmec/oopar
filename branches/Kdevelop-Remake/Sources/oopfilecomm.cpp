@@ -1,3 +1,4 @@
+#ifdef FILE_COMM
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
 //
@@ -261,3 +262,4 @@ int OOPFileComManager::SendMessages ()
 	return (1);
 }
 /************************** Private *************************/
+#endif //FILE_COMM

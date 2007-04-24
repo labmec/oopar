@@ -1,3 +1,4 @@
+#ifdef FILE_COMM
 // -*- c++ -*-
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
@@ -153,3 +154,4 @@ public:
 };
 typedef OOPFileStorageBuffer *PTFileStorageBuffer;
 #endif // _STR_FILEHH_
+#ifdef //FILE_COMM

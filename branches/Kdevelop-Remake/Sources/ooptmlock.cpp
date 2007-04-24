@@ -22,7 +22,6 @@ OOPTMLock::OOPTMLock()
 OOPTMLock::~OOPTMLock()
 {
   pthread_mutex_unlock(&fLock);
-
 }
 
 void OOPTMLock::Lock()

@@ -177,7 +177,8 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
     return -1;
   }
   // Se estiver tentando enviar para mim mesmo.
-  if (process_id == f_myself) {
+  if (process_id == f_myself)
+  {
     stringstream sout;
     sout << "Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !";
 #ifdef LOGPZ  

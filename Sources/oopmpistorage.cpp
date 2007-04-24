@@ -1,4 +1,3 @@
-#ifdef OOP_MPI
 
 
 #include "oopmpistorage.h"
@@ -478,4 +477,3 @@ long OOPMPIStorageBuffer::GetBytesTransmitted() const
 	return f_BytesTransmitted;
 }
 
-#endif

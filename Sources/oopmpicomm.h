@@ -1,4 +1,3 @@
-#ifdef OOP_MPI
 
 #ifndef _COM_MPIHH_
 #define _COM_MPIHH_
@@ -40,6 +39,9 @@ class   OOPMPICommManager:public OOPCommunicationManager
    */
   int     Initialize (char * argv, int argc);//(int arg_c, char **arg_v);
  public:
+#ifdef MTSEND
+  static void * SendTaskMT(void * Data); 
+#endif
   void UnlockReceiveBlocking();
   /* Sends all messages in all buffers
    */
@@ -111,4 +113,3 @@ class   OOPMPICommManager:public OOPCommunicationManager
 
 
 //
-#endif

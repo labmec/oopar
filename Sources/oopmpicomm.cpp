@@ -1,4 +1,3 @@
-#ifdef OOP_MPI
 
 #include "mpi.h"
 #include <stdio.h>
@@ -107,8 +106,57 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
   else
     return 0;
 }
+#ifdef MTSEND
+void * OOPMPICommManager::SendTaskMT(void * Data)
+{
+/*  cout << "Going to sleep ======================================================" << endl;
+  sleep(3);*/
+  OOPTask * pTask = static_cast<OOPTask *>(Data);
+  {
+#ifdef LOGPZ    
+    stringstream sout;
+    sout << "Sending Task Id:" << pTask->Id() << " ClassId:" << pTask->ClassId() << 
+      " to proc " << pTask->GetProcID ();
+    LOGPZ_DEBUG(logger,sout.str());
+#endif    
+  }
+  int process_id = pTask->GetProcID ();
+  if (process_id >= CM->NumProcessors() || process_id < 0) {
+    stringstream sout;
+    sout << "Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !";
+#ifdef LOGPZ  
+    LOGPZ_ERROR(logger,sout.str());
+#endif
+    //Finish("Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !");
+    delete pTask;
+    return NULL;
+  }
+  // Se estiver tentando enviar para mim mesmo.
+  if (process_id == CM->GetProcID()) {
+    stringstream sout;
+    sout << "Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !";
+#ifdef LOGPZ  
+    LOGPZ_ERROR(logger,sout.str());
+#endif
+    ((OOPMPICommManager *)CM)->Finish("Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !");
+    delete pTask;
+    return NULL;
+  }
+  OOPMPIStorageBuffer lLocalBuffer;
+  pTask->Write (lLocalBuffer, 1);
+  lLocalBuffer.Send(process_id);
+  delete pTask;
+  return NULL;
+  
+}
+#endif
 int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
+#ifdef MTSEND
+  pthread_t lTId;
+  pthread_create(&lTId, NULL, SendTaskMT, pTask);
+  return 1;  
+#else
   {
 #ifdef LOGPZ    
     stringstream sout;
@@ -143,6 +191,7 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
   f_buffer.Send(process_id);
   delete pTask;
   return 1;
+#endif
 };
 int OOPMPICommManager::ReceiveMessages ()
 {
@@ -365,4 +414,3 @@ void OOPMPICommManager::UnlockReceiveBlocking()
 #endif
 }
 
-#endif

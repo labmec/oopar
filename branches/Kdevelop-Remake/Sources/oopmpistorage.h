@@ -1,4 +1,3 @@
-#ifdef OOP_MPI
 
 #ifndef _STR_MPIHH_
 #define _STR_MPIHH_
@@ -285,4 +284,3 @@ typedef OOPMPIStorageBuffer *POOPMPIStorageBuffer;
 
 
 //OOP_MPI
-#endif

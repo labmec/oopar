@@ -95,9 +95,11 @@ class   OOPMPICommManager:public OOPCommunicationManager
   //OOPMPIStorageBuffer f_receivebuffer;
   /** Communication argument */
   /**
-   * Send and receive buffer are the same
+   * Receive buffer
+   * PLEASE DO NOT USE ME TO SEND ANYTHING !
    */
-  OOPMPIStorageBuffer f_buffer;
+  OOPMPIStorageBuffer m_ReceiveBuffer;
+ 
   int     f_argc;
   /** Communication argument */
   char  **f_argv;

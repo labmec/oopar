@@ -33,7 +33,7 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMPIStorageBuffer"));
 
 void OOPMPIStorageBuffer::ExpandBuffer(int more_dimension)
 {
-  f_send_buffr.Resize(f_send_buffr.NElements()+more_dimension);
+  m_Buffer.Resize(m_Buffer.NElements()+more_dimension);
   if (more_dimension < 0)
   {
     stringstream sout;
@@ -47,8 +47,8 @@ void OOPMPIStorageBuffer::ExpandBuffer(int more_dimension)
 }
 int OOPMPIStorageBuffer::ResetBuffer (int size)
 {
-  f_send_position = 0;
-  f_send_buffr.Resize(0);
+  m_Length = 0;
+  m_Buffer.Resize(0);
   return 1;
 }
 int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
@@ -58,13 +58,13 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
   /*#else
           MPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
   #endif*/
-  f_send_buffr.Resize(f_send_position+nbytes);
+  m_Buffer.Resize(m_Length+nbytes);
   int mpiret;
   //#ifdef OOP_MPE
-  mpiret = PMPI_Pack (ptr, n, mpitype, &f_send_buffr[0], f_send_buffr.NElements(), &f_send_position,
+  mpiret = PMPI_Pack (ptr, n, mpitype, &m_Buffer[0], m_Buffer.NElements(), &m_Length,
                       MPI_COMM_WORLD);
   /*#else
-  	mpiret = MPI_Pack (ptr, n, mpitype, &f_send_buffr[0], f_send_buffr.NElements(), &f_send_position,
+  	mpiret = MPI_Pack (ptr, n, mpitype, &m_Buffer[0], m_Buffer.NElements(), &m_Length,
    
   #endif*/
   return mpiret;
@@ -81,12 +81,12 @@ int OOPMPIStorageBuffer::Send (int target)
 #endif
       }
 #endif
-  if(f_send_position >= MAXSIZE)
+  if(m_Length >= MAXSIZE)
 {
 #ifdef LOGPZ
     std::stringstream st;
     st << __PRETTY_FUNCTION__ << " Sending a message of size " << 
-      f_send_position << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
+      m_Length << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
     LOGPZ_ERROR(logger,st.str());
     std::cout << st.str() << endl;
 #endif
@@ -94,7 +94,7 @@ int OOPMPIStorageBuffer::Send (int target)
   }
   int ret;
   int tag = 0;
-  ret = PMPI_Send (&f_send_buffr[0], f_send_position, MPI_PACKED,
+  ret = PMPI_Send (&m_Buffer[0], m_Length, MPI_PACKED,
                   target, tag, MPI_COMM_WORLD);
 
 #ifdef DEBUGALL
@@ -207,12 +207,12 @@ using namespace std;
 //       TReceiveStorageMpi
 OOPMPIStorageBuffer::~OOPMPIStorageBuffer()
 {
-  //if(f_request) MPI_Request_free(&f_request);
+  //if(m_Request) MPI_Request_free(&m_Request);
 }
 void OOPMPIStorageBuffer::CancelRequest()
 {
 #ifndef BLOCKING
-  if(f_isreceiving) MPI_Cancel(&f_request);
+  if(m_IsReceiving) MPI_Cancel(&m_Request);
 #endif
 }
 int OOPMPIStorageBuffer::Receive ()
@@ -220,18 +220,18 @@ int OOPMPIStorageBuffer::Receive ()
 
   // nonblocking!!!!
 
-  if(f_isreceiving) return 1;
+  if(m_IsReceiving) return 1;
 
-  MPI_Irecv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
-             MPI_ANY_TAG, MPI_COMM_WORLD, &f_request);
+  MPI_Irecv (&m_Buffer[0], m_Buffer.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
+             MPI_ANY_TAG, MPI_COMM_WORLD, &m_Request);
 
 
-  f_isreceiving = 1;
+  m_IsReceiving = 1;
   return 1;
 
   //Blocking
   // 	 MPI_Status status;
-  // 	 MPI_Recv(&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
+  // 	 MPI_Recv(&m_Buffer[0], m_Buffer.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
   // 			   MPI_ANY_TAG, MPI_COMM_WORLD, &status);
   //
   //          return 1;
@@ -240,19 +240,19 @@ int OOPMPIStorageBuffer::Receive ()
 
 bool OOPMPIStorageBuffer::TestReceive()
 {
-  if(!f_isreceiving) return false;
+  if(!m_IsReceiving) return false;
   MPI_Status status;
   int test_flag, ret_test;
   //#ifdef OOP_MPE
-  ret_test = PMPI_Test (&f_request, &test_flag, &status);
+  ret_test = PMPI_Test (&m_Request, &test_flag, &status);
   //Checks if test_flag is true and if source is something valid
   if(test_flag && status.MPI_SOURCE >=0 )
   {
-    f_status = status;
+    m_Status = status;
   }
-  //ret_test=MPI_Test (&f_request, &test_flag, &status);
+  //ret_test=MPI_Test (&m_Request, &test_flag, &status);
   /*#else
-  	ret_test=MPI_Test (&f_request, &test_flag, &status);
+  	ret_test=MPI_Test (&m_Request, &test_flag, &status);
   #endif*/
   return test_flag;
 }
@@ -268,8 +268,8 @@ TPZSaveable *OOPMPIStorageBuffer::Restore ()
     return NULL;
   }
 #endif
-  f_isreceiving = 0;
-  f_recv_position = 0;
+  m_IsReceiving = 0;
+  m_Length = 0;
   TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
 #ifdef LOGPZ
   {
@@ -300,10 +300,10 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 #endif
   if (count)
   {
-    f_recv_buffr.Resize(count);
+    m_Buffer.Resize(count);
   }
   int res = -1;
-  res = MPI_Recv (&f_recv_buffr[0], f_recv_buffr.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
+  res = MPI_Recv (&m_Buffer[0], m_Buffer.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;
   //desempacota dimensao do pacote completo
   if(res == MPI_SUCCESS)
@@ -322,55 +322,55 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 // n : Numero de elementos a serem lidos (default: um unico dado).
 int OOPMPIStorageBuffer::UpkByte (char *p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_CHAR,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_CHAR,
                MPI_COMM_WORLD);
   return 1;
 }
 int OOPMPIStorageBuffer::UpkInt (int *p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_INT,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_INT,
                MPI_COMM_WORLD);
   return 1;
 }
 int OOPMPIStorageBuffer::UpkShort (short *p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_SHORT,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_SHORT,
                MPI_COMM_WORLD);
   return 1;
 }
 int OOPMPIStorageBuffer::UpkLong (long *p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_LONG,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_LONG,
                MPI_COMM_WORLD);
   return 1;
 }
 int OOPMPIStorageBuffer::UpkUint (u_int * p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_UNSIGNED,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_UNSIGNED,
                MPI_COMM_WORLD);
   return 1;
 }
 int OOPMPIStorageBuffer::UpkUshort (u_short * p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_UNSIGNED_SHORT,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_UNSIGNED_SHORT,
                MPI_COMM_WORLD);
   return 1;
 }
 int OOPMPIStorageBuffer::UpkUlong (u_long * p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_UNSIGNED_LONG,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_UNSIGNED_LONG,
                MPI_COMM_WORLD);
   return 1;
 }
 int OOPMPIStorageBuffer::UpkFloat (float *p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_FLOAT,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_FLOAT,
                MPI_COMM_WORLD);
   return 1;
 }
 int OOPMPIStorageBuffer::UpkDouble (double *p, int n)
 {
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, p, n, MPI_DOUBLE,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, MPI_DOUBLE,
                MPI_COMM_WORLD);
   return 1;
 }
@@ -378,7 +378,7 @@ int OOPMPIStorageBuffer::UpkDouble (double *p, int n)
 int OOPMPIStorageBuffer::UpkStr (char *p)
 {
   int n;
-  PMPI_Unpack (&f_recv_buffr[0], f_recv_buffr.NElements(), &f_recv_position, &n, 1,
+  PMPI_Unpack (&m_Buffer[0], m_Buffer.NElements(), &m_Length, &n, 1,
                MPI_INT, MPI_COMM_WORLD);
   p[0] = '\0';
   if(n)
@@ -454,21 +454,21 @@ int OOPMPIStorageBuffer::Send (int target)
   #endif    
   }
 #endif
-  if(f_send_position >= MAXSIZE)
+  if(m_Length >= MAXSIZE)
   {
   #ifdef LOGPZ    
       std::stringstream st;
-      st << __PRETTY_FUNCTION__ << " Sending a message of size " << f_send_position << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
+      st << __PRETTY_FUNCTION__ << " Sending a message of size " << m_Length << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
       LOGPZ_ERROR(logger,st.str());    
       std::cout << st.str() << endl;
   #endif
   }
-  char * lSendBuffer = new char[f_send_position];
+  char * lSendBuffer = new char[m_Length];
   int i = 0;
-  for (i=0;i<f_send_position;i++) lSendBuffer[i]=f_send_buffr[i];
+  for (i=0;i<m_Length;i++) lSendBuffer[i]=m_Buffer[i];
   SendMTStruct * lStr = new SendMTStruct;
   lStr->m_Target = target;
-  lStr->m_Length = f_send_position;
+  lStr->m_Length = m_Length;
   lStr->m_Buffer = lSendBuffer;
   pthread_t lTid = (pthread_t)NULL;
   int ret;

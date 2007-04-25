@@ -27,48 +27,49 @@ class   OOPMPIStorageBuffer:public OOPError
     /**
      * Buffer which stores received messages 
      */
-    TPZManVector<char,MAXSIZE> f_recv_buffr;
-    TPZManVector<char,MAXSIZE> f_send_buffr;
+    TPZManVector<char,MAXSIZE> m_Buffer;
+    //TPZManVector<char,MAXSIZE> f_send_buffr;
     /**
      * Dimension of received message 
      */
-    int f_recv_size;
-    int f_send_size;
+    int m_Size;
+    //int f_send_size;
     /**
      * Receive buffer position to be unpack 
      */
-    int f_recv_position;
-    int f_send_position;
+    int m_Length;
+    //int f_send_position;
     /**
      * Id of process that sent received message 
      */
-    int f_sender_tid;
+    int m_SenderTid;
     /**
      * Tag of received message 
      */
-    int f_msg_tag;
+    int m_MsgTag;
     /**
      * request object for non-blocking receive operation 
      */
-    MPI_Request  f_request;
-    MPI_Status f_status;
+    MPI_Request  m_Request;
+    MPI_Status m_Status;
 
     /**
      * Id of process for which message shall be sent 
      */
-    int f_target_tid;
+    int m_TargetTid;
 
     /**
-     * flag indicating whether nonblocking reception is initiated 
+     * Flag indicating whether nonblocking reception is initiated 
+     * Certainly it will hardly be used since Blocking receiving is the new default
      */
-    int f_isreceiving;
+    int m_IsReceiving;
     /**
      * Generic method to pach data into an MPI buffer
      */
     int PackGeneric(void *ptr, int n, MPI_Datatype mpitype);
     /**
-       * Expands send buffer dimension
-       */
+     * Expands Buffer Dimension
+     */
     void    ExpandBuffer (int more_dimension);
 #ifdef MTSENDONLY
     static void * SendMT(void *Data);
@@ -79,15 +80,13 @@ class   OOPMPIStorageBuffer:public OOPError
     /**
      * Contructor which initializes the buffer
      */
-    OOPMPIStorageBuffer() : f_recv_buffr(1)
+    OOPMPIStorageBuffer() : m_Buffer(1)
     {
-      f_recv_size = 0;
-      f_recv_position = 0;
-      f_sender_tid = -1;
-      f_msg_tag = 0;
-      f_isreceiving = 0;
-      f_send_size = 0;
-      f_send_position = 0;
+      m_Size = 0;
+      m_Length = 0;
+      m_SenderTid = -1;
+      m_MsgTag = 0;
+      m_IsReceiving = 0;
       ResetBuffer();
     }
     /**
@@ -248,11 +247,11 @@ class   OOPMPIStorageBuffer:public OOPError
      */
     int Length ()
     {
-      return (f_send_position - sizeof (int));
+      return (m_Length - sizeof (int));
     }
 
     /**
-     * Clears send buffer 
+     * Clears buffer 
      */
     int ResetBuffer (int size = 0);
     /**

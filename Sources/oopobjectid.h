@@ -14,121 +14,124 @@ using namespace std;
  */
 class   OOPObjectId
 {
-      public:
+  public:
 
-	/**
-	 * returns true if the id is zero
-	 * REMARC
-	 * The name changed to IsZeroOOP because of error on the CFDk integration,
-	 * be changed to the correct name as soon as possible.
-	 */
-	int IsZeroOOP() const;
-        operator bool() const
-        {
-          return (fId || fProcId);
-        }
+    /**
+     * returns true if the id is zero
+     * REMARC
+     * The name changed to IsZeroOOP because of error on the CFDk integration,
+     * be changed to the correct name as soon as possible.
+     */
+    int IsZeroOOP() const;
+    operator bool() const
+    {
+      return (fId || fProcId);
+    }
 
-	  /**
-	 * Packs itself in a buffer so it can be sent through the network.
-	 * @param buf Buffer which is sent through the net.
-	 */
-	void     Write (TPZStream  & buf, int withclassid = 0);
-	/**
-	 * Unpacks itself from a buffer so it can be received through the network.
-	 * @param buf Buffer which is received through the net.
-	 */
-	void    Read (TPZStream  & buf, void * context = NULL);
-	/**
-	 * Assign zero to ObjectId data structure
-	 */
-	void    Zero ();
+    /**
+    * Packs itself in a buffer so it can be sent through the network.
+    * @param buf Buffer which is sent through the net.
+    */
+    void     Write (TPZStream  & buf, int withclassid = 0);
+    /**
+     * Unpacks itself from a buffer so it can be received through the network.
+     * @param buf Buffer which is received through the net.
+     */
+    void    Read (TPZStream  & buf, void * context = NULL);
+    /**
+     * Assign zero to ObjectId data structure
+     */
+    void    Zero ();
 
     /**
      * Simple construtor 
      */
-	OOPObjectId ();
+    OOPObjectId ();
     /**
      * Copy constructor 
      */
-	        OOPObjectId (const::OOPObjectId & obj);
-	/**
-	 * Constructor with parameters
-	 * @param ProcId Initial processor Id for fProcId.
-	 * @param Id Initial Id.
-	 */
-	        OOPObjectId (long ProcId, long Id);
+    OOPObjectId (const::OOPObjectId & obj);
+    /**
+     * Constructor with parameters
+     * @param ProcId Initial processor Id for fProcId.
+     * @param Id Initial Id.
+     */
+    OOPObjectId (long ProcId, long Id);
     /**
      * Sets object id
      * @param id: Id to be set 
      */
-	void    SetId (int id);
+    void    SetId (int id);
     /**
      * Sets processor id
      * @param id : id to be set 
      */
-	void    SetProcId (int id);
+    void    SetProcId (int id);
     /**
      * Returns object Id 
      */
-	int     GetId () const;
-	/**
-	 * Returns Id from the object
-	 */
-	OOPObjectId Id ();
+    int     GetId () const;
+    /**
+     * Returns Id from the object
+     */
+    OOPObjectId Id ();
     /**
      * Returns processor id 
      */
-	int     GetProcId () const;
+    int     GetProcId () const;
     /**
      * Sets both object and processor id
      * @param objid: object Id to be set
      * @param procid: processor Id to be set 
      */
-	void    SetData (int id, int procid);
+    void    SetData (int id, int procid);
     /**
-	 * Operator overloaded
-	 */
-	        OOPObjectId & operator= (const OOPObjectId & obj);
-	/**
-	 * Logical operator overloaded
-	 */
-	bool    operator == (const OOPObjectId & obj) const;
-	/**
-	 * Logical operator overloaded
-	 */
-	bool    operator >= (const OOPObjectId & obj) const;
-	/**
-	 * Logical operator which compares and OOPObjectId against an int/long value.
-	 * The check is made only with fId.
-	 */
-	bool    operator >= (int val) const;
-	bool    operator < (int val) const;
-	bool    operator < (const OOPObjectId & id) const;
-	
+    * Operator overloaded
+    */
+    OOPObjectId & operator= (const OOPObjectId & obj);
+    /**
+     * Logical operator overloaded
+     */
+    bool    operator == (const OOPObjectId & obj) const;
+    /**
+     * Logical operator overloaded
+     */
+    bool    operator >= (const OOPObjectId & obj) const;
+    /**
+     * Logical operator which compares and OOPObjectId against an int/long value.
+     * The check is made only with fId.
+     */
+    bool    operator >= (int val) const;
+    bool    operator < (int val) const;
+    bool    operator < (const OOPObjectId & id) const;
+
     /**
      * Used for testing purposes 
      */
-	static int main ();
+    static int main ();
     /**
      * Prints TObjectId data 
      */
-	void    Print (std::ostream & out) const;
+    void    Print (std::ostream & out) const;
     /**
      * Prints TObjectId data 
      */
-	std::ostream & ShortPrint (std::ostream & out) const;
-      private:
+    std::ostream & ShortPrint (std::ostream & out) const;
+  private:
     /**
      * Id of object 
      */
-	int     fId;
+    int     fId;
     /**
      * Identifies processor Id 
      */
-	int     fProcId;
+    int     fProcId;
 };
 
-inline std::ostream &operator<<(std::ostream &out, const OOPObjectId &obj) {
-	return obj.ShortPrint(out);
+inline std::ostream &operator<<(std::ostream &out, const OOPObjectId &obj)
+{
+  return obj.ShortPrint(out);
 }
 #endif // TOBJECTID_H
+
+

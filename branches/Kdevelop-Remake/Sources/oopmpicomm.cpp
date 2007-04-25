@@ -197,10 +197,10 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
 int OOPMPICommManager::ReceiveMessages ()
 {
 
-  f_buffer.Receive();
-  while(f_buffer.TestReceive()) {
-    ProcessMessage(f_buffer);
-    f_buffer.Receive();
+  m_ReceiveBuffer.Receive();
+  while(m_ReceiveBuffer.TestReceive()) {
+    ProcessMessage(m_ReceiveBuffer);
+    m_ReceiveBuffer.Receive();
   }
   return 1;
 };
@@ -248,7 +248,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
   }
 #endif
   while (LocalCM->fKeepReceiving){
-    int ret = LocalCM->f_buffer.ReceiveBlocking();
+    int ret = LocalCM->m_ReceiveBuffer.ReceiveBlocking();
     if (ret <= 0)
     {
 #ifdef LOGPZ    
@@ -267,7 +267,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
       LOGPZ_DEBUG(logger,sout.str());
     }
 #endif    
-    LocalCM->ProcessMessage(LocalCM->f_buffer);
+    LocalCM->ProcessMessage(LocalCM->m_ReceiveBuffer);
   }
 #ifdef LOGPZ    
   {
@@ -313,10 +313,10 @@ int OOPMPICommManager::ReceiveBlocking ()
 #endif
   }
 	
-  f_buffer.ReceiveBlocking();
-  if(f_buffer.TestReceive()) {
-    ProcessMessage (f_buffer);
-    f_buffer.Receive();
+  m_ReceiveBuffer.ReceiveBlocking();
+  if(m_ReceiveBuffer.TestReceive()) {
+    ProcessMessage (m_ReceiveBuffer);
+    m_ReceiveBuffer.Receive();
   } else {
     //		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
   }
@@ -360,7 +360,7 @@ int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 void OOPMPICommManager::Finish(char * msg){
   cout << msg << endl;
   cout.flush();
-  f_buffer.CancelRequest();
+  m_ReceiveBuffer.CancelRequest();
   cout << "Processor " << f_myself  << " reached synchronization point !" << endl;
 //  MPI_Barrier( MPI_COMM_WORLD );
   cout << "Calling Finilize for " << f_myself << endl;

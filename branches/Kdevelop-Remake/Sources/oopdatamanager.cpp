@@ -77,7 +77,7 @@ OOPDataManager::~OOPDataManager ()
   }
 #endif
   DM->WakeUpCall();
-  if(fServiceThread != -1)
+  if(fServiceThread != (unsigned int)-1)
   {
     pthread_join(fServiceThread, NULL);
   }

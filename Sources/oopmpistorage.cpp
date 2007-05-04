@@ -48,7 +48,7 @@ void OOPMPIStorageBuffer::ExpandBuffer(int more_dimension)
 int OOPMPIStorageBuffer::ResetBuffer (int size)
 {
   m_Length = 0;
-  m_Buffer.Resize(0);
+  m_Buffer.Resize(size);
   return 1;
 }
 int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
@@ -69,7 +69,6 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
   #endif*/
   return mpiret;
 }
-#ifndef MTSENDONLY
 int OOPMPIStorageBuffer::Send (int target)
 {
 #ifdef DEBUGALL
@@ -94,7 +93,7 @@ int OOPMPIStorageBuffer::Send (int target)
   }
   int ret;
   int tag = 0;
-  ret = PMPI_Send (&m_Buffer[0], m_Length, MPI_PACKED,
+  ret = MPI_Send (&m_Buffer[0], m_Length, MPI_PACKED,
                   target, tag, MPI_COMM_WORLD);
 
 #ifdef DEBUGALL
@@ -151,7 +150,6 @@ int OOPMPIStorageBuffer::Send (int target)
   ResetBuffer();
   return ret;
 }
-#endif
 int OOPMPIStorageBuffer::PkStr (char *p)
 {
   int len = strlen(p);
@@ -437,107 +435,3 @@ void OOPMPIStorageBuffer::Read(string *p, int size)
     p[i] = buf;
   }
 }
-#ifdef MTSENDONLY
-struct SendMTStruct{
-  int m_Target;
-  int m_Length;
-  char * m_Buffer;
-};
-int OOPMPIStorageBuffer::Send (int target)
-{
-#ifdef DEBUGALL
-  {
-  #ifdef LOGPZ    
-      stringstream sout;
-      sout << "PID" << getpid() << " Called MPI_Send ret = ";
-      LOGPZ_DEBUG(logger,sout.str()):
-  #endif    
-  }
-#endif
-  if(m_Length >= MAXSIZE)
-  {
-  #ifdef LOGPZ    
-      std::stringstream st;
-      st << __PRETTY_FUNCTION__ << " Sending a message of size " << m_Length << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
-      LOGPZ_ERROR(logger,st.str());    
-      std::cout << st.str() << endl;
-  #endif
-  }
-  char * lSendBuffer = new char[m_Length];
-  int i = 0;
-  for (i=0;i<m_Length;i++) lSendBuffer[i]=m_Buffer[i];
-  SendMTStruct * lStr = new SendMTStruct;
-  lStr->m_Target = target;
-  lStr->m_Length = m_Length;
-  lStr->m_Buffer = lSendBuffer;
-  pthread_t lTid = (pthread_t)NULL;
-  int ret;
-  ret = pthread_create(&lTid, NULL, SendMT, lStr);
-  ResetBuffer();
-  return ret;
-}
-void * OOPMPIStorageBuffer::SendMT(void * Data)
-{
-  int ret;
-  int tag = 0;
-  SendMTStruct * lStr = NULL;
-  lStr = static_cast<SendMTStruct *>(Data);
-  char * lSendBuffer = NULL;
-  lSendBuffer = lStr->m_Buffer;
-  int target = lStr->m_Target;
-  int lLength = lStr->m_Length;
-  ret = MPI_Send (&lSendBuffer[0], lLength, MPI_PACKED,
- 				target, tag, MPI_COMM_WORLD);
-  delete lSendBuffer;
-#ifdef DEBUGALL
-  switch(ret){
-    case MPI_SUCCESS:
-#ifdef LOGPZ      
-      stringstream sout;
-      sout <<" - No error; MPI routine completed successfully";
-      LOGPZ_ERROR(logger,sout.str()):
-#endif      
-      break;
-    case MPI_ERR_COMM:
-#ifdef LOGPZ      
-      stringstream sout;
-      sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).";
-      LOGPZ_ERROR(logger,sout.str()):
-#endif      
-      break;
-    case MPI_ERR_COUNT:
-#ifdef LOGPZ      
-      stringstream sout;
-      sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid";
-      LOGPZ_ERROR(logger,sout.str()):
-#endif      
-      break;
-    case MPI_ERR_TYPE:
-#ifdef LOGPZ      
-      stringstream sout;
-      sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).";      
-      LOGPZ_ERROR(logger,sout.str()):
-#endif      
-      break;
-    case MPI_ERR_TAG:
-#ifdef LOGPZ      
-      stringstream sout;
-      sout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
-        << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
-        << "be MPI_ANY_TAG .  The largest tag value is available through the\n"
-        << "the attribute MPI_TAG_UB .";
-      LOGPZ_ERROR(logger,sout.str()):
-#endif      
-      break;
-    case MPI_ERR_RANK:
-#ifdef LOGPZ      
-      sout << "-  Invalid  source  or  destination rank.";
-      LOGPZ_ERROR(logger,sout.str()):
-#endif      
-      break;
-  }
-  cout.flush();
-  #endif
-  return NULL;
-}
-#endif

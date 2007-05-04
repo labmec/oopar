@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 //#include <istream>
-#include "oopdatamanager.h" 
+#include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 //#include "oopfilecomm.h"
 #include "ooperror.h"
@@ -16,7 +16,7 @@
 #include "pzlog.h"
 
 #ifdef LOGPZ
-  static LoggerPtr logger(Logger::getLogger("OOPAR.mainprogram"));
+static LoggerPtr logger(Logger::getLogger("OOPAR.mainprogram"));
 #endif
 #include "oopaccesstag.h"
 
@@ -25,7 +25,7 @@
 #endif
 
 
-#include "TTaskTest.h" 
+#include "TTaskTest.h"
 #include "OOPInt.h"
 
 
@@ -43,78 +43,79 @@ OOPTaskManager *TM;
 
 int mainorig (int argc, char **argv)
 {
-	CM = new OOPMPICommManager (argc, argv);
+  CM = new OOPMPICommManager (argc, argv);
 
-	TM = new OOPTaskManager (CM->GetProcID ());
-	DM = new OOPDataManager (CM->GetProcID ());
+  TM = new OOPTaskManager (CM->GetProcID ());
+  DM = new OOPDataManager (CM->GetProcID ());
 
-		
-	TM->Execute();
-	if(!CM->GetProcID()){
-		OOPInt * inta = new OOPInt;
-		OOPInt * intb = new OOPInt;
-		OOPObjectId IdA, IdB;
-		IdA = DM->SubmitObject(inta);
-		IdB = DM->SubmitObject(intb);
 
-		TTaskTest * tta = new TTaskTest(0);
-		TTaskTest * ttb = new TTaskTest(0);
-		OOPDataVersion ver;
-		
-		ttb->AddDependentData(OOPAccessTag(
-				IdA, EReadAccess, ver,0));
-		ttb->AddDependentData(OOPAccessTag(
-				IdB, EWriteAccess, ver,0));
-		tta->AddDependentData(OOPAccessTag(
-				IdA, EWriteAccess, ver,0));
-		++ver;			
-		tta->AddDependentData(OOPAccessTag(
-				IdB, EReadAccess, ver,0));
-	
-	
-		cout << "Task A " << tta->Submit() << endl;
- 		cout << "Task B " << ttb->Submit() << endl;
-		
-		
-		OOPWaitTask * wt = new OOPWaitTask(0);
-		wt->AddDependentData(OOPAccessTag(
-				IdA, EWriteAccess, ver,0));
-		wt->AddDependentData(OOPAccessTag(
-				IdB, EWriteAccess, ver,0));
-		cout << "Wait Task " << wt->Submit()  << endl;
-		cout << "Calling Wait Task\n";
-		wt->Wait();
-		wt->Finish();
-		cout << "Wait task finished\n";
-		int iproc;
-		for(iproc=1; iproc<CM->NumProcessors(); iproc++)
-		{
-			OOPTerminationTask *task = new OOPTerminationTask(iproc);
-			task->Submit();
-		}
-		sleep(1);
-		OOPTerminationTask *task = new OOPTerminationTask(0);
-		task->Submit();
-	}
+  TM->Execute();
+  if(!CM->GetProcID())
+  {
+    OOPInt * inta = new OOPInt;
+    OOPInt * intb = new OOPInt;
+    OOPObjectId IdA, IdB;
+    IdA = DM->SubmitObject(inta);
+    IdB = DM->SubmitObject(intb);
 
-	
-	TM->Wait();
-	delete  DM;
-	delete  TM;
-	delete  CM;
- 
-	cout << "Leaving mpimain\n";
-	cout.flush();
-	return 0;
-	
+    TTaskTest * tta = new TTaskTest(0);
+    TTaskTest * ttb = new TTaskTest(0);
+    OOPDataVersion ver;
+
+    ttb->AddDependentData(OOPAccessTag(
+                            IdA, EReadAccess, ver,0));
+    ttb->AddDependentData(OOPAccessTag(
+                            IdB, EWriteAccess, ver,0));
+    tta->AddDependentData(OOPAccessTag(
+                            IdA, EWriteAccess, ver,0));
+    ++ver;
+    tta->AddDependentData(OOPAccessTag(
+                            IdB, EReadAccess, ver,0));
+
+
+    cout << "Task A " << tta->Submit() << endl;
+    cout << "Task B " << ttb->Submit() << endl;
+
+
+    OOPWaitTask * wt = new OOPWaitTask(0);
+    wt->AddDependentData(OOPAccessTag(
+                           IdA, EWriteAccess, ver,0));
+    wt->AddDependentData(OOPAccessTag(
+                           IdB, EWriteAccess, ver,0));
+    cout << "Wait Task " << wt->Submit()  << endl;
+    cout << "Calling Wait Task\n";
+    wt->Wait();
+    wt->Finish();
+    cout << "Wait task finished\n";
+    int iproc;
+    for(iproc=1; iproc<CM->NumProcessors(); iproc++)
+    {
+      OOPTerminationTask *task = new OOPTerminationTask(iproc);
+      task->Submit();
+    }
+    sleep(1);
+    OOPTerminationTask *task = new OOPTerminationTask(0);
+    task->Submit();
+  }
+
+
+  TM->Wait();
+  delete  DM;
+  delete  TM;
+  delete  CM;
+
+  cout << "Leaving mpimain\n";
+  cout.flush();
+  return 0;
+
 }
 int debugmpimain(int argc, char **argv)
 {
-  CM = new OOPMPICommManager (argc, argv); 
+  CM = new OOPMPICommManager (argc, argv);
 #ifdef LOG4CXX
   std::stringstream sin;
   sin << "log4cxxclient" << CM->GetProcID() << ".cfg";
-  log4cxx::PropertyConfigurator::configure(sin.str()); 
+  log4cxx::PropertyConfigurator::configure(sin.str());
 #endif
 
 #ifdef OOP_MPE
@@ -125,7 +126,7 @@ int debugmpimain(int argc, char **argv)
 #endif
   TM = new OOPTaskManager (CM->GetProcID ());
   DM = new OOPDataManager (CM->GetProcID ());
-  
+
 
   TM->Execute();
   OOPObjectId IdA;
@@ -133,31 +134,31 @@ int debugmpimain(int argc, char **argv)
   if(!CM->GetProcID())
   {
     OOPInt * inta = new OOPInt;
-  
-    
+
+
     IdA = DM->SubmitObject(inta);
     cout << "Submitted OOPInt object Id " << IdA << endl;
     TTaskTest * tta = new TTaskTest(0);
     TTaskTest * ttb = new TTaskTest(1);
     TTaskTest * ttc = new TTaskTest(2);
-    
+
     tta->AddDependentData(OOPAccessTag(
-                      IdA, EWriteAccess, ver,0));
+                            IdA, EWriteAccess, ver,0));
     tta->Submit();
     ++ver;
     ttb->AddDependentData( OOPAccessTag(
-                      IdA, EWriteAccess, ver,0));
+                             IdA, EWriteAccess, ver,0));
     ttb->Submit();
     ++ver;
     ttc->AddDependentData( OOPAccessTag(
-                      IdA, EWriteAccess, ver,0));
-    sleep(4);
+                             IdA, EWriteAccess, ver,0));
+    sleep(5);
     cout << "Acordou -----------------------------------" << endl;
     ttc->Submit();
     ++ver;
     OOPWaitTask * wt = new OOPWaitTask(0);
     wt->AddDependentData(  OOPAccessTag(
-                      IdA, EWriteAccess, ver,0));
+                             IdA, EWriteAccess, ver,0));
     wt->Submit();
     wt->Wait();
     wt->Finish();
@@ -186,68 +187,82 @@ int debugmpimain(int argc, char **argv)
   cout.flush();
   return 0;
 }
+
+//const int MAXSIZE = 50000000;
+
 int debugmain(int argc, char **argv)
 {
 #ifdef LOG4CXX
   std::stringstream sin;
   sin << "log4cxxclient0.cfg";
-  log4cxx::PropertyConfigurator::configure(sin.str()); 
+  log4cxx::PropertyConfigurator::configure(sin.str());
 #endif
-  CM = new OOPMPICommManager ();//(argc, argv); 
+  
+  {
+    TPZManVector<char,MAXSIZE> f_recv_buffr;
+    TPZManVector<char,MAXSIZE> f_send_buffr;
+  }
+  {
+    OOPMPIStorageBuffer buff;
+  }
+  CM = new OOPMPICommManager;//(argc, argv);
+  //OOPMPIStorageBuffer buff;
   TM = new OOPTaskManager (0);//CM->GetProcID ());
   DM = new OOPDataManager (0);//CM->GetProcID ());
   
-  OOPInt * inta = new OOPInt;
-  OOPInt * intb = new OOPInt;
   
-  OOPObjectId IdA, IdB;
-  IdA = DM->SubmitObject(inta);
-  IdB = DM->SubmitObject(intb);
 
-  TTaskTest * tta = new TTaskTest(0);
-  TTaskTest * ttb = new TTaskTest(0);
-  TTaskTest * ttc = new TTaskTest(0);
-  OOPDataVersion ver, verB;
-  tta->AddDependentData(OOPAccessTag(
-                    IdA, EReadAccess, ver,0));
-  tta->AddDependentData(OOPAccessTag(
-                    IdB, EWriteAccess, verB,0));
-  tta->Submit();
-  //++ver;
-  ++verB;
-  ttb->AddDependentData( OOPAccessTag(
-                    IdA, EReadAccess, ver,0));
-  ttb->AddDependentData( OOPAccessTag(
-                    IdB, EReadAccess, verB,0));
-  ttb->Submit();
-  ttc->AddDependentData( OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
-  ttc->AddDependentData( OOPAccessTag(
-                    IdB, EWriteAccess, verB,0));
-  ttc->Submit();
-  ++ver;
-  ++verB;
-  OOPTerminationTask * tt = new OOPTerminationTask(0);
-  tt->AddDependentData(  OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
-  tt->AddDependentData(  OOPAccessTag(
-                    IdB, EWriteAccess, verB,0));
-                    
-  tt->Submit();
-  
-  //colocar para dentro do Execute do TM
-  //TM->ExecuteMTBlocking(TM);
-  TM->SetKeepGoing( true);
-  while (TM->KeepRunning())
-  {
-//    TM->TransferSubmittedTasks();
-    DM->HandleMessages();
-    TM->HandleMessages();
-    DM->FlushData();
-    TM->TriggerTasks();
-    TM->WaitWakeUpCall();
-  }
-  
+//   OOPInt * inta = new OOPInt;
+//   OOPInt * intb = new OOPInt;
+// 
+//   OOPObjectId IdA, IdB;
+//   IdA = DM->SubmitObject(inta);
+//   IdB = DM->SubmitObject(intb);
+// 
+//   TTaskTest * tta = new TTaskTest(0);
+//   TTaskTest * ttb = new TTaskTest(0);
+//   TTaskTest * ttc = new TTaskTest(0);
+//   OOPDataVersion ver, verB;
+//   tta->AddDependentData(OOPAccessTag(
+//                           IdA, EReadAccess, ver,0));
+//   tta->AddDependentData(OOPAccessTag(
+//                           IdB, EWriteAccess, verB,0));
+//   tta->Submit();
+//   //++ver;
+//   ++verB;
+//   ttb->AddDependentData( OOPAccessTag(
+//                            IdA, EReadAccess, ver,0));
+//   ttb->AddDependentData( OOPAccessTag(
+//                            IdB, EReadAccess, verB,0));
+//   ttb->Submit();
+//   ttc->AddDependentData( OOPAccessTag(
+//                            IdA, EWriteAccess, ver,0));
+//   ttc->AddDependentData( OOPAccessTag(
+//                            IdB, EWriteAccess, verB,0));
+//   ttc->Submit();
+//   ++ver;
+//   ++verB;
+//   OOPTerminationTask * tt = new OOPTerminationTask(0);
+//   tt->AddDependentData(  OOPAccessTag(
+//                            IdA, EWriteAccess, ver,0));
+//   tt->AddDependentData(  OOPAccessTag(
+//                            IdB, EWriteAccess, verB,0));
+// 
+//   tt->Submit();
+// 
+//   //colocar para dentro do Execute do TM
+//   //TM->ExecuteMTBlocking(TM);
+//   TM->SetKeepGoing( true);
+//   while (TM->KeepRunning())
+//   {
+//     //    TM->TransferSubmittedTasks();
+//     DM->HandleMessages();
+//     TM->HandleMessages();
+//     DM->FlushData();
+//     TM->TriggerTasks();
+//     TM->WaitWakeUpCall();
+//   }
+
   return 0;
 }
 int main(int argc, char **argv)
@@ -258,11 +273,11 @@ int main(int argc, char **argv)
 }
 int mpimain (int argc, char **argv)
 {
-  CM = new OOPMPICommManager (argc, argv); 
+  CM = new OOPMPICommManager (argc, argv);
 #ifdef LOG4CXX
   std::stringstream sin;
   sin << "log4cxxclient" << CM->GetProcID() << ".cfg";
-  log4cxx::PropertyConfigurator::configure(sin.str()); 
+  log4cxx::PropertyConfigurator::configure(sin.str());
 #endif
 
 #ifdef OOP_MPE
@@ -275,59 +290,60 @@ int mpimain (int argc, char **argv)
   TM = new OOPTaskManager (CM->GetProcID ());
   DM = new OOPDataManager (CM->GetProcID ());
   TM->Execute();
-  if(!CM->GetProcID()){
+  if(!CM->GetProcID())
+  {
     OOPInt * inta = new OOPInt;
     //OOPInt * intb = new OOPInt;
     OOPObjectId IdA, IdB;
     IdA = DM->SubmitObject(inta);
     cout << "Submitted OOPInt object Id " << IdA << endl;
     //IdB = DM->SubmitObject(intb, 1);
-  
+
     TTaskTest * tta = new TTaskTest(0);
     TTaskTest * ttb = new TTaskTest(0);
     TTaskTest * ttc = new TTaskTest(0);
     TTaskTest * ttd = new TTaskTest(0);
-    
-/*    OOPSnapShotTask * sst0 = new OOPSnapShotTask(0);
-    OOPSnapShotTask * sst1 = new OOPSnapShotTask(1);
-    OOPSnapShotTask * sst2 = new OOPSnapShotTask(2);
-    OOPSnapShotTask * sst3 = new OOPSnapShotTask(3);*/
+
+    /*    OOPSnapShotTask * sst0 = new OOPSnapShotTask(0);
+        OOPSnapShotTask * sst1 = new OOPSnapShotTask(1);
+        OOPSnapShotTask * sst2 = new OOPSnapShotTask(2);
+        OOPSnapShotTask * sst3 = new OOPSnapShotTask(3);*/
     OOPDataVersion ver;
     ttb->AddDependentData(OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
-/*		ttb->AddDependentData(OOPMDataDepend(
-				IdB, EWriteAccess, ver));			*/
+                            IdA, EWriteAccess, ver,0));
+    /*		ttb->AddDependentData(OOPMDataDepend(
+    				IdB, EWriteAccess, ver));			*/
     ++ver;
     tta->AddDependentData(OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
-    ++ver;			
+                            IdA, EWriteAccess, ver,0));
+    ++ver;
     ttc->AddDependentData(OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
-    ++ver;			
+                            IdA, EWriteAccess, ver,0));
+    ++ver;
     ttd->AddDependentData(OOPAccessTag(
-                    IdA, EWriteAccess, ver,0));
+                            IdA, EWriteAccess, ver,0));
 
-/*    cout << "Task A " << tta->Submit() << endl;
-    TM->TransferSubmittedTasks();*/
+    /*    cout << "Task A " << tta->Submit() << endl;
+        TM->TransferSubmittedTasks();*/
     cout << "Task B " << ttb->Submit() << endl;
-//    TM->TransferSubmittedTasks();
-//    DM->SubmitAllObjects();
-//    cout << "Task C " << ttc->Submit() << endl;
-//    cout << "Task D " << ttd->Submit() << endl;
-		
-		
-/*    sleep(5);
-    sst0->Submit();    		
-    sst1->Submit();    		
-    sst2->Submit();    		
-    sst3->Submit();    		*/
-    		
+    //    TM->TransferSubmittedTasks();
+    //    DM->SubmitAllObjects();
+    //    cout << "Task C " << ttc->Submit() << endl;
+    //    cout << "Task D " << ttd->Submit() << endl;
+
+
+    /*    sleep(5);
+        sst0->Submit();    		
+        sst1->Submit();    		
+        sst2->Submit();    		
+        sst3->Submit();    		*/
+
     ++ver;
     OOPWaitTask * wt = new OOPWaitTask(0);
     wt->AddDependentData(OOPAccessTag(
-                    IdA, EReadAccess, ver,0));
-/*		wt->AddDependentData(OOPMDataDepend(
-				IdB, EWriteAccess, ver));*/
+                           IdA, EReadAccess, ver,0));
+    /*		wt->AddDependentData(OOPMDataDepend(
+    				IdB, EWriteAccess, ver));*/
     cout << "Wait Task " << wt->Submit()  << endl;
     cout << "Calling Wait Task\n";
     wt->Wait();
@@ -343,25 +359,25 @@ int mpimain (int argc, char **argv)
     OOPTerminationTask *task = new OOPTerminationTask(0);
     task->Submit();
   }
-// 	 
-//   TM->Wait();
+  //
+  //   TM->Wait();
 
 #ifdef LOGPZ
   {
     LOGPZ_DEBUG(logger,"before SubmitAllObjects");
   }
 #endif
-/**
-  int ic;
-  for(ic=0; ic<1000; ic++)
-  {
-    DM->SubmitAllObjects();
-  }
-*/
+  /**
+    int ic;
+    for(ic=0; ic<1000; ic++)
+    {
+      DM->SubmitAllObjects();
+    }
+  */
 #ifdef LOGPZ
-{
-  LOGPZ_DEBUG(logger,"after SubmitAllObjects");
-}
+  {
+    LOGPZ_DEBUG(logger,"after SubmitAllObjects");
+  }
 #endif
   sleep(3);
   TM->SetKeepGoing(false);
@@ -377,5 +393,5 @@ int mpimain (int argc, char **argv)
   cout << "Leaving mpimain\n";
   cout.flush();
   return 0;
-	
+
 }

@@ -10,9 +10,9 @@ class   TTaskTest :public OOPTask
 public:
 	virtual ~TTaskTest(){}
 	
-	TTaskTest(){}
+	TTaskTest(){} 
 	/**
-     * Simple constructor 
+     * Simple constructor  
      */
 	TTaskTest (int ProcId) : OOPTask(ProcId) {} 
     /**
@@ -20,11 +20,11 @@ public:
 	* The TParCompute is OOPTask descendent class and this method provides the access by the TaskManager.
 	* @since 02/06/2003
 	*/
-	virtual OOPMReturnType Execute ();
+	virtual OOPMReturnType Execute (); 
 
 	virtual int ClassId () const
 	{
-		return TTASKTEST_ID;
+		return TTASKTEST_ID; 
 	}
   /**
    * Packs the object in on the buffer so it can be transmitted through the network.

@@ -4,12 +4,9 @@
 
 #include <string>
 #include <pthread.h>
-#include <signal.h>
 #include "oopmpicomm.h"
 #include "ooptaskmanager.h"
 
-#include <sys/types.h>
-#include <unistd.h>
 
 #include <sstream>
 #include <pzlog.h>
@@ -24,13 +21,12 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPar.OOPMPICommManager"));
 #endif
 
-class   OOPMPIStorageBuffer;
-class   OOPMPICommManager;
 using namespace std;
 extern OOPTaskManager *TM;
 pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 
-OOPMPICommManager::OOPMPICommManager(){
+OOPMPICommManager::OOPMPICommManager()
+{
 #ifdef LOGPZ
   LOGPZ_WARN(logger, "Empty Constructor should never be called!");
 #endif
@@ -93,7 +89,6 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
   MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
   MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
   
-  
 #ifdef LOGPZ
   {
     stringstream sout;
@@ -109,8 +104,6 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 #ifdef MTSEND
 void * OOPMPICommManager::SendTaskMT(void * Data)
 {
-/*  cout << "Going to sleep ======================================================" << endl;
-  sleep(3);*/
   OOPTask * pTask = static_cast<OOPTask *>(Data);
   {
 #ifdef LOGPZ    
@@ -152,9 +145,10 @@ void * OOPMPICommManager::SendTaskMT(void * Data)
 #endif
 int OOPMPICommManager::SendTask (OOPTask * pTask)
 {
+  //OOPMPIStorageBuffer Buffer;
 #ifdef MTSEND
   pthread_t lTId;
-  pthread_create(&lTId, NULL, SendTaskMT, pTask);
+  pthread_create(&lTId, NULL, SendTaskMT, pTask); 
   return 1;  
 #else
   {
@@ -188,19 +182,25 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
     delete pTask;
     return -1;
   }
+  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!000" << endl;
+  //OOPMPIStorageBuffer Buffer;
+  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111" << endl;
   pTask->Write (f_buffer, 1);
+  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!222" << endl;
   f_buffer.Send(process_id);
+  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!333" << endl;
   delete pTask;
+  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!444" << endl;
   return 1;
 #endif
 };
 int OOPMPICommManager::ReceiveMessages ()
 {
 
-  m_ReceiveBuffer.Receive();
-  while(m_ReceiveBuffer.TestReceive()) {
-    ProcessMessage(m_ReceiveBuffer);
-    m_ReceiveBuffer.Receive();
+  f_buffer.Receive();
+  while(f_buffer.TestReceive()) {
+    ProcessMessage(f_buffer);
+    f_buffer.Receive();
   }
   return 1;
 };
@@ -248,7 +248,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
   }
 #endif
   while (LocalCM->fKeepReceiving){
-    int ret = LocalCM->m_ReceiveBuffer.ReceiveBlocking();
+    int ret = LocalCM->f_buffer.ReceiveBlocking();
     if (ret <= 0)
     {
 #ifdef LOGPZ    
@@ -267,7 +267,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
       LOGPZ_DEBUG(logger,sout.str());
     }
 #endif    
-    LocalCM->ProcessMessage(LocalCM->m_ReceiveBuffer);
+    LocalCM->ProcessMessage(LocalCM->f_buffer);
   }
 #ifdef LOGPZ    
   {
@@ -313,10 +313,10 @@ int OOPMPICommManager::ReceiveBlocking ()
 #endif
   }
 	
-  m_ReceiveBuffer.ReceiveBlocking();
-  if(m_ReceiveBuffer.TestReceive()) {
-    ProcessMessage (m_ReceiveBuffer);
-    m_ReceiveBuffer.Receive();
+  f_buffer.ReceiveBlocking();
+  if(f_buffer.TestReceive()) {
+    ProcessMessage (f_buffer);
+    f_buffer.Receive();
   } else {
     //		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
   }
@@ -360,7 +360,7 @@ int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 void OOPMPICommManager::Finish(char * msg){
   cout << msg << endl;
   cout.flush();
-  m_ReceiveBuffer.CancelRequest();
+  f_buffer.CancelRequest();
   cout << "Processor " << f_myself  << " reached synchronization point !" << endl;
 //  MPI_Barrier( MPI_COMM_WORLD );
   cout << "Calling Finilize for " << f_myself << endl;
@@ -394,7 +394,7 @@ void OOPMPICommManager::UnlockReceiveBlocking()
   int ret;
   int tag = 0;
   char * buff = new char[1];
-  ret = MPI_Send (&buff[0], 0, MPI_PACKED, CM->GetProcID(), tag, MPI_COMM_WORLD);
+  ret = PMPI_Send (&buff[0], 0, MPI_PACKED, CM->GetProcID(), tag, MPI_COMM_WORLD);
 #ifdef LOGPZ
   {    
     std::stringstream sout;

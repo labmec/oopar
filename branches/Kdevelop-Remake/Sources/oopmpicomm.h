@@ -10,7 +10,6 @@
 
 #include <semaphore.h>
 
-class   OOPMPISendStorage;
 
 /**
    Non abstract class which implements the OOPar Communicator Manager using the MPI (Message Passing Interface) communication libray.
@@ -95,11 +94,10 @@ class   OOPMPICommManager:public OOPCommunicationManager
   //OOPMPIStorageBuffer f_receivebuffer;
   /** Communication argument */
   /**
-   * Receive buffer
-   * PLEASE DO NOT USE ME TO SEND ANYTHING !
+   * Send and receive buffer are the same
    */
-  OOPMPIStorageBuffer m_ReceiveBuffer;
- 
+  OOPMPIStorageBuffer f_buffer;
+
   int     f_argc;
   /** Communication argument */
   char  **f_argv;

@@ -19,7 +19,7 @@
  * for communication.
 */
 
-const int MAXSIZE = 50000000;
+const int MAXSIZE = 50000;
 
 class   OOPMPIStorageBuffer:public OOPError
 {
@@ -71,9 +71,6 @@ class   OOPMPIStorageBuffer:public OOPError
      * Expands Buffer Dimension
      */
     void    ExpandBuffer (int more_dimension);
-#ifdef MTSENDONLY
-    static void * SendMT(void *Data);
-#endif
   public:
     ~OOPMPIStorageBuffer();
     void CancelRequest();

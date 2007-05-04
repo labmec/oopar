@@ -16,3 +16,4 @@ main_SOURCES = TTaskTest.cpp main.cpp
 
 ## --| OOPar |------------------------------------------------------------------
 main_DEPENDENCIES = ../../lib/liboopar.a
+

@@ -9,8 +9,6 @@
 //#include <istream>
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
-//#include "oopfilecomm.h"
-#include "ooperror.h"
 #include "oopwaittask.h"
 #include "oopsnapshottask.h"
 #include "pzlog.h"

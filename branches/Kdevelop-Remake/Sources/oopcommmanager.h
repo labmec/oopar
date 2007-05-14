@@ -14,10 +14,8 @@
 //
 #ifndef _COMMUNICHH_
 #define _COMMUNICHH_
-#include "ooperror.h"
 
 #include "oopobjectid.h"
-#include "ooperror.h"
 #include "oopobjectid.h"
 //class OOPTaskManager;
 //class OOPSaveable;

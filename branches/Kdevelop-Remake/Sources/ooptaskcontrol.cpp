@@ -1,6 +1,5 @@
 #include "ooptaskcontrol.h"
 #include "ooptask.h"
-#include "ooperror.h"
 #include "ooptaskmanager.h"
 #include "ooptmlock.h"
 #include <sstream>

@@ -55,18 +55,10 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
 {
   int nbytes;
   PMPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
-  /*#else
-          MPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
-  #endif*/
   m_Buffer.Resize(m_Length+nbytes);
   int mpiret;
-  //#ifdef OOP_MPE
   mpiret = PMPI_Pack (ptr, n, mpitype, &m_Buffer[0], m_Buffer.NElements(), &m_Length,
                       MPI_COMM_WORLD);
-  /*#else
-  	mpiret = MPI_Pack (ptr, n, mpitype, &m_Buffer[0], m_Buffer.NElements(), &m_Length,
-   
-  #endif*/
   return mpiret;
 }
 int OOPMPIStorageBuffer::Send (int target)
@@ -282,13 +274,10 @@ TPZSaveable *OOPMPIStorageBuffer::Restore ()
 int OOPMPIStorageBuffer::ReceiveBlocking ()
 {
   MPI_Status status;
-  //cout << "MPI_Recv returned " <<
   int probres=-1;
   probres = PMPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG,MPI_COMM_WORLD, &status);
   int count = -1;
   PMPI_Get_count(&status, MPI_PACKED , &count);
-  //cout << " Receiveing msg with size " << count << " bytes " << endl;
-  //cout.flush();
 #ifdef LOGPZ
   {
     stringstream sout;
@@ -303,7 +292,6 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   int res = -1;
   res = MPI_Recv (&m_Buffer[0], m_Buffer.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;
-  //desempacota dimensao do pacote completo
   if(res == MPI_SUCCESS)
   {
     return 1;

@@ -3,7 +3,7 @@ dnl configure.in for OOPar
 dnl
 dnl Process this file with GNU autoconf(1) to produce a configure script.
 dnl
-dnl $Id: configure.in,v 1.20.2.3 2006-11-01 21:22:32 longhin Exp $
+dnl $Id: configure.in,v 1.20.2.4 2007-05-28 20:26:00 cesar Exp $
 dnl
 
 dnl ----------------------------------------------------------------------------
@@ -12,6 +12,9 @@ dnl ----------------------------------------------------------------------------
 
 dnl Checking if we are in the OOPar source tree
 AC_INIT(OOP.mk.in)
+
+dnl Generates local machine configuration include
+AM_CONFIG_HEADER(config.h)
 
 dnl Requires a recent version of autoconf
 AC_PREREQ(2.13)
@@ -134,13 +137,13 @@ case "${log4cxx_enabled}" in
     echo "Enabling log4cxx code."
     USING_LOG4CXX="-DLOG4CXX -DLOGPZ"
     LOG4CXX_LIB="-llog4cxx"
-	
+
   ;;
   no)
     echo "log4cxx not chosen."
     USING_LOG4CXX=""
     LOG4CXX_LIB=""
-	
+
   ;;
   *)
     AC_MSG_ERROR(bad value ${log4cxx_enabled} for --enable-log4cxx)
@@ -186,12 +189,12 @@ case "${mpi_enabled}" in
   yes)
     echo "Enabling MPI code."
     USING_MPI="-DOOP_MPI"
-	
+
   ;;
   no)
     echo "MPI not chosen."
     USING_MPI=""
-	
+
   ;;
   *)
     AC_MSG_ERROR(bad value ${mpi_enabled} for --enable-mpi)
@@ -249,12 +252,12 @@ case "${mpe_enabled}" in
   yes)
     echo "Enabling MPE logging functionality."
     USING_MPE="-DOOP_MPE"
-	
+
   ;;
   no)
     echo "MPE not chosen."
     USING_MPE=""
-	
+
   ;;
   *)
     AC_MSG_ERROR(bad value ${mpe_enabled} for --enable-mpe)
@@ -325,7 +328,5 @@ AC_OUTPUT([ Makefile OOP.mk OOP_user.mk \
 	Projects/TestTask/Makefile \
         Projects/PhilFlux/Makefile \
 ])
-
-OOP_BYEBYE
 
 dnl --| OOP |-----------------------------------------------------------------

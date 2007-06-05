@@ -1,7 +1,7 @@
 //
 // C++ Implementation: oopdelobjecttask
 //
-// Description: 
+// Description:
 //
 //
 // Author: Gustavo Camargo Longhin <longhin@labmec.fec.unicamp.br>, (C) 2007
@@ -57,7 +57,7 @@ OOPMReturnType OOPDelObjectTask::Execute()
   {
     stringstream sout;
     sout << "OOPDelObjectTask Executing";
-    LOGPZ_DEBUG(logger, sout.str());
+    LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
   DM->RequestDelete(fTargetObject);

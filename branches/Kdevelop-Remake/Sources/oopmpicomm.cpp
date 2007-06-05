@@ -42,16 +42,16 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
   {
     stringstream sout;
     sout << "Initializing MPICommManager";
-    cout << sout.str();//LOGPZ_INFO(logger, sout.str());
+    cout << sout.str().c_str();//LOGPZ_INFO(logger, sout.str());
   }
 #endif
-  MPI_Init(&argc,&argv); 
+  MPI_Init(&argc,&argv);
   Initialize((char*)argv, argc);
 #ifdef OOP_MPE
   //MPE_Init_log();
   //MPE_Describe_state( 1, 2, "Running", "yellow" );
   //MPE_Describe_state( 3, 4, "Idle", "yellow" );
-#endif	
+#endif
   f_argc = argc;
   f_argv = argv;
   cout << "MPI_Init Called\n";
@@ -61,11 +61,11 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
   {
     stringstream sout;
     sout << "Initializing Mutex, ConditionVariable and Semaphore variables";
-    cout << sout.str();//LOGPZ_INFO(logger, sout.str());
+    cout << sout.str().c_str();//LOGPZ_INFO(logger, sout.str());
   }
 #endif
-  pthread_mutex_init(&fReceiveMutex, NULL);       
-  pthread_cond_init(&fReceiveCond, NULL);       
+  pthread_mutex_init(&fReceiveMutex, NULL);
+  pthread_cond_init(&fReceiveCond, NULL);
   sem_init(&fReceiveSemaphore, 0, 0);
   SetKeepReceiving(true);
 }
@@ -78,7 +78,7 @@ OOPMPICommManager::~OOPMPICommManager ()
   Finish("Terminating MPICommManager");
 }
 // Diferente de PVM, o argumento Destino em mpi nao eh o endereco absoluto
-// do 
+// do
 // destino, mas o relativo. ou seja, o comando MPI_INIT inicializa os
 // processos e para cada um destina um numero inteiro diferente, a partir
 // de 0,
@@ -88,12 +88,12 @@ int OOPMPICommManager::Initialize (char * argv, int argc)//(int arg_c, char **ar
 {
   MPI_Comm_size (MPI_COMM_WORLD, &f_num_proc);
   MPI_Comm_rank (MPI_COMM_WORLD, &f_myself);
-  
+
 #ifdef LOGPZ
   {
     stringstream sout;
     sout << "MPIComm Initialize f_myself " << f_myself << " f_num_proc " << f_num_proc;
-    LOGPZ_INFO(logger, sout.str());
+    LOGPZ_INFO(logger, sout.str().c_str());
   }
 #endif
   if (f_myself == 0)
@@ -106,19 +106,19 @@ void * OOPMPICommManager::SendTaskMT(void * Data)
 {
   OOPTask * pTask = static_cast<OOPTask *>(Data);
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
-    sout << "Sending Task Id:" << pTask->Id() << " ClassId:" << pTask->ClassId() << 
+    sout << "Sending Task Id:" << pTask->Id() << " ClassId:" << pTask->ClassId() <<
       " to proc " << pTask->GetProcID ();
-    LOGPZ_DEBUG(logger,sout.str());
-#endif    
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif
   }
   int process_id = pTask->GetProcID ();
   if (process_id >= CM->NumProcessors() || process_id < 0) {
     stringstream sout;
     sout << "Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !";
-#ifdef LOGPZ  
-    LOGPZ_ERROR(logger,sout.str());
+#ifdef LOGPZ
+    LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
     //Finish("Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !");
     delete pTask;
@@ -128,8 +128,8 @@ void * OOPMPICommManager::SendTaskMT(void * Data)
   if (process_id == CM->GetProcID()) {
     stringstream sout;
     sout << "Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !";
-#ifdef LOGPZ  
-    LOGPZ_ERROR(logger,sout.str());
+#ifdef LOGPZ
+    LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
     ((OOPMPICommManager *)CM)->Finish("Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !");
     delete pTask;
@@ -140,7 +140,7 @@ void * OOPMPICommManager::SendTaskMT(void * Data)
   lLocalBuffer.Send(process_id);
   delete pTask;
   return NULL;
-  
+
 }
 #endif
 int OOPMPICommManager::SendTask (OOPTask * pTask)
@@ -148,23 +148,23 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
   //OOPMPIStorageBuffer Buffer;
 #ifdef MTSEND
   pthread_t lTId;
-  pthread_create(&lTId, NULL, SendTaskMT, pTask); 
-  return 1;  
+  pthread_create(&lTId, NULL, SendTaskMT, pTask);
+  return 1;
 #else
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
-    sout << "Sending Task Id:" << pTask->Id() << " ClassId:" << pTask->ClassId() << 
+    sout << "Sending Task Id:" << pTask->Id() << " ClassId:" << pTask->ClassId() <<
       " to proc " << pTask->GetProcID ();
-    LOGPZ_DEBUG(logger,sout.str());
-#endif    
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif
   }
   int process_id = pTask->GetProcID ();
   if (process_id >= f_num_proc || process_id < 0) {
     stringstream sout;
     sout << "Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !";
-#ifdef LOGPZ  
-    LOGPZ_ERROR(logger,sout.str());
+#ifdef LOGPZ
+    LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
     //Finish("Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !");
     delete pTask;
@@ -175,8 +175,8 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
   {
     stringstream sout;
     sout << "Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !";
-#ifdef LOGPZ  
-    LOGPZ_ERROR(logger,sout.str());
+#ifdef LOGPZ
+    LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
     Finish("Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !");
     delete pTask;
@@ -210,11 +210,11 @@ int OOPMPICommManager::ReceiveMessagesBlocking()
   res = pthread_create(&fReceiveThread, NULL, ReceiveMsgBlocking, this);
   if(res)
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " Fail to create Blocking Receive thread";
-    LOGPZ_DEBUG(logger,sout.str());
-    cout << sout.str() << endl;
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+    cout << sout.str().c_str() << endl;
 #endif
   }
   return res;
@@ -222,61 +222,68 @@ int OOPMPICommManager::ReceiveMessagesBlocking()
 void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
 {
 #ifdef LOGPZ
-  {    
+  {
     stringstream sout;
     sout << "Castting a local CM for the Receive Thread";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
   }
 #endif
-  
+
   OOPMPICommManager *LocalCM=NULL;
   LocalCM = static_cast<OOPMPICommManager *>(t);
   if(!LocalCM)
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << "Local CM is invalid on the receive thread !\nNo can do !\nFarewell";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
-  } 
+  }
 
 #ifdef LOGPZ
-  {    
+  {
     stringstream sout;
     sout << "Entering Infinit Receive loop";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
   }
 #endif
   while (LocalCM->fKeepReceiving){
     int ret = LocalCM->f_buffer.ReceiveBlocking();
     if (ret <= 0)
     {
-#ifdef LOGPZ    
+#ifdef LOGPZ
       {
         stringstream sout;
         sout << "LocalCM->f_buffer.ReceiveBlocking() returned <= 0\nThis is Communication problem\nFarewell";
-        LOGPZ_ERROR(logger,sout.str());
+        LOGPZ_ERROR(logger,sout.str().c_str());
       }
 #endif
       LocalCM->Finish("ReceiveBlocking <receive error>");
     }
-#ifdef LOGPZ    
+#ifdef LOGPZ
     {
       stringstream sout;
       sout << "Data received on Buffer! Calling ProcessMessage";
-      LOGPZ_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str().c_str());
     }
-#endif    
+#endif
     LocalCM->ProcessMessage(LocalCM->f_buffer);
+#ifdef LOGPZ
+    {
+      stringstream sout;
+      sout << "Messages Processed ! Going to receive blocking again";
+      LOGPZ_DEBUG(logger,sout.str().c_str());
+    }
+#endif
   }
-#ifdef LOGPZ    
+#ifdef LOGPZ
   {
     stringstream sout;
     sout << "Leaving ReceiveThread infinit loop " << LocalCM->f_myself;
     sout << " | Posting semaphore fReceiveSemaphore";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
   }
-#endif    
+#endif
   return NULL;
 }
 void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
@@ -285,7 +292,7 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
   LOGPZ_DEBUG(logger,"ReceiveMsgBlocking \n");
 #endif
   while (1){
-		
+
     OOPMPIStorageBuffer msg;
     pthread_mutex_lock(&fCommunicate);
     int ret = msg.ReceiveBlocking();
@@ -300,19 +307,19 @@ void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
     LocalCM->ProcessMessage (msg);
   }
   return NULL;
-	
+
 }
 
 int OOPMPICommManager::ReceiveBlocking ()
 {
   if(!CM->GetProcID()){
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID();
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   }
-	
+
   f_buffer.ReceiveBlocking();
   if(f_buffer.TestReceive()) {
     ProcessMessage (f_buffer);
@@ -324,10 +331,10 @@ int OOPMPICommManager::ReceiveBlocking ()
   //  sleep(1);
 #endif
   if(!CM->GetProcID()){
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID();
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   }
 
@@ -335,22 +342,19 @@ int OOPMPICommManager::ReceiveBlocking ()
 };
 int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 {
-  
+
   TPZSaveable *obj = msg.Restore ();
   if (obj == NULL) {
     Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
-    //return 1;              
   }
-  // Trace( " ClassId do objeto recebido: " );
-  // Trace( obj->GetClassId() << ".\n" );
   OOPTask *task = dynamic_cast<OOPTask *> (obj);
   if(task) {
     task->Submit();
   } else {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     std::stringstream sout;
     sout << "OOPMPICommManager::ProcessMessage received an object which is not a task";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
     delete obj;
   }
@@ -383,11 +387,11 @@ int OOPMPICommManager::SendMessages(){
 void OOPMPICommManager::UnlockReceiveBlocking()
 {
 #ifdef LOGPZ
-  {    
+  {
     std::stringstream sout;
     sout << "Setting KeepReceiving flag to FALSE on Processor " << CM->GetProcID();
-    LOGPZ_DEBUG(logger,sout.str());
-    cout << sout.str() << endl;
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+    cout << sout.str().c_str() << endl;
   }
 #endif
   fKeepReceiving = false;
@@ -396,21 +400,21 @@ void OOPMPICommManager::UnlockReceiveBlocking()
   char * buff = new char[1];
   ret = PMPI_Send (&buff[0], 0, MPI_PACKED, CM->GetProcID(), tag, MPI_COMM_WORLD);
 #ifdef LOGPZ
-  {    
+  {
     std::stringstream sout;
     sout << "Waiting for ReceiveThread sinalization on Processor " << CM->GetProcID();
-    LOGPZ_DEBUG(logger,sout.str());
-    cout << sout.str() << endl;
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+    cout << sout.str().c_str() << endl;
   }
   delete [] buff;
 #endif
   pthread_join(fReceiveThread, NULL);
 #ifdef LOGPZ
-  {    
+  {
     std::stringstream sout;
     sout << "Processor " << CM->GetProcID() << " Received ReceiveThread termination confirmation";
-    LOGPZ_DEBUG(logger,sout.str());
-    cout << sout.str() << endl;
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+    cout << sout.str().c_str() << endl;
   }
 #endif
 }

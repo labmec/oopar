@@ -59,34 +59,34 @@ OOPStorageBuffer::~OOPStorageBuffer ()
 /*** Restore ***/
 OOPSaveable *OOPStorageBuffer::Restore ()
 {
-	long class_id = 0; 
+	long class_id = 0;
 	UpkLong (&class_id);
 #ifdef DEBUG
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << "PID" << getpid() << " Restorig object of class Id " << class_id;
-    LOGPZ_DEBUG (logger,sout.str());
-#endif    
+    LOGPZ_DEBUG (logger,sout.str().c_str());
+#endif
   }
 #endif
 	if (!class_id) {
-#ifdef LOGPZ    
+#ifdef LOGPZ
 	  stringstream sout;
 	  sout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore";
-	  LOGPZ_DEBUG (logger,sout.str());
-#endif    
+    LOGPZ_DEBUG (logger,sout.str().c_str());
+#endif
 	  return (0);
 	}
 	map < long, TRestFunction >::iterator i;
 	i = gFuncTree.find (class_id);
 	// i = gFuncTree.find(class_id);
 	if (i == gFuncTree.end ()) {
-#ifdef LOGPZ    
+#ifdef LOGPZ
 	  stringstream sout;
 	  sout << "Restore <class_id << " << class_id << " not recognized>\n";
-	  LOGPZ_ERROR (logger,sout.str());
-#endif    
+    LOGPZ_ERROR (logger,sout.str().c_str());
+#endif
 	}
 	TRestFunction f;
 	// void *c = i;//gFuncTree.contents(i);

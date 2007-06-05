@@ -90,7 +90,7 @@ OOPTask::Execute ()
 /*  stringstream sout;
   sout << "OOPTask::Execute should never be called!\n";
   sout << "Called from ClassId " << ClassId() << endl;
-  LOGPZ_ERROR(logger, sout.str());*/
+  LOGPZ_ERROR(logger, sout.str().c_str());*/
   return ESuccess;		// execute the task, verifying that
 }
 
@@ -139,12 +139,12 @@ OOPTask::Read (TPZStream & buf, void *context)
   stringstream sout;
   sout << "Read Task ClassId: " << ClassId() << " ObjID:" << Id();
   fDependRequest.ShortPrint( sout);
-  LOGPZ_DEBUG(logger, sout.str ());
+  LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
 
 }
 
-TPZSaveable * 
+TPZSaveable *
 OOPTask::GetDepObjPtr (int idepend)
 {
   int numdep = fDependRequest.Count();
@@ -153,7 +153,7 @@ OOPTask::GetDepObjPtr (int idepend)
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " <<
       idepend << " " << numdep;
-    LOGPZ_WARN (logger, sout.str ());
+    LOGPZ_WARN (logger, sout.str().c_str());
 #endif
     return 0;
   }
@@ -172,7 +172,7 @@ void OOPTask::SubmitDependencyList()
 #ifdef LOGPZ
     stringstream sout;
     sout << "Submitting Access Requests for Task " << fTaskId;
-    LOGPZ_DEBUG(logger, sout.str ());
+    LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
   fDependRequest.PostRequests(fTaskId);
 }

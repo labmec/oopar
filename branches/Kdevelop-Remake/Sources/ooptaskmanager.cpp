@@ -61,12 +61,12 @@ tlog ("TM_time_log.txt");
 void OOPTaskManager::SnapShotMe(std::ostream & out)
 {
   out << "TaskManager SnapShot\n";
-  out << "Processor" << fProc << endl;
-  out << "Executable size " << fExecutable.size() << endl;
-  out << "TaskList size " << fTaskList.size() << endl;
-  
+  out << "Processor" << fProc << std::endl;
+  out << "Executable size " << fExecutable.size() << std::endl;
+  out << "TaskList size " << fTaskList.size() << std::endl;
+
   {
-    out << "---Executable---" << endl;
+    out << "---Executable---" << std::endl;
     std::list<OOPTaskControl * >::iterator lit;
     for(lit=fExecutable.begin();lit!=fExecutable.end();lit++)
     {
@@ -74,7 +74,7 @@ void OOPTaskManager::SnapShotMe(std::ostream & out)
     }
   }
   {
-    out << "---Executing---" << endl;
+    out << "---Executing---" << std::endl;
     std::list<OOPTaskControl * >::iterator lit;
     for(lit=fExecuting.begin();lit!=fExecuting.end();lit++)
     {
@@ -82,7 +82,7 @@ void OOPTaskManager::SnapShotMe(std::ostream & out)
     }
   }
   {
-    out << "---SubmittedList---" << endl;
+    out << "---SubmittedList---" << std::endl;
     std::list<OOPTask * >::iterator lit;
     for(lit=fSubmittedList.begin();lit!=fSubmittedList.end();lit++)
     {
@@ -90,15 +90,15 @@ void OOPTaskManager::SnapShotMe(std::ostream & out)
     }
   }
   {
-    out << "---TaskList---" << endl;
+    out << "---TaskList---" << std::endl;
     std::list<OOPTaskControl * >::iterator lit;
     for(lit=fTaskList.begin();lit!=fTaskList.end();lit++)
     {
       (*lit)->Print(out);
     }
   }
-  
-  out << "---------Finished STL Data Components------------" << endl;
+
+  out << "---------Finished STL Data Components------------" << std::endl;
 }
 
 
@@ -108,7 +108,7 @@ void OOPTaskManager::GrantAccess(OOPAccessTag & tag)
 #ifdef LOGPZ
   stringstream sout;
   sout << "Task " << tag.TaskId() << " Received Access from Request " << tag.AccessModeString();
-  LOGPZ_DEBUG (logger, sout.str ());
+  LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
   {
     OOPTMLock lock;
@@ -134,7 +134,7 @@ void OOPTaskManager::TransferExecutingTasks ()
 #ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOGPZ_ERROR (logger, sout.str ());
+    LOGPZ_ERROR (logger, sout.str().c_str());
 #endif
     return;
   }
@@ -152,29 +152,29 @@ void OOPTaskManager::TransferExecutingTasks ()
   #ifdef LOGPZ
         stringstream sout;
         sout << __FUNCTION__ << " I dont understand \n";
-        LOGPZ_ERROR (logger, sout.str ());
+        LOGPZ_ERROR (logger, sout.str().c_str());
   #endif
       }
     }
-    
+
     if (isfinished) {
 #ifdef LOGPZ
       {
       stringstream sout;
       sout << "Task " << auxtc->Id() << " Finshed\nCalling TaskControl->Join()\n";
-      LOGPZ_DEBUG (logger, sout.str ());
+      LOGPZ_DEBUG (logger, sout.str().c_str());
       }
 #endif
-    
+
       auxtc->Join ();
       WakeUpCall();
 #ifdef LOGPZ
       {
       stringstream sout;
       sout << "TaskControl::ThreadExec Joined ServiceThread\n";
-      sout << "Task finished " << auxtc->
-	Id () << " classid " << auxtc->ClassId ();
-      LOGPZ_DEBUG (logger, sout.str ());
+      sout << "Task finished " << auxtc->Id ()
+           << " classid " << auxtc->ClassId ();
+      LOGPZ_DEBUG (logger, sout.str().c_str());
       }
 #endif
       delete auxtc;
@@ -202,16 +202,16 @@ void OOPTaskManager::TransferExecutingTasks ()
 //   lTM->TransferSubmittedTasks ();
 //   DM->SubmitAllObjects ();
 //   list < OOPTaskControl * >::iterator i;
-// 
+//
 //   SszQueues curSz;
 //   curSz.set (lTM->fTaskList.size (), lTM->fExecutable.size (),
 // 	     lTM->fExecuting.size ());
-// 
+//
 // #ifdef LOGPZ
 //   {
 //     std::stringstream sout;
 //     sout << "Entering task list loop";
-//     LOGPZ_DEBUG (logger, sout.str ());
+//     LOGPZ_DEBUG (logger, sout.str().c_str());
 //   }
 // #endif
 //   lTM->fKeepGoing = true;
@@ -221,7 +221,7 @@ void OOPTaskManager::TransferExecutingTasks ()
 //     CM->ReceiveMessages ();
 //     lTM->ExecuteDaemons ();
 //     lTM->HandleMessages();
-//     while (lTM->fExecutable.size ()  && (int) lTM->fExecuting.size() < lTM->fNumberOfThreads) 
+//     while (lTM->fExecutable.size ()  && (int) lTM->fExecuting.size() < lTM->fNumberOfThreads)
 //     {
 //       i = lTM->fExecutable.begin ();
 //       OOPTaskControl *tc = (*i);
@@ -232,7 +232,7 @@ void OOPTaskManager::TransferExecutingTasks ()
 // 	stringstream sout;
 // 	sout << "Entering taskcontrol execute for task " << tc->
 // 	  Id () << " classid " << tc->ClassId ();
-// 	LOGPZ_DEBUG (tasklogger, sout.str ());
+// 	LOGPZ_DEBUG (tasklogger, sout.str().c_str());
 //       }
 // #endif
 //       tc->Execute ();
@@ -240,13 +240,13 @@ void OOPTaskManager::TransferExecutingTasks ()
 //       DM->SubmitAllObjects ();
 //     }
 //     DM->SubmitAllObjects ();
-//     
+//
 //     lTM->TransferExecutingTasks ();
 //     CM->ReceiveMessages ();
-// 
+//
 //     lTM->TransferSubmittedTasks ();
 //     lTM->ExecuteDaemons ();
-// 
+//
 // #ifdef LOGTIME
 //     if (!curSz.
 // 	IsEqual (lTM->fTaskList.size (), lTM->fExecutable.size (),
@@ -254,7 +254,7 @@ void OOPTaskManager::TransferExecutingTasks ()
 //     {
 //       timeval curtime;
 //       gettimeofday (&curtime, 0);
-// 
+//
 //       tlog << curtime.tv_sec << ":" << curtime.tv_usec << "\t"
 // 	<< lTM->fSubmittedList.size () << "\t"
 // 	<< lTM->fTaskList.size () << "\t"
@@ -266,8 +266,8 @@ void OOPTaskManager::TransferExecutingTasks ()
 // 		 lTM->fExecuting.size ());
 //     }
 // #endif
-// 
-// 
+//
+//
 //     if (!lTM->HasWorkTodo ())
 //     {
 //       if (CM->NumProcessors () > 1)
@@ -280,7 +280,7 @@ void OOPTaskManager::TransferExecutingTasks ()
 // 	timespec next;
 // 	next.tv_sec = now.tv_sec;
 // 	next.tv_nsec = now.tv_usec * 1000;
-// 	
+//
 // #ifdef LOGPZ
 //         {
 //           std::stringstream sout;
@@ -290,7 +290,7 @@ void OOPTaskManager::TransferExecutingTasks ()
 // #endif
 //         int retval = 0;
 // 	retval = sem_timedwait(&lTM->fServiceSemaphore, &next);
-// 
+//
 //         if(retval == ETIMEDOUT){
 //           //LOGPZ_DEBUG(tasklogger,"TimedWait TimedOut");
 //         }else{
@@ -315,7 +315,7 @@ void OOPTaskManager::TransferExecutingTasks ()
 //     LOGPZ_DEBUG(tasklogger,sout.str().c_str());
 //   }
 // #endif
-//   
+//
 //   CM->SendMessages ();
 //   return NULL;
 // }
@@ -330,8 +330,8 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
   {
 #ifdef LOGPZ
     stringstream sout;
-    sout << "MPICommManager not valid ! Bailing out\nRETURNING NULL FROM SERVICE THREAD!\nFAREWELL" << endl;
-    LOGPZ_ERROR(ServiceLogger, sout.str());
+    sout << "MPICommManager not valid ! Bailing out\nRETURNING NULL FROM SERVICE THREAD!\nFAREWELL" << std::endl;
+    LOGPZ_ERROR(ServiceLogger, sout.str().c_str());
 #endif
     return NULL;
   }
@@ -339,8 +339,8 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
   {
 #ifdef LOGPZ
     stringstream sout;
-    sout << "MPICommManager Could not initialize the receiving thread !\nRETURNING NULL FROM SERVICE THREAD!\nFAREWELL" << endl;
-    LOGPZ_ERROR(ServiceLogger, sout.str());
+    sout << "MPICommManager Could not initialize the receiving thread !\nRETURNING NULL FROM SERVICE THREAD!\nFAREWELL" << std::endl;
+    LOGPZ_ERROR(ServiceLogger, sout.str().c_str());
 #endif
     return NULL;
   }
@@ -348,82 +348,82 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
 #ifdef LOGPZ
     {
       stringstream sout;
-      sout << "CM->ReceiveThread Triggered Sucessfully";
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      sout << "CM->ReceiveThread Triggered Sucessfully\n";
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
     }
     {
       stringstream sout;
-      sout << "Setting KeepGoing Flag to true and entering TM Inifinit loop";
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      sout << "Setting KeepGoing Flag to true and entering TM Inifinit loop\n";
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
     }
 #endif
   }
   lTM->SetKeepGoing( true);
   DM->StartService();
-  
+
   while (lTM->KeepRunning())
   {
     {
       stringstream sout;
-      sout << "Calling lTM->TransferSubmittedTasks()";
+      sout << "Calling lTM->TransferSubmittedTasks()\n";
       #ifdef LOGPZ
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
     lTM->TransferSubmittedTasks();
     {
       stringstream sout;
-      sout << "Called lTM->TransferSubmittedTasks() | Calling DM->HandleMessages()";
+      sout << "Called lTM->TransferSubmittedTasks() | Calling DM->HandleMessages()\n";
       #ifdef LOGPZ
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
     //DM->HandleMessages();
     {
       stringstream sout;
-      sout << "Called DM->HandleMessages() | Calling lTM->HandleMessages()";
+      sout << "Called DM->HandleMessages() | Calling lTM->HandleMessages()\n";
       #ifdef LOGPZ
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
     lTM->HandleMessages();
     {
       stringstream sout;
-      sout << "Called lTM->HandleMessages() | Calling DM->FlushData()";
+      sout << "Called lTM->HandleMessages() | Calling DM->FlushData()\n";
       #ifdef LOGPZ
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
     //DM->FlushData();
     {
       stringstream sout;
-      sout << "Called DM->FlushData() | Calling lTM->TriggerTasks()";
+      sout << "Called DM->FlushData() | Calling lTM->TriggerTasks()\n";
       #ifdef LOGPZ
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
     lTM->TriggerTasks();
     {
       stringstream sout;
-      sout << "Called lTM->TriggerTasks() | Going to Sleep";
+      sout << "Called lTM->TriggerTasks() | Going to Sleep\n";
       #ifdef LOGPZ
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
     lTM->WaitWakeUpCall();
     {
       stringstream sout;
-      sout << "Woke Up | One more round ------------------------------------------------------------------" << endl;
+      sout << "Woke Up | One more round ------------------------------------------------------------------" << std::endl;
       #ifdef LOGPZ
-      LOGPZ_DEBUG(ServiceLogger, sout.str());
+      LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
   }
   {
 #ifdef LOGPZ
   stringstream sout;
-  sout << "Leaving TM Inifinit loop\nHopefully TM was shutdown by a TerminationTask." << endl;
-  LOGPZ_DEBUG(logger, sout.str());
+  sout << "Leaving TM Inifinit loop\nHopefully TM was shutdown by a TerminationTask." << std::endl;
+  LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
   }
   return NULL;
@@ -431,12 +431,12 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
 void OOPTaskManager::TriggerTasks()
 {
   std::list< OOPTaskControl * >::iterator i;
-  //while (fExecutable.size()  && (int) fExecuting.size()) 
+  //while (fExecutable.size()  && (int) fExecuting.size())
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "TriggerTask : fExecutable.size() = " << fExecutable.size(); 
-    LOGPZ_DEBUG (logger, sout.str ());
+    sout << "TriggerTask : fExecutable.size() = " << fExecutable.size();
+    LOGPZ_DEBUG (logger, sout.str().c_str() );
   }
 #endif
   while ((int)fExecutable.size())//  || (int)fExecuting.size())
@@ -448,9 +448,9 @@ void OOPTaskManager::TriggerTasks()
 #ifdef LOGPZ
     {
       stringstream sout;
-      sout << "Entering taskcontrol execute for Task T:" << tc->
-        Id () << " ClassId " << tc->ClassId ();
-      LOGPZ_DEBUG (tasklogger, sout.str ());
+      sout << "Entering taskcontrol execute for Task T:" << tc->Id ()
+           << " ClassId " << tc->ClassId ();
+      LOGPZ_DEBUG (tasklogger, sout.str().c_str());
     }
 #endif
     tc->Execute ();
@@ -463,8 +463,8 @@ void OOPTaskManager::WaitWakeUpCall()
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Going to sleep in " << __PRETTY_FUNCTION__ << endl;
-    LOGPZ_DEBUG (logger, sout.str ());
+    sout << "Going to sleep in " << __PRETTY_FUNCTION__ << std::endl;
+    LOGPZ_DEBUG (logger, sout.str().c_str());
   }
 #endif
 //#warning "Non stop service thread defined"
@@ -480,26 +480,26 @@ void OOPTaskManager::WaitWakeUpCall()
   timespec next;
   next.tv_sec = now.tv_sec+1;
   next.tv_nsec = now.tv_usec;// * 1000;
-	
+
   int retval = 0;
   retval = sem_timedwait(&fServiceSemaphore, &next);
 
   if(retval == ETIMEDOUT){
-#ifdef LOGPZ  
-    LOGPZ_DEBUG(ServiceLogger,"Sem_TimedWait TimedOut");
+#ifdef LOGPZ
+    LOGPZ_DEBUG(ServiceLogger,"Sem_TimedWait TimedOut\n");
 #endif
   }else{
-#ifdef LOGPZ  
-    LOGPZ_DEBUG(ServiceLogger,"Sem_TimedWait Signaled ");
+#ifdef LOGPZ
+    LOGPZ_DEBUG(ServiceLogger,"Sem_TimedWait Signaled\n");
 #endif
   }
-  
+
 #endif
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Awaken from sem_wait in " << __PRETTY_FUNCTION__ << endl;
-    LOGPZ_DEBUG (logger, sout.str ());
+    sout << "Awaken from sem_wait in " << __PRETTY_FUNCTION__ << std::endl;
+    LOGPZ_DEBUG ( logger, sout.str().c_str() );
   }
 #endif
 }
@@ -510,6 +510,8 @@ bool OOPTaskManager::KeepRunning()
   if(fKeepGoing)
   {
     result = true;
+  }else{
+    return false;
   }
   if(fSubmittedList.size())
   {
@@ -550,10 +552,10 @@ OOPTaskManager::~OOPTaskManager ()
 {
 #ifdef LOGPZ
 	stringstream sout;
-	sout << "submitted.size : " << fSubmittedList.size()  << 
-	" executable.size " << fExecutable.size() << 
+	sout << "submitted.size : " << fSubmittedList.size()  <<
+	" executable.size " << fExecutable.size() <<
 	" tasklist.size " << fTaskList.size();
-	LOGPZ_DEBUG (logger, sout.str ());
+	LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
   list < OOPTask * >::iterator i;
   for (i = fSubmittedList.begin (); i != fSubmittedList.end (); i++)
@@ -580,7 +582,7 @@ void OOPTaskManager::ExecuteDaemon(OOPTask * dmt)
       sout << "-->Sending a RequestTask from Proc " << CM->GetProcID() << " to Proc " << req->GetProcID() << " with tag ";
     }
     req->fDepend.ShortPrint(sout);
-    LOGPZ_DEBUG(DaemonLogger, sout.str());
+    LOGPZ_DEBUG(DaemonLogger, sout.str().c_str());
   }
   OOPDMOwnerTask * own = dynamic_cast<OOPDMOwnerTask *>(dmt);
   if(own)
@@ -594,9 +596,9 @@ void OOPTaskManager::ExecuteDaemon(OOPTask * dmt)
       sout << "-->Sending a OwnerTask from Proc " << CM->GetProcID() << " to Proc " << own->GetProcID() << " with tag ";
     }
     own->fTag.ShortPrint(sout);
-    LOGPZ_DEBUG(DaemonLogger, sout.str());
+    LOGPZ_DEBUG(DaemonLogger, sout.str().c_str());
   }
-#endif    
+#endif
   if (dmt->GetProcID () != DM->GetProcID ())
   {
     CM->SendTask (dmt);
@@ -614,7 +616,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 #ifdef LOGPZ
     stringstream sout;
     sout << "Task Submitted is a daemon classid = " << task->ClassId();
-    LOGPZ_DEBUG (logger, sout.str ());
+    LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
     ExecuteDaemon(dmt);
     return id;
@@ -629,9 +631,9 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
   {
 #ifdef LOGPZ
     stringstream sout;
-    sout << "Task T:" << task->Id () << " submitted for processor " << task->GetProcID () 
+    sout << "Task T:" << task->Id () << " submitted for processor " << task->GetProcID ()
         << " ClassId " << task->ClassId ();
-    LOGPZ_DEBUG (tasklogger, sout.str ());
+    LOGPZ_DEBUG (tasklogger, sout.str().c_str());
 #endif
   }
 #ifdef DEBUGALL
@@ -665,10 +667,10 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
       delete test;
     }
     command << "diff --brief " << FileName.str () << " " << FileName2.
-      str () << endl;
+      str () << std::endl;
     FILE *pipe = popen (command.str ().c_str (), "r");
 #ifdef DEBUGALL
-    cout << "Command executed " << command.str () << endl;
+    cout << "Command executed " << command.str () << std::endl;
 #endif
     char *compare = new char[256];
     compare[0] = '\0';
@@ -679,7 +681,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
     if (strlen (compare)) {
       cout << __PRETTY_FUNCTION__ <<
 	" The writing process produced an error for class " << task->
-	ClassId () << compare << endl;
+	ClassId () << compare << std::endl;
     }
     delete [] compare;
   }
@@ -689,7 +691,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 #ifdef LOGPZ
     stringstream sout;
     sout << "Task T:" << task->Id() << " being sent to processor " << task->GetProcID();
-    LOGPZ_DEBUG (tasklogger, sout.str ());
+    LOGPZ_DEBUG (tasklogger, sout.str().c_str());
 #endif
     CM->SendTask(task);
   }else
@@ -706,10 +708,10 @@ int OOPTaskManager::NumberOfTasks ()
 #ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOGPZ_DEBUG (logger, sout.str ());
+    LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
   }
-  int numtasks = fExecutable.size () + fSubmittedList.size () 
+  int numtasks = fExecutable.size () + fSubmittedList.size ()
     + fTaskList.size ();
   return numtasks;
 }
@@ -732,7 +734,7 @@ void OOPTaskManager::Execute ()
 #ifdef LOGPZ
     stringstream sout;
     sout << "Creating service thread";
-    LOGPZ_DEBUG (logger, sout.str ());
+    LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
   }
 #ifdef BLOCKING
@@ -744,30 +746,50 @@ void OOPTaskManager::Execute ()
     stringstream sout;
     sout << "Fail to create service thread\n";
     sout << "Going out";
-    LOGPZ_ERROR (logger, sout.str ());
+    LOGPZ_ERROR (logger, sout.str().c_str());
 #endif
   }
   {
 #ifdef LOGPZ
     stringstream sout;
     sout << "Created succesfuly";
-    LOGPZ_DEBUG (logger, sout.str ());
+    LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
   }
 }
 
 void OOPTaskManager::Wait ()
 {
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Joining TM ServiceThread !";
+    LOGPZ_DEBUG (ServiceLogger, sout.str().c_str());
+  }
+#endif
 
   pthread_join (fExecuteThread, NULL);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "TM ServiceThread Joined\nGoing to a MPIBarrier !";
+    LOGPZ_DEBUG (ServiceLogger, sout.str().c_str());
+  }
+#endif
+
   MPI_Barrier(MPI_COMM_WORLD);
 #ifdef BLOCKING
-  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking(); 
+  ((OOPMPICommManager *)CM)->UnlockReceiveBlocking();
 #endif
 }
 
 void OOPTaskManager::SetKeepGoing (bool go)
 {
+#ifdef LOGPZ
+  stringstream sout;
+  sout << "Setting TM KeepGoing flag to " << go;
+  LOGPZ_DEBUG (ServiceLogger, sout.str().c_str());
+#endif
   fKeepGoing = go;
 }
 
@@ -795,13 +817,13 @@ OOPTask * OOPTaskManager::FindTask (OOPObjectId taskid)
  */
 void OOPTaskManager::Print (std::ostream & out)
 {
-  out << "Task Manager data structure \t" << endl;
-  out << "TM Processor " << fProc << endl;
-  out << "Id of Last Created Task \t" << fLastCreated << endl;
+  out << "Task Manager data structure \t" << std::endl;
+  out << "TM Processor " << fProc << std::endl;
+  out << "Id of Last Created Task \t" << fLastCreated << std::endl;
 
-  out << "Queued Daemon tasks ---------\t" << endl;
-  out << "Queued Time Consuming tasks ---------" << endl;
-  out << "Number of Time Consuming tasks \t" << fTaskList.size () << endl;
+  out << "Queued Daemon tasks ---------\t" << std::endl;
+  out << "Queued Time Consuming tasks ---------" << std::endl;
+  out << "Number of Time Consuming tasks \t" << fTaskList.size () << std::endl;
   list < OOPTaskControl * >::iterator i;
   for (i = fTaskList.begin (); i != fTaskList.end (); i++) {
     (*i)->Task ()->Print (out);
@@ -814,13 +836,13 @@ void OOPTaskManager::TransferSubmittedTasks ()
 #ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOGPZ_DEBUG (logger, sout.str ());
+    LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
   }
   {
     OOPTMLock lock;
     list < OOPTask * >::iterator sub;
-  
+
     int listsize = fSubmittedList.size ();
     sub = fSubmittedList.begin ();
     OOPTask *aux = 0;
@@ -832,7 +854,7 @@ void OOPTaskManager::TransferSubmittedTasks ()
 #ifdef LOGPZ
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << " fSubmittedList.size () ZERO";
-      LOGPZ_DEBUG (logger, sout.str ());
+      LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
     }
     while (aux)
@@ -843,18 +865,18 @@ void OOPTaskManager::TransferSubmittedTasks ()
 #ifdef LOGPZ
         stringstream sout;
         sout << "Submitting Daemon task on TransferSubmitted Tasks";
-        LOGPZ_ERROR (logger, sout.str ())
-#endif        
+        LOGPZ_ERROR (logger, sout.str().c_str())
+#endif
         ExecuteDaemon( dmt);
       } else {//Ordinary task to be executed in this processor
         aux->SubmitDependencyList();
   #ifdef LOGPZ
         stringstream sout;
         sout << "Creating the task control ojbect for task " << aux->Id () ;
-        LOGPZ_DEBUG (logger, sout.str ())
+        LOGPZ_DEBUG (logger, sout.str().c_str())
   #endif
 
-  
+
         OOPTaskControl *tc = new OOPTaskControl(aux);
         if(aux->CanExecute())
         {
@@ -862,7 +884,7 @@ void OOPTaskManager::TransferSubmittedTasks ()
 #ifdef LOGPZ
           stringstream sout;
           sout << "Task T:" << aux->Id () << " is Executable "  ;
-          LOGPZ_DEBUG (tasklogger, sout.str ())
+          LOGPZ_DEBUG (tasklogger, sout.str().c_str())
 #endif
           WakeUpCall();
         }else
@@ -887,7 +909,7 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 #ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOGPZ_DEBUG (logger, sout.str ());
+    LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
   }
   list < OOPTaskControl * >::iterator i;
@@ -919,22 +941,22 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
 
 void OOPTaskManager::PrintTaskQueues (char *msg, std::ostream & out)
 {
-  out << msg << endl;
-  out << "Printing TaskManager Queues on TM:" << fProc << endl;
+  out << msg << std::endl;
+  out << "Printing TaskManager Queues on TM:" << fProc << std::endl;
   out << "Print fSubmittedList\n";
-  out << "Number of tasks :" << fSubmittedList.size () << endl;
+  out << "Number of tasks :" << fSubmittedList.size () << std::endl;
   list < OOPTask * >::iterator i;
   for (i = fSubmittedList.begin (); i != fSubmittedList.end (); i++)
-    out << (*i)->Id () << endl;
+    out << (*i)->Id () << std::endl;
   out << "Print fTaskList\n";
-  out << "Number of tasks :" << fTaskList.size () << endl;
+  out << "Number of tasks :" << fTaskList.size () << std::endl;
   list < OOPTaskControl * >::iterator j;
   for (j = fTaskList.begin (); j != fTaskList.end (); j++)
-    out << (*j)->Id () << endl;
+    out << (*j)->Id () << std::endl;
   out << "Print fExecutable\n";
-  out << "Number of tasks :" << fExecutable.size () << endl;
+  out << "Number of tasks :" << fExecutable.size () << std::endl;
   for (j = fExecutable.begin (); j != fExecutable.end (); j++)
-    out << (*j)->Id () << endl;
+    out << (*j)->Id () << std::endl;
 
 }
 void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
@@ -943,7 +965,7 @@ void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
 #ifdef LOGPZ
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " called by foreign thread";
-    LOGPZ_ERROR (logger, sout.str ());
+    LOGPZ_ERROR (logger, sout.str().c_str());
 #endif
   }
   list < OOPTaskControl * >::iterator i;
@@ -957,13 +979,13 @@ void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
 #ifdef OOP_MPE
         stringstream auxsout;
         auxsout << "T:" << tag.TaskId() << " " << tag.AccessMode();
-        OOPSoloEvent solo("grantaccess", auxsout.str());
+        OOPSoloEvent solo("grantaccess", auxsout.str().c_str());
 #endif
 #ifdef LOGPZ
 	stringstream sout;
 	sout << "Access Granted to Task T:" << tag.TaskId() << " ClassId " << tc->Task()->ClassId()
 	 << " On Data Id:" << tag.Id ();
-	LOGPZ_DEBUG (tasklogger, sout.str ());
+  LOGPZ_DEBUG (tasklogger, sout.str().c_str());
 #endif
       }
       if (tc->Task()->CanExecute ()) {
@@ -971,14 +993,14 @@ void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
 	stringstream sout;
 	sout << "Task T:" << tag.TaskId() << " ClassId " << tc->ClassId ();
 	sout << " can execute";
-	LOGPZ_DEBUG (tasklogger, sout.str ());
+	LOGPZ_DEBUG (tasklogger, sout.str().c_str());
 #endif
 	TransfertoExecutable (tc->Task ()->Id ());
 	{
 #ifdef LOGPZ
 	  stringstream sout;
 	  sout << "Task T:" << tag.TaskId() << " ClassId " << tc->ClassId () << " is Executable";
-	  LOGPZ_DEBUG (tasklogger, sout.str ());
+	  LOGPZ_DEBUG (tasklogger, sout.str().c_str());
 #endif
 	}
       }
@@ -991,14 +1013,14 @@ void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
     sout << "Task not found on current TM";
     sout << "Task T:";
     tag.TaskId().Print(sout);
-    LOGPZ_ERROR (tasklogger, sout.str ());
+    LOGPZ_ERROR (tasklogger, sout.str().c_str());
 #endif
   }
 }
 void OOPTaskManager::ExtractCancelTaskFromTag(const OOPAccessTag & tag)
 {
-#warning  cout << "NOT IMPLEMENTED !!!!!" << endl;
-} 
+#warning  cout << "NOT IMPLEMENTED !!!!!" << std::endl;
+}
 
 void OOPTaskManager::HandleMessages()
 {
@@ -1020,7 +1042,7 @@ void OOPTaskManager::HandleMessages()
         std::stringstream sout;
         sout << "Access Granted according to Tag ";
         it->second.ShortPrint(sout);
-        LOGPZ_DEBUG(AccessLogger,sout.str());
+        LOGPZ_DEBUG(AccessLogger,sout.str().c_str());
 #endif
         ExtractGrantAccessFromTag(it->second);
       }
@@ -1031,22 +1053,22 @@ void OOPTaskManager::HandleMessages()
         std::stringstream sout;
         sout << "Extract CancelTask according to Tag ";
         it->second.ShortPrint(sout);
-        LOGPZ_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(AccessLogger,sout.str().c_str());
 #endif
-        ExtractCancelTaskFromTag(it->second); 
+        ExtractCancelTaskFromTag(it->second);
       }
       break;
       default:
       {
-#ifdef LOGPZ    
+#ifdef LOGPZ
         stringstream sout;
         sout << "Message Submitted with wrong message type, expect trouble";
-        LOGPZ_DEBUG(logger,sout.str().c_str());
-#endif  
+        LOGPZ_DEBUG(AccessLogger,sout.str().c_str());
+#endif
       }
     }
   }
-  
+
 }
 
 OOPTerminationTask::~OOPTerminationTask ()
@@ -1071,8 +1093,10 @@ OOPMReturnType OOPTerminationTask::Execute ()
     OOPDMLock lock;
     DM->SetKeepGoing (false);
   }
-  sleep(1);
+  sleep(3);
   IncrementWriteDependentData();
+/*  TM->WakeUpCall();
+  DM->WakeUpCall();*/
   return ESuccess;
 }
 

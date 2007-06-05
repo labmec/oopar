@@ -37,12 +37,12 @@ void OOPTaskControl::Execute()
 {
   fExecFinished =0;
   if(pthread_create(&fExecutor, NULL, ThreadExec, this)){
-#ifdef LOGPZ  
+#ifdef LOGPZ
     stringstream sout;
     sout << "Fail to create service thread -- ";
     sout << "Going out";
-    LOGPZ_ERROR(logger,sout.str());
-#endif    
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
   }
 }
 
@@ -59,12 +59,12 @@ void OOPTaskControl::UpdateVersions()
     {
 #ifdef LOGPZ
       stringstream sout;
-      sout << "Submitting new Versions from Task " << fTaskId 
+      sout << "Submitting new Versions from Task " << fTaskId
       << " On ObjectId " << TaskDepend().Dep(i).Id()
       << " : Old Version " << TaskDepend().Dep(i).Version()
       << " New Version " << fTask->GetDependencyData().Version(i);
-      LOGPZ_DEBUG(logger, sout.str());
-#endif      
+      LOGPZ_DEBUG(logger, sout.str().c_str());
+#endif
       OOPDataVersion nextver = fTask->GetDependencyData().Version(i);
       TPZAutoPointer<TPZSaveable> objptr = fTask->GetDependencyData().ObjPtr(i);
       TaskDepend().Dep(i).ObjPtr()->SubmitVersion(nextver, objptr);
@@ -86,15 +86,15 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   sout << "T:" << tc->fTask->Id().GetId()
     << ":" << tc->fTask->Id().GetProcId() << ":C:" << tc->fTask->ClassId() << ":D:";
   tc->Task()->PrintDependency(sout);
-  OOPStateEvent evt("taskexec",sout.str());
+  OOPStateEvent evt("taskexec",sout.str().c_str());
 #endif
-#ifdef LOGPZ  
+#ifdef LOGPZ
   {
     stringstream sout;
     sout << "Task T:" << tc->fTask->Id() << " Started";
-    LOGPZ_DEBUG(tasklogger,sout.str());
+    LOGPZ_DEBUG(tasklogger,sout.str().c_str());
   }
-#endif  
+#endif
   tc->fExecStarted = 1;
   tc->fTask->Execute();
   OOPObjectId id = tc->fTask->Id();
@@ -103,7 +103,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   {
   stringstream sout;
   sout << "Task T:" << tc->fTask->Id() << " Finished";
-  LOGPZ_DEBUG(tasklogger,sout.str());
+  LOGPZ_DEBUG(tasklogger,sout.str().c_str());
   }
 #endif
   tc->UpdateVersions();
@@ -120,11 +120,11 @@ void OOPTaskControl::Join()
 {
   if(fExecutor == pthread_self())
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << __FUNCTION__ << " called by the taskcontrol object itself";
-    LOGPZ_ERROR(logger,sout.str());
-#endif    
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
     return;
   }
   void *execptr;
@@ -132,10 +132,10 @@ void OOPTaskControl::Join()
   int result = pthread_join(fExecutor,executorresultptr);
   if(result)
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << __FUNCTION__ << __LINE__ << " join operation failed with result " << result;
-    LOGPZ_ERROR(logger,sout.str());
+    LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
   }
 }

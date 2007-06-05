@@ -36,19 +36,19 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPSaveable"));
 int OOPSaveable::Pack (OOPStorageBuffer * buf)
 {
   {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << "PID" << getpid() << " Packing class ID " << GetClassID() ;
-    LOGPZ_DEBUG(logger,sout.str());
-#endif    
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif
   }
 	long class_id = GetClassID ();
   if(class_id == -1) {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
     sout << "Packing class with uninitialized classid expect trouble";
-    LOGPZ_ERROR(logger,sout.str());
-#endif    
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
   }
 	buf->PkLong (&class_id);
 	return 1;

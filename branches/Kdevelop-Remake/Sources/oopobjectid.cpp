@@ -65,18 +65,18 @@ int OOPObjectId::main ()
 			TestDeQue.erase (i);
 		}
 	}
- 
+
 	sout << TestDeQue.size () ;
  	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		(*i)->Print (sout);
 	}
- LOGPZ_DEBUG(logger,sout.str());
+  LOGPZ_DEBUG(logger,sout.str().c_str());
  OOPObjectId *pt2 = new OOPObjectId;
 	pt2->SetId (30);
 	pt2->SetProcId (2);
 	deque < OOPObjectId * >::iterator fd;
 	fd = find (TestDeQue.begin (), TestDeQue.end (), pt2);
-	
+
       i = TestDeQue.end ();
 	delete *i;
 	return 0;
@@ -169,7 +169,7 @@ void OOPObjectId::Write (TPZStream & buf, int)
 	buf.Write (&aux);
 	aux = GetProcId ();
 	buf.Write (&aux);
-	
+
 }
 void OOPObjectId::Read (TPZStream & buf, void * context )
 {
@@ -178,7 +178,7 @@ void OOPObjectId::Read (TPZStream & buf, void * context )
 	SetId (aux);
 	buf.Read (&aux);
 	SetProcId (aux);
-	
+
 }
 
 int OOPObjectId::IsZeroOOP() const

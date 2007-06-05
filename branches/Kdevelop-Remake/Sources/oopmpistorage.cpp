@@ -38,9 +38,9 @@ void OOPMPIStorageBuffer::ExpandBuffer(int more_dimension)
   {
     stringstream sout;
     sout << "Expanding buffer to invalid size " << more_dimension;
-    cout << sout.str() << endl;
+    cout << sout.str().c_str() << endl;
 #ifdef LOGPZ
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
 
   }
@@ -68,7 +68,7 @@ int OOPMPIStorageBuffer::Send (int target)
 #ifdef LOGPZ
     stringstream sout;
     sout << "PID" << getpid() << " Called MPI_Send ret = ";
-    LOGPZ_DEBUG(logger,sout.str()):
+    LOGPZ_DEBUG(logger,sout.str().c_str()):
 #endif
       }
 #endif
@@ -76,7 +76,7 @@ int OOPMPIStorageBuffer::Send (int target)
 {
 #ifdef LOGPZ
     std::stringstream st;
-    st << __PRETTY_FUNCTION__ << " Sending a message of size " << 
+    st << __PRETTY_FUNCTION__ << " Sending a message of size " <<
       m_Length << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
     LOGPZ_ERROR(logger,st.str());
     std::cout << st.str() << endl;
@@ -96,28 +96,28 @@ int OOPMPIStorageBuffer::Send (int target)
 #ifdef LOGPZ
       stringstream sout;
       sout <<" - No error; MPI routine completed successfully";
-      LOGPZ_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str().c_str()):
 #endif
           break;
       case MPI_ERR_COMM:
 #ifdef LOGPZ
       stringstream sout;
       sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).";
-      LOGPZ_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str().c_str()):
 #endif
           break;
       case MPI_ERR_COUNT:
 #ifdef LOGPZ
       stringstream sout;
       sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid";
-      LOGPZ_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str().c_str()):
 #endif
           break;
       case MPI_ERR_TYPE:
 #ifdef LOGPZ
       stringstream sout;
       sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).";
-      LOGPZ_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str().c_str()):
 #endif
           break;
       case MPI_ERR_TAG:
@@ -127,13 +127,13 @@ int OOPMPIStorageBuffer::Send (int target)
       << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
       << "be MPI_ANY_TAG .  The largest tag value is available through the\n"
       << "the attribute MPI_TAG_UB .";
-      LOGPZ_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str().c_str()):
 #endif
           break;
       case MPI_ERR_RANK:
 #ifdef LOGPZ
       sout << "-  Invalid  source  or  destination rank.";
-      LOGPZ_ERROR(logger,sout.str()):
+      LOGPZ_ERROR(logger,sout.str().c_str()):
 #endif
           break;
   }

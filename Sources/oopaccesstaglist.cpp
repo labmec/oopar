@@ -1,7 +1,7 @@
 //
 // C++ Implementation: oopaccesstaglist
 //
-// Description: 
+// Description:
 //
 //
 // Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2007
@@ -42,7 +42,7 @@ void OOPAccessTagList::AppendTag(const OOPAccessTag & tag)
 }
 
 
-void OOPAccessTagList::Clear() 
+void OOPAccessTagList::Clear()
 {
   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   std::set<OOPObjectId> lset;
@@ -53,7 +53,7 @@ void OOPAccessTagList::Clear()
     {
       DM->PostData(*it);
     }
-    it->ClearPointer(); 
+    it->ClearPointer();
   }
 //  fTagList.clear();
   DM->ObjectChanged(lset);
@@ -64,7 +64,7 @@ void OOPAccessTagList::GrantAccess(const OOPAccessTag & granted)
   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   for(;it!=fTagList.end();it++)
   {
-    if(it->IsMyAccessTag(granted)) 
+    if(it->IsMyAccessTag(granted))
     {
       *it = granted;
     }
@@ -81,7 +81,7 @@ bool OOPAccessTagList::CanExecute()
       {
         stringstream sout;
         sout << "CanExecute returned FALSE on Id " << it->Id();
-        LOGPZ_DEBUG(logger,sout.str());
+        LOGPZ_DEBUG(logger,sout.str().c_str());
       }
 #endif
       return false;
@@ -100,7 +100,7 @@ void OOPAccessTagList::IncrementWriteDependent()
       it->IncrementVersion();
     }
   }
-  
+
 }
 
 void OOPAccessTagList::SubmitIncrementedVersions()
@@ -112,19 +112,19 @@ void OOPAccessTagList::SubmitIncrementedVersions()
     {
       DM->PostData(*it);
     }
-#ifdef LOGPZ    
+#ifdef LOGPZ
     {
       stringstream sout;
       sout << "Releasing Access according to Tag:";
       it->ShortPrint(sout);
-      LOGPZ_DEBUG(AccessLogger,sout.str());
+      LOGPZ_DEBUG(AccessLogger,sout.str().c_str());
     }
     {
       stringstream sout;
       sout << "Object Id:" << it->Id() << " Released from Task T:" << it->TaskId();
-      LOGPZ_INFO(MetaLogger, sout.str());
+      LOGPZ_INFO(MetaLogger, sout.str().c_str());
     }
-#endif  
+#endif
     it->ClearPointer();
   }
   for(it=fTagList.begin();it!=fTagList.end();it++)
@@ -191,12 +191,12 @@ void OOPAccessTagList::PostRequests(OOPObjectId & Id)
     fTagList[i].SetTaskId(Id);
 #ifdef LOGPZ
     fTagList[i].ShortPrint(sout);
-#endif    
+#endif
     DM->PostAccessRequest( fTagList[i]);
   }
 #ifdef LOGPZ
-  LOGPZ_DEBUG(logger,sout.str());
-  LOGPZ_DEBUG(tasklogger,sout.str());
+  LOGPZ_DEBUG(logger,sout.str().c_str());
+  LOGPZ_DEBUG(tasklogger,sout.str().c_str());
 #endif
-  
+
 }

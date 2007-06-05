@@ -29,27 +29,27 @@ class   OOPCurrentLocation;
 
 /**
  * Identifies possible messages submitted to the DataManager.
- * A brief description of each type are also available. 
+ * A brief description of each type are also available.
  */
 enum DMMessageType {
   /**
    * Identifies a message which carries a Data object along with the OOPAccessTag.
-   * This message will be translated on the creation of a OOPMetaData object with a AutoPointer valid on the TPZSaveable object. 
+   * This message will be translated on the creation of a OOPMetaData object with a AutoPointer valid on the TPZSaveable object.
    */
   EDMData,
 
   /**
-   * Identifies a message which will be translated in the OOPDMOwnerMessage. 
+   * Identifies a message which will be translated in the OOPDMOwnerMessage.
    */
   EDMOwner,
 
   /**
-   * Identifies a message which will generate a AccessRequest posted on the current processor 
+   * Identifies a message which will generate a AccessRequest posted on the current processor
    */
   EDMRequest,
 
   /**
-   * Identifies a message which will be translated on AccessRequest task submitted to a different processor. Foreign access request. 
+   * Identifies a message which will be translated on AccessRequest task submitted to a different processor. Foreign access request.
    */
   EDMForeignRequest
 };
@@ -143,7 +143,7 @@ public:
    * @param *task Pointer to task which (Undocumented)
    */
   void    GetUpdate (OOPDMRequestTask * task);
-  
+
   /**
    * Verifies access requests for OOPMetaData objects stores fObjects
    */
@@ -156,10 +156,7 @@ public:
   {
     sem_post(&fServiceSemaphore);
   }
-  void SetKeepGoing(bool go)
-  {
-    fKeepGoing = go;
-  }
+  void SetKeepGoing(bool go);
   int StartService();
   void RequestDelete(OOPObjectId & Id);
 private:
@@ -214,12 +211,12 @@ public:
   /**
    * Returns the Data Version object of the Meta data identified by Id.
    * Necessary for inquiring the current version of the MetaData object.
-   * @param Id Identifies the object to be inquired 
+   * @param Id Identifies the object to be inquired
    */
   //    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
 private:
 
-  
+
   std::list< std::pair<int, OOPAccessTag> > fMessages;
 
 };
@@ -229,7 +226,7 @@ private:
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
 public:
-  
+
   /// data associated with the owner task
   /**
   * fAccessMode : whether the owner task is granting read or write access
@@ -240,7 +237,7 @@ public:
   * fVersion : version of the object being transmitted
   */
   OOPAccessTag fTag;
-  
+
   /// set of access requests that need to be submitted when changing ownership
   std::set<OOPAccessTag> fTransferRequests;
   /**
@@ -249,11 +246,11 @@ public:
    * @param proc : processor which owns the message
    */
   OOPDMOwnerTask ();
-  
+
   OOPDMOwnerTask (OOPAccessTag &tag): OOPDaemonTask(tag.Proc()), fTag(tag)
   {
   }
-  
+
   OOPDMOwnerTask (OOPAccessTag &tag, std::set<OOPAccessTag> &requests) :
       OOPDaemonTask(tag.Proc()), fTag(tag),fTransferRequests(requests)
   {
@@ -290,7 +287,7 @@ public:
   OOPDMRequestTask (int processor, const OOPAccessTag & depend);
   OOPDMRequestTask (const OOPDMRequestTask & task);
   OOPDMRequestTask () ;
-    
+
   virtual OOPMReturnType Execute ();
   virtual int ClassId () const
   {

@@ -1,7 +1,7 @@
 //
 // C++ Interface: oopaccesstag
 //
-// Description: 
+// Description:
 //
 //
 // Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2007
@@ -40,8 +40,8 @@ public:
   {
     return fObjectAutoPtr.Count();
   }
-  
-/*      
+
+/*
 ENoAccess,
   EReadAccess,
   EWriteAccess,    */
@@ -74,7 +74,7 @@ ENoAccess,
   }
 private:
   /**
-   * Describes the type of access state 
+   * Describes the type of access state
    */
   OOPMDataState fAccessMode;
   /**
@@ -82,11 +82,11 @@ private:
    */
   OOPObjectId fObjectId;
   /**
-   * Identifies the TaskId willing to access the data object 
+   * Identifies the TaskId willing to access the data object
    */
   OOPObjectId fTaskId;
   /**
-   * Identifies in which version the task needs the data to be 
+   * Identifies in which version the task needs the data to be
    */
   OOPDataVersion fVersion;
   /**
@@ -108,12 +108,12 @@ public:
   void Write (TPZStream  & buf, int withclassid);
   void Read (TPZStream & buf, void * context);
 //  TPZSaveable * GetPointer();
-  
+
   TPZAutoPointer<TPZSaveable> AutoPointer() const
   {
     return this->fObjectAutoPtr;
   }
-  
+
   void SetAutoPointer(TPZAutoPointer<TPZSaveable> pointer)
   {
     fObjectAutoPtr = pointer;
@@ -121,13 +121,19 @@ public:
   bool IsMyAccessTag(const OOPAccessTag & granted);
   void ClearPointer()
   {
-    fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(0); 
+    fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(0);
   }
-  
+
   void IncrementVersion()
   {
     fVersion++;
   }
+
+  void SetVersion(const OOPDataVersion &version)
+  {
+    fVersion = version;
+  }
+
   OOPObjectId TaskId() const
   {
     return fTaskId;
@@ -135,7 +141,7 @@ public:
   OOPObjectId Id() const
   {
     return fObjectId;
-  }  
+  }
   OOPAccessTag (const OOPObjectId & Id,
                  const OOPMDataState & st,
                  const OOPDataVersion & version, int processor)
@@ -222,13 +228,13 @@ public:
   void ShortPrint (std::ostream & out) const
   {
     out << "Id:" << fObjectId << "|";
-    //string access = (fAccessMode == 2 ? string("W") : string("R")); 
+    //string access = (fAccessMode == 2 ? string("W") : string("R"));
     out << "S:" << fAccessMode << "|";
     out << "P:" << fProcessor << "|";
     out << "T:" << fTaskId << "|";
     out << "V:" << fVersion << "|";
     out << "D:" << fObjectAutoPtr << "|";
-    out << "Cnt:" << Count() << "||";
+    out << "Cnt:" << Count() << "\n";
   }
 
   OOPMDataState AccessMode() const
@@ -243,7 +249,7 @@ public:
   {
     return fVersion;
   }
-  
+
   void SetProcessor(int proc)
   {
     fProcessor = proc;

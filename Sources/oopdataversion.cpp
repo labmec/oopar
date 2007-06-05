@@ -78,32 +78,32 @@ void OOPDataVersion::main ()
 	v.IncrementLevel (17);
 	// v.IncrementLevel(3);
 	if (v.AmICompatible (version)) {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
 		sout << " Versions compatible ";
     LOGPZ_DEBUG (logger,sout.str());
-#endif    
+#endif
 	}
 	else {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
 		sout << "Versions are not compatible";
     LOGPZ_DEBUG (logger,sout.str());
-#endif    
+#endif
 	}
 	if (version.AmICompatible (v)) {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
 		sout << " Versions compatible ";
     LOGPZ_DEBUG (logger,sout.str());
-#endif    
+#endif
 	}
 	else {
-#ifdef LOGPZ    
+#ifdef LOGPZ
     stringstream sout;
 		sout << "Versions are not compatible";
     LOGPZ_DEBUG (logger,sout.str());
-#endif    
+#endif
 	}
 	while (version.GetNLevels () != 1) {
 		version.Increment ();
@@ -138,10 +138,10 @@ bool OOPDataVersion::AmICompatible (const OOPDataVersion & dataversion) const
   unsigned int i = 0;
   for (i = 0; i < fVersion.size (); i++)
   {
-    if (GetLevelVersion (i) != -1) 
+    if (GetLevelVersion (i) != -1)
     {
       if(i>=dataversion.fVersion.size()) return true;
-      if (GetLevelVersion (i) < dataversion.GetLevelVersion (i)) 
+      if (GetLevelVersion (i) < dataversion.GetLevelVersion (i))
       {
 #ifdef LOGPZ_PARANOID
         stringstream sout;
@@ -150,7 +150,7 @@ bool OOPDataVersion::AmICompatible (const OOPDataVersion & dataversion) const
                         Print (sout);
                         sout << "Other version ";
                         version.Print (sout);
-        LOGPZ_DEBUG(logger,sout.str());
+                        LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
         return false;
       }
@@ -182,7 +182,7 @@ bool OOPDataVersion::operator == (const OOPDataVersion & version) const
 #ifdef LOGPZ_PARANOID
     stringstream sout;
     sout << "Returning false for different number of levels";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
     return false;
   }
@@ -196,7 +196,7 @@ bool OOPDataVersion::operator == (const OOPDataVersion & version) const
 #ifdef LOGPZ_PARANOID
       stringstream sout;
       sout << "Returning false for different version on level " << i;
-      LOGPZ_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
       return false;
     }
@@ -209,7 +209,7 @@ bool OOPDataVersion::operator == (const OOPDataVersion & version) const
 #ifdef LOGPZ_PARANOID
       stringstream sout;
       sout << "Returning false for different level cardinality on level " << i;
-      LOGPZ_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
       return false;
     }
@@ -217,7 +217,7 @@ bool OOPDataVersion::operator == (const OOPDataVersion & version) const
 #ifdef LOGPZ_PARANOID
   stringstream sout;
   sout << __PRETTY_FUNCTION__ << " Returning true";
-  LOGPZ_DEBUG(logger,sout.str());
+  LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   return true;
 }
@@ -314,23 +314,23 @@ void OOPDataVersion::Increment ()
     return;
   }
   fVersion[fVersion.size () - 1]++;
-  // Checks whether fVersion grows indefinetely 
+  // Checks whether fVersion grows indefinetely
   if (fLevelCardinality[fVersion.size () - 1] == -1)
     return;
-  if (fVersion[fVersion.size () - 1] > fLevelCardinality[fVersion.size () - 1]) 
+  if (fVersion[fVersion.size () - 1] > fLevelCardinality[fVersion.size () - 1])
   {
-#ifdef LOGPZ_PARANOID        
+#ifdef LOGPZ_PARANOID
     stringstream sout;
     sout << "Inconsistent data version incrementation" <<
                   __FILE__ << __LINE__;
-    LOGPZ_ERROR(logger,sout.str());
-#endif    
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
     return;
   }
   if (fVersion[fVersion.size () - 1] ==
-      fLevelCardinality[fVersion.size () - 1]) 
+      fLevelCardinality[fVersion.size () - 1])
   {
-    if (fVersion.size () > 1) 
+    if (fVersion.size () > 1)
     {
       fVersion.pop_back ();
       fLevelCardinality.pop_back ();
@@ -356,8 +356,8 @@ int OOPDataVersion::GetLevelCardinality (int level) const
 		     << " Accessing level out of range" << endl;
 		sout << "Maximum:" << GetNLevels () -
 		     1 << " Trying:" << level;
-                LOGPZ_ERROR(logger,sout.str());
-#endif         
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
 		     // exit(-1);
 		     return -1;
 	     }
@@ -367,12 +367,12 @@ int OOPDataVersion::GetLevelVersion (int level) const
      {
 	     if (!(level < (int) fVersion.size ()))
 	     {
-#ifdef LOGPZ_PARANOID         
+#ifdef LOGPZ_PARANOID
               stringstream sout;
 		     sout << "FILE: " << __FILE__ << " LINE:" << __LINE__ << " Accessing level out of range" << endl;
 		     sout << "Maximum:" << GetNLevels () - 1 << " Trying:" << level;
-		     LOGPZ_ERROR(logger,sout.str());
-#endif         
+         LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
          // exit (-1);
 		     return -1;
 	     }
@@ -407,11 +407,11 @@ bool OOPDataVersion::CanExecute (const OOPDataVersion & dataversion) const
   {
     if (GetLevelVersion (i) != dataversion.GetLevelVersion (i) && GetLevelVersion (i) != -1)
     {
-#ifdef LOGPZ         
+#ifdef LOGPZ
       stringstream sout;
-      sout << "GetLevelVersion( i): " << GetLevelVersion( i) << " DataVersion " << dataversion.GetLevelVersion (i); 
-      LOGPZ_DEBUG(logger,sout.str());
-#endif         
+      sout << "GetLevelVersion( i): " << GetLevelVersion( i) << " DataVersion " << dataversion.GetLevelVersion (i);
+      LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif
       can_I = false;
     }
   }

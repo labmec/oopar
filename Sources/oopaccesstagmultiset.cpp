@@ -1,7 +1,7 @@
 //
 // C++ Implementation: oopaccesstagmultiset
 //
-// Description: 
+// Description:
 //
 //
 // Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2007
@@ -46,16 +46,17 @@ OOPAccessTag OOPAccessTagMultiSet::GetCompatibleRequest(const OOPDataVersion & v
       stringstream sout;
       sout << "it->Version().CanExecute(version) " << it->Version().CanExecute(version) <<
         " need " << need;
-      LOGPZ_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
     if((it->Version().CanExecute(version)) && (it->AccessMode() == need))
     {
       result = *it;
+      result.SetVersion(version);
 #ifdef LOGPZ
       stringstream sout;
       sout << "returning and deleting tag: ";
       result.ShortPrint( sout);
-      LOGPZ_DEBUG(logger,sout.str());
+      LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
       fTagMultiSet.erase(it);
       break;
@@ -92,7 +93,7 @@ bool OOPAccessTagMultiSet::HasSimilarRequest(OOPAccessTag tag)
     OOPAccessTag loctag(*it);
     loctag.SetTaskId(zeroid);
     loctag.SetProcessor(processor);
-    if(tag == loctag) 
+    if(tag == loctag)
     {
 #ifdef LOGPZ
       LOGPZ_DEBUG(logger,"HasSimilarRequest returning true")
@@ -104,7 +105,7 @@ bool OOPAccessTagMultiSet::HasSimilarRequest(OOPAccessTag tag)
   LOGPZ_DEBUG(logger,"HasSimilarRequest returning false")
 #endif
   return false;
-  
+
 }
 
   /// generates the set of accesstags that need to be sent when changing the owning processor
@@ -126,8 +127,8 @@ void OOPAccessTagMultiSet::GetProcessorAccessRequests(int processor, std::set<OO
       requests.insert(tag);
     }
   }
-  // retain only the access requests related to the current processor, 
-  
+  // retain only the access requests related to the current processor,
+
   std::multiset<OOPAccessTag> copy(fTagMultiSet);
   fTagMultiSet.clear();
   for(it=copy.begin(); it!=copy.end(); it++)

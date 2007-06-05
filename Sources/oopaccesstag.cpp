@@ -1,7 +1,7 @@
 //
 // C++ Implementation: oopaccesstag
 //
-// Description: 
+// Description:
 //
 //
 // Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2007
@@ -43,18 +43,18 @@ bool OOPAccessTag::CanExecute()
 bool OOPAccessTag::IsMyAccessTag(const OOPAccessTag & granted)
 {
   if(fObjectAutoPtr) return false;
-  if(!(fObjectId == granted.fObjectId)) return false; 
-  if(!(fAccessMode == granted.fAccessMode)) return false; 
-  if(!(fVersion== granted.fVersion)) return false; 
-  if(!(fProcessor == granted.fProcessor)) return false; 
+  if(!(fObjectId == granted.fObjectId)) return false;
+  if(!(fAccessMode == granted.fAccessMode)) return false;
+  if(!(fVersion.CanExecute(granted.fVersion))) return false;
+  if(!(fProcessor == granted.fProcessor)) return false;
   if(!(fTaskId == granted.fTaskId)) return false;
-  return true; 
+  return true;
 }
 void OOPAccessTag::Write (TPZStream  & buf, int withclassid)
 {
   fObjectId.Write (buf, 0);
   fTaskId.Write( buf, 0);
-  int need = fAccessMode; 
+  int need = fAccessMode;
   buf.Write (&need);
   int proc = fProcessor;
   buf.Write(&proc);
@@ -77,17 +77,33 @@ void OOPAccessTag::Read (TPZStream & buf, void * context)
   fTaskId.Read(buf,context);
   int need = 0;
   buf.Read (&need);
-  fAccessMode = (OOPMDataState) need; 
+  fAccessMode = (OOPMDataState) need;
   int proc = 0;
   buf.Read(&proc);
   fProcessor = proc;
   fVersion.Read(buf,context);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Before reading an object";
+    this->ShortPrint( sout);
+    LOGPZ_DEBUG(logger, sout.str().c_str());
+  }
+#endif
+
   TPZSaveable * r = TPZSaveable::Restore(buf, context);
   if(r)
   {
     this->fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(r);
+#ifdef LOGPZ
+    {
+      stringstream sout;
+      sout << "Read object of class id C:" << this->fObjectAutoPtr->ClassId();
+      LOGPZ_DEBUG(logger, sout.str().c_str());
+    }
+#endif
   }
-  
+
 }
 std::string OOPAccessTag::AccessModeString()
 {

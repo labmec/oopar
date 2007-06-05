@@ -1,7 +1,7 @@
 //
 // C++ Implementation: oopwaittask
 //
-// Description: 
+// Description:
 //
 //
 // Author: Philippe R. B. Devloo <phil@fec.unicamp.br>, (C) 2004
@@ -30,8 +30,8 @@ class OOPStorageBuffer;
 
 OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
 {
-  sem_init(&fMainSemaphore, 0, 0); 
-  sem_init(&fExecSemaphore, 0, 0); 
+  sem_init(&fMainSemaphore, 0, 0);
+  sem_init(&fExecSemaphore, 0, 0);
 }
 
 OOPWaitTask::~OOPWaitTask()
@@ -72,7 +72,7 @@ OOPMReturnType OOPWaitTask::Execute()
   {
     stringstream sout;
     sout << "WaitTask ID " << Id() << " waiting post on fExecSemaphore";
-    LOGPZ_DEBUG(logger, sout.str());
+    LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
   sem_wait(&fExecSemaphore);
@@ -80,7 +80,7 @@ OOPMReturnType OOPWaitTask::Execute()
   {
     stringstream sout;
     sout << "WaitTask ID " <<  Id() << " Leaving execute";
-    LOGPZ_DEBUG(logger, sout.str());
+    LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
   return ESuccess;
@@ -95,7 +95,7 @@ void OOPWaitTask::Finish()
   {
     stringstream sout;
     sout << "WaitTask ID " << Id() << " Finished ! Posting fExecSemaphore";
-    LOGPZ_DEBUG(logger, sout.str());
+    LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
   sem_post(&fExecSemaphore);
@@ -111,7 +111,7 @@ void OOPWaitTask::Wait()
   {
     stringstream sout;
     sout << "WaitTask ID " << Id() << " Waiting for Post in fMainSemaphore";
-    LOGPZ_DEBUG(logger, sout.str());
+    LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
   sem_wait(&fMainSemaphore);
@@ -119,7 +119,7 @@ void OOPWaitTask::Wait()
   {
     stringstream sout;
     sout << "WaitTask ID " << Id() << " fMainSemaphore Posted ! Leaving Wait";
-    LOGPZ_DEBUG(logger, sout.str());
+    LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
 }

@@ -85,13 +85,13 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
   }
   std::set<int>::iterator it = m_Avail.begin();
   if(it == m_Avail.end()){
-#ifdef LOGPZ    
+#ifdef LOGPZ
     std::stringstream sout;
     sout << __FUNCTION__ << __LINE__ << " MPE Event ID management failed ";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   }else{
-#ifdef LOGPZ    
+#ifdef LOGPZ
     std::stringstream sout;
     sout << __FUNCTION__ << " L:" << __LINE__ << " Inserted on Used and removed from Avail " << *it;
     //LOGPZ_DEBUG(logger,sout.str());
@@ -108,7 +108,7 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
     m_Used.insert(*it);
     m_Avail.erase(*it);
     Evt.SetManager(this);
-#ifdef LOGPZ    
+#ifdef LOGPZ
     {
     std::stringstream sout;
     Evt.Print(sout);
@@ -168,20 +168,20 @@ OOPEventDatabase::OOPEventDatabase(int numobjects)
   f_numobjects = numobjects;
 }
 
-void OOPEventDatabase::AddStateEvent(const std::string &eventname, 
+void OOPEventDatabase::AddStateEvent(const std::string &eventname,
     const std::string &description, const std::string &color, bool withdescription)
 {
   OOPEvtManager<OOPStateEvent> evtman(description, f_numobjects, withdescription, color);
   fStateEvents[eventname]=evtman;
 }
-  
+
 void OOPEventDatabase::AddSoloEvent(const std::string &eventname,
     const std::string &description, const std::string &color, bool withdescription)
 {
   OOPEvtManager<OOPSoloEvent> evtman(description, f_numobjects, withdescription, color);
   fSoloEvents[eventname]=evtman;
 }
-  
+
 void OOPEventDatabase::Initialize(const std::string &eventname,
     OOPStateEvent &evt)
 {
@@ -189,7 +189,7 @@ void OOPEventDatabase::Initialize(const std::string &eventname,
     fStateEvents[eventname].GetEvent(evt);
   }
 }
-  
+
 void OOPEventDatabase::Initialize(const std::string &eventname,
     OOPSoloEvent &evt)
 {

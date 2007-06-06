@@ -540,13 +540,13 @@ void OOPDataManager::FlushData()
       {
 #ifdef LOGPZ
         stringstream sout;
-        sout << "Deleting Object Id:" << *itlst << " Marked for Deletion";
-        LOGPZ_INFO(MetaLogger, sout.str().c_str());
+        sout << "Deleting Object Id:" << *itlst << " which was marked for Deletion";
+        LOGPZ_DEBUG(MetaLogger, sout.str());
 #endif
         fObjects.erase(*itlst);
       }else
       {
-        it->second.VerifyAccessRequests();
+        it->second.VerifyAccessRequests(); 
       }
     }
     tmpList.erase(itlst);

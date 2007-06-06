@@ -3,7 +3,7 @@
 #
 # It will be processed by GNU automake to produce Makefile.in
 #
-# $Id: OOP_user.mk.in,v 1.8.2.3 2007-05-28 20:26:17 cesar Exp $
+# $Id: OOP_user.mk.in,v 1.8.2.4 2007-06-06 20:28:57 phil Exp $
 #
 
 include @PZ_DIR@/PZ_user.mk
@@ -20,7 +20,7 @@ OOP_INCLUDES = -I@prefix@/include/oopar @MPEINCLUDE@ @MPIINCLUDE@ $(PZ_INCLUDES)
 OOP_LIBDIR = -L@prefix@/lib @MPELIBDIR@ @MPILIBDIR@ $(PZ_LIBDIR) @LOG4CXX_LIBDIR@
 OOP_LIB = -loopar @MPELIB@ @MPILIB@ $(PZ_LIB) -lpthread @LOG4CXX_LIB@
 
-OOP_CXXFLAGS = $(PZ_CXXFLAGS) @USING_MPI@ @USING_MPE@ @USING_LOG4CXX@
+OOP_CXXFLAGS = $(PZ_CXXFLAGS) @USING_MPI@ @USING_MPE@ @USING_LOG4CXX@ -DMPICH_IGNORE_CXX_SEEK -DBLOCKING -DMTSEND
 
 
 ## --| NeoPZ |------------------------------------------------------------------

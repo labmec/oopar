@@ -344,7 +344,7 @@ int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 {
 
   TPZSaveable *obj = msg.Restore ();
-  if (obj == NULL) {
+  if (obj == NULL && this->fKeepReceiving) {
     Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
   }
   OOPTask *task = dynamic_cast<OOPTask *> (obj);
@@ -396,9 +396,13 @@ void OOPMPICommManager::UnlockReceiveBlocking()
 #endif
   fKeepReceiving = false;
   int ret;
-  int tag = 0;
-  char * buff = new char[1];
-  ret = PMPI_Send (&buff[0], 0, MPI_PACKED, CM->GetProcID(), tag, MPI_COMM_WORLD);
+  int classid = -1;
+  //char * buff = new char[1];
+  //TPZSaveable *buff = new OOPInt();
+  OOPMPIStorageBuffer buff;
+  buff.PkInt( &classid, 1);
+  buff.Send( CM->GetProcID() );
+  //ret = PMPI_Send (&buff[0], 1, MPI_PACKED, CM->GetProcID(), tag, MPI_COMM_WORLD);
 #ifdef LOGPZ
   {
     std::stringstream sout;
@@ -406,7 +410,7 @@ void OOPMPICommManager::UnlockReceiveBlocking()
     LOGPZ_DEBUG(logger,sout.str().c_str());
     cout << sout.str().c_str() << endl;
   }
-  delete [] buff;
+//  delete [] buff;
 #endif
   pthread_join(fReceiveThread, NULL);
 #ifdef LOGPZ

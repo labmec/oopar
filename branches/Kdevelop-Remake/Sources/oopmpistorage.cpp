@@ -264,7 +264,8 @@ TPZSaveable *OOPMPIStorageBuffer::Restore ()
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid " << obj->ClassId();
+    sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid ";
+    if (obj) sout << obj->ClassId();
     LOGPZ_DEBUG(logger,sout.str().c_str());
   }
 #endif
@@ -281,17 +282,21 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Receiving " << count << " bytes !!";
+    sout << "Receiving " << count << " bytes !!" << " probres = " << probres ;
     LOGPZ_DEBUG(logger,sout.str().c_str());
   }
 #endif
+  int res = -1;
   if (count)
   {
     m_Buffer.Resize(count);
   }
-  int res = -1;
-  res = MPI_Recv (&m_Buffer[0], m_Buffer.NElements(), MPI_PACKED, MPI_ANY_SOURCE,
-                  MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;
+  else
+  {
+    m_Buffer.Resize(1);
+  }
+  res = MPI_Recv (&m_Buffer[0], count , MPI_PACKED, MPI_ANY_SOURCE,
+                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;
   if(res == MPI_SUCCESS)
   {
     return 1;
@@ -301,7 +306,6 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
     cout << "Falhou Recv\n";
     return -1;
   }
-
 }
 // Metodos para DESEMPACOTAR dados do buffer.
 // p : Ponteiro para o buffer onde os dados serao lidos.

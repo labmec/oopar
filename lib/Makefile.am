@@ -19,10 +19,10 @@ liboopar_a_LIBADD = ../Sources/oopdelobjecttask.o \
 	../Sources/oopaccesstagmultiset.o ../Sources/oopaccesstaglist.o ../Sources/oopaccesstag.o \
 	../Sources/ooptmlock.o ../Sources/oopdmlock.o ../Sources/oopaccesstaglist.o \
 	../Sources/oopaccesstag.o ../Sources/oopdatamanager.o ../Sources/ooptaskmanager.o \
-	../Sources/oopdataversion.o ../Sources/ooperror.o ../Sources/oopmetadata.o ../Sources/oopobjectid.o \
-	../Sources/oopparclass.o ../Sources/oopstorage.o ../Sources/oopstore.o ../Sources/ooptask.o \
+	../Sources/oopdataversion.o ../Sources/oopmetadata.o ../Sources/oopobjectid.o \
+	../Sources/oopparclass.o ../Sources/oopstorage.o ../Sources/ooptask.o \
 	../Sources/ooptaskcontrol.o ../Sources/ooppardefs.o ../Sources/oopwaittask.o \
-	../Sources/oopmpicomm.o ../Sources/oopmpistorage.o ../Sources/ooperror.o ../Sources/OOPInt.o \
+	../Sources/oopmpicomm.o ../Sources/oopmpistorage.o ../Sources/OOPInt.o \
 	../Sources/OOPDouble.o ../Sources/oopcommmanager.o ../Sources/OOPVector.o \
 	../Sources/oopevtid.o ../Sources/oopevtmanager.o ../Sources/oopsnapshottask.o
 ## --| OOPar |------------------------------------------------------------------

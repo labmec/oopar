@@ -27,7 +27,6 @@ class   OOPDMOwnerTask;
 class   OOPMetaData//:public TPZSaveable
 {
 public:
-  void DeleteMe();
   bool ShouldDelete(){return fShouldDelete;}
   void SubmitTag(OOPAccessTag & Tag);
   int AccessCounter(OOPDataVersion & version);

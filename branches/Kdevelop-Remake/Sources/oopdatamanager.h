@@ -158,6 +158,7 @@ public:
   }
   void SetKeepGoing(bool go);
   int StartService();
+  void PostRequestDelete(OOPObjectId & Id);
   void RequestDelete(OOPObjectId & Id);
 private:
   pthread_t fServiceThread;
@@ -207,14 +208,14 @@ public:
    * Returns a pointer to the data structure
    * @param ObjId : Id of object which must have its data structure pointer returned
    */
-  OOPMetaData Data (OOPObjectId ObjId) {return fObjects[ObjId];}
+private:
+  OOPMetaData Data (OOPObjectId ObjId);
   /**
    * Returns the Data Version object of the Meta data identified by Id.
    * Necessary for inquiring the current version of the MetaData object.
    * @param Id Identifies the object to be inquired
    */
   //    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
-private:
 
 
   std::list< std::pair<int, OOPAccessTag> > fMessages;

@@ -641,13 +641,3 @@ void OOPMetaData::SendAccessRequest (const OOPAccessTag &tag)
   OOPDMRequestTask *req = new OOPDMRequestTask (Proc(),tag);
   TM->ExecuteDaemon (req);
 }
-void OOPMetaData::DeleteMe()
-{
-  #ifdef LOGPZ
-      stringstream sout;  
-      sout << "Submitting OOPDelObjectTask for " << fObjId;
-      LOGPZ_DEBUG(MetaLogger,sout.str());
-  #endif
-  OOPDelObjectTask * delTask = new OOPDelObjectTask(fObjId);
-  delTask->Submit();
-}

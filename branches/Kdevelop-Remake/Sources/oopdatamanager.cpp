@@ -19,19 +19,16 @@
 
 #include <sstream>
 #include <iostream>
-//#include "../gnu/gnudefs.h"
-//Includes for testing
-//#include "tmultidata.h"
-//#include "tmultitask.h"
 class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 class   OOPDataVersion;
-//class   OOPMetaData;
 class   OOPDMRequestTask;
 class   OOPDMOwnerTask;
 class   OOPSaveable;
 using namespace std;
 class   OOPObjectId;
+
+#include "oopdelobjecttask.h"
 
 #include <pzlog.h>
 #ifdef LOG4CXX
@@ -145,11 +142,35 @@ void OOPDataManager::RequestDelete(OOPObjectId & Id)
   sout << "Submitting Delete Request for Object Id:" << Id;
   LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
 #endif
+
   OOPDataVersion ver;
   ver.SetLevelVersion( 0,-1);
   OOPAccessTag tag(Id, EDelete, ver, -1);
   PostAccessRequest( tag);
 }
+void OOPDataManager::PostRequestDelete(OOPObjectId & Id)
+{
+  #ifdef LOGPZ
+  {
+    stringstream sout;  
+    sout << "Submitting OOPDelObjectTask for " << Id;
+    LOGPZ_DEBUG(MetaLogger,sout.str());
+  }
+  #endif
+  OOPDelObjectTask * delTask = new OOPDelObjectTask(Id);
+  delTask->Submit();
+
+}
+OOPMetaData OOPDataManager::Data (OOPObjectId ObjId)
+{
+  map<OOPObjectId, OOPMetaData>::iterator it = fObjects.end();
+  it = fObjects.find(ObjId);
+  if (it!=fObjects.end())
+  {
+    return it->second;
+  }
+}
+
 
 // vamos colocar o objeto numa pilha
 // retorna

@@ -23,6 +23,7 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMPIStorageBuffer"));
 #define PMPI_Pack_size MPI_Pack_size
 #define PMPI_Pack MPI_Pack
 #define PMPI_Send MPI_Send
+#define PMPI_Recv MPI_Recv
 #define PMPI_Test MPI_Test
 #define PMPI_Probe MPI_Probe
 #define PMPI_Unpack MPI_Unpack
@@ -85,8 +86,23 @@ int OOPMPIStorageBuffer::Send (int target)
   }
   int ret;
   int tag = 0;
+
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Calling MPI_Send on separate thread";
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+  }
+#endif
   ret = MPI_Send (&m_Buffer[0], m_Length, MPI_PACKED,
                   target, tag, MPI_COMM_WORLD);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "Called MPI_Send on separate thread";
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+  }
+#endif
 
 #ifdef DEBUGALL
   switch(ret)

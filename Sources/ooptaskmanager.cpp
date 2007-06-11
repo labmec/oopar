@@ -389,15 +389,14 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
     lTM->HandleMessages();
     {
       stringstream sout;
-      sout << "Called lTM->HandleMessages() | Calling DM->FlushData()\n";
+      sout << "Called lTM->HandleMessages()";
       #ifdef LOGPZ
       LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
-    //DM->FlushData();
     {
       stringstream sout;
-      sout << "Called DM->FlushData() | Calling lTM->TriggerTasks()\n";
+      sout << "Calling lTM->TriggerTasks()";
       #ifdef LOGPZ
       LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif

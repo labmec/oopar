@@ -9,16 +9,16 @@
     <ignoreparts/>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description></description>
+    <description/>
     <secondaryLanguages/>
     <projectname>oopar</projectname>
-    <defaultencoding></defaultencoding>
+    <defaultencoding/>
     <versioncontrol/>
   </general>
   <kdevautoproject>
     <general>
       <activetarget>Projects/TestTask/main</activetarget>
-      <useconfiguration>debug_mpe_logged</useconfiguration>
+      <useconfiguration>debug_mpe</useconfiguration>
     </general>
     <run>
       <mainprogram>/home/longhin/Projetos/OOPar/debug/Projects/TestTask/main</mainprogram>
@@ -95,7 +95,7 @@
       </debug_CFD>
       <debug_mpe_logged>
         <envvars/>
-        <configargs>--enable-debug=full --enable-mpi=yes --enable-mpe=yes --with-mpi-dir=/home/longhin/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=/home/longhin/Projetos/PZInstall --prefix=/home/longhin/Projetos/OOParInstall --enable-log4cxx=yes</configargs>
+        <configargs>--enable-debug=full --enable-mpi=yes --enable-mpe=yes --with-mpi-dir=$HOME/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=$HOME/Projetos/PZInstall --prefix=$HOME/Projetos/OOParInstall --enable-log4cxx=yes</configargs>
         <builddir>debug_mpe_logged</builddir>
         <topsourcedir/>
         <cppflags>-DMPICH_IGNORE_CXX_SEEK -DBLOCKING -DMTSEND</cppflags>
@@ -103,46 +103,29 @@
         <ccompiler>kdevgccoptions</ccompiler>
         <cxxcompiler>kdevgppoptions</cxxcompiler>
         <f77compiler>kdevpgf77options</f77compiler>
-        <ccompilerbinary>mpicc</ccompilerbinary>
-        <cxxcompilerbinary>mpicxx</cxxcompilerbinary>
+        <ccompilerbinary>$HOME/Projetos/MPIDebug/bin/mpicc</ccompilerbinary>
+        <cxxcompilerbinary>$HOME/Projetos/MPIDebug/bin/mpicxx</cxxcompilerbinary>
         <f77compilerbinary/>
         <cflags/>
         <cxxflags>-no-inline -O0 -g3</cxxflags>
         <f77flags/>
       </debug_mpe_logged>
-      <debug_loged>
+      <debug_mpe>
         <envvars/>
-        <configargs>--enable-debug=full --enable-mpi=yes --enable-mpe=no --with-mpi-dir=/home/longhin/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=/home/longhin/Projetos/PZInstall --prefix=/home/longhin/Projetos/OOParInstall --enable-log4cxx=yes</configargs>
-        <builddir>debug_loged</builddir>
+        <configargs>--enable-debug=full --enable-mpi=yes --enable-mpe=yes --with-mpi-dir=$HOME/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=$HOME/Projetos/PZInstall --prefix=$HOME/Projetos/OOParInstall --enable-log4cxx=no</configargs>
+        <builddir>debug_mpe</builddir>
         <topsourcedir/>
-        <cppflags>-DMPICH_IGNORE_CXX_SEEK -DBLOCKING -DMTSEND</cppflags>
+        <cppflags/>
         <ldflags/>
         <ccompiler>kdevgccoptions</ccompiler>
         <cxxcompiler>kdevgppoptions</cxxcompiler>
-        <f77compiler>kdevg77options</f77compiler>
-        <ccompilerbinary>mpicc</ccompilerbinary>
-        <cxxcompilerbinary>mpicxx</cxxcompilerbinary>
+        <f77compiler>kdevpgf77options</f77compiler>
+        <ccompilerbinary>$HOME/Projetos/MPIDebug/bin/mpicc</ccompilerbinary>
+        <cxxcompilerbinary>$HOME/Projetos/MPIDebug/bin/mpicxx</cxxcompilerbinary>
         <f77compilerbinary/>
         <cflags/>
-        <cxxflags/>
-        <f77flags/>
-      </debug_loged>
-      <debug_mpe>
-        <envvars/>
-        <configargs>--enable-debug=full --enable-mpi=yes --enable-mpe=yes --with-mpi-dir=/home/longhin/Projetos/MPIDebug --enable-pz=yes --with-pz-dir=/home/longhin/Projetos/PZInstall --prefix=/home/longhin/Projetos/OOParInstall</configargs>
-        <builddir>debug_mpe</builddir>
-        <topsourcedir></topsourcedir>
-        <cppflags></cppflags>
-        <ldflags></ldflags>
-        <ccompiler>kdevgccoptions</ccompiler>
-        <cxxcompiler>kdevgppoptions</cxxcompiler>
-        <f77compiler>kdevpgf77options</f77compiler>
-        <ccompilerbinary>mpicc</ccompilerbinary>
-        <cxxcompilerbinary>mpicxx</cxxcompilerbinary>
-        <f77compilerbinary></f77compilerbinary>
-        <cflags></cflags>
         <cxxflags>-no-inline -O0 -g3</cxxflags>
-        <f77flags></f77flags>
+        <f77flags/>
       </debug_mpe>
     </configurations>
     <make>
@@ -160,12 +143,12 @@
   </kdevautoproject>
   <kdevdebugger>
     <general>
-      <dbgshell></dbgshell>
+      <dbgshell/>
       <programargs>-np 4 ./main</programargs>
-      <gdbpath></gdbpath>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>true</separatetty>
       <floatingtoolbar>true</floatingtoolbar>
@@ -266,7 +249,7 @@
     </codecompletion>
     <references/>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>

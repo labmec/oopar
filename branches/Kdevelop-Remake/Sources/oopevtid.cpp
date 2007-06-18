@@ -1,15 +1,5 @@
 #ifdef OOP_MPE
 
-#include <sstream>
-#include <pzlog.h>
-#ifdef LOGPZ
-using namespace log4cxx;
-using namespace log4cxx::helpers;
-static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
-#endif
-
-
-
 #include "oopevtid.h"
 #include "oopevtmanager.h"
 
@@ -19,6 +9,16 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 #ifdef OOP_MPE
 #include "mpe.h"
 #endif
+
+
+#include <sstream>
+#include <pzlog.h>
+#ifdef LOGPZ
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
+#endif
+
 
 #ifdef OOP_MPE
 

@@ -60,7 +60,7 @@ OOPDataManager::OOPDataManager(int Procid)
   fLastCreated = 0;	// NUMOBJECTS * Procid;
   fKeepGoing = false;
   sem_init(&fServiceSemaphore, 0, 0);
-  fServiceThread = -1;
+  fServiceThread = 0;
 }
 
 OOPDataManager::~OOPDataManager ()
@@ -169,6 +169,7 @@ OOPMetaData OOPDataManager::Data (OOPObjectId ObjId)
   {
     return it->second;
   }
+  return OOPMetaData();
 }
 
 
@@ -733,7 +734,7 @@ void OOPDMRequestTask::Read(TPZStream & buf, void * context)
     std::stringstream sout;
     sout <<  "<--Receiving RequestTask with Tag:";
     fDepend.ShortPrint( sout);
-    LOG4CXX_DEBUG(DaemonLogger,sout.str().c_str());
+    LOGPZ_DEBUG(DaemonLogger,sout.str().c_str());
   }
 #endif
 }
@@ -748,7 +749,7 @@ void OOPDMRequestTask::Write (TPZStream & buf, int withclassid)
   std::stringstream sout;
 #ifdef LOGPZ
  sout << __PRETTY_FUNCTION__ << " Writing request task proc origin " << fDepend.Proc() << " fProc " << fProc;
- LOG4CXX_DEBUG(logger,sout.str().c_str());
+ LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   OOPDaemonTask::Write (buf, withclassid);
   fDepend.Write (buf, withclassid);

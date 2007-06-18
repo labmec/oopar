@@ -17,6 +17,18 @@
 //#include "ooptaskmanager.h"
 
 #include <sstream>
+//#include "oopcommmanager.h"
+
+#ifdef OOP_MPI
+#include "mpi.h"
+#endif
+#ifdef OOP_MPE
+
+#include "mpe.h"
+#endif
+
+#include "oopevtmanager.h"
+
 #include <pzlog.h>
 #ifdef LOGPZ
 using namespace log4cxx;
@@ -24,16 +36,6 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 #endif
 
-//#include "oopcommmanager.h"
-
-#ifdef OOP_MPI
-#include "mpi.h"
-#endif
-#ifdef OOP_MPE
-#include "mpe.h"
-#endif
-
-#include "oopevtmanager.h"
 
 #ifdef OOP_MPE
 //OOPEvtManager OOPTaskControl::s_EvtMan;

@@ -373,15 +373,14 @@ OOPTaskManager::ExecuteMTBlocking (void *data)
     lTM->TransferSubmittedTasks();
     {
       stringstream sout;
-      sout << "Called lTM->TransferSubmittedTasks() | Calling DM->HandleMessages()\n";
+      sout << "Called lTM->TransferSubmittedTasks()";
       #ifdef LOGPZ
       LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif
     }
-    //DM->HandleMessages();
     {
       stringstream sout;
-      sout << "Called DM->HandleMessages() | Calling lTM->HandleMessages()\n";
+      sout << "Calling lTM->HandleMessages()\n";
       #ifdef LOGPZ
       LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
       #endif

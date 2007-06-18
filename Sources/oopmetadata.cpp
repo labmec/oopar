@@ -297,7 +297,7 @@ void OOPMetaData::VerifyAccessRequests ()
 #ifdef LOGPZ
     stringstream sout;
     sout << "VerifyAccessRequests called with empty AvailableVersions for Object Id:" << this->fObjId;
-    LOG4CXX_DEBUG(MetaLogger,sout.str().c_str());
+    LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
 #endif
     return;
   }
@@ -315,7 +315,7 @@ void OOPMetaData::VerifyAccessRequests ()
     stringstream sout;
     sout << "Verifying Access Requests for Object Id:" << this->fObjId << " Count " << verit->second.Count() << " with access requests :";
     fAccessList.Print(sout);
-    LOG4CXX_DEBUG(MetaLogger,sout.str().c_str());
+    LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
 #endif
   }
 
@@ -326,7 +326,7 @@ void OOPMetaData::VerifyAccessRequests ()
     stringstream sout;
     sout << "Incompatible Requests found for Object Id:" << this->fObjId << " Count " << verit->second.Count() << " with access requests :";
     fAccessList.Print(sout);
-    LOG4CXX_DEBUG(MetaLogger,sout.str().c_str());
+    LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
 #endif
     if(tag.Proc() != DM->GetProcID())
     {
@@ -341,7 +341,7 @@ void OOPMetaData::VerifyAccessRequests ()
 #ifdef LOGPZ
       stringstream sout;
       sout << "Task cancelation from tag with Object Id:" << tag.Id() ;
-      LOG4CXX_DEBUG(MetaLogger,sout.str().c_str());
+      LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
 #endif
       TM->CancelTask(tag);
     }
@@ -453,7 +453,7 @@ void OOPMetaData::VerifyAccessRequests ()
     stringstream sout;
     sout << "Leaving Verifying Access Requests for Object Id:" << this->fObjId << " with access requests :";
     fAccessList.Print(sout);
-    LOG4CXX_DEBUG(MetaLogger,sout.str().c_str());
+    LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
   }
 #endif
 }
@@ -470,7 +470,7 @@ void OOPMetaData::ClearVersion(const OOPDataVersion & version)
 #ifdef LOGPZ
     stringstream sout;
     sout << "Cleaning Pointer on Object Id:" << Id() << " for Version " << it->first  ;
-    LOG4CXX_INFO(MetaLogger,sout.str().c_str());
+    LOGPZ_INFO(MetaLogger,sout.str().c_str());
 #endif
     fAvailableVersions.erase(it);
   }

@@ -14,7 +14,7 @@
 #ifdef OOP_MPE
 #include <map>
 #include <set>
-
+#include <string>
 //#include "oopevtid.h"
 
 /**

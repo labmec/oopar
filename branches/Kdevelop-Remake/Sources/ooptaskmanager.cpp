@@ -54,8 +54,8 @@ static LoggerPtr AccessLogger(Logger::getLogger("OOPar.OOPDataManager.OOPAccessT
 
 #endif
 
-// static ofstream
-// tlog ("TM_time_log.txt");
+static ofstream
+tlog ("TM_time_log.txt");
 
 
 void OOPTaskManager::SnapShotMe(std::ostream & out)
@@ -437,7 +437,7 @@ void OOPTaskManager::TriggerTasks()
     LOGPZ_DEBUG (logger, sout.str().c_str() );
   }
 #endif
-  while ((int)fExecutable.size())//  || (int)fExecuting.size())
+  while ((int)fExecutable.size() && (int)fExecuting.size() < this->NumberOfThreads())
   {
     i = fExecutable.begin ();
     OOPTaskControl *tc = (*i);
@@ -925,33 +925,15 @@ void OOPTaskManager::TransfertoExecutable (const OOPObjectId & taskid)
           ExecuteDaemon( dmt);
           tc->ZeroTask ();
           delete tc;
-          fTaskList.erase (i);
-        } 
-        else
-        {
-          if(fExecutable.size() < NumberOfThreads())
-          {
-#ifdef LOGPZ
-            std::stringstream sout;
-            sout << "Task " << taskid << " Sucessfuly Transferred to Executable list";
-            LOGPZ_DEBUG(logger, sout.str().c_str());
-#endif
-            fExecutable.push_back (tc);
-            fTaskList.erase (i);
-          }
-          else
-          {
-#ifdef LOGPZ
-            std::stringstream sout;
-            sout << "Task execution postponed ! Maximum number of threads " 
-                 << NumberOfThreads() << " exceeded";
-            LOGPZ_DEBUG(logger, sout.str().c_str());
-#endif
-          }
+        } else {
+          fExecutable.push_back (tc);
         }
+        fTaskList.erase (i);
+//        WakeUpCall();
         break;
       }
     }
+    //WakeUpCall();
   }
 }
 

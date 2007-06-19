@@ -55,11 +55,37 @@ int OOPMPIStorageBuffer::ResetBuffer (int size)
 int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
 {
   int nbytes;
-  PMPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
+  try
+  {
+    PMPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
+  }
+  catch(const exception& e)
+  {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << "Exception catched on PMPI_Pack_size! " << e.what();
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
+    std::cout << "Exception catched! " << e.what();
+    exit(-1);
+  }
   m_Buffer.Resize(m_Length+nbytes);
   int mpiret;
-  mpiret = PMPI_Pack (ptr, n, mpitype, &m_Buffer[0], m_Buffer.NElements(), &m_Length,
+  try
+  {
+    mpiret = PMPI_Pack (ptr, n, mpitype, &m_Buffer[0], m_Buffer.NElements(), &m_Length,
                       MPI_COMM_WORLD);
+  }
+  catch(const exception& e)
+  {
+#ifdef LOGPZ
+    stringstream sout;
+    sout << "Exception catched on PMPI_Pack! " << e.what();
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
+    std::cout << "Exception catched! " << e.what();
+    exit(-1);
+  }
   return mpiret;
 }
 int OOPMPIStorageBuffer::Send (int target)
@@ -71,15 +97,15 @@ int OOPMPIStorageBuffer::Send (int target)
     sout << "PID" << getpid() << " Called MPI_Send ret = ";
     LOGPZ_DEBUG(logger,sout.str().c_str()):
 #endif
-      }
+  }
 #endif
   if(m_Length >= MAXSIZE)
-{
+  {
 #ifdef LOGPZ
     std::stringstream st;
-    st << __PRETTY_FUNCTION__ << " Sending a message of size " <<
-      m_Length << " maxsize = " << MAXSIZE << " FATAL THINGS WILL HAPPEN ";
-    LOGPZ_ERROR(logger,st.str());
+    st << " Sending a message of size " <<
+      m_Length << " which is bigger than maxsize = " << MAXSIZE << " Buffer will be resized";
+    LOGPZ_DEBUG(logger,st.str());
     std::cout << st.str() << endl;
 #endif
 
@@ -94,8 +120,23 @@ int OOPMPIStorageBuffer::Send (int target)
     LOGPZ_DEBUG(logger,sout.str().c_str());
   }
 #endif
-  ret = MPI_Send (&m_Buffer[0], m_Length, MPI_PACKED,
+  try
+  {
+    
+    ret = MPI_Send (&m_Buffer[0], m_Length, MPI_PACKED,
                   target, tag, MPI_COMM_WORLD);
+  }
+  catch(const exception& e)
+  {
+#ifdef LOGPZ
+    {
+      stringstream sout;
+      sout << "Exception catched ! " << e.what();
+      LOGPZ_ERROR(logger,sout.str().c_str());
+      exit (-1);
+    }
+#endif
+  }
 #ifdef LOGPZ
   {
     stringstream sout;
@@ -292,9 +333,37 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
 {
   MPI_Status status;
   int probres=-1;
-  probres = PMPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG,MPI_COMM_WORLD, &status);
+  try
+  {
+    probres = PMPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG,MPI_COMM_WORLD, &status);
+  }
+  catch(const exception & e)
+  {
+#ifdef LOGPZ
+    {
+      stringstream sout;
+      sout << "Exception catched on PMPI_Probe ! " << e.what();
+      LOGPZ_ERROR(logger,sout.str().c_str());
+    }
+#endif
+    std::cout << "Exception catched on PMPI_Probe ! " << e.what();
+    exit(-1);
+  }
   int count = -1;
-  PMPI_Get_count(&status, MPI_PACKED , &count);
+  try
+  {
+    PMPI_Get_count(&status, MPI_PACKED , &count);
+  }
+  catch(const exception & e)
+  {
+    stringstream sout;
+    sout << "Exception catched on PMPI_Get_count ! " << e.what();
+#ifdef LOGPZ
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
+    cout << sout.str().c_str();
+    exit(-1);
+  }
 #ifdef LOGPZ
   {
     stringstream sout;
@@ -311,8 +380,21 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   {
     m_Buffer.Resize(1);
   }
-  res = MPI_Recv (&m_Buffer[0], count , MPI_PACKED, MPI_ANY_SOURCE,
-                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;
+  try
+  {
+    res = MPI_Recv (&m_Buffer[0], count , MPI_PACKED, MPI_ANY_SOURCE,
+                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;  
+  }
+  catch(const exception & e)
+  {
+    stringstream sout;
+    sout << "Exception catched on PMPI_recv ! " << e.what();
+#ifdef LOGPZ
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
+    cout << sout.str().c_str();
+    exit(-1);
+  }
   if(res == MPI_SUCCESS)
   {
     return 1;

@@ -326,6 +326,8 @@ void OOPMetaData::VerifyAccessRequests ()
     stringstream sout;
     sout << "Incompatible Requests found for Object Id:" << this->fObjId << " Count " << verit->second.Count() << " with access requests :";
     fAccessList.Print(sout);
+    sout << " Current Tag ";
+    tag.Print(sout);
     LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
 #endif
     if(tag.Proc() != DM->GetProcID())

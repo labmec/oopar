@@ -1,4 +1,4 @@
-
+// 
 #include "mpi.h"
 #include <stdio.h>
 
@@ -36,16 +36,34 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
   f_myself = -1;
   f_num_proc = 0;
   fReceiveThreadExists=false;
-  cout << "Initializing MPI !\n Calling MPI_Init\n";
-  cout.flush();
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Initializing MPICommManager";
-    cout << sout.str().c_str();//LOGPZ_INFO(logger, sout.str());
+    sout << "Initializing MPICommManager" << std::endl;
+    cout << sout.str().c_str();
+    cout.flush();
   }
 #endif
-  MPI_Init(&argc,&argv);
+  int MT_Wanted = MPI_THREAD_MULTIPLE;
+  int MT_Provided = 0;
+  MPI_Init_thread(&argc,&argv, MT_Wanted, &MT_Provided);
+  if(MT_Wanted != MT_Provided)
+  {
+    stringstream sout;
+    sout << " ATTENTION ! Required Multi-Threading Level Differs from Provided MT Level\n";
+    sout << "Wanted Level " << MT_Wanted << " Received Level " << MT_Provided << std::endl;
+    cout << sout.str().c_str();//LOGPZ_INFO(logger, sout.str());
+    cout.flush();
+  }
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "MPI_Init_thread called. Provided MT Level = " << MT_Provided << std::endl;
+    cout << sout.str().c_str();//LOGPZ_INFO(logger, sout.str());
+    cout.flush();
+  }
+#endif
+  
   Initialize((char*)argv, argc);
 #ifdef OOP_MPE
   //MPE_Init_log();
@@ -182,21 +200,17 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
     delete pTask;
     return -1;
   }
-  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!000" << endl;
-  //OOPMPIStorageBuffer Buffer;
-  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111" << endl;
-  pTask->Write (f_buffer, 1);
-  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!222" << endl;
-  f_buffer.Send(process_id);
-  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!333" << endl;
+  pthread_mutex_lock(&fCommunicate);
+  OOPMPIStorageBuffer Buffer;
+  pTask->Write (Buffer, 1);
+  Buffer.Send(process_id);
   delete pTask;
-  cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!444" << endl;
+  pthread_mutex_unlock(&fCommunicate);
   return 1;
 #endif
 };
 int OOPMPICommManager::ReceiveMessages ()
 {
-
   f_buffer.Receive();
   while(f_buffer.TestReceive()) {
     ProcessMessage(f_buffer);
@@ -286,13 +300,13 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
 #endif
   return NULL;
 }
-void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t){
+void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t)
+{
   OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
 #ifdef DEBUG
   LOGPZ_DEBUG(logger,"ReceiveMsgBlocking \n");
 #endif
   while (1){
-
     OOPMPIStorageBuffer msg;
     pthread_mutex_lock(&fCommunicate);
     int ret = msg.ReceiveBlocking();
@@ -337,13 +351,13 @@ int OOPMPICommManager::ReceiveBlocking ()
     LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   }
-
   return 1;
 };
 int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 {
-
+  pthread_mutex_lock(&fCommunicate);
   TPZSaveable *obj = msg.Restore ();
+  pthread_mutex_unlock(&fCommunicate);
   if (obj == NULL && this->fKeepReceiving) {
     Finish( "ReceiveMessages <Erro em Restore() do objeto>.\n" );
   }
@@ -422,4 +436,3 @@ void OOPMPICommManager::UnlockReceiveBlocking()
   }
 #endif
 }
-

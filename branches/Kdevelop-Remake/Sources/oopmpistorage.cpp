@@ -154,7 +154,7 @@ int OOPMPIStorageBuffer::Send (int target)
 #ifdef LOGPZ
         stringstream sout;
         sout <<" - No error; MPI routine completed successfully";
-        LOGPZ_ERROR(logger,sout.str().c_str());
+        LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
         break;
       }
@@ -332,6 +332,7 @@ TPZSaveable *OOPMPIStorageBuffer::Restore ()
   m_IsReceiving = 0;
   m_Length = 0;
   TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
+  this->ResetBuffer(0);
 #ifdef LOGPZ
   {
     stringstream sout;
@@ -411,11 +412,20 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   }
   if(res == MPI_SUCCESS)
   {
-    return 1;
+    stringstream sout;
+    sout << "MPI_Recv called successfully ! ";
+#ifdef LOGPZ
+    LOGPZ_DEBUG(logger,sout.str().c_str());
+#endif
+     return 1;
   }
   else
   {
-    cout << "Falhou Recv\n";
+    stringstream sout;
+    sout << "MPI_Recv called FAILED! ";
+#ifdef LOGPZ
+    LOGPZ_ERROR(logger,sout.str().c_str());
+#endif
     return -1;
   }
 }

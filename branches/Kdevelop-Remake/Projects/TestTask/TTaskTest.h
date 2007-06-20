@@ -2,11 +2,13 @@
 #define TTASKTEST_H
 #include "ooptask.h"
 #include "pzsave.h"
+#include "pzfmatrix.h"
 
 #define TTASKTEST_ID 1000
 
 class   TTaskTest :public OOPTask
 {
+  TPZFMatrix m_Matrix;
 public:
 	virtual ~TTaskTest(){}
 	
@@ -14,7 +16,7 @@ public:
 	/**
      * Simple constructor  
      */
-	TTaskTest (int ProcId) : OOPTask(ProcId) {} 
+	TTaskTest (int ProcId) : OOPTask(ProcId) , m_Matrix(100,1000,1.) {} 
     /**
 	* Execute the task, verifying that all needed data acesses are satisfied.
 	* The TParCompute is OOPTask descendent class and this method provides the access by the TaskManager.

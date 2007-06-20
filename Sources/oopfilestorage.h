@@ -21,8 +21,8 @@
 #define _STR_FILEHH_
 #include <oopstorage.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
+#include <string>
 #define FILE_NAME_SIZE  16
 /*********************/
 class   OOPSendStorageFile:public OOPSendStorage

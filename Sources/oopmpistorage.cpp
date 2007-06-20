@@ -101,6 +101,7 @@ int OOPMPIStorageBuffer::Send (int target)
 #endif
   if(m_Length >= MAXSIZE)
   {
+
 #ifdef LOGPZ
     std::stringstream st;
     st << " Sending a message of size " <<
@@ -116,7 +117,7 @@ int OOPMPIStorageBuffer::Send (int target)
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Calling MPI_Send on separate thread";
+    sout << "Calling MPI_Send";
     LOGPZ_DEBUG(logger,sout.str().c_str());
   }
 #endif
@@ -140,59 +141,72 @@ int OOPMPIStorageBuffer::Send (int target)
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "Called MPI_Send on separate thread";
+    sout << "Called MPI_Send";
     LOGPZ_DEBUG(logger,sout.str().c_str());
   }
 #endif
 
-#ifdef DEBUGALL
+#ifdef DEBUG
   switch(ret)
   {
       case MPI_SUCCESS:
-
+      {
 #ifdef LOGPZ
-      stringstream sout;
-      sout <<" - No error; MPI routine completed successfully";
-      LOGPZ_ERROR(logger,sout.str().c_str()):
+        stringstream sout;
+        sout <<" - No error; MPI routine completed successfully";
+        LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-          break;
+        break;
+      }
       case MPI_ERR_COMM:
+      {
 #ifdef LOGPZ
-      stringstream sout;
-      sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).";
-      LOGPZ_ERROR(logger,sout.str().c_str()):
+        stringstream sout;
+        sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).";
+        LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-          break;
+        break;
+      }
       case MPI_ERR_COUNT:
+      {
 #ifdef LOGPZ
-      stringstream sout;
-      sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid";
-      LOGPZ_ERROR(logger,sout.str().c_str()):
+        
+        stringstream sout;
+        sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid";
+        LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
           break;
+      }
       case MPI_ERR_TYPE:
+      {
 #ifdef LOGPZ
-      stringstream sout;
-      sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).";
-      LOGPZ_ERROR(logger,sout.str().c_str()):
+        stringstream sout;
+        sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).";
+        LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-          break;
+        break;
+      }
       case MPI_ERR_TAG:
+      {
 #ifdef LOGPZ
-      stringstream sout;
-      sout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
-      << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
-      << "be MPI_ANY_TAG .  The largest tag value is available through the\n"
-      << "the attribute MPI_TAG_UB .";
-      LOGPZ_ERROR(logger,sout.str().c_str()):
+        stringstream sout;
+        sout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
+        << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
+        << "be MPI_ANY_TAG .  The largest tag value is available through the\n"
+        << "the attribute MPI_TAG_UB .";
+        LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-          break;
+        break;
+      }
       case MPI_ERR_RANK:
+      {
 #ifdef LOGPZ
-      sout << "-  Invalid  source  or  destination rank.";
-      LOGPZ_ERROR(logger,sout.str().c_str()):
+        stringstream sout;
+        sout << "-  Invalid  source  or  destination rank.";
+        LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-          break;
+        break;
+      }
   }
   cout.flush();
 #endif

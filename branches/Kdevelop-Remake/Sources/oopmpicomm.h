@@ -49,7 +49,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * Nonblocking receive. If there is a posted message to 
    * receive, receives it and returns 1. Else, returns 0
    */
-  int     ReceiveMessages ();
+  //int     ReceiveMessages ();
   int ReceiveMessagesBlocking();
   /**
    * Blocking receive. Execution stops and waits until a 
@@ -96,7 +96,7 @@ class   OOPMPICommManager:public OOPCommunicationManager
   /**
    * Send and receive buffer are the same
    */
-  OOPMPIStorageBuffer f_buffer;
+  //OOPMPIStorageBuffer f_buffer;
 
   int     f_argc;
   /** Communication argument */

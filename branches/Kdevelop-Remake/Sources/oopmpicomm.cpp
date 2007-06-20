@@ -56,7 +56,7 @@ OOPMPICommManager::OOPMPICommManager (int &argc, char **argv)
     cout.flush();
   }
 #ifdef LOGPZ
-  {
+  { 
     stringstream sout;
     sout << "MPI_Init_thread called. Provided MT Level = " << MT_Provided << std::endl;
     cout << sout.str().c_str();//LOGPZ_INFO(logger, sout.str());
@@ -154,8 +154,10 @@ void * OOPMPICommManager::SendTaskMT(void * Data)
     return NULL;
   }
   OOPMPIStorageBuffer lLocalBuffer;
-  pTask->Write (lLocalBuffer, 1);
+  pthread_mutex_lock(&fCommunicate);
+  pTask->Write(lLocalBuffer, 1);
   lLocalBuffer.Send(process_id);
+  pthread_mutex_unlock(&fCommunicate);
   delete pTask;
   return NULL;
 
@@ -203,13 +205,13 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
   pthread_mutex_lock(&fCommunicate);
   OOPMPIStorageBuffer Buffer;
   pTask->Write (Buffer, 1);
+  pthread_mutex_unlock(&fCommunicate);
   Buffer.Send(process_id);
   delete pTask;
-  pthread_mutex_unlock(&fCommunicate);
   return 1;
 #endif
 };
-int OOPMPICommManager::ReceiveMessages ()
+/*int OOPMPICommManager::ReceiveMessages ()
 {
   f_buffer.Receive();
   while(f_buffer.TestReceive()) {
@@ -217,7 +219,7 @@ int OOPMPICommManager::ReceiveMessages ()
     f_buffer.Receive();
   }
   return 1;
-};
+};*/
 int OOPMPICommManager::ReceiveMessagesBlocking()
 {
   int res = -1;
@@ -262,7 +264,8 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
   }
 #endif
   while (LocalCM->fKeepReceiving){
-    int ret = LocalCM->f_buffer.ReceiveBlocking();
+    OOPMPIStorageBuffer lRecBuffer;
+    int ret = lRecBuffer.ReceiveBlocking();
     if (ret <= 0)
     {
 #ifdef LOGPZ
@@ -281,7 +284,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
       LOGPZ_DEBUG(logger,sout.str().c_str());
     }
 #endif
-    LocalCM->ProcessMessage(LocalCM->f_buffer);
+    LocalCM->ProcessMessage(lRecBuffer);
 #ifdef LOGPZ
     {
       stringstream sout;
@@ -300,31 +303,31 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
 #endif
   return NULL;
 }
-void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t)
-{
-  OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
-#ifdef DEBUG
-  LOGPZ_DEBUG(logger,"ReceiveMsgBlocking \n");
-#endif
-  while (1){
-    OOPMPIStorageBuffer msg;
-    pthread_mutex_lock(&fCommunicate);
-    int ret = msg.ReceiveBlocking();
-    pthread_mutex_unlock(&fCommunicate);
-    // se houver erro, Kill
-    if (ret <= 0) {
-      LocalCM->Finish("ReceiveBlocking <receive error>");
-    }
-#ifdef DEBUG
-    LOGPZ_DEBUG(logger,"Calling ProcessMessage\n");
-#endif
-    LocalCM->ProcessMessage (msg);
-  }
-  return NULL;
+// void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t)
+// {
+//   OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
+// #ifdef DEBUG
+//   LOGPZ_DEBUG(logger,"ReceiveMsgBlocking \n");
+// #endif
+//   while (1){
+//     OOPMPIStorageBuffer msg;
+//     pthread_mutex_lock(&fCommunicate);
+//     int ret = msg.ReceiveBlocking();
+//     pthread_mutex_unlock(&fCommunicate);
+//     // se houver erro, Kill
+//     if (ret <= 0) {
+//       LocalCM->Finish("ReceiveBlocking <receive error>");
+//     }
+// #ifdef DEBUG
+//     LOGPZ_DEBUG(logger,"Calling ProcessMessage\n");
+// #endif
+//     LocalCM->ProcessMessage (msg);
+//   }
+//   return NULL;
+// 
+// }
 
-}
-
-int OOPMPICommManager::ReceiveBlocking ()
+/*int OOPMPICommManager::ReceiveBlocking ()
 {
   if(!CM->GetProcID()){
 #ifdef LOGPZ
@@ -352,7 +355,7 @@ int OOPMPICommManager::ReceiveBlocking ()
 #endif
   }
   return 1;
-};
+};*/
 int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 {
   pthread_mutex_lock(&fCommunicate);
@@ -378,7 +381,7 @@ int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 void OOPMPICommManager::Finish(char * msg){
   cout << msg << endl;
   cout.flush();
-  f_buffer.CancelRequest();
+  //f_buffer.CancelRequest();
   cout << "Processor " << f_myself  << " reached synchronization point !" << endl;
 //  MPI_Barrier( MPI_COMM_WORLD );
   cout << "Calling Finilize for " << f_myself << endl;
@@ -409,13 +412,15 @@ void OOPMPICommManager::UnlockReceiveBlocking()
   }
 #endif
   fKeepReceiving = false;
-  int ret;
+  //int ret;
   int classid = -1;
   //char * buff = new char[1];
   //TPZSaveable *buff = new OOPInt();
+  pthread_mutex_lock(&fCommunicate);
   OOPMPIStorageBuffer buff;
   buff.PkInt( &classid, 1);
   buff.Send( CM->GetProcID() );
+  pthread_mutex_unlock(&fCommunicate);
   //ret = PMPI_Send (&buff[0], 1, MPI_PACKED, CM->GetProcID(), tag, MPI_COMM_WORLD);
 #ifdef LOGPZ
   {

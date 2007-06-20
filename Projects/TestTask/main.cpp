@@ -74,32 +74,34 @@ int debugmpimain(int argc, char **argv)
     IdB = DM->SubmitObject(intb);
     cout << "Submitted OOPInt object Id " << IdA << endl;
     int i = 0;
-    for(i = 0; i< 10;i++)
+    for(i = 0; i< 4;i++)
     {
       TTaskTest * tta = new TTaskTest(0);
       TTaskTest * ttb = new TTaskTest(1);
       TTaskTest * ttc = new TTaskTest(2);
-  
+   
       tta->AddDependentData(OOPAccessTag(
                               IdA, EWriteAccess, ver,0));
-      tta->Submit();
+      
       ++ver;
       ttb->AddDependentData( OOPAccessTag(
                               IdA, EWriteAccess, ver,0));
-      ttb->Submit();
+      
       ++ver;
       ttc->AddDependentData( OOPAccessTag(
                               IdA, EWriteAccess, ver,0));
       ttc->AddDependentData( OOPAccessTag(
                               IdB, EWriteAccess, verb,0));
-      ttc->Submit();
       ++verb;
+      tta->Submit();
+      ttb->Submit();
+      ttc->Submit();
     }
     OOPWaitTask * wt = new OOPWaitTask(0);
     wt->AddDependentData(  OOPAccessTag(
                              IdB, EWriteAccess, verb,0));
     wt->Submit();
-    DM->PostRequestDelete(IdA);
+    //DM->PostRequestDelete(IdA);
     wt->Wait();
     wt->Finish();
     //sleep(5);

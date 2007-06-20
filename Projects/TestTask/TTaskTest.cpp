@@ -19,12 +19,14 @@ OOPMReturnType TTaskTest::Execute(){
 void TTaskTest::Write(TPZStream & buf, int withclassid){
 	OOPTask::Write(buf, withclassid);
 	m_Matrix.Write(buf,0);
+	m_Mesh.Write(buf,0);
 	int clsid = ClassId();
 	buf.Write(&clsid);
 }
 void TTaskTest::Read(TPZStream & buf, void * context){
 	OOPTask::Read(buf, context);
 	m_Matrix.Read(buf,0);
+	m_Mesh.Read(buf,0);
 	int clsid = 0;
 	buf.Read(&clsid);
 	if(ClassId()!=clsid){

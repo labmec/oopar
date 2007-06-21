@@ -10,7 +10,7 @@
 
 #include <semaphore.h>
 
-
+ 
 /**
    Non abstract class which implements the OOPar Communicator Manager using the MPI (Message Passing Interface) communication libray.
 */
@@ -44,32 +44,27 @@ class   OOPMPICommManager:public OOPCommunicationManager
   void UnlockReceiveBlocking();
   /* Sends all messages in all buffers
    */
-  virtual int SendMessages ();
-  /** 
-   * Nonblocking receive. If there is a posted message to 
-   * receive, receives it and returns 1. Else, returns 0
-   */
-  //int     ReceiveMessages ();
-  int ReceiveMessagesBlocking();
+  virtual int SendMessages();
   /**
    * Blocking receive. Execution stops and waits until a 
-   * posted message is received
+   * posted message is received. This methos triggers listening thread, which is implemented by 
+   * ReceiveMsgBlocking.
    */
-  int     ReceiveBlocking ();
+  int ReceiveMessagesBlocking();
   /**
    * Multithreading blocking receive
    */
   static void * ReceiveMsgBlocking (void *t);
-  static void * ReceiveMsgNonBlocking (void *t);
+  
   /**
    * Retorna 0 se o processo n� tiver sido disparado 
    * pelo console. What does it really mean?
    */
-  int     IAmTheMaster ();
+  int IAmTheMaster();
   /**
    * Used for error management
    */
-  char   *ClassName ();
+  char *ClassName();
         
  protected:
   /**
@@ -80,24 +75,20 @@ class   OOPMPICommManager:public OOPCommunicationManager
    * Unpacks the received message
    * @param msg Received message to be unpacked
    */
-  int     ProcessMessage (OOPMPIStorageBuffer & msg);
+  int ProcessMessage (OOPMPIStorageBuffer & msg);
   /**
    * Function called by TCommunicationManager::
    * SendTask(TTask*). Packs the message to be sent to
    * a SendStorage Buffer.
    * @param *pTask Pointer to TTask object to be packed.
    */
-  int     SendTask (OOPTask * pTask);
-  /** Array of send buffers */
-  //OOPMPISendStorage f_sendbuffer;
-  /** Reception object for non blocking receive */
-  //OOPMPIStorageBuffer f_receivebuffer;
-  /** Communication argument */
+  int SendTask (OOPTask * pTask);
   /**
-   * Send and receive buffer are the same
+   * Receive buffer.
    */
-  //OOPMPIStorageBuffer f_buffer;
+  OOPMPIStorageBuffer m_RecvBuffer;
 
+  /** Communication argument */
   int     f_argc;
   /** Communication argument */
   char  **f_argv;

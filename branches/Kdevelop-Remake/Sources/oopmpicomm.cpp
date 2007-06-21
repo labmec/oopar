@@ -211,15 +211,6 @@ int OOPMPICommManager::SendTask (OOPTask * pTask)
   return 1;
 #endif
 };
-/*int OOPMPICommManager::ReceiveMessages ()
-{
-  f_buffer.Receive();
-  while(f_buffer.TestReceive()) {
-    ProcessMessage(f_buffer);
-    f_buffer.Receive();
-  }
-  return 1;
-};*/
 int OOPMPICommManager::ReceiveMessagesBlocking()
 {
   int res = -1;
@@ -264,14 +255,13 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
   }
 #endif
   while (LocalCM->fKeepReceiving){
-    OOPMPIStorageBuffer lRecBuffer;
-    int ret = lRecBuffer.ReceiveBlocking();
+    int ret = LocalCM->m_RecvBuffer.ReceiveBlocking();
     if (ret <= 0)
     {
 #ifdef LOGPZ
       {
         stringstream sout;
-        sout << "LocalCM->f_buffer.ReceiveBlocking() returned <= 0\nThis is Communication problem\nFarewell";
+        sout << "LocalCM->m_RecvBuffer.ReceiveBlocking() returned <= 0\nThis is Communication problem\nFarewell";
         LOGPZ_ERROR(logger,sout.str().c_str());
       }
 #endif
@@ -284,7 +274,7 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
       LOGPZ_DEBUG(logger,sout.str().c_str());
     }
 #endif
-    LocalCM->ProcessMessage(lRecBuffer);
+    LocalCM->ProcessMessage(LocalCM->m_RecvBuffer);
 #ifdef LOGPZ
     {
       stringstream sout;
@@ -303,59 +293,6 @@ void * OOPMPICommManager::ReceiveMsgBlocking (void *t)
 #endif
   return NULL;
 }
-// void * OOPMPICommManager::ReceiveMsgNonBlocking (void *t)
-// {
-//   OOPMPICommManager *LocalCM=(OOPMPICommManager *)CM;
-// #ifdef DEBUG
-//   LOGPZ_DEBUG(logger,"ReceiveMsgBlocking \n");
-// #endif
-//   while (1){
-//     OOPMPIStorageBuffer msg;
-//     pthread_mutex_lock(&fCommunicate);
-//     int ret = msg.ReceiveBlocking();
-//     pthread_mutex_unlock(&fCommunicate);
-//     // se houver erro, Kill
-//     if (ret <= 0) {
-//       LocalCM->Finish("ReceiveBlocking <receive error>");
-//     }
-// #ifdef DEBUG
-//     LOGPZ_DEBUG(logger,"Calling ProcessMessage\n");
-// #endif
-//     LocalCM->ProcessMessage (msg);
-//   }
-//   return NULL;
-// 
-// }
-
-/*int OOPMPICommManager::ReceiveBlocking ()
-{
-  if(!CM->GetProcID()){
-#ifdef LOGPZ
-    stringstream sout;
-    sout << __PRETTY_FUNCTION__ << __LINE__ << "before receivemessages " << CM->GetProcID();
-    LOGPZ_DEBUG(logger,sout.str().c_str());
-#endif
-  }
-
-  f_buffer.ReceiveBlocking();
-  if(f_buffer.TestReceive()) {
-    ProcessMessage (f_buffer);
-    f_buffer.Receive();
-  } else {
-    //		cout << "OOPMPICommManager::ReceiveBlocking I dont understand\n";
-  }
-#ifdef DEBUG
-  //  sleep(1);
-#endif
-  if(!CM->GetProcID()){
-#ifdef LOGPZ
-    stringstream sout;
-    sout << __PRETTY_FUNCTION__ << __LINE__ << "after receivemessages " << CM->GetProcID();
-    LOGPZ_DEBUG(logger,sout.str().c_str());
-#endif
-  }
-  return 1;
-};*/
 int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 {
   pthread_mutex_lock(&fCommunicate);
@@ -381,9 +318,9 @@ int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
 void OOPMPICommManager::Finish(char * msg){
   cout << msg << endl;
   cout.flush();
-  //f_buffer.CancelRequest();
+  m_RecvBuffer.CancelRequest();
   cout << "Processor " << f_myself  << " reached synchronization point !" << endl;
-//  MPI_Barrier( MPI_COMM_WORLD );
+  MPI_Barrier( MPI_COMM_WORLD );
   cout << "Calling Finilize for " << f_myself << endl;
   cout.flush();
   MPI_Finalize();
@@ -412,16 +349,12 @@ void OOPMPICommManager::UnlockReceiveBlocking()
   }
 #endif
   fKeepReceiving = false;
-  //int ret;
   int classid = -1;
-  //char * buff = new char[1];
-  //TPZSaveable *buff = new OOPInt();
   pthread_mutex_lock(&fCommunicate);
   OOPMPIStorageBuffer buff;
   buff.PkInt( &classid, 1);
   buff.Send( CM->GetProcID() );
   pthread_mutex_unlock(&fCommunicate);
-  //ret = PMPI_Send (&buff[0], 1, MPI_PACKED, CM->GetProcID(), tag, MPI_COMM_WORLD);
 #ifdef LOGPZ
   {
     std::stringstream sout;
@@ -429,7 +362,6 @@ void OOPMPICommManager::UnlockReceiveBlocking()
     LOGPZ_DEBUG(logger,sout.str().c_str());
     cout << sout.str().c_str() << endl;
   }
-//  delete [] buff;
 #endif
   pthread_join(fReceiveThread, NULL);
 #ifdef LOGPZ

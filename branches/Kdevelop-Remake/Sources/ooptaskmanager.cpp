@@ -727,7 +727,6 @@ void OOPTaskManager::CancelTask (OOPAccessTag & tag)
 }
 void OOPTaskManager::Execute ()
 {
-//      pthread_t execute_thread;
   {
 #ifdef LOGPZ
     stringstream sout;
@@ -735,10 +734,11 @@ void OOPTaskManager::Execute ()
     LOGPZ_DEBUG (logger, sout.str().c_str());
 #endif
   }
+  MPI_Barrier(MPI_COMM_WORLD);
 #ifdef BLOCKING
-   if (pthread_create (&fExecuteThread, NULL, ExecuteMTBlocking, this)) {
+  if (pthread_create (&fExecuteThread, NULL, ExecuteMTBlocking, this)) {
 #else
-   if (pthread_create (&fExecuteThread, NULL, ExecuteMT, this)) {
+  if (pthread_create (&fExecuteThread, NULL, ExecuteMT, this)) {
 #endif
 #ifdef LOGPZ
     stringstream sout;

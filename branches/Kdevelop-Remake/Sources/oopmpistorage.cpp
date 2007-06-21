@@ -104,9 +104,7 @@ int OOPMPIStorageBuffer::Send (int target)
 
 #ifdef LOGPZ
     std::stringstream st;
-    st << " Sending a message of size " <<
-      m_Length << " which is bigger than maxsize = " << MAXSIZE << " Buffer will be resized";
-    LOGPZ_DEBUG(logger,st.str());
+    st << "Sending " << m_Length << " Bytes to Processor " << target;
     std::cout << st.str() << endl;
 #endif
 

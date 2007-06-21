@@ -102,7 +102,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
 #ifdef LOGPZ
   {
   stringstream sout;
-  sout << "Task T:" << tc->fTask->Id() << " Finished";
+  sout << "Task T:" << tc->fTask->Id() << " ClassId CId:" << lClassId << " Finished";
   LOGPZ_DEBUG(tasklogger,sout.str().c_str());
   }
 #endif

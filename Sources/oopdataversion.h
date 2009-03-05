@@ -50,54 +50,58 @@ public:
 	/**
 	 * Returns true when the state of the current data is sufficient
 	 * for a task to start executing
+  * the current object stands for the requested version
+  * the parameter stands for the version of the data
 	 */
-	bool    CanExecute (const OOPDataVersion & version) const;
+	bool    CanExecute (const OOPDataVersion & dataversion) const;
 	/**
      * Increments version with a call to Increment method
 	 */
-	void    operator ++ ();
-	/**
-     * Streams out TDataVersion data structure
-	 */
-	void    Print (std::ostream & out = std::cout) const;
-	std::ostream & ShortPrint(std::ostream &out = std::cout) const;
-	/**
-	 * Operator overloaded
-	 */
-	        OOPDataVersion & operator = (const OOPDataVersion & version);
-	/**
-	 * Operator overloaded
-	 */
-	bool    operator == (const OOPDataVersion & version) const;
-	/**
-	 * Overloaded operator
-	 */
-	bool    operator < (const OOPDataVersion & version);
-	bool    operator > (const OOPDataVersion & version);
-	/**
-     * Implements the abstraction of data version incrementation.
-	 * The class will perform necessary checks to either increment only
-	 * its cardinality or also its level. 
-     */
-	void    Increment ();
-	/**
-	 * Adds a new level to the dataversion object
-	 * @param cardinality : New level is created with depth cardinality
-	 */
-	void    IncrementLevel (int cardinality);
-	/**
-	 * Deletes last level
-	 */
-	void    DecreaseLevel ();
-    /**
-     * Simple constructor 
-     */
-	        OOPDataVersion ();
-    /**
-     * Constructor setting n Level parameter. Depth will be set to 1.
-     * @param Level : Level to be set 
-     */
-	        OOPDataVersion (int cardinality);
+	void operator ++ ();
+        void operator ++ (int);
+        /**
+          * Streams out TDataVersion data structure
+          */
+  void    Print (std::ostream & out) const;
+  std::ostream & ShortPrint(std::ostream &out) const;
+  /**
+   * Operator overloaded
+   */
+          OOPDataVersion & operator = (const OOPDataVersion & version);
+  /**
+   * Operator overloaded
+   */
+  bool    operator == (const OOPDataVersion & version) const;
+  /**
+   * Overloaded operator
+   */
+  bool    operator < (const OOPDataVersion & version) const;
+  bool    operator > (const OOPDataVersion & version);
+  bool operator >= (const OOPDataVersion & version);
+  /**
+   * Implements the abstraction of data version incrementation.
+   * The class will perform necessary checks to either increment only
+   * its cardinality or also its level. 
+   */
+  void    Increment ();
+  /**
+   * Adds a new level to the dataversion object
+   * @param cardinality : New level is created with depth cardinality
+   */
+  void    IncrementLevel (int cardinality);
+  /**
+   * Deletes last level
+   */
+  void    DecreaseLevel ();
+  /**
+   * Simple constructor 
+   */
+  OOPDataVersion ();
+  /**
+   * Constructor setting n Level parameter. Depth will be set to 1.
+   * @param Level : Level to be set 
+   */
+  OOPDataVersion (int cardinality);
     /**
      * Copy constructor 
      */

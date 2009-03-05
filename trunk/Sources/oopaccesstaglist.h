@@ -77,6 +77,8 @@ public:
    */
   void SubmitIncrementedVersions();
   void PostRequests(OOPObjectId & Id);
+	
+	OOPAccessTag GetTag(int i);
 private:
   /**
    * Holds the list the OOPAccessTag objects

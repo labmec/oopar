@@ -200,3 +200,10 @@ void OOPAccessTagList::PostRequests(OOPObjectId & Id)
 #endif
 
 }
+
+OOPAccessTag OOPAccessTagList::GetTag(int i)
+{
+	return fTagList[i];
+}
+
+

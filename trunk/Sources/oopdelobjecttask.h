@@ -41,5 +41,4 @@ public:
   using OOPTask::fProc;
   static TPZSaveable *Restore (TPZStream & buf, void *context = 0);
 };
-template class TPZRestoreClass<OOPDelObjectTask, TDELOBJECTTASK_ID>;
 #endif

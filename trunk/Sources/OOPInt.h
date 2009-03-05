@@ -16,5 +16,7 @@ public:
 
     
 };
-template class TPZRestoreClass<OOPInt, OOPINT_ID>;
+
+
+
 #endif //OOPINT_H

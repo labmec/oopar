@@ -9,6 +9,8 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
+#include <errno.h>
+
 #include "oopwaittask.h"
 #include <sstream>
 #include <pzlog.h>
@@ -30,14 +32,16 @@ class OOPStorageBuffer;
 
 OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
 {
-  sem_init(&fMainSemaphore, 0, 0);
-  sem_init(&fExecSemaphore, 0, 0);
+  fMainSemaphore = new boost::interprocess::interprocess_semaphore(0);
+  fExecSemaphore = new boost::interprocess::interprocess_semaphore(0);
 }
 
 OOPWaitTask::~OOPWaitTask()
 {
-  sem_destroy(&fMainSemaphore);
-  sem_destroy(&fExecSemaphore);
+  //sem_destroy(&fMainSemaphore);
+	delete fMainSemaphore;
+	delete fExecSemaphore;
+  //sem_destroy(&fExecSemaphore);
 }
 
 
@@ -66,8 +70,9 @@ OOPMReturnType OOPWaitTask::Execute()
     LOGPZ_DEBUG(logger, sout.str());
   }
 #endif
-  this->IncrementWriteDependentData();
-  sem_post(&fMainSemaphore);
+  //this->IncrementWriteDependentData();
+  //sem_post(&fMainSemaphore);
+	fMainSemaphore->post();
 #ifdef LOGPZ
   {
     stringstream sout;
@@ -75,7 +80,8 @@ OOPMReturnType OOPWaitTask::Execute()
     LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
-  sem_wait(&fExecSemaphore);
+  //sem_wait(&fExecSemaphore);
+	fExecSemaphore->wait();
 #ifdef LOGPZ
   {
     stringstream sout;
@@ -94,11 +100,12 @@ void OOPWaitTask::Finish()
 #ifdef LOGPZ
   {
     stringstream sout;
-    sout << "WaitTask ID " << Id() << " Finished ! Posting fExecSemaphore";
+    sout << __PRETTY_FUNCTION__ << " WaitTask ID " << Id() << " Finished ! Posting fExecSemaphore";
     LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
-  sem_post(&fExecSemaphore);
+  //sem_post(&fExecSemaphore);
+	fExecSemaphore->post();
 }
 
 
@@ -114,7 +121,33 @@ void OOPWaitTask::Wait()
     LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
-  sem_wait(&fMainSemaphore);
+	int retval = 0;
+	//sem_init(&fMainSemaphore, 0, 1);
+  //retval = sem_wait(&fMainSemaphore);
+	fMainSemaphore->wait();
+	if(retval == -1)
+	{
+#ifdef LOGPZ
+		{
+			stringstream sout;
+			sout << "WaitTask ID " << Id() << " sem_wai failed ! killing application ... bye bye\nError number = " << errno;
+			//GetLastEroor()
+			if(errno == EAGAIN)
+				sout << "The semaphore was already locked, so it cannot be immediately locked by the sem_trywait() operation ( sem_trywait only).";
+			if(errno == EINVAL)
+				sout << "The sem argument does not refer to a valid semaphore.";
+			if(errno == ENOSYS)
+				sout << "The functions sem_wait() and sem_trywait() are not supported by this implementation.";
+			if(errno == EDEADLK)
+				sout << "A deadlock condition was detected.";
+			if(errno ==	EINTR)
+				sout << "A signal interrupted this function.";
+			LOGPZ_DEBUG(logger, sout.str().c_str());
+		}
+#endif
+		exit(-1);
+	}
+		
 #ifdef LOGPZ
   {
     stringstream sout;

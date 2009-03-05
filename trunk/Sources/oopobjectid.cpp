@@ -42,8 +42,8 @@ std::ostream &OOPObjectId::ShortPrint (std::ostream & out) const
 }
 int OOPObjectId::main ()
 {
-  stringstream sout;
-	deque < OOPObjectId * >TestDeQue;
+	std::stringstream sout;
+	std::deque < OOPObjectId * >TestDeQue;
 	OOPObjectId id (20, 1);
 	OOPObjectId idteste (id);
 	TestDeQue.push_back (&id);
@@ -55,8 +55,8 @@ int OOPObjectId::main ()
 	ptrid->SetId (30);
 	ptrid->SetProcId (2);
 	TestDeQue.push_back (ptrid);
-	sout << TestDeQue.size () << endl;
-	deque < OOPObjectId * >::iterator i;
+	sout << TestDeQue.size () << std::endl;
+	std::deque < OOPObjectId * >::iterator i;
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		(*i)->Print (sout);
 	}
@@ -74,7 +74,7 @@ int OOPObjectId::main ()
  OOPObjectId *pt2 = new OOPObjectId;
 	pt2->SetId (30);
 	pt2->SetProcId (2);
-	deque < OOPObjectId * >::iterator fd;
+	std::deque < OOPObjectId * >::iterator fd;
 	fd = find (TestDeQue.begin (), TestDeQue.end (), pt2);
 
       i = TestDeQue.end ();

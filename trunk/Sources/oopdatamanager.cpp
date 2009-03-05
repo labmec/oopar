@@ -59,7 +59,8 @@ OOPDataManager::OOPDataManager(int Procid)
   fObjId.SetProcId (Procid);
   fLastCreated = 0;	// NUMOBJECTS * Procid;
   fKeepGoing = false;
-  sem_init(&fServiceSemaphore, 0, 0);
+  //sem_init(&fServiceSemaphore, 0, 0);
+	fServiceSemaphore = new boost::interprocess::interprocess_semaphore(0);
   fServiceThread = 0;
 }
 
@@ -74,7 +75,7 @@ OOPDataManager::~OOPDataManager ()
   }
 #endif
   DM->WakeUpCall();
-  if(fServiceThread != (unsigned int)-1)
+  if(fServiceThread != NULL)
   {
     pthread_join(fServiceThread, NULL);
   }
@@ -85,6 +86,7 @@ OOPDataManager::~OOPDataManager ()
     LOGPZ_INFO(logger,sout.str().c_str());
   }
 #endif
+	delete fServiceSemaphore;
 }
 
 void OOPDataManager::PostAccessRequest(OOPAccessTag & depend)
@@ -462,6 +464,33 @@ void OOPDataManager::SubmitAllObjects()
     DM->WakeUpCall();
   }
 }
+void OOPDataManager::Wait()
+{
+#ifdef LOGPZ
+	{
+		std::stringstream sout;
+		sout << "Joining DM ServiceThread !";
+		LOGPZ_DEBUG(logger,sout.str().c_str());
+	}
+#endif
+	if(pthread_join(fServiceThread, NULL)!=0)
+	{
+#ifdef LOGPZ
+		{
+			std::stringstream sout;
+			sout << "pthread_join failed on " << __PRETTY_FUNCTION__ << "\nBailing out";
+			LOGPZ_ERROR(logger,sout.str().c_str());
+		}
+#endif
+	}
+#ifdef LOGPZ
+	{
+		std::stringstream sout;
+		sout << "DM ServiceThread Joined!";
+		LOGPZ_DEBUG(logger,sout.str().c_str());
+	}
+#endif
+}
 int OOPDataManager::StartService()
 {
   int res = -1;
@@ -606,9 +635,12 @@ void OOPDataManager::SetKeepGoing(bool go)
 #endif
 
   fKeepGoing = go;
+	DM->WakeUpCall();
 }
 
 //////////////////////OOPDMOwnerTask////////////////////////////////////////////
+template class TPZRestoreClass<OOPDMOwnerTask,TDMOWNERTASK_ID>;
+
 
 OOPDMOwnerTask::OOPDMOwnerTask() :OOPDaemonTask(-1) {
 
@@ -714,6 +746,9 @@ OOPMReturnType OOPDMOwnerTask::Execute ()
   DM->WakeUpCall();
   return ESuccess;
 }
+
+template class TPZRestoreClass<OOPDMRequestTask, TDMREQUESTTASK_ID>;
+
 OOPMReturnType OOPDMRequestTask::Execute ()
 {
   DM->GetUpdate (this);

@@ -12,8 +12,8 @@
 
 #include <list>
 #include <set>
-
-#include <semaphore.h>
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+//#include <semaphore.h>
 
 class OOPStorageBuffer;
 class OOPDataVersion;
@@ -168,7 +168,8 @@ public:
    * Semaphores avoid deadlocking in the cond_signal, cond_wait, mutex_lock and unlocking
    */
   void WakeUpCall(){
-    sem_post(&fServiceSemaphore);
+    //sem_post(&fServiceSemaphore);
+		fServiceSemaphore->post();
   }
   /**
    * Returns true if the service thread has work to do
@@ -212,7 +213,8 @@ private:
   /**
    * Semaphore for the ServiceThread
    */
-  sem_t fServiceSemaphore;
+  //sem_t fServiceSemaphore;
+	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
 
   /**
    * Generate a unique id number
@@ -299,7 +301,6 @@ public:
   long int ExecTime ();
   static TPZSaveable *Restore (TPZStream & buf, void *context = 0);
 };
-template class TPZRestoreClass < OOPTerminationTask, TTERMINATIONTASK_ID >;
 
 
 extern OOPTaskManager *TM;

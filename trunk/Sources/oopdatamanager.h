@@ -14,8 +14,11 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include <pthread.h>
-#include <semaphore.h>
+//#include <semaphore.h>
 #include "tpzautopointer.h"
+
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+
 
 class TPZSaveable;
 class   OOPStorageBuffer;
@@ -150,16 +153,24 @@ public:
   void FlushData();
   void WaitWakeUpCall()
   {
-    sem_wait(&fServiceSemaphore);
+    //sem_wait(&fServiceSemaphore);
+		fServiceSemaphore->wait();
   }
   void WakeUpCall()
   {
-    sem_post(&fServiceSemaphore);
+    //sem_post(&fServiceSemaphore);
+		fServiceSemaphore->post();
   }
   void SetKeepGoing(bool go);
   int StartService();
   void PostRequestDelete(OOPObjectId & Id);
   void RequestDelete(OOPObjectId & Id);
+	
+	/**
+	 * Joins the DM service thread
+	 */
+	void Wait();
+	
 private:
   pthread_t fServiceThread;
   /**
@@ -169,7 +180,8 @@ private:
   /**
    * Semaphore for the DM service thread
    */
-  sem_t fServiceSemaphore;
+  //sem_t fServiceSemaphore;
+	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
   /**
    * Indicates wether ServiceThread should keep running
    */
@@ -270,7 +282,7 @@ public:
   // virtual void Work() { Debug( "\nTSaveable::Work." ); }
   // virtual void Print() { Debug( " TSaveable::Print." ); }
 };
-template class TPZRestoreClass<OOPDMOwnerTask,TDMOWNERTASK_ID>;
+
 /**
  * Implements a request task (Undocumented)
  */
@@ -298,7 +310,6 @@ public:
   static TPZSaveable *Restore (TPZStream & buf, void * context=0);
   virtual void Write (TPZStream  & buf, int withclassid = 0);
 };
-template class TPZRestoreClass<OOPDMRequestTask, TDMREQUESTTASK_ID>;
 
 extern OOPDataManager *DM;
 

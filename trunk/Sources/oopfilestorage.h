@@ -1,3 +1,4 @@
+#ifdef FILE_COMM
 // -*- c++ -*-
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
@@ -20,8 +21,8 @@
 #define _STR_FILEHH_
 #include <oopstorage.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
+#include <string>
 #define FILE_NAME_SIZE  16
 /*********************/
 class   OOPSendStorageFile:public OOPSendStorage
@@ -153,3 +154,4 @@ public:
 };
 typedef OOPFileStorageBuffer *PTFileStorageBuffer;
 #endif // _STR_FILEHH_
+#ifdef //FILE_COMM

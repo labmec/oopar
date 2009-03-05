@@ -72,6 +72,10 @@ ENoAccess,
   {
     fTaskId = Id;
   }
+	OOPDataVersion GetVersion()
+	{
+		return fVersion;
+	}
 private:
   /**
    * Describes the type of access state

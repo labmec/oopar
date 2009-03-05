@@ -31,7 +31,7 @@ enum OOPMReturnType
   EContinue
 };
 //#definE NUMOBJECTS  0x100000
-#define OOP_MAX_BUFFER_SIZE 5000000
+#define OOP_MAX_BUFFER_SIZE 5120
 #define NUMOBJECTS  1000
 #define OOPSAVEABLE_ID -1
 #define TTASK_ID 3000

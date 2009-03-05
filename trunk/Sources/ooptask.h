@@ -10,7 +10,7 @@
 #include "tpzautopointer.h"
 class OOPStorageBuffer;
 class OOPAccessTagList;
-using namespace std;
+//using namespace std; 
 //class   OOPMetaData;
 /**
  * Implements a abstract Task on the environment.
@@ -18,10 +18,12 @@ using namespace std;
  * Since tasks are transmitted through the network TTask is also derived from TSaveable
  * and implements Pack() and Unpack() methods.
  */
-class   OOPTask:public TPZSaveable
+class   OOPTask : public TPZSaveable
 {
 
+
 public:
+
   void SubmitDependencyList();
   void IncrementWriteDependentData();
   
@@ -175,7 +177,13 @@ public:
    * Return the pointer to the ith object from which this task depends
    */
   TPZSaveable * GetDepObjPtr(int idepend);
+	
+	/**
+	 * Return the dependency tag
+	 * @param i : The ith dependency tag
+	 */
 protected:
+	OOPAccessTag GetTag(int i);
   /**
   * Processor where the task should be executed
   */
@@ -197,10 +205,11 @@ protected:
   string fLabel;
 };
 
-template class TPZRestoreClass<OOPTask, TTASK_ID>;
+
 /**
  * Prototype for an instantaneous task
  */
+
 class OOPDaemonTask:public OOPTask
 {
 public:
@@ -223,5 +232,4 @@ public:
   }
   static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 };
-template class TPZRestoreClass<OOPDaemonTask, TDAEMONTASK_ID>;
 #endif

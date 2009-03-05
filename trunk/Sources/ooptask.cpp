@@ -31,6 +31,9 @@ class OOPDaemonTask;
 class OOPMDataDepend;
 class OOPSaveable;
 using namespace std;
+
+template class TPZRestoreClass<OOPTask, TTASK_ID>;
+
 void
 OOPTask::Print (std::ostream & out)
 {
@@ -73,6 +76,10 @@ OOPTask::Submit ()
   return val;
 }
 
+
+template class TPZRestoreClass<OOPDaemonTask, TDAEMONTASK_ID>;
+
+
 OOPDaemonTask::OOPDaemonTask (int Procid):OOPTask (Procid)
 {
 }
@@ -86,7 +93,7 @@ OOPDaemonTask::CanExecute ()
 OOPMReturnType
 OOPTask::Execute ()
 {
-  IncrementWriteDependentData ();
+  //IncrementWriteDependentData ();
 /*  stringstream sout;
   sout << "OOPTask::Execute should never be called!\n";
   sout << "Called from ClassId " << ClassId() << endl;
@@ -176,3 +183,9 @@ void OOPTask::SubmitDependencyList()
 #endif
   fDependRequest.PostRequests(fTaskId);
 }
+
+OOPAccessTag OOPTask::GetTag(int i)
+{
+	return fDependRequest.GetTag(i);
+}
+

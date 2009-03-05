@@ -19,6 +19,10 @@ extern OOPDataManager *DM;
 static LoggerPtr logger(Logger::getLogger("OOPar.OOPDataManager"));
 #endif
 
+
+template class TPZRestoreClass<OOPDelObjectTask, TDELOBJECTTASK_ID>;
+
+
 OOPDelObjectTask::OOPDelObjectTask()
  : OOPTask(DM->GetProcID())
 {

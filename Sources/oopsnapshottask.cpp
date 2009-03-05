@@ -14,6 +14,10 @@
 #include "ooptaskmanager.h"
 #include "ooptmlock.h"
 
+
+template class TPZRestoreClass<OOPSnapShotTask, TSNAPSHOTTASK_ID>;
+
+
 OOPSnapShotTask::~OOPSnapShotTask()
 {
 }
@@ -25,7 +29,7 @@ OOPMReturnType OOPSnapShotTask::Execute(){
   OOPTMLock lock;
   DM->SnapShotMe(cout);
   TM->SnapShotMe(cout);
-  IncrementWriteDependentData();
+  //IncrementWriteDependentData();
   return ESuccess;
 }
 

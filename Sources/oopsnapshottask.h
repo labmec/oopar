@@ -54,7 +54,6 @@ public:
   void Read (TPZStream & buf, void * context);
 
 };
-template class TPZRestoreClass<OOPSnapShotTask, TSNAPSHOTTASK_ID>;
 
 extern OOPTaskManager *TM;
 extern OOPDataManager *DM;

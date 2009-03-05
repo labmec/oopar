@@ -18,6 +18,10 @@
  * for communication.
 */
 
+typedef unsigned int u_int;
+typedef unsigned short u_short;
+typedef unsigned long u_long;
+
 const int MAXSIZE = 50000;
 
 class   OOPMPIStorageBuffer: public TPZStream

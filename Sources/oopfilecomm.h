@@ -1,3 +1,4 @@
+#ifdef FILE_COMM
 // -*- c++ -*-
 //
 // Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
@@ -87,3 +88,4 @@ class   OOPFileComManager:public OOPCommunicationManager
 	OOPFileStorageBuffer **f_buffer;
 };
 #endif // _COM_FILEHH_
+#endif //FILE_COMM

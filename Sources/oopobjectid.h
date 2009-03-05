@@ -4,7 +4,7 @@
 #define TOBJECTID_H
 #include <iostream>
 #include "pzfilebuffer.h"
-using namespace std;
+//using namespace std; 
 /**
  * Implements functionalities on the identification of any entity encountered
  * in the OOPar environment.

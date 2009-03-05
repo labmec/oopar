@@ -106,12 +106,14 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   LOGPZ_DEBUG(tasklogger,sout.str().c_str());
   }
 #endif
+	tc->fTask->IncrementWriteDependentData();
   tc->UpdateVersions();
 
   {
     OOPTMLock lock;
     tc->fExecFinished =1;
   }
+	
   TM->WakeUpCall();
   return 0;
 }

@@ -12,7 +12,9 @@
 #ifndef OOPWAITTASK_H
 #define OOPWAITTASK_H
 
-#include <semaphore.h>
+
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+//#include <semaphore.h>
 
 #include <ooptask.h>
 class OOPStorageBuffer;
@@ -29,16 +31,20 @@ class OOPWaitTask : public OOPTask
   /**
    * Semaphore for the Main Thread Execution
    */
-  sem_t fMainSemaphore;
+  //sem_t fMainSemaphore;
+	boost::interprocess::interprocess_semaphore * fMainSemaphore;
   /**
    * Semaphore for the WaitTask execution
    */
-  sem_t fExecSemaphore;
+  //sem_t fExecSemaphore;
+	boost::interprocess::interprocess_semaphore * fExecSemaphore;
 public:
   OOPWaitTask()
   {
-    sem_init(&fMainSemaphore, 0, 0); 
-    sem_init(&fExecSemaphore, 0, 0); 
+   /* sem_init(&fMainSemaphore, 0, 0); 
+    sem_init(&fExecSemaphore, 0, 0); */
+		//fMainSemaphore.sem_init(0);
+		//fExecSemaphore.sem_init(0);
   }
   OOPWaitTask(int Procid);
 

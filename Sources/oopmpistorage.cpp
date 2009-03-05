@@ -121,7 +121,7 @@ int OOPMPIStorageBuffer::Send (int target)
 #endif
   try
   {
-    
+
     ret = MPI_Send (&m_Buffer[0], m_Length, MPI_PACKED,
                   target, tag, MPI_COMM_WORLD);
   }
@@ -168,7 +168,7 @@ int OOPMPIStorageBuffer::Send (int target)
       case MPI_ERR_COUNT:
       {
 #ifdef LOGPZ
-        
+
         stringstream sout;
         sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid";
         LOGPZ_ERROR(logger,sout.str().c_str());
@@ -396,7 +396,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   try
   {
     res = MPI_Recv (&m_Buffer[0], count , MPI_PACKED, MPI_ANY_SOURCE,
-                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;  
+                   MPI_ANY_TAG, MPI_COMM_WORLD, &status);// << endl;
   }
   catch(const exception & e)
   {

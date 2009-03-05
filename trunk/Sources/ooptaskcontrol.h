@@ -5,8 +5,8 @@ class   OOPTask;
 
 
 
-#include "oopmdatadepend.h"
-#include "oopevtmanager.h"
+#include "oopaccesstag.h"
+//#include "oopevtmanager.h"
 /**
  * class which encapsulates a task object and data dependency structure.
  * The main idea is to separate the data dependency structure from the task.
@@ -34,7 +34,7 @@ class   OOPTaskControl
  /**
   * Store the task dependencies since that task is now deleted by its own thread
   */
- OOPMDataDependList fDataDepend;
+ //OOPMDataDependList fDataDepend;
 
  /**
   * Store the task classid identifier since that task is now delete by it own thread
@@ -42,10 +42,6 @@ class   OOPTaskControl
  int fClassId;
  /////////////////////////////////////Task Data////////////////////////////////////////
   
-  /**
-   * List of dependency for the current object.
-   */
-  OOPMDataDependList fDepend;
  
   /**
    * Flag indicating whether the thread was started
@@ -63,6 +59,7 @@ class   OOPTaskControl
   pthread_t fExecutor;
   
 public:
+  void Print(std::ostream & out);
   /**
    * constructor, will initiate the data dependency list with the dependency list of the task
    */
@@ -71,13 +68,6 @@ public:
    * destructor, will delete the task object is the pointer is not null
    */
   ~OOPTaskControl ();
-  /**
-   * data access method
-   */
-  OOPMDataDependList & Depend ()
-  {
-    return fDepend;
-  }
   /**
    * data access method
    */
@@ -97,10 +87,14 @@ public:
    */
    void Execute();
    
-   /**
-   Entry point for the execution thread
+  /**
+   * Entry point for the execution thread
+   * TaskControl objects triggers the Execute() method of the associated OOPTask * object.
+   * At the end of execution, the TaskControl either submit a new version to the MetaData object,
+   * or, if the PointerIsBeingModified is true, updates the current version to the new version.
+   * All infrastructure for this Version arithmetics is responsibility of the MetaData.
    */
-static void *ThreadExec(void *tcobject);
+  static void *ThreadExec(void *tcobject);
 
     /*!
         \fn OOPTaskControl::TaskStarted() const
@@ -111,9 +105,8 @@ static void *ThreadExec(void *tcobject);
         return fExecStarted;
     }
 
-    /*!
-        \fn OOPTaskControl::TaskFinished() const
-      returns true if the task finished
+    /**
+     * Returns true if the task finished
      */
     int TaskFinished() 
     {
@@ -121,9 +114,20 @@ static void *ThreadExec(void *tcobject);
       res = fExecFinished;
       return res;
     }
-    
+    /**
+     * Synchronizes the execution thread with the termination of the TaskControl object
+     */
     void Join();
 
+    /**
+     * Updates versions of dependent MetaData objects.
+     * If for a given MetaData, its access is WriteAccess type, then version will be incremented, obeying the following rule:
+     * - If PointerIsBeingModified, then the current version is itself incremented and this indicates that only this object.
+     * has access to that MetaData.
+     * - If PointerIsBeingModified is false, then more than one task is accessing the MetaData with WriteAccess, which indicates
+     * that a new version submission will be required
+     */
+    void UpdateVersions();
 
     /**
      * Acess to task data since that task is deleted itself after execute
@@ -132,6 +136,5 @@ static void *ThreadExec(void *tcobject);
 
     int ClassId() {return fClassId;}
 
-    OOPMDataDependList & TaskDepend (){return fDataDepend;}
 };
 #endif

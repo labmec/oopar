@@ -14,15 +14,47 @@
 #include "oopdataversion.h"
 #include "oopobjectid.h"
 #include <pthread.h>
+#include <semaphore.h>
+#include "tpzautopointer.h"
+
 class TPZSaveable;
 class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 class   OOPSaveable;
 using namespace std;
-class   OOPMetaData;
+//class   OOPMetaData;
 class   OOPDMOwnerTask;
 class   OOPDMRequestTask;
 class   OOPCurrentLocation;
+
+/**
+ * Identifies possible messages submitted to the DataManager.
+ * A brief description of each type are also available.
+ */
+enum DMMessageType {
+  /**
+   * Identifies a message which carries a Data object along with the OOPAccessTag.
+   * This message will be translated on the creation of a OOPMetaData object with a AutoPointer valid on the TPZSaveable object.
+   */
+  EDMData,
+
+  /**
+   * Identifies a message which will be translated in the OOPDMOwnerMessage.
+   */
+  EDMOwner,
+
+  /**
+   * Identifies a message which will generate a AccessRequest posted on the current processor
+   */
+  EDMRequest,
+
+  /**
+   * Identifies a message which will be translated on AccessRequest task submitted to a different processor. Foreign access request.
+   */
+  EDMForeignRequest
+};
+
+
 /**
  * Implements all the data management in the OOPar environment.
  * Acts as daemon in all processors which are part of the parallel environment.
@@ -31,285 +63,243 @@ class   OOPCurrentLocation;
  */
 class   OOPDataManager
 {
-	friend class OOPMetaData;
+//  friend class OOPMetaData;
 public:
-	void PrintDataQueues(char * msg, std::ostream & out);
-	/**
-	 * Used only for testing purposes
-	 */
-	static void main ();
-	/**
-	 * Simple destructor
-	 */
-    ~OOPDataManager ();
-	/**
-	 * Releases the access request from TaskId on dataId and on the specifieds version and accees state
-	 * @param TaskId Identifies the task from which the access shoul be released.
-	 * @param dataId Identifies the data to which access is no longer required
-	 * @param version Version access request must match release access request.
-	 * @param access Access request must match release access request.
-	 */
-	void    ReleaseAccessRequest (const OOPObjectId & TaskId,
-				      const OOPMDataDepend & depend);
-	/**
-	* Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of
-	* access and data version must also be specified, as well as the processor where the access should occur.
-	* @param TaskId Id of the Task willing to access the data.
-	* @param dataId Id of the data the task is willing to access.
-	* @param version Version the task wants the data to be.
-	* @param access Type of access.
-	* @param ProcId Id of the processor where the access should occur.
-	* @return 1 if the access request is compatible, 0 if not compatible
-	*/
-	int     SubmitAccessRequest (const OOPObjectId & TaskId,
-				     const OOPMDataDepend & depend,
-				     const long ProcId);
-	/**
-	* Add TaskId to the list of tasks willing to access the dataId object. Along with the taskId, type of
-	* access and data version must also be specified. The processor is the current processor
-	* @param TaskId Id of the Task willing to access the data.
-	* @param depend structure which defines the type of access, version and object id
-	* @param ProcId Id of the processor where the access should occur.
-	* @return 1 if the access request is compatible, 0 if not compatible
-	*/
-	int     SubmitAccessRequest (const OOPObjectId & TaskId,
-				     const OOPMDataDepend & depend)
-	{
-		return SubmitAccessRequest (TaskId, depend, fProcessor);
-	}
-	/**
-	* Initialization of the DataManager on the indicated processor
-	* @param Procid : Processor where the data manager should be initialized
-	*/
-	OOPDataManager (int Procid);
-	/**
-	* Return the processor id which owns the current object
-	*/
-	int     GetProcID ()
-	{
-		return fProcessor;
-	}
-	void SubmitAllObjects();
-	/**
-	* Register the object on the data manager
-	* Submits the pointer to the TSaveable object to the DataManager
-	* @param *obj : Pointer to TSaveable object which is to be submited
-	* @param trace : Indicates if submited object is traceable or not
-	*/
-	OOPObjectId SubmitObject (TPZSaveable * obj, int trace = 0);
-	OOPObjectId SubmitObject (TPZSaveable * obj, int trace, OOPDataVersion & ver);
-      private:
-	/**
-	* Deletes the object from the datastructure
-	* @param ObjId : Id of object to be deleted
-	*/
-	void    DeleteObject (OOPObjectId & ObjId);
-      public:
-	/**
-	* Initiates the process do delete the object
-	* follows up on the process to delete it
-	* @param ObjId : Id of object to be deleted
-	*/
-	void    RequestDeleteObject (OOPObjectId /*&*/ ObjId);
-	/**
-	* Transfers the object identified by ObjId to the processor identified by
-	* ProcessorId.
-	* and takes action to satisfy the request but does not follow up on the request
-	* @param ObjId : Identifier of the object to be transfered.
-	* @param ProcessorId : Identifier of processor destination.
-	*/
-	void    TransferObject (OOPObjectId & ObjId, int ProcessorId);
-	/**
-	* Processes the updated access information from the other processors
-	* @param *task Pointer to the task which (Undocumented)
-	*/
-	void    GetUpdate (OOPDMOwnerTask * task);
-	/**
-	* Processes the requests coming from the other processors
-	* @param *task Pointer to task which (Undocumented)
-	*/
-	void    GetUpdate (OOPDMRequestTask * task);
-	/**
-	 * Returns true if object is found on the DM list
-	 */
-	bool    HasObject (OOPObjectId & id);
-
+  /**
+   * Initialization of the DataManager on the indicated processor
+   * @param Procid : Processor where the data manager should be initialized
+   */
+  OOPDataManager (int Procid);
+  /**
+   * Simple destructor
+   */
+  ~OOPDataManager ();
+  /**
+   * Encapsulates the call for SubmittAllObjects.
+   * Only for minemonic reasons
+   */
+  void HandleMessages();
+  /**
+   * Inserts a ObjectChanged entry on the fChangedObject list
+   */
+  void ObjectChanged(const OOPObjectId & Id);
+  /**
+   * Dumps on disk the current state of the Manager object
+   */
+  void SnapShotMe(std::ostream & out);
 
   /**
-   * Delete the meta datas into the pending list
+   * Checks the list of available objects since a new version had been submitted
    */
-  void DeletePendingObj();
+  void ObjectChanged(std::set<OOPObjectId> & set);
+  /**
+   * The following three methods appends objects to the fMessages list.
+   * Each of them submits messages of a different type.
+   * PostData appends a changed Saveable object,it differs from SubmitObject which returns a ObjectId.
+   * In this case the Object identified in the Tag already has an Id assigned to it.
+   */
+  void PostData(OOPAccessTag & tag);
+  /**
+   * SubmitOwnerMessage appends a OwnerMessage to the list. OwnerMessages are basically instructions to the DM concerning
+   * some data. Later on the DM perform the required action.
+   */
+  void PostOwnerMessage(OOPAccessTag &tag);
+  /**
+   * Submits access requests to the objects maintained by the DM
+   * The object to which the AccessRequest is related to is identified on the Tag parameter
+   */
+  void PostAccessRequest(OOPAccessTag & depend);
+  void PostForeignAccessRequest(OOPAccessTag & depend);
+  /**
+   * Return the processor id which owns the current object
+   */
+  int     GetProcID ()
+  {
+    return fProcessor;
+  }
+  /**
+   * Register the object on the data manager
+   * Submits the pointer to the TSaveable object to the DataManager
+   * @param *obj : Pointer to TSaveable object which is to be submited
+   * @param trace : Indicates if submited object is traceable or not
+   */
+  OOPObjectId SubmitObject (TPZSaveable * obj);
+  /**
+   * Moves all Posted objects from the fMessages list to the fObjects list
+   * It actually processes messages translating them in actions.
+   */
+  void SubmitAllObjects();
+  void ExtractObjectFromTag(OOPAccessTag & tag);
+  void ExtractOwnerTaskFromTag(OOPAccessTag & tag);
+  void ExtractRequestFromTag(OOPAccessTag & tag);
+  void ExtractForeignRequestFromTag(OOPAccessTag & tag);
+  /**
+   * Processes the updated access information from the other processors
+   * @param *task Pointer to the task which (Undocumented)
+   */
+  void    GetUpdate (OOPDMOwnerTask * task);
+  /**
+   * Processes the requests coming from the other processors
+   * @param *task Pointer to task which (Undocumented)
+   */
+  void    GetUpdate (OOPDMRequestTask * task);
 
-      private:
-	/**
-	* Processor where the processor is located.
-	*/
-	long    fProcessor;
-	/**
-	* Id of the object
-	*/
-	OOPObjectId fObjId;
-	/**
-	* Id of the last created object
-	*/
-	long    fLastCreated;
-	/**
-	* Maximum Id number that can be created
-	*/
-//	long    fMaxId;
-	/**
-	* Collections of objects
-	*/
-    map < OOPObjectId, OOPMetaData *> fObjects;
-	/**
-	 * Recently submtted objects
-	 * Still not available for the TM.
-	 */
-	list <OOPMetaData * > fSubmittedObjects;
-	/**
-	* Generates a new object ID
-	*/
-	OOPObjectId GenerateId ();
-public:
-	/**
-	* Returns a pointer to the data structure
-	* @param ObjId : Id of object which must have its data structure pointer returned
-	*/
-	OOPMetaData *Data (OOPObjectId ObjId);
-    /**
-     * Returns the Data Version object of the Meta data identified by Id.
-     * Necessary for inquiring the current version of the MetaData object.
-     * @param Id Identifies the object to be inquired
-     */
-//    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
+  /**
+   * Verifies access requests for OOPMetaData objects stores fObjects
+   */
+  void FlushData();
+  void WaitWakeUpCall()
+  {
+    sem_wait(&fServiceSemaphore);
+  }
+  void WakeUpCall()
+  {
+    sem_post(&fServiceSemaphore);
+  }
+  void SetKeepGoing(bool go);
+  int StartService();
+  void PostRequestDelete(OOPObjectId & Id);
+  void RequestDelete(OOPObjectId & Id);
 private:
-	/**
-	* Mutex for accessing the fSubmittedObjects queue.
-	* Prevents simultaneos access to such queue.
-	*/
-	pthread_mutex_t fDataMutex;
-
+  pthread_t fServiceThread;
   /**
-   * list of OOPMetaData to be deleted
+   * Service thread execution method for the DM
    */
-  std::list<OOPMetaData *> fMetaDataDelList;
-
+  static void * ServiceThread(void * data);
   /**
-   * list of OOPMetaData requesting to be deleted
+   * Semaphore for the DM service thread
    */
-  std::list<OOPObjectId> fRequestDelete;
+  sem_t fServiceSemaphore;
+  /**
+   * Indicates wether ServiceThread should keep running
+   */
+  bool fKeepGoing;
+  /**
+   * Processor where the processor is located.
+   */
+  long    fProcessor;
+  /**
+   * Id of the object
+   */
+  OOPObjectId fObjId;
+  /**
+   * Id of the last created object
+   */
+  long    fLastCreated;
+  /**
+   * Maximum Id number that can be created
+   */
+  //	long    fMaxId;
+  /**
+   * Collections of objects
+   */
+  map < OOPObjectId, OOPMetaData > fObjects;
+  /**
+   * Holds MetaData objects which had been changed.
+   * DM receives those object at the end of a task execution
+   */
+  set <OOPObjectId> fChangedObjects;
+  /**
+   * Generates a new object ID
+   */
+  OOPObjectId GenerateId ();
+public:
+  /**
+   * Returns a pointer to the data structure
+   * @param ObjId : Id of object which must have its data structure pointer returned
+   */
+private:
+  OOPMetaData Data (OOPObjectId ObjId);
+  /**
+   * Returns the Data Version object of the Meta data identified by Id.
+   * Necessary for inquiring the current version of the MetaData object.
+   * @param Id Identifies the object to be inquired
+   */
+  //    OOPDataVersion GetDataVersion( const OOPObjectId & Id);
+
+
+  std::list< std::pair<int, OOPAccessTag> > fMessages;
+
 };
 /**
  * Implements a task which owns (Undocumented)
  */
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
-      public:
-	void LogMeReceived(std::ostream & out);
-	/**
-	 * Generates logging information
-	 */
-	void LogMe(std::ostream & out);
-	OOPMDMOwnerMessageType fType;
-	/**
-	* Access state associated with this message
-	*/
-	OOPMDataState fState;
-	/**
-	* Version of the data
-	*/
-	OOPDataVersion fVersion;
-	/**
-	* Holds a pointer to the object when the object data is transferred
-	*/
-	TPZSaveable *fObjPtr;
-	/**
-	* Id of processor which originated the message
-	*/
-	int     fProcOrigin;
-	/**
-	* Id of object to which this object refers
-	*/
-	OOPObjectId fObjId;
-	/**
-	* Used for debugging purposes, keeps track of all data by means of log files.
-	*/
-	int     fTrace;
-	/**
-	* Constructor
-	* @param t : type of ower task
-	* @param proc : processor which owns the message
-	*/
-	OOPDMOwnerTask ();
-	OOPDMOwnerTask (OOPMDMOwnerMessageType t, int proc);
-	virtual ~OOPDMOwnerTask();
-	virtual OOPMReturnType Execute ();
-	virtual int ClassId () const
-	{
-		return TDMOWNERTASK_ID;
-	}
-	virtual void Read (TPZStream & buf, void * context);
-//	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
-	virtual void Write (TPZStream & buf, int withclassid);
-	// Apenas para DEBUG.
-	// virtual void Work() { Debug( "\nTSaveable::Work." ); }
-	// virtual void Print() { Debug( " TSaveable::Print." ); }
+public:
+
+  /// data associated with the owner task
+  /**
+  * fAccessMode : whether the owner task is granting read or write access
+  * fObjectAutoPtr : pointer to the data
+  * fObjectId : id of the object associated with the owner task
+  * fProcessor : processor which originated the owner task
+  * fTaskId : not used
+  * fVersion : version of the object being transmitted
+  */
+  OOPAccessTag fTag;
+
+  /// set of access requests that need to be submitted when changing ownership
+  std::set<OOPAccessTag> fTransferRequests;
+  /**
+   * Constructor
+   * @param t : type of ower task
+   * @param proc : processor which owns the message
+   */
+  OOPDMOwnerTask ();
+
+  OOPDMOwnerTask (OOPAccessTag &tag): OOPDaemonTask(tag.Proc()), fTag(tag)
+  {
+  }
+
+  OOPDMOwnerTask (OOPAccessTag &tag, std::set<OOPAccessTag> &requests) :
+      OOPDaemonTask(tag.Proc()), fTag(tag),fTransferRequests(requests)
+  {
+  }
+
+  virtual ~OOPDMOwnerTask();
+  virtual OOPMReturnType Execute ();
+  virtual int ClassId () const
+  {
+    return TDMOWNERTASK_ID;
+  }
+  virtual void Read (TPZStream & buf, void * context);
+  // static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
+  virtual void Write (TPZStream & buf, int withclassid);
+  // Apenas para DEBUG.
+  // virtual void Work() { Debug( "\nTSaveable::Work." ); }
+  // virtual void Print() { Debug( " TSaveable::Print." ); }
 };
 template class TPZRestoreClass<OOPDMOwnerTask,TDMOWNERTASK_ID>;
 /**
  * Implements a request task (Undocumented)
  */
-class   OOPDMRequestTask:public OOPDaemonTask
+class OOPDMRequestTask : public OOPDaemonTask
 {
-      public:
-	void LogMe(std::ostream & out);
-	/**
-	 * Id of the processor to which the request applies.
-	 */
-	int     fProcOrigin;
-	/**
-	 * Dependency data of the request
-	 */
-	OOPMDataDepend fDepend;
-	/**
-	 * Constructor
-	 */
-	OOPDMRequestTask (int proc, const OOPMDataDepend & depend);
-	OOPDMRequestTask (const OOPDMRequestTask & task);
-	OOPDMRequestTask () ;
+public:
+  void LogMe(std::ostream & out);
+  /**
+   * Dependency data of the request
+   */
+  OOPAccessTag fDepend;
+  /**
+   * Constructor
+   */
+  OOPDMRequestTask (int processor, const OOPAccessTag & depend);
+  OOPDMRequestTask (const OOPDMRequestTask & task);
+  OOPDMRequestTask () ;
 
-	virtual OOPMReturnType Execute ();
-	virtual int ClassId () const
-	{
-		return TDMREQUESTTASK_ID;
-	}
-	virtual void Read (TPZStream & buf, void * context = 0);
-	static TPZSaveable *Restore (TPZStream & buf, void * context=0);
-	virtual void Write (TPZStream  & buf, int withclassid = 0);
+  virtual OOPMReturnType Execute ();
+  virtual int ClassId () const
+  {
+    return TDMREQUESTTASK_ID;
+  }
+  virtual void Read (TPZStream & buf, void * context = 0);
+  static TPZSaveable *Restore (TPZStream & buf, void * context=0);
+  virtual void Write (TPZStream  & buf, int withclassid = 0);
 };
 template class TPZRestoreClass<OOPDMRequestTask, TDMREQUESTTASK_ID>;
-class   OOPCurrentLocation
-{
-      public:
-	OOPObjectId fObjectId;
-	long    fProcessor;
-	        OOPCurrentLocation (long Processor, OOPObjectId & Id)
-	{
-		fProcessor = Processor;
-		fObjectId = Id;
-	}
-	OOPCurrentLocation & operator = (const OOPCurrentLocation & loc)
-	{
-		fObjectId = loc.fObjectId;
-		fProcessor = loc.fProcessor;
-		return *this;
-	}
-	OOPCurrentLocation (const OOPCurrentLocation & copy)
-	{
-		fObjectId = copy.fObjectId;
-		fProcessor = copy.fProcessor;
-	}
-};
+
 extern OOPDataManager *DM;
 
 #endif

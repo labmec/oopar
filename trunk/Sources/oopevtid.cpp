@@ -1,16 +1,4 @@
-//
-// C++ Implementation: oopevtid
-//
-// Description: 
-//
-//
-// Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2006
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
-#include <sstream>
-
+#ifdef OOP_MPE
 
 #include "oopevtid.h"
 #include "oopevtmanager.h"
@@ -22,13 +10,14 @@
 #include "mpe.h"
 #endif
 
+
+#include <sstream>
 #include <pzlog.h>
 #ifdef LOGPZ
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 #endif
-
 
 
 #ifdef OOP_MPE
@@ -64,7 +53,9 @@ OOPStateEvent::OOPStateEvent(const std::string &eventname, const std::string &de
   gEvtDB.Initialize(eventname,*this);
   fMess.SetText(description.c_str());
   if(f_manager) {
-    MPE_Log_comm_event(MPI_COMM_WORLD,f_ThreadId,f_EvtStart, NULL);
+    MPE_Log_comm_event(MPI_COMM_WORLD, f_EvtStart, (char*)&fMess);
+//     MPE_Log_comm_event(MPI_COMM_WORLD,f_ThreadId,f_EvtStart, NULL);
+//     MPE_Log_event(f_ThreadId,f_EvtStart, NULL);
   }
 }
 OOPStateEvent & OOPStateEvent::operator = (const OOPStateEvent & copy){
@@ -86,11 +77,10 @@ void OOPStateEvent::Initialize(int myindex, std::string &description, bool withd
 {
   f_ThreadId = myindex;
   // initializar o f_EvtStart
-  //MPE_Log_get_solo_eventID(&f_EvtStart);
   MPE_Log_get_state_eventIDs(&f_EvtStart, &f_EvtEnd);
   if(withdescription)
   {
-    MPE_Describe_comm_state( MPI_COMM_WORLD, f_ThreadId, f_EvtStart, f_EvtEnd,
+    MPE_Describe_comm_state( MPI_COMM_WORLD, f_EvtStart, f_EvtEnd,
                              description.c_str(), color.c_str(),
                              "%s" );
   }
@@ -104,7 +94,8 @@ OOPStateEvent::~OOPStateEvent()
 {
   
   if(f_manager) {
-    MPE_Log_comm_event(MPI_COMM_WORLD,f_ThreadId,f_EvtEnd, (char*)&fMess);
+    MPE_Log_comm_event(MPI_COMM_WORLD, f_EvtEnd, (char*)&fMess);
+//     MPE_Log_event(f_ThreadId,f_EvtEnd, (char*)&fMess);
     f_manager->ReleaseEvent(f_ThreadId);
   }
   f_manager = 0;
@@ -140,31 +131,10 @@ OOPSoloEvent::OOPSoloEvent(){
   
 }
 
-/*void OOPEvent::SetText(char * title){
-  if(f_ThreadId < 0) exit( -1);
-  fMess.SetText(title);
-  MPE_Describe_comm_state( MPI_COMM_WORLD, f_ThreadId, f_EvtStart, f_EvtEnd,
-                             "Task Execution", "blue",
-                             "%s" );
-  strncpy(fMess.fText, title,MAX_MSG_LENGTH);
- fMess.fText[MAX_MSG_LENGTH]='\0';
-
-  fMess.fL = strlen(title) > MAX_MSG_LENGTH ? MAX_MSG_LENGTH : strlen(title);
-  int i;
-  for(i=fMess.fL; i<MAX_MSG_LENGTH+1; i++) fMess.fText[i] = '\0';
-  cout << __PRETTY_FUNCTION__ << " fL = " << fMess.fL << " Message = " << " MSG_LEN " << MAX_MSG_LENGTH << endl;
-  for(i=0; i<fMess.fL; i++) cout << fMess.fText[i];
-  cout << endl;
-  unsigned int first,second;
-  first = fMess.fL/256;
-  second = fMess.fL%256;
-  fMess.fL = (second << 8) + first;
-}*/
-
 void OOPSoloEvent::Log(){
   if(f_manager)
   {
-    MPE_Log_comm_event(MPI_COMM_WORLD,f_ThreadId,f_EvtStart, (char*)&fMess);
+    MPE_Log_comm_event(MPI_COMM_WORLD, f_EvtStart, (char*)&fMess);
   }
 }
 void OOPSoloEvent::Initialize(int myindex, std::string &description, bool withdescription, const std::string &color)
@@ -175,11 +145,7 @@ void OOPSoloEvent::Initialize(int myindex, std::string &description, bool withde
   
   if(withdescription)
   {
-    MPE_Describe_comm_event( MPI_COMM_WORLD, f_ThreadId,
-                                    f_EvtStart, description.c_str(), color.c_str(), "%s");
-/*    MPE_Describe_comm_state( MPI_COMM_WORLD, f_ThreadId, f_EvtStart, f_EvtEnd,
-                             description.c_str(), "blue",
-                             "%s" );*/
+    MPE_Describe_info_event( f_EvtStart, description.c_str(), color.c_str(), "%s");
   }
 
 }
@@ -198,3 +164,4 @@ OOPSoloEvent::~OOPSoloEvent()
 
 #endif
 
+#endif //OOP_MPE

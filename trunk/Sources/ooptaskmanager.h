@@ -5,8 +5,16 @@
 #include <pthread.h>
 #endif
 #include "ooptask.h"
+
+#ifdef OOP_MPE
+#include "oopevtmanager.h"
+#endif
+
 #include <list>
 #include <set>
+
+#include <semaphore.h>
+
 class OOPStorageBuffer;
 class OOPDataVersion;
 class OOPSaveable;
@@ -14,6 +22,13 @@ class OOPTaskControl;
 using namespace std;
 class OOPObjectId;
 class TMLock;
+
+
+enum TMMessageType {
+  ETMAccessGranted,
+  ETMCancelTask,
+};
+
 
 struct SszQueues
 {
@@ -45,8 +60,11 @@ class OOPTaskManager
 {
   friend class OOPTask;
 public:
-
-
+  ofstream * fMainLog;
+  /**
+   * Dumps on disk the current state of the Manager object
+   */
+  void SnapShotMe(std::ostream & out);
   /**
    * Set max number of simultaneous threads.
    */
@@ -76,77 +94,45 @@ public:
    */
   void CleanUpTasks ();
   /**
-   * Used for testing purposes.
-   * Checks all the public interfaces of the class
-   */
-  static void main ();
-  /**
-   * Notifies the task that a required access was granted on the data.
-   * @param TaskId Id of the task to which the access was granted.
-   * @param depend dependency structure including objectid, state and version.
-   * @param objptr Pointer to data object.
-   */
-  void NotifyAccessGranted (const OOPObjectId & TaskId,
-			    const OOPMDataDepend & depend,
-			    OOPMetaData * objptr);
-  /**
-   * Notifies the task that a required access was revoked on the data.
-   * @param TaskId Id of the task to which the access was granted.
-   * @param depend dependency structure including objectid, state and version.
-   */
-  void RevokeAccess (const OOPObjectId & TaskId,
-		     const OOPMDataDepend & depend);
-  /**
    * Constructor passing processor id as parameter.
    * @param proc Processor where the TM is created.
    */
-    OOPTaskManager (int proc);
+  OOPTaskManager (int proc);
   /**
    * Simple destructor
    */
-   ~OOPTaskManager ();
+  ~OOPTaskManager ();
   /**
    * Submits a task to the TaskManager.
    * Assigns to that task a unique Id on the environment.
    * @param task Pointer to the submitted task.
    */
 protected:
+
     OOPObjectId Submit (OOPTask * task);
 public:
   /**
-   * Submits a daemon task to the TaskManager.
+   * Executes a daemon task as soon as it is submitted to the current task manager
    * @param task Pointer to the submitted task.
    */
-  void SubmitDaemon (OOPDaemonTask * task);
+  void ExecuteDaemon(OOPTask * dmt);
   /**
    * Returns the number tasks currently being managed by this data manager
    */
-  int NumberOfTasks ();
-  /**
-   * Returns true if there is a chance of finding an executable task
-   */
-  bool HasWorkTodo ();
+  int NumberOfTasks();
   /**
    * Returns the total number of task on the environment.
    */
-  int GlobalNumberOfTasks ();
+  int GlobalNumberOfTasks();
   /**
-   * Changes the priority of the task identified by Id.
-   * @param Id Id of the task having its priority changed.
-   * @param newpriority New priority assigned to the task.
+   * Inserts in the fMessages list an instruction for the cancelation of a Task.
+   * @param tag Tag contains the Id of the task which will be canceled.
    */
-  int ChangePriority (OOPObjectId & Id, int newpriority);
-  /**
-   * Cancels the task.
-   * @param taskid Id of task which will be canceled.
-   */
-  int CancelTask (OOPObjectId taskid);
-  /**
-   * Returns 1 if task does exist on the current TM
-   * @param taskid Id of the searched task
-   */
-  int ExistsTask (OOPObjectId taskid);	// returns 1 if the
+  void CancelTask (OOPAccessTag & tag);
 
+  /**
+   * Transfer Tasks from the Executing tasks list to the Finished tasks list
+   */
   void TransferExecutingTasks ();
   /**
    * Transfer the tasks which are in the fSubmittedList to the
@@ -154,41 +140,56 @@ public:
    */
   void TransferSubmittedTasks ();
   /**
-   * Transfer the finished tasks to the tasklist if they are recurrent
-   * else delete the finished tasks
-   */
-  void TransferFinishedTasks ();
-  /**
    * Indicate to the TaskManager that a given task can execute
    */
   void TransfertoExecutable (const OOPObjectId & taskid);
   /**
-   * Execute all daemons which are in the list
-   */
-  void ExecuteDaemons ();
-  /**
-   * Very important method for the whole OOPar environment.
-   * Starts all task which has their data access requests granted from the DM.
-   * At least one call to one of the task managers should performed for the OOPar to start.
+   * Triggers the Service Thread method for the OOPar environment.
    */
   void Execute ();
-  static void *ReceiveMessages (void *data);
+  /**
+   * ServiceThread execution method for the TM
+   * This method also triggers the services threads for the remaining Managers
+   */
   static void * ExecuteMTBlocking (void *data);
 
-  static void *ExecuteMT (void *data);
+  /**
+   * Grants access to task identified in the Tag Object
+   * The tag represents a Task requiring access to a Data.
+   * With this method the Requirement represented in the tag is satisfied.
+   */
+  void GrantAccess(OOPAccessTag & tag);
+  /**
+   * The TM ServiceThread goes to sleep when it had completed all its tasks.
+   * New tasks submissions should wake the ServiceThread  Up. This is performed calling WakeUpCall()
+   * It Posts a sem_post on the ServiceThread semaphore which went to sleep by calling a sem_wait
+   * Service thread now sleeps based on a semaphore type
+   * Semaphore are used instead of mutex and conditional variables combined.
+   * Semaphores avoid deadlocking in the cond_signal, cond_wait, mutex_lock and unlocking
+   */
+  void WakeUpCall(){
+    sem_post(&fServiceSemaphore);
+  }
+  /**
+   * Returns true if the service thread has work to do
+   */
+  bool KeepRunning();
+  /**
+   * Puts the TM ServiceThread to sleep since there is nothing else to do.
+   * The ServiceThread then needs to be awaken by a call to WakeUpCall()
+   */
+  void WaitWakeUpCall();
+  /**
+   * Whenever possible, tasks which can be executed by this method.
+   * Complies with the data protection of the TM data structure
+   */
+  void TriggerTasks();
 
   /**
-   * This method will grab the fSubmittedMutex
+   * Handles the messages contained on the fMessages list
    */
-  void Lock (TMLock & obj);
-  /**
-   * This method will signal the condition variable
-   */
-  void Signal (TMLock & obj);
-  /**
-   * This method will release the fSubmittedMutex
-   */
-  void Unlock (TMLock & obj);
+  void HandleMessages();
+
 private:
 
   /** 
@@ -203,27 +204,15 @@ private:
    * Thread which owns the lock
    */
   pthread_t fLockThread;
-
   /**
    * Indicates if TM must continue its processing
    */
   bool fKeepGoing;
+  
   /**
-   * Mutual exclusion locks for adding tasks to the submission task list.
+   * Semaphore for the ServiceThread
    */
-  /**
-   * Mutual exclusion lock for the fSubmittedList queue
-   */
-  pthread_mutex_t fSubmittedMutex;
-
-  /**
-  * Condition variable to put the taskmanager thread to sleep
-  */
-  pthread_cond_t fExecuteCondition;
-  /**
-   * The lock object currently holding the mutex
-   */
-  TMLock *fLock;
+  sem_t fServiceSemaphore;
 
   /**
    * Generate a unique id number
@@ -235,10 +224,6 @@ private:
   OOPTask *FindTask (OOPObjectId taskid);	// 
   /**
    * reorder the tasks according to their priority
-   */
-  void Reschedule ();
-  /**
-   * Processor where the current object is located
    */
   int fProc;
   /**
@@ -253,70 +238,41 @@ private:
   /**
    * List of tasks which can't be executed yet
    */
-    list < OOPTaskControl * >fTaskList;
+  list < OOPTaskControl * >fTaskList;
   /**
    * List of tasks which can be readily executed
    */
-    list < OOPTaskControl * >fExecutable;
-    list < OOPTaskControl * >fExecuting;
-
+  list < OOPTaskControl * >fExecutable;
   /**
-   * List of daemon tasks which can be readily executed
+   * List of executing tasks
    */
-    list < OOPDaemonTask * >fDaemon;
+  list < OOPTaskControl * >fExecuting;
+
   /**
    * List of tasks recently submitted
    */
-    list < OOPTask * >fSubmittedList;
+  list < OOPTask * >fSubmittedList;
   /**
-   * List of finished tasks
+   * Holds a list of messages to the TM
+   * The messages are translated in actions to the Tasks on TM
+   * The list is composed by pairs of Type and AccessTags.
+   * Types can be TMAccessGranted or TMCancelTask
    */
-    list < OOPTaskControl * >fFinished;
+  std::list <std::pair< int, OOPAccessTag> > fMessages;
+  /**
+   * Translates a GrantAccess message to its necessary action on the TM context
+   */
+  void ExtractGrantAccessFromTag(const OOPAccessTag & tag);
+  /**
+   * Translates a CancelTask message to its necessary action on the TM context
+   */
+  void ExtractCancelTaskFromTag(const OOPAccessTag & tag); 
 };
 
 /**
- * Class which implements a lock on the task manager data structure
+ * Implements a class which is responsible for turning Off both TM and DM.
+ * In its execute method it calls SetKeepGoing() for both managers setting them to false.
  */
-class TMLock
-{
-public:
-  /**
-   * This method will grab the mutex of the task manager
-   */
-  TMLock ();
-
-  /**
-   * The destructor will release the mutex
-   */
-  ~TMLock ();
-
-  /**
-   * This method will signal the condition of the task manager
-   */
-  void Signal ();
-};
-
-/**
- * Implements a task which will be registered as a daemon
- */
-class OOPTMTask:public OOPDaemonTask
-{
-public:
-
-  OOPTMTask ();
-  ~OOPTMTask ();
-  /**
-   * Simple constructor
-   */
-  OOPTMTask (int ProcId);
-private:
-  /**
-   * Returns execution type
-   */
-    OOPMReturnType Execute ();
-
-};
-
 class OOPTerminationTask:public OOPTask
 {
 public:
@@ -345,46 +301,6 @@ public:
 };
 template class TPZRestoreClass < OOPTerminationTask, TTERMINATIONTASK_ID >;
 
-/*
-  enum TTMMessageType {
-  ENoTaskMessage, // indicates that the task message was no initialized
-  ETaskFinished,	// indicate that the task finished successfully
-  ETaskAborted,	// indicate that the task was aborted
-  ETaskMoved,		// indicate that the task was moved to a different processor
-  ENewTask,		// signal the criation of a new task
-  ETaskSubmit,	// indicating a task being submitted
-  EAddDependence, // adding a dependence to a task
-  EChangePriority	// changing the priority of the task
-  };
-  class TTMMessageTask : public TDaemonTask {
-  // task which will be sent to the other processors when
-  //      a task terminated successfully, aborted or was deleted
-  public:
-  TObjectId fTaskId;				// task id of the task which changed
-  int fMessageOrigin;			// processor from which the message originated
-  int fMessageDestination;	// processor to which the data is destinated
-  int fProcDestination;		// data with reference to the message
-  int fProcOrigin;			// data with reference to the message
-  int fPriority;				// data with reference to the message
-  long fTaskDependence;		// data with reference to EAddDependence
-  TTMMessageType fMessage;
-  TTask *fTask;				// data with reference to the message
-  TTMMessageTask(int ProcId);
-  virtual MReturnType Execute();
-  virtual long GetClassID() { return TTMMESSAGETASK_ID; }
-  virtual int Unpack( TReceiveStorage *buf );
-  static TSaveable *Restore(TReceiveStorage *buf);
-  
-  virtual int Pack( TSendStorage *buf );
-  // Apenas para DEBUG.
-  //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
-  //  virtual void Print() { Debug( "  TSaveable::Print." ); }
-  virtual char *ClassName()    { return( "TTMMessageTask" ); }
-  virtual int DerivedFrom(long Classid); // returns  true if the object
-  //  belongs to a class which is derived from a class
-  //  with id classid
-  virtual int DerivedFrom(char *classname); // a class with name classname
-  };*/
 
 extern OOPTaskManager *TM;
 #endif

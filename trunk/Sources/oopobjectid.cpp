@@ -6,7 +6,6 @@ class   OOPStorageBuffer;
 class   OOPStorageBuffer;
 //class OOPObjectId;
 
-#include "ooperror.h" 
 #include <sstream>
 
 #include <pzlog.h>
@@ -59,25 +58,25 @@ int OOPObjectId::main ()
 	sout << TestDeQue.size () << endl;
 	deque < OOPObjectId * >::iterator i;
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
-		(*i)->Print ();
+		(*i)->Print (sout);
 	}
 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		if ((*i)->operator== (idteste)) {
 			TestDeQue.erase (i);
 		}
 	}
- 
+
 	sout << TestDeQue.size () ;
-  LOGPZ_DEBUG(logger,sout.str());
-	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
-		(*i)->Print ();
+ 	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
+		(*i)->Print (sout);
 	}
-	OOPObjectId *pt2 = new OOPObjectId;
+  LOGPZ_DEBUG(logger,sout.str().c_str());
+ OOPObjectId *pt2 = new OOPObjectId;
 	pt2->SetId (30);
 	pt2->SetProcId (2);
 	deque < OOPObjectId * >::iterator fd;
 	fd = find (TestDeQue.begin (), TestDeQue.end (), pt2);
-	
+
       i = TestDeQue.end ();
 	delete *i;
 	return 0;
@@ -95,9 +94,7 @@ bool OOPObjectId::operator == (const OOPObjectId & obj) const
 }
 bool OOPObjectId::operator >= (const OOPObjectId & obj) const
 {
-	if ((fId >= obj.GetId ()) && (fProcId >= obj.GetProcId ()))
-		return true;
-	return false;
+  return !operator<(obj);
 }
 bool OOPObjectId::operator >= (int val) const
 {
@@ -125,8 +122,6 @@ bool OOPObjectId::operator < (const OOPObjectId & id) const
 }
 OOPObjectId & OOPObjectId::operator= (const OOPObjectId & obj)
 {
-  //:wq
-  //std::cout << __PRETTY_FUNCTION__ << "fdp!!!!!!!!!!!!!!!!\n\n\n\n";
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 	return *this;
@@ -164,7 +159,6 @@ void OOPObjectId::SetId (int id)
 }
 OOPObjectId::OOPObjectId (const::OOPObjectId & obj)
 {
-  //std::cout << __PRETTY_FUNCTION__ << "fdp!!!!!!!!!!!!!!!!\n\n\n\n";
 	fId = obj.GetId ();
 	fProcId = obj.GetProcId ();
 }
@@ -175,7 +169,7 @@ void OOPObjectId::Write (TPZStream & buf, int)
 	buf.Write (&aux);
 	aux = GetProcId ();
 	buf.Write (&aux);
-	
+
 }
 void OOPObjectId::Read (TPZStream & buf, void * context )
 {
@@ -184,7 +178,7 @@ void OOPObjectId::Read (TPZStream & buf, void * context )
 	SetId (aux);
 	buf.Read (&aux);
 	SetProcId (aux);
-	
+
 }
 
 int OOPObjectId::IsZeroOOP() const

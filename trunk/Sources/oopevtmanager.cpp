@@ -1,34 +1,22 @@
-//
-// C++ Implementation: oopevtmanager
-//
-// Description: 
-//
-//
-// Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2006
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
-//#include "ooptaskcontrol.h"
+#ifdef OOP_MPE
 
 
-//#include "ooptask.h"
-//#include "ooperror.h"
-//#include "ooptaskmanager.h"
+#include <map>
 
-#include <sstream>
 //#include "oopcommmanager.h"
 
 #ifdef OOP_MPI
 #include "mpi.h"
 #endif
 #ifdef OOP_MPE
-
 #include "mpe.h"
 #endif
 
 #include "oopevtmanager.h"
+#include "oopevtid.h"
 
+
+#include <sstream>
 #include <pzlog.h>
 #ifdef LOGPZ
 using namespace log4cxx;
@@ -42,7 +30,7 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
 
 OOPEventDatabase gEvtDB(20);
 
-using namespace std;
+
 
 template<class TEvt>
 OOPEvtManager<TEvt>::OOPEvtManager(const std::string &description, int nevts, bool withdescription, const std::string color){
@@ -78,7 +66,7 @@ void OOPEvtManager<TEvt>::FillMeUp(int nevts, bool withdescription, std::string 
   for(i=0;i<nevts;i++){
     TEvt levt;
     levt.Initialize(i,f_description,withdescription, color);
-    pair< int, TEvt > item(i, levt);
+    std::pair< int, TEvt > item(i, levt);
     m_Evts.insert(item);
     m_Avail.insert(i);
   }
@@ -92,40 +80,40 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
     int curr = m_Used.size();
     TEvt levt;
     levt.Initialize(curr,f_description,true,"black");
-    pair< int, TEvt > item(curr, levt);
+    std::pair< int, TEvt > item(curr, levt);
     m_Evts.insert(item);
     m_Avail.insert(curr);
   }
-  set<int>::iterator it = m_Avail.begin();
+  std::set<int>::iterator it = m_Avail.begin();
   if(it == m_Avail.end()){
-#ifdef LOGPZ    
-    stringstream sout;
+#ifdef LOGPZ
+    std::stringstream sout;
     sout << __FUNCTION__ << __LINE__ << " MPE Event ID management failed ";
-    LOGPZ_DEBUG(logger,sout.str());
+    LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   }else{
-#ifdef LOGPZ    
-    stringstream sout;
-    sout << __FUNCTION__ << __LINE__ << " Inserted on Used and removed from Avail " << *it;
-    LOGPZ_DEBUG(logger,sout.str());
+#ifdef LOGPZ
+    std::stringstream sout;
+    sout << __FUNCTION__ << " L:" << __LINE__ << " Inserted on Used and removed from Avail " << *it;
+    //LOGPZ_DEBUG(logger,sout.str());
 #endif
 //    m_Evts.begin();
 //    map< int, TEvt>::iterator mit = m_Evts.begin();
 //    std::map< int, TEvt>::iterator mit;
 //    mit = m_Evts.find(*it);
     if(m_Evts.find(*it) == m_Evts.end()) {
-      cout << "Ferrou"<< endl;
+      std::cout << "Ferrou\n";
       return;
     }
     Evt = m_Evts[*it];
     m_Used.insert(*it);
     m_Avail.erase(*it);
     Evt.SetManager(this);
-#ifdef LOGPZ    
+#ifdef LOGPZ
     {
-    stringstream sout;
+    std::stringstream sout;
     Evt.Print(sout);
-    LOGPZ_DEBUG(logger,sout.str());
+    //LOGPZ_DEBUG(logger,sout.str());
     }
 #endif
 
@@ -134,18 +122,39 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
 
 }
 
-template< class TEvt>
-void OOPEvtManager<TEvt>::ReleaseEvent(int index){
+template<>
+void OOPEvtManager<OOPSoloEvent>::ReleaseEvent(int index){
 #ifdef LOGPZ
-  map<int, TEvt>::iterator it;
+  std::map<int, OOPSoloEvent>::iterator it;
   it = m_Evts.find(index);
   if(it!=m_Evts.end()){
     {
-    stringstream sout;
+    std::stringstream sout;
 
     sout << __FUNCTION__ << __LINE__ << "Releasing EvtID " << it->first;
     it->second.Print(sout);
-    LOGPZ_DEBUG(logger,sout.str());
+    //LOGPZ_DEBUG(logger,sout.str());
+    }
+  }
+#endif
+  pthread_mutex_lock(&m_EvtMutex);
+  m_Avail.insert(index);
+  m_Used.erase(index);
+  pthread_mutex_unlock(&m_EvtMutex);
+}
+
+template<>
+void OOPEvtManager<OOPStateEvent>::ReleaseEvent(int index){
+#ifdef LOGPZ
+  std::map<int, OOPStateEvent>::iterator it;
+  it = m_Evts.find(index);
+  if(it!=m_Evts.end()){
+    {
+    std::stringstream sout;
+
+    sout << __FUNCTION__ << __LINE__ << "Releasing EvtID " << it->first;
+    it->second.Print(sout);
+    //LOGPZ_DEBUG(logger,sout.str());
     }
   }
 #endif
@@ -160,20 +169,20 @@ OOPEventDatabase::OOPEventDatabase(int numobjects)
   f_numobjects = numobjects;
 }
 
-void OOPEventDatabase::AddStateEvent(const std::string &eventname, 
+void OOPEventDatabase::AddStateEvent(const std::string &eventname,
     const std::string &description, const std::string &color, bool withdescription)
 {
   OOPEvtManager<OOPStateEvent> evtman(description, f_numobjects, withdescription, color);
   fStateEvents[eventname]=evtman;
 }
-  
+
 void OOPEventDatabase::AddSoloEvent(const std::string &eventname,
     const std::string &description, const std::string &color, bool withdescription)
 {
   OOPEvtManager<OOPSoloEvent> evtman(description, f_numobjects, withdescription, color);
   fSoloEvents[eventname]=evtman;
 }
-  
+
 void OOPEventDatabase::Initialize(const std::string &eventname,
     OOPStateEvent &evt)
 {
@@ -181,7 +190,7 @@ void OOPEventDatabase::Initialize(const std::string &eventname,
     fStateEvents[eventname].GetEvent(evt);
   }
 }
-  
+
 void OOPEventDatabase::Initialize(const std::string &eventname,
     OOPSoloEvent &evt)
 {
@@ -197,3 +206,4 @@ template class OOPEvtManager<OOPSoloEvent>;
 #endif
 
 
+#endif //OOP_MPE

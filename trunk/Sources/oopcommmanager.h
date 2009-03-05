@@ -14,10 +14,8 @@
 //
 #ifndef _COMMUNICHH_
 #define _COMMUNICHH_
-#include "ooperror.h"
 
 #include "oopobjectid.h"
-#include "ooperror.h"
 #include "oopobjectid.h"
 //class OOPTaskManager;
 //class OOPSaveable;
@@ -80,7 +78,7 @@ class   OOPCommunicationManager
 	* Receives any arrived messages.
 	* Returns zero if none has arrived
 	*/
-	virtual int ReceiveMessages () = 0;
+// 	virtual int ReceiveMessages () = 0;
 	// Envia todas as mensagens de todos os buffers.
 	// 
 	/**

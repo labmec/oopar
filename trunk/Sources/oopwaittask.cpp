@@ -1,7 +1,7 @@
 //
 // C++ Implementation: oopwaittask
 //
-// Description: 
+// Description:
 //
 //
 // Author: Philippe R. B. Devloo <phil@fec.unicamp.br>, (C) 2004
@@ -19,7 +19,7 @@
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
-static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
+static LoggerPtr logger(Logger::getLogger("OOPar.WaitTask"));
 #endif
 
 #ifdef OOP_MPE
@@ -28,19 +28,16 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.WaitTask"));
 
 class OOPStorageBuffer;
 
-int OOPWaitTask::gCounter = 0;
-
 OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
 {
-  pthread_cond_init(&fExecCond, NULL);
-  pthread_cond_init(&fExtCond, NULL);
-  pthread_mutex_init(&fExtMutex, NULL);
-  pthread_mutex_init(&fExecMutex, NULL);
-  LockExternal();
-} 
+  sem_init(&fMainSemaphore, 0, 0);
+  sem_init(&fExecSemaphore, 0, 0);
+}
 
 OOPWaitTask::~OOPWaitTask()
 {
+  sem_destroy(&fMainSemaphore);
+  sem_destroy(&fExecSemaphore);
 }
 
 
@@ -62,21 +59,30 @@ int OOPWaitTask::ClassId() const
 
 OOPMReturnType OOPWaitTask::Execute()
 {
-  pthread_mutex_lock(&fExecMutex);
-  pthread_mutex_lock(&fExtMutex);
-  pthread_cond_signal(&fExtCond);
-  pthread_mutex_unlock(&fExtMutex);
-  //sleep(10);
+#ifdef LOGPZ
   {
-    
+    stringstream sout;
+    sout << "Inside Execute of WaitTask ID " << Id() << " Posting fMainSemaphore";
+    LOGPZ_DEBUG(logger, sout.str());
   }
-  pthread_cond_wait(&fExecCond, &fExecMutex);
-#ifdef LOGPZ    
-  stringstream sout;
-  sout << "Wait task is leaving execute id " << Id();
-  LOGPZ_DEBUG(logger,sout.str());
-#endif  
+#endif
   this->IncrementWriteDependentData();
+  sem_post(&fMainSemaphore);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " << Id() << " waiting post on fExecSemaphore";
+    LOGPZ_DEBUG(logger, sout.str().c_str());
+  }
+#endif
+  sem_wait(&fExecSemaphore);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " <<  Id() << " Leaving execute";
+    LOGPZ_DEBUG(logger, sout.str().c_str());
+  }
+#endif
   return ESuccess;
 }
 
@@ -85,10 +91,14 @@ OOPMReturnType OOPWaitTask::Execute()
  */
 void OOPWaitTask::Finish()
 {
-  gCounter--;
-  pthread_mutex_lock(&fExecMutex);
-  pthread_cond_signal(&fExecCond);
-  pthread_mutex_unlock(&fExecMutex);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " << Id() << " Finished ! Posting fExecSemaphore";
+    LOGPZ_DEBUG(logger, sout.str().c_str());
+  }
+#endif
+  sem_post(&fExecSemaphore);
 }
 
 
@@ -97,32 +107,19 @@ void OOPWaitTask::Finish()
  */
 void OOPWaitTask::Wait()
 {
-  if(gCounter) 
+#ifdef LOGPZ
   {
-#ifdef LOGPZ    
-    std::stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " Recursive call of wait task " << Id();
-    LOGPZ_ERROR(logger,sout.str());
-#endif    
+    stringstream sout;
+    sout << "WaitTask ID " << Id() << " Waiting for Post in fMainSemaphore";
+    LOGPZ_DEBUG(logger, sout.str().c_str());
   }
-  gCounter++;
-//  pthread_mutex_lock(&fExtMutex);
-#ifdef OOP_MPE
-  stringstream sout;
-  sout << "TId:" << Id().GetId()
-    << ":" << Id().GetProcId() << ":Dep:";
-  fDataDepend.ShortPrint(sout);
-  OOPStateEvent evt("waittask",sout.str());
 #endif
-
-  pthread_cond_wait(&fExtCond,&fExtMutex);
-}
-
-
-/*!
-    \fn OOPWaitTask::LockExternal()
- */
-void OOPWaitTask::LockExternal()
-{
-    pthread_mutex_lock(&fExtMutex);
+  sem_wait(&fMainSemaphore);
+#ifdef LOGPZ
+  {
+    stringstream sout;
+    sout << "WaitTask ID " << Id() << " fMainSemaphore Posted ! Leaving Wait";
+    LOGPZ_DEBUG(logger, sout.str().c_str());
+  }
+#endif
 }

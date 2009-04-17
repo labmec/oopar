@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2007
+// Author: Gustavo C Longhin <longhin@labmec.fec.unicamp.br>, (C) 2007
 //
 // Copyright: See COPYING file that comes with this distribution
 //

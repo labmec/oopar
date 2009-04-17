@@ -1,4 +1,4 @@
-
+#ifdef OOP_MPI  
 
 #include "oopmpistorage.h"
 #include "oopcommmanager.h"
@@ -547,3 +547,4 @@ void OOPMPIStorageBuffer::Read(string *p, int size)
     p[i] = buf;
   }
 }
+#endif

@@ -8,9 +8,10 @@ class   OOPTask;
 #include "oopaccesstag.h"
 //#include "oopevtmanager.h"
 /**
- * class which encapsulates a task object and data dependency structure.
+ * Class which encapsulates a task object and data dependency structure.
  * The main idea is to separate the data dependency structure from the task.
  * As such the task is free to manipulate its internal dependency structure.
+ * A task object depends on a TaskControl object for its execution.
  */
 class   OOPTaskControl
 {

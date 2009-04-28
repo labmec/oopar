@@ -47,6 +47,7 @@ enum OOPMReturnType
 #define OOPDOUBLE_ID 3009
 #define OOPINT_ID 3010
 
+#define OOPCOLLECTOR_TASK_ID 3011
 
 
 #endif

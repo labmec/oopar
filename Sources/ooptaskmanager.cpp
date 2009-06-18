@@ -1023,7 +1023,11 @@ void OOPTaskManager::Execute ()
 #endif
   }
 #ifdef OOP_SOCKET
-   ((OOPSocketCommManager *)CM)->Barrier();
+	OOPSocketCommManager * lCM = dynamic_cast<OOPSocketCommManager * > (CM);
+	if(lCM)
+	{
+		lCM->Barrier();
+	}
   // TODO Precisa desse barrier ?
 #elif OOP_MPI
   MPI_Barrier(MPI_COMM_WORLD);
@@ -1060,7 +1064,11 @@ void OOPTaskManager::Wait()
 #endif
 	//teste
 #ifdef OOP_SOCKET
-	((OOPSocketCommManager *)CM)->Barrier();
+	OOPSocketCommManager * lCM = dynamic_cast<OOPSocketCommManager *> (CM);
+	if(lCM)
+	{
+		lCM->Barrier();
+	}
 #endif
 	//teste
   pthread_join (fExecuteThread, NULL);
@@ -1073,7 +1081,10 @@ void OOPTaskManager::Wait()
 #endif
 	DM->Wait();
 #ifdef OOP_SOCKET
-	((OOPSocketCommManager *)CM)->Barrier();
+	if(lCM)
+	{
+		lCM->Barrier();
+	}
   // Precisa desse barrier ?
 #ifdef BLOCKING
   // ((OOPSocketCommManager *)CM)->UnlockReceiveBlocking();

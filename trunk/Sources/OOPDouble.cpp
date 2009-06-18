@@ -4,12 +4,6 @@
 #include <sstream>
 #include <pzlog.h>
 #ifdef LOG4CXX
-#include <log4cxx/logger.h>
-#include <log4cxx/basicconfigurator.h>
-#include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/helpers/exception.h>
-using namespace log4cxx;
-using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPDouble"));
 #endif
 
@@ -17,7 +11,8 @@ OOPDouble::OOPDouble() : TPZSaveable(), fValue(0.)
 {
 }
 
-int OOPDouble::ClassId() const {
+int OOPDouble::ClassId() const
+{
 	return OOPDOUBLE_ID;
 }
 void OOPDouble::Read(TPZStream & buf, void * context){
@@ -39,3 +34,4 @@ void OOPDouble::Write(TPZStream & buf, int withclassid){
   int clsid = ClassId();
   buf.Write(&clsid);
 }
+template class TPZRestoreClass<OOPDouble, OOPDOUBLE_ID>;

@@ -14,7 +14,6 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPInt"));
 #endif
 
-template class TPZRestoreClass<OOPInt, OOPINT_ID>;
 
 OOPInt::OOPInt() : TPZSaveable() , fValue(0) 
 {
@@ -39,3 +38,5 @@ void OOPInt::Write(TPZStream & buf, int withclassid){
 int OOPInt::ClassId() const {
     return OOPINT_ID;
 }
+template class TPZRestoreClass<OOPInt, OOPINT_ID>;
+

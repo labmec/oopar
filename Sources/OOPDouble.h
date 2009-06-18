@@ -16,9 +16,8 @@ public:
 
     void Read(TPZStream & buf, void * context);
 
-    virtual int ClassId() const ;
+    virtual int ClassId() const;
 
     
 };
-template class TPZRestoreClass<OOPDouble, OOPDOUBLE_ID>;
-#endif //OOPDOUBLE_H
+#endif

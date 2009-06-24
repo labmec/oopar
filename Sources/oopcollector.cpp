@@ -1,4 +1,4 @@
-/*
+/**
  *  oopcollector.cpp
  *  OOPar
  *
@@ -58,7 +58,7 @@ void OOPCollector<T>::Read (TPZStream & buf, void *context)
 	TPZSaveable::ReadObjects(buf, m_FromVector);
 	m_TargetId.Read(buf, context);
 	buf.Read((int *)m_Type, 1);
-	
+
 }
 
 template <class T>
@@ -103,7 +103,7 @@ void OOPCollector<T>::Scatter()
 	int i;
 	for(i = 0; i< m_ScatterTo.NElements(); i++)
 	{
-		int idtg = m_ScatterTo[i]; 
+		int idtg = m_ScatterTo[i];
 		*tgVec[idtg] += m_FromVector[i];
 	}
 }

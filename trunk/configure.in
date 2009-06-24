@@ -9,6 +9,7 @@ dnl
 dnl ----------------------------------------------------------------------------
 dnl                              INITIAL CHECKINGS
 dnl ----------------------------------------------------------------------------
+dnl -DOOP_SOCKET -DBLOCKING -DMTSEND
 
 dnl Checking if we are in the OOPar source tree
 AC_INIT(OOP.mk.in)
@@ -201,6 +202,34 @@ AC_SUBST(LOG4CXX_INCLUDE)
 AC_SUBST(LOG4CXX_LIBDIR)
 AC_SUBST(LOG4CXX_SOURCE)
 
+dnl ----------------------------------------------------------------------------
+dnl                              ENABLE SOCKET?
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(socket,
+  [  --enable-socket=no      Enables the use of SOCKET [default=yes]],
+  [socket_enabled=$enableval],
+  [socket_enabled="no"])
+
+case "${socket_enabled}" in
+  yes)
+    echo "Enabling Socket code."
+    USING_SOCKET="-DOOP_SOCKET -DBLOCKING -DMTSEND"
+	
+  ;;
+  no)
+    echo "SOCKET not chosen."
+    USING_SOCKET=""
+	
+  ;;
+  *)
+    AC_MSG_ERROR(bad value ${socket_enabled} for --enable-socket)
+  ;;
+esac
+
+AM_CONDITIONAL( SOCKET, test ${socket_enabled} = yes )
+AM_CONDITIONAL(OOPSOCKET, test "$socket_enabled" = yes)
+AC_SUBST(USING_SOCKET)
 
 
 dnl ----------------------------------------------------------------------------
@@ -215,7 +244,7 @@ AC_ARG_ENABLE(mpi,
 case "${mpi_enabled}" in
   yes)
     echo "Enabling MPI code."
-    USING_MPI="-DOOP_MPI"
+    USING_MPI="-DOOP_MPI -DBLOCKING -DMTSEND"
 	
   ;;
   no)
@@ -402,30 +431,6 @@ AC_SUBST(MPILAMLIB)
 AC_SUBST(MPILAMSOURCE)
 
 
-dnl ----------------------------------------------------------------------------
-dnl                              ENABLE Sloan
-dnl ----------------------------------------------------------------------------
-
-AC_ARG_ENABLE(sloan,
-  [  --enable-sloan          Enables the use of Sloan],
-  [sloan_enabled=$enableval],
-  [sloan_enabled="no"])
-
-case "${sloan_enabled}" in
-  yes)
-    echo "Enabling Sloan code."
-    USING_SLOAN="-DUSING_SLOAN"
-  ;;
-  no)
-    echo "Sloan not chosen."
-    USING_SLOAN=""
-  ;;
-  *)
-    AC_MSG_ERROR(bad value ${sloan_enabled} for --enable-sloan)
-  ;;
-esac
-
-AC_SUBST(USING_SLOAN)
 
 dnl ----------------------------------------------------------------------------
 dnl                                  CLEANING

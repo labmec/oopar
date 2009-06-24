@@ -95,6 +95,16 @@ AC_DEFUN(OOP_BYEBYE,
       ;;
     esac
 
+    case "${socket_enabled}" in
+      yes)
+        echo "      -> Socket enabled."
+      ;;
+      no)
+        echo "      -> Socket not enabled."
+      ;;
+    esac
+
+
     echo
     echo "   type \"make\" to start compilation."
     echo "   type \"make install\" as root to install it."

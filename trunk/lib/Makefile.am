@@ -15,34 +15,64 @@ lib_LIBRARIES = liboopar.a
 
 liboopar_a_SOURCES =
 if OOPMPI
-liboopar_a_LIBADD = ../Sources/oopdatamanager.o ../Sources/ooptaskmanager.o \
-	../Sources/oopdataversion.o ../Sources/ooperror.o ../Sources/oopmetadata.o ../Sources/oopobjectid.o \
-	../Sources/oopparclass.o ../Sources/oopsaveable.o ../Sources/oopstorage.o ../Sources/oopstore.o \
-	../Sources/ooptask.o ../Sources/oopmdatadepend.o ../Sources/ooptaskcontrol.o \
-	../Sources/OOPDataLogger.o ../Sources/oopaccessinfo.o ../Sources/ooppardefs.o \
-	../Sources/oopwaittask.o  ../Sources/oopmpicomm.o ../Sources/oopmpistorage.o \
-  ../Sources/ooperror.o ../Sources/OOPInt.o ../Sources/OOPDouble.o ../Sources/oopcommmanager.o ../Sources/OOPVector.o ../Sources/oopevtid.o ../Sources/oopevtmanager.o
-else 
-liboopar_a_LIBADD =  ../Sources/oopdatamanager.o \
-	../Sources/ooptaskmanager.o \
-	../Sources/oopdataversion.o \
-	../Sources/ooperror.o \
-	../Sources/oopfilecomm.o \
-	../Sources/oopfilestorage.o \
-	../Sources/oopmetadata.o \
-	../Sources/oopobjectid.o \
-	../Sources/oopparclass.o \
-	../Sources/oopsaveable.o \
-	../Sources/oopstorage.o \
-	../Sources/oopstore.o \
-	../Sources/ooptask.o \
-	../Sources/oopmdatadepend.o \
-	../Sources/ooptaskcontrol.o \
-	../Sources/OOPDataLogger.o \
-	../Sources/oopaccessinfo.o \
-	../Sources/ooppardefs.o \
- ../Sources/oopwaittask.o \
-       ../Sources/oopcommmanager.o ../Sources/OOPVector.o
+ OOPMPI_LIBADD = ../Sources/oopmpicomm.o ../Sources/oopmpistorage.o
+endif 
+if OOPSOCKET
 
+OOPSOCKET_LIBADD = ../Sources/oopsocket.o \
+	  ../Sources/oopsocketcommmanager.o \
+	  ../Sources/oopsocketstorage.o 
 endif
+
+if OOPMPE
+OOPMPE_LIBADD =	../Sources/oopevtid.o \
+	  ../Sources/oopevtmanager.o
+endif
+
+GENERAL_OOP_LIBADD = ../Sources/OOPDouble.o \
+	  ../Sources/oopaccesstag.o \
+	  ../Sources/oopaccesstaglist.o \
+	  ../Sources/oopaccesstagmultiset.o \
+	  ../Sources/oopcommmanager.o \
+	  ../Sources/oopdatamanager.o \
+	  ../Sources/oopdataversion.o \
+	  ../Sources/oopdelobjecttask.o \
+	  ../Sources/oopdmlock.o \
+	  ../Sources/OOPInt.o \
+	  ../Sources/oopmetadata.o \
+	  ../Sources/oopobjectid.o \
+	  ../Sources/ooppardefs.o \
+	  ../Sources/oopsnapshottask.o \
+	  ../Sources/oopstorage.o \
+	  ../Sources/ooptask.o \
+	  ../Sources/ooptaskcontrol.o \
+	  ../Sources/ooptaskmanager.o \
+	  ../Sources/ooptmlock.o \
+	  ../Sources/OOPVector.o \
+	  ../Sources/oopwaittask.o \
+	  ../Sources/oopcollector.o \
+	  ../Sources/oopaccesstag.o \
+	  ../Sources/oopaccesstaglist.o \
+	  ../Sources/oopaccesstagmultiset.o \
+	  ../Sources/oopcommmanager.o \
+	  ../Sources/oopdatamanager.o \
+	  ../Sources/oopdataversion.o \
+	  ../Sources/oopdelobjecttask.o \
+	  ../Sources/oopdmlock.o \
+	  ../Sources/OOPInt.o \
+	  ../Sources/oopmetadata.o \
+	  ../Sources/oopobjectid.o \
+	  ../Sources/ooppardefs.o \
+	  ../Sources/oopsnapshottask.o \
+	  ../Sources/oopstorage.o \
+	  ../Sources/ooptask.o \
+	  ../Sources/ooptaskcontrol.o \
+	  ../Sources/ooptaskmanager.o \
+	  ../Sources/ooptmlock.o \
+	  ../Sources/OOPVector.o \
+	  ../Sources/oopwaittask.o \
+	  ../Sources/oopcollector.o
+
+liboopar_a_LIBADD = $(GENERAL_OOP_LIBADD) $(OOPSOCKET_LIBADD) $(OOPMPE_LIBADD) $(OOPMPI_LIBADD)
+
 ## --| OOPar |------------------------------------------------------------------

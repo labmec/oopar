@@ -28,31 +28,8 @@ noinst_LIBRARIES = liboopar.a
 
 if OOPMPI
 MPI_SOURCES = \
-	oopevtmanager.cpp \
-	oopevtid.cpp \
-	oopdatamanager.cpp \
-	ooptaskmanager.cpp 	\
-	oopdataversion.cpp 	\
-	ooperror.cpp \
-	oopmetadata.cpp \
-	oopobjectid.cpp \
-	oopparclass.cpp \
-	ooptask.cpp \
-	oopmdatadepend.cpp \
-	ooptaskcontrol.cpp \
-	oopaccessinfo.cpp \
-	OOPDataLogger.cpp \
-	ooppardefs.cpp \
 	oopmpicomm.cpp \
-	oopmpistorage.cpp \
-	oopwaittask.cpp \
-	OOPInt.cpp \
-	OOPDouble.cpp \
-	OOPVector.cpp \
-	oopstorage.cpp \
-	oopstore.cpp \
-	oopsaveable.cpp \
-	oopcommmanager.cpp
+	oopmpistorage.cpp
 endif
 
 if OOPSOCKET

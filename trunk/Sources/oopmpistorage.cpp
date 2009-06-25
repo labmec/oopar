@@ -1,21 +1,17 @@
-#ifdef OOP_MPI  
+#ifdef OOP_MPI
 
 #include "oopmpistorage.h"
 #include "oopcommmanager.h"
 #include <iostream>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sstream>
+#include <exception>
 
 
 #include <sstream>
 #include <pzlog.h>
 #ifdef LOG4CXX
-#include <log4cxx/logger.h>
-#include <log4cxx/basicconfigurator.h>
-#include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/helpers/exception.h>
-using namespace log4cxx;
-using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPMPIStorageBuffer"));
 #endif
 
@@ -37,9 +33,9 @@ void OOPMPIStorageBuffer::ExpandBuffer(int more_dimension)
   m_Buffer.Resize(m_Buffer.NElements()+more_dimension);
   if (more_dimension < 0)
   {
-    stringstream sout;
+    std::stringstream sout;
     sout << "Expanding buffer to invalid size " << more_dimension;
-    cout << sout.str().c_str() << endl;
+    std::cout << sout.str().c_str() << std::endl;
 #ifdef LOGPZ
     LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
@@ -59,10 +55,10 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
   {
     PMPI_Pack_size(n,mpitype,MPI_COMM_WORLD,&nbytes);
   }
-  catch(const exception& e)
+  catch(const std::exception& e)
   {
 #ifdef LOGPZ
-    stringstream sout;
+    std::stringstream sout;
     sout << "Exception catched on PMPI_Pack_size! " << e.what();
     LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
@@ -76,10 +72,10 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
     mpiret = PMPI_Pack (ptr, n, mpitype, &m_Buffer[0], m_Buffer.NElements(), &m_Length,
                       MPI_COMM_WORLD);
   }
-  catch(const exception& e)
+  catch(const std::exception& e)
   {
 #ifdef LOGPZ
-    stringstream sout;
+    std::stringstream sout;
     sout << "Exception catched on PMPI_Pack! " << e.what();
     LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
@@ -93,7 +89,7 @@ int OOPMPIStorageBuffer::Send (int target)
 #ifdef DEBUGALL
   {
 #ifdef LOGPZ
-    stringstream sout;
+    std::stringstream sout;
     sout << "PID" << getpid() << " Called MPI_Send ret = ";
     LOGPZ_DEBUG(logger,sout.str().c_str()):
 #endif
@@ -125,7 +121,7 @@ int OOPMPIStorageBuffer::Send (int target)
     ret = MPI_Send (&m_Buffer[0], m_Length, MPI_PACKED,
                   target, tag, MPI_COMM_WORLD);
   }
-  catch(const exception& e)
+  catch(const std::exception& e)
   {
 #ifdef LOGPZ
     {
@@ -206,7 +202,7 @@ int OOPMPIStorageBuffer::Send (int target)
         break;
       }
   }
-  cout.flush();
+  std::cout.flush();
 #endif
   ResetBuffer();
   return ret;

@@ -394,7 +394,7 @@ bool OOPTaskManager::KeepRunning()
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
-	
+
   bool result = false;
   if(fKeepGoing)
   {
@@ -433,18 +433,18 @@ bool OOPTaskManager::KeepRunning()
 			": Excutable " << fExecutable.size() <<
 			": Executing " << fExecuting.size() <<
 		": Messages " << fMessages.size() << "\n\n";
-		
+
 		list< OOPTaskControl * >::iterator it = fTaskList.begin();
 		for(;it!=fTaskList.end();it++)
 		{
 			(*it)->Print(sout);
 		}
-		
+
 		sout << "\nLeaving KeepRunning returning = " << result;
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
-	
+
   return result;
 }
 
@@ -736,7 +736,8 @@ void OOPTaskManager::WaitWakeUpCall()
 //#warning "Non stop service thread defined"
 //#define NONSTOPSERVICETHREAD
 #ifndef NONSTOPSERVICETHREAD
-  sem_wait(&fServiceSemaphore);
+  fServiceSemaphore->wait();
+  //sem_wait(&fServiceSemaphore);
 #else
   timeval now;
   gettimeofday (&now, 0);
@@ -849,7 +850,7 @@ OOPTaskManager::~OOPTaskManager ()
     delete *itc;
   for (itc = fTaskList.begin (); itc != fTaskList.end (); itc++)
     delete *itc;
-	
+
 	delete fServiceSemaphore;
 }
 
@@ -1306,7 +1307,7 @@ void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
 				LOGPZ_DEBUG (tasklogger, sout.str().c_str());
 #endif
       }
-      if (tc->Task()->CanExecute ()) 
+      if (tc->Task()->CanExecute ())
 			{
 #ifdef LOGPZ
 				{
@@ -1331,7 +1332,7 @@ void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
 				sout << "Task T:" << tag.TaskId() << " ClassId " << tc->ClassId () << " CanExecute returned FALSE !!!";
 				LOGPZ_DEBUG (tasklogger, sout.str().c_str());
 #endif
-				
+
 			}
       break;
     }
@@ -1399,8 +1400,8 @@ void OOPTaskManager::HandleMessages()
   }
 
 }
-	
-	
+
+
 template class TPZRestoreClass < OOPTerminationTask, TTERMINATIONTASK_ID >;
 
 
@@ -1419,7 +1420,7 @@ OOPTask (term)
 OOPMReturnType OOPTerminationTask::Execute ()
 {
   //sleep(5)
-	
+
 	{
     OOPTMLock lock;
     TM->SetKeepGoing (false);
@@ -1430,9 +1431,9 @@ OOPMReturnType OOPTerminationTask::Execute ()
     DM->SetKeepGoing (false);
   }
  */
- 
+
 	//sleep(5);
-  
+
  // IncrementWriteDependentData();
   /*
 	TM->WakeUpCall();

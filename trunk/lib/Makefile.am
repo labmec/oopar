@@ -15,7 +15,7 @@ lib_LIBRARIES = liboopar.a
 
 liboopar_a_SOURCES =
 if OOPMPI
- OOPMPI_LIBADD = ../Sources/oopmpicomm.o ../Sources/oopmpistorage.o
+OOPMPI_LIBADD = ../Sources/oopmpicomm.o ../Sources/oopmpistorage.o
 endif 
 if OOPSOCKET
 

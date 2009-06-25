@@ -11,7 +11,12 @@ CLEANFILES     = @OOP_CLEANFILES@
 
 -include $(top_builddir)/@OOP_MK@
 bin_PROGRAMS = main
-main_SOURCES = TTaskTest.cpp main.cpp
+main_SOURCES = TTaskTest.cpp \
+	main.cpp \
+	OOPMatVecMultiply.cpp	\
+	OOPParMatIndexation.cpp	\
+	OOPMergeMatrix.cpp \
+	OOPParMatrix.cpp
 ##main_LDADD = $(top_builddir)/lib/liboopar.a @MPILIBDIR@ @MPILAMLIBDIR@ @PZ_LIBDIR@ @PZ_LIB@ @MPILIB@ @MPELIB@ @MPILAMLIB@ -lpthread
 
 ## --| OOPar |------------------------------------------------------------------

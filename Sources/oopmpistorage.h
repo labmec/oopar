@@ -3,10 +3,10 @@
 #define _STR_MPIHH_
 
 #ifdef OOP_MPI
-#include "mpi.h"
+#include <mpi.h>
 #endif
 #ifdef OOP_MPE
-#include "mpe.h"
+#include <mpe.h>
 #endif
 
 #include "pzmanvector.h"
@@ -14,7 +14,7 @@
 #include "pzsave.h"
 /**
  * Non abstract class, which implements the receive
- * buffer using MPI (Message Passing Interface) library 
+ * buffer using MPI (Message Passing Interface) library
  * for communication.
 */
 
@@ -28,41 +28,41 @@ class   OOPMPIStorageBuffer: public TPZStream
 {
   private:
     /**
-     * Buffer which stores received messages 
+     * Buffer which stores received messages
      */
     TPZManVector<char,MAXSIZE> m_Buffer;
     //TPZManVector<char,MAXSIZE> f_send_buffr;
     /**
-     * Dimension of received message 
+     * Dimension of received message
      */
     int m_Size;
     //int f_send_size;
     /**
-     * Receive buffer position to be unpack 
+     * Receive buffer position to be unpack
      */
     int m_Length;
     //int f_send_position;
     /**
-     * Id of process that sent received message 
+     * Id of process that sent received message
      */
     int m_SenderTid;
     /**
-     * Tag of received message 
+     * Tag of received message
      */
     int m_MsgTag;
     /**
-     * request object for non-blocking receive operation 
+     * request object for non-blocking receive operation
      */
     MPI_Request  m_Request;
     MPI_Status m_Status;
 
     /**
-     * Id of process for which message shall be sent 
+     * Id of process for which message shall be sent
      */
     int m_TargetTid;
 
     /**
-     * Flag indicating whether nonblocking reception is initiated 
+     * Flag indicating whether nonblocking reception is initiated
      * Certainly it will hardly be used since Blocking receiving is the new default
      */
     int m_IsReceiving;
@@ -162,7 +162,7 @@ class   OOPMPIStorageBuffer: public TPZStream
      */
     bool TestReceive();
     /**
-     * Blocking receive. Execution stops and awaits until a 
+     * Blocking receive. Execution stops and awaits until a
      * posted message is received
      */
     int ReceiveBlocking ();
@@ -251,7 +251,7 @@ class   OOPMPIStorageBuffer: public TPZStream
     }
 
     /**
-     * Clears buffer 
+     * Clears buffer
      */
     int ResetBuffer (int size = 0);
     /**

@@ -337,15 +337,13 @@ case "${mpi_enabled}" in
     MPIDIR=$mpi_dir
     MPIINCLUDE="-I$MPIDIR/include"
     MPILIBDIR="-L$MPIDIR/lib"
-    MPILIB="-lmpich"
-	MPISOURCE="oopmpicomm.cpp oopmpistorage.cpp"
+    MPILIB="-lmpi -lmpich -lmpichcxx"
   ;;
   no)
     MPIDIR=""
     MPIINCLUDE=""
     MPILIBDIR=""
     MPILIB=""
-	MPISOURCE=""
   ;;
   *)
     AC_MSG_ERROR(bad value ${mpi_enabled} for --enable-mpi)
@@ -356,7 +354,6 @@ AC_SUBST(MPIDIR)
 AC_SUBST(MPIINCLUDE)
 AC_SUBST(MPILIBDIR)
 AC_SUBST(MPILIB)
-AC_SUBST(MPISOURCE)
 
 dnl ----------------------------------------------------------------------------
 dnl                               MPE LOCATION
@@ -449,11 +446,13 @@ dnl ----------------------------------------------------------------------------
 
 AC_OUTPUT([ Makefile OOP.mk OOP_user.mk \
 	Sources/Makefile \
+	Sources/socket/Makefile \
 	lib/Makefile \
 	Projects/Makefile \
 	Projects/Flux/Makefile \
 	Projects/TestTask/Makefile \
-        Projects/PhilFlux/Makefile \
+        Projects/PhilFlux/Makefile
+        
 ])
 
 OOP_BYEBYE

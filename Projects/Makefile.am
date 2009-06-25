@@ -11,7 +11,7 @@ CLEANFILES     = @OOP_CLEANFILES@
 
 -include $(top_builddir)/@OOP_MK@
 
-SUBDIRS = PhilFlux TestTask
+SUBDIRS = TestTask
 #PhilFlux Flux Trivial BiCGSt
 
 ## --| NeoPZ |------------------------------------------------------------------

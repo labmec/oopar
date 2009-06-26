@@ -9,7 +9,7 @@ dnl
 dnl
 dnl Greetings!
 dnl
-AC_DEFUN(OOP_GREETINGS,
+AC_DEFUN([OOP_GREETINGS],
 [
     echo
     echo "+-----------------------------------------------+"
@@ -23,7 +23,7 @@ AC_DEFUN(OOP_GREETINGS,
 dnl
 dnl Checking g++ version
 dnl
-AC_DEFUN(OOP_PROG_CXX,
+AC_DEFUN([OOP_PROG_CXX],
 [
     AC_PROG_CXX
     case "$CXX" in
@@ -46,7 +46,7 @@ AC_DEFUN(OOP_PROG_CXX,
 dnl
 dnl Checking for ar
 dnl
-AC_DEFUN(OOP_PROG_AR,
+AC_DEFUN([OOP_PROG_AR],
 [
     case "${AR-unset}" in
 	unset) AC_CHECK_PROG(AR, ar, ar) ;;
@@ -64,7 +64,7 @@ AC_DEFUN(OOP_PROG_AR,
 dnl
 dnl Bye bye!
 dnl
-AC_DEFUN(OOP_BYEBYE,
+AC_DEFUN([OOP_BYEBYE],
 [
     echo
     echo "Finished configuration for OOPar version" $OOP_VERSION.$OOP_REV

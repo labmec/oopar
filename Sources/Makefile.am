@@ -91,4 +91,4 @@ GENERAL_SOURCES = OOPDouble.cpp \
 liboopar_a_SOURCES = $(GENERAL_SOURCES) $(SOCKET_SOURCES) $(MPI_SOURCES) $(MPE_SOURCES)
 	
 ## --| OOPar |------------------------------------------------------------------
-SUBDIRS = socket
+

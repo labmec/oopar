@@ -22,7 +22,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "socket/socket.h"
+#include "socket.h"
 
 #include "oopsocketstorage.h"
 class OOPSocketStorageBuffer;

@@ -11,7 +11,7 @@ usermkdir = $(prefix)
 CXX=mpicxx
 usermk_DATA = OOP_user.mk
 
-SUBDIRS = Sources lib Projects
+SUBDIRS = Sources socket lib Projects
 
 DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@

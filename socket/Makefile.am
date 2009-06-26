@@ -9,7 +9,7 @@
 DISTCLEANFILES = @OOP_DISTCLEANFILES@
 CLEANFILES     = @OOP_CLEANFILES@
 
--include $(top_builddir)/@OOP_MK@
+#-include $(top_builddir)/@OOP_MK@
 bin_PROGRAMS = spd srun
 
 spd_SOURCES = spd.c

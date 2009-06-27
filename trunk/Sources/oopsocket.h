@@ -17,7 +17,7 @@
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
-#include <semaphore.h>
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <signal.h>
 #include <netdb.h>
 #include <sys/types.h>
@@ -80,7 +80,7 @@ private:
     pthread_mutex_t notifyAll_mutex;
 
     // semaforos globais
-    sem_t barrier;
+    boost::interprocess::interprocess_semaphore *barrier;
     pthread_mutex_t mutex;
 
 
@@ -97,15 +97,17 @@ private:
     // thread para recebimento dos evelopes
     static void *receiver(void *);
 
-    // mutex de receptores
+    // mutex de receptores (para envio individual e garantia de sequencia de envio)
     vector<pthread_mutex_t*> *receivers;
-    // vetor de threads de send
+    // vetor de threads de sender
     vector<pthread_t> *threads;
-    // vetor de avaliacao da thread se esta executando ou em espera
+    // vetor de avaliacao da thread de envio (sender) se esta executando ou em espera
     vector<bool> *isRunning;
-    // vetor de notificacao de threads
-    vector<pthread_mutex_t*> *notifyThreads;
-    // lista de mensagens das threads
+    // vetor de mutex de threads de envio (sender)
+    vector<pthread_mutex_t*> *notifyThreads_mutex;
+    // vetor de notificacao de threads de envio (sender)
+    vector<pthread_cond_t*> *notifyThreads;
+    // lista de mensagens das threads de envio (sender)
     vector<SOCKET_Thread_Message> *messages;
 
     // thread para o envio de mensagens

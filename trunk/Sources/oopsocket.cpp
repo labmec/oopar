@@ -64,7 +64,7 @@ void *OOPSocket::receiver(void * data)
                 SOCKET->receiveBuffer->push_back(envelope);
                 pthread_mutex_unlock(&SOCKET->mutex);
                 if(envelope.idOp == BARRIER)
-                    sem_post(&SOCKET->barrier);
+                	SOCKET->barrier->post();
                 else {
                     pthread_mutex_lock(&SOCKET->notifyAll_mutex);
                     pthread_cond_broadcast(&SOCKET->notifyAll);
@@ -97,24 +97,20 @@ void *OOPSocket::sender(void * data)
     {
         pthread_mutex_unlock(&(SOCKET->mutex));
 
-        pthread_mutex_t *p;
-        p = (*SOCKET->notifyThreads)[myId];
-        pthread_mutex_lock(p);
-
+        pthread_mutex_lock((*SOCKET->notifyThreads_mutex)[myId]);
         SOCKET_Thread_Message m = (*(SOCKET->messages))[myId];
         if(m.buf != NULL)
         {
-            printf("ERA P/ SER EXECUTADO O SENDER?\n"); fflush(stdout);
-            pthread_mutex_t *p;
-            p = (*(SOCKET->receivers))[m.dest];
-            pthread_mutex_lock(p);
+            pthread_mutex_lock((*SOCKET->receivers)[m.dest]);
             SOCKET->Send(&(*m.buf)[0], m.buf->Size(), m.dtype, m.dest, m.tag);
-            pthread_mutex_unlock(p);
+            pthread_mutex_unlock((*SOCKET->receivers)[m.dest]);
             delete m.buf;
-            (*(SOCKET->isRunning))[myId] = false;
-        } else
-            if(!SOCKET->threadRunning)
-                break;
+            (*(SOCKET->messages))[myId].buf = NULL;
+            (*isRunning)[thread] = false;
+        } else {
+        	pthread_cond_wait((*SOCKET->notifyThreads)[myId],(*SOCKET->notifyThreads_mutex)[myId]);
+        }
+        pthread_mutex_unlock((*SOCKET->notifyThreads_mutex)[myId]);
         pthread_mutex_lock(&(SOCKET->mutex));
     }
     return 0;
@@ -128,20 +124,28 @@ OOPSocket::OOPSocket()
     pthread_cond_init(&notifyAll, NULL);
     pthread_mutex_init(&notifyAll_mutex, NULL);
 
-    sem_init(&barrier, 0, 0);
+    barrier = new boost::interprocess::interprocess_semaphore(0);
 
     threadRunning = 1;
     receiveBuffer = new vector<OOP_SOCKET_Envelope>();
 
     uint i;
-    // criando mutex de notificacao de threads
-    notifyThreads = new vector<pthread_mutex_t*>();
+    // criando mutex para notificacao de threads
+    notifyThreads_mutex = new vector<pthread_mutex_t*>();
     for(i=0; i<SEND_NUM_THREADS; i++)
     {
         pthread_mutex_t *t;
         t = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
         pthread_mutex_init(t, NULL);
-        pthread_mutex_lock(t);
+        notifyThreads_mutex->push_back(t);
+    }
+    // criando sinais de notificacao de threads
+    notifyThreads = new vector<pthread_cond_t*>();
+    for(i=0; i<SEND_NUM_THREADS; i++)
+    {
+        pthread_cond_t *t;
+        t = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));
+        pthread_cond_init(t, NULL);
         notifyThreads->push_back(t);
     }
     // criando vetor de mensagens das threads
@@ -177,23 +181,35 @@ OOPSocket::~OOPSocket()
         (*isRunning)[i] = true;
         SOCKET_Thread_Message m;
         m.buf = NULL;
+        pthread_mutex_lock((*notifyThreads_mutex)[i]);
         (*messages)[i] = m;
-        pthread_mutex_t *mt = (*notifyThreads)[i];
-        pthread_mutex_unlock(mt);
+        pthread_cond_signal((*notifyThreads)[i]);
+        pthread_mutex_unlock((*notifyThreads_mutex)[i]);
         pthread_join((*threads)[i], NULL);
     }
     delete isRunning;
     delete messages;
     delete threads;
     // destruindo os mutex de notificacao de threads
-    vector<pthread_mutex_t*>::iterator it;
-    it = notifyThreads->begin();
-    while(it != notifyThreads->end())
+    vector<pthread_mutex_t*>::iterator it_t;
+    it_t = notifyThreads_mutex->begin();
+    while(it_t != notifyThreads_mutex->end())
     {
-        pthread_mutex_t *mt = *it;
+        pthread_mutex_t *mt = *it_t;
         pthread_mutex_destroy(mt);
         free(mt);
-        it++;
+        it_t++;
+    }
+    delete notifyThreads_mutex;
+    // destruindo os sinais de notificacao de threads
+    vector<pthread_cond_t*>::iterator it_c;
+    it_c = notifyThreads->begin();
+    while(it_c != notifyThreads->end())
+    {
+        pthread_cond_t *mt = *it_c;
+        pthread_cond_destroy(mt);
+        free(mt);
+        it_c++;
     }
     delete notifyThreads;
 
@@ -201,7 +217,7 @@ OOPSocket::~OOPSocket()
     pthread_mutex_destroy(&notifyAll_mutex);
 
     pthread_mutex_destroy(&mutex);
-    sem_destroy(&barrier);
+    delete barrier;
 }
 
 pthread_mutex_t gethostbyname_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -273,7 +289,7 @@ int OOPSocket::Barrier()
     {
         while(count > 0)
         {
-            sem_wait(&barrier);
+        	barrier->wait();
             pthread_mutex_lock(&mutex);
             iter = receiveBuffer->begin();
             while(iter != receiveBuffer->end())
@@ -481,7 +497,7 @@ int OOPSocket::Recv(void *buf, int count, int dtype, int src, int tag, SOCKET_St
     if (send(cSocket, (char*)&msgRecv, sizeof(OOP_SOCKET_Envelope), 0) < 0)
     {
         fprintf(stderr,"RECV SOCKET Error: Error sending notify message\n"); fflush(stderr);
-        perror("RECV Enve");
+        perror("");
         fflush(stdout);
         exit(1);
     }
@@ -509,28 +525,17 @@ int OOPSocket::Recv(void *buf, int count, int dtype, int src, int tag, SOCKET_St
         if (nbytes < 0)
         {
             fprintf(stderr,"RECV SOCKET Error: Error on receiving data message\n"); fflush(stderr);
-            perror("RECV");
-            printf("RECV recv sckt %d - rk %d - thrd %d - nb %d - tot %d - sz %d\n",cSocket,rank,pthread_self(),nbytes,total,datasize);fflush(stdout);
             fflush(stdout);
             exit(1);
         } if(nbytes == 0)
         {
             fprintf(stderr,"RECV SOCKET: The peer has performed an orderly shutdown\n"); fflush(stderr);
-            printf("RECV zero sckt %d - rk %d - thrd %d - nb %d - tot %d - sz %d\n",cSocket,rank,pthread_self(),nbytes,total,datasize);fflush(stdout);
             fflush(stdout);
             exit(1);
         }
         total+=nbytes;
-        //if(send(cSocket,&nbytes,sizeof(nbytes),0)<0)
-            //perror("RECV ACK");
     } while(total<datasize);
-    if(shutdown(cSocket,SHUT_RD)<0) {
-        perror("RECV shut");
-        printf("RECV shut sckt %d - rk %d - thrd %d\n",cSocket,rank,pthread_self()); fflush(stdout);
-    }
-    if(close(cSocket)<0)
-        perror("Recv close():");
-    //fprintf(stdout,"RECV cloe sckt %d - rk %d - thrd %d\n",cSocket,rank,pthread_self()); fflush(stdout);
+    close(cSocket);
 
     return SOCKET_SUCCESS;
 }
@@ -573,7 +578,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
     if (connect(cSocket,(struct sockaddr*)&cAddr, sizeof(struct sockaddr_in)) < 0)
     {
         fprintf(stderr,"SEND SOCKET Error: SEND. Could not connect to host\n"); fflush(stderr);
-        perror("SEND");
+        perror("");
         exit(1);
     }
     msgSend.idOp = SENDRECV;
@@ -586,7 +591,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
     if (send(cSocket, &msgSend, sizeof(OOP_SOCKET_Envelope), 0) < 0)
     {
         fprintf(stderr,"SEND SOCKET Error: Error sending notify message\n"); fflush(stderr);
-        perror("SEND send");
+        perror("");
         exit(1);
     }
 
@@ -595,8 +600,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
     if (nbytes < 0)
     {
         fprintf(stderr,"SEND SOCKET Error: Error receiving notify message\n"); fflush(stderr);
-        perror("SEND Enve");
-        printf("SEND Enve sckt %d - rk %d - thrd %d - nb %d\n",cSocket,rank,pthread_self(),nbytes);fflush(stdout);
+        perror("");
         exit(1);
     } else if (nbytes == 0)
     {
@@ -629,23 +633,12 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
         if (nbytes < 0)
         {
             fprintf(stderr,"SEND SOCKET: Error sending data\n"); fflush(stderr);
-            perror("SEND send");
-            printf("SEND send sckt %d - rk %d - thrd %d - nb %d - tot %d - sz %d\n",cSocket,rank,pthread_self(),nbytes,total,datasize);fflush(stdout);
+            perror("");
             exit(1);
-        } else if (nbytes==0) perror("nbytes=0: ");
+        }
         total += nbytes;
-        //if(recv(cSocket,&nbytes,sizeof(nbytes),0)<0)
-            //perror("SEND ACK");
-        //usleep(1000000); // 1000000 = 1 sec
     } while (total < datasize);
-    //printf("saindo.....\n"); fflush(stdout);
-    if(shutdown(cSocket,SHUT_WR)<0) {
-        perror("SEND shut");
-        printf("SEND shut sckt %d - rk %d - thrd %d\n",cSocket,rank,pthread_self()); fflush(stdout);
-    }
-    if(close(cSocket)<0)
-        perror("Send close():");
-    //fprintf(stdout,"SEND clse sckt %d - rk %d - thrd %d\n",cSocket,rank,pthread_self()); fflush(stdout);
+    close(cSocket);
     return 0;
 }
 
@@ -653,16 +646,8 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
 pthread_mutex_t fSend = PTHREAD_MUTEX_INITIALIZER;
 int OOPSocket::Send(OOPSocketStorageBuffer *buf, int dtype, int dest, int tag)
 {
-    /*if(buf!=NULL)
-    {
-        printf("%d - normal send: %d\n", rank, dest); fflush(stdout);
-        Send(&(*buf)[0], buf->Size(), dtype, dest, tag);
-        delete buf;
-        return 0;
-    }*/
-    printf("ERA P/ SER EXECUTADO O SEND(OOPSOCKETSTORAGEBUFF)?\n"); fflush(stdout);
     pthread_mutex_lock(&fSend);
-    uint thread=0;
+    int thread=0;
     while(true)
     {
         if((*isRunning)[thread] == false)
@@ -675,11 +660,11 @@ int OOPSocket::Send(OOPSocketStorageBuffer *buf, int dtype, int dest, int tag)
             m.dtype = dtype;
             m.dest = dest;
             m.tag = tag;
-            (*messages)[thread] = m;
             // notifica que tem nova mensagem
-            pthread_mutex_t *p;
-            p = (*notifyThreads)[thread];
-            pthread_mutex_unlock(p);
+            pthread_mutex_lock((*notifyThreads_mutex)[thread]);
+            (*messages)[thread] = m;
+            pthread_cond_signal((*notifyThreads)[thread]);
+            pthread_mutex_unlock((*notifyThreads_mutex)[thread]);
             break;
         }
         thread = (thread+1)%(isRunning->size());

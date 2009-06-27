@@ -14,9 +14,11 @@
 #ifndef OOPSOCKET_H
 #define OOPSOCKET_H
 
+#include <string.h>
+#include <errno.h>
 #include <pthread.h>
-//#include <semaphore.h>
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+#include <semaphore.h>
+#include <signal.h>
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -28,7 +30,7 @@
 class OOPSocketStorageBuffer;
 
 #include <vector>
-//128
+
 #define RECEIVE_BUFFER_SIZE  128
 #define SEND_NUM_THREADS     10
 
@@ -72,10 +74,15 @@ class OOPSocket{
 private:
     // lista de elementos do buffer de recepcao
     vector<OOP_SOCKET_Envelope> *receiveBuffer;
+
+    // notificacao de recebimento de mensagens do tipo SEND/RECV
+    pthread_cond_t notifyAll;
+    pthread_mutex_t notifyAll_mutex;
+
     // semaforos globais
-		boost::interprocess::interprocess_semaphore * mutex, * barrier;
-    //sem_t mutex, barrier;
-    pthread_mutex_t sendrecv;
+    sem_t barrier;
+    pthread_mutex_t mutex;
+
 
     int threadRunning;          // variavel para verificar se a thread esta ou nao em execucao
 
@@ -91,13 +98,13 @@ private:
     static void *receiver(void *);
 
     // mutex de receptores
-    vector<pthread_mutex_t> *receivers;
+    vector<pthread_mutex_t*> *receivers;
     // vetor de threads de send
     vector<pthread_t> *threads;
     // vetor de avaliacao da thread se esta executando ou em espera
     vector<bool> *isRunning;
     // vetor de notificacao de threads
-    vector<pthread_mutex_t> *notifyThreads;
+    vector<pthread_mutex_t*> *notifyThreads;
     // lista de mensagens das threads
     vector<SOCKET_Thread_Message> *messages;
 

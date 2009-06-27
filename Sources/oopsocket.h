@@ -101,8 +101,6 @@ private:
     vector<pthread_mutex_t*> *receivers;
     // vetor de threads de sender
     vector<pthread_t> *threads;
-    // vetor de avaliacao da thread de envio (sender) se esta executando ou em espera
-    vector<bool> *isRunning;
     // vetor de mutex de threads de envio (sender)
     vector<pthread_mutex_t*> *notifyThreads_mutex;
     // vetor de notificacao de threads de envio (sender)

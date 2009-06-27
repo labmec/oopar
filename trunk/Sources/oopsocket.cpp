@@ -106,11 +106,11 @@ void *OOPSocket::sender(void * data)
             pthread_mutex_unlock((*SOCKET->receivers)[m.dest]);
             delete m.buf;
             (*(SOCKET->messages))[myId].buf = NULL;
-            (*isRunning)[thread] = false;
         } else {
         	pthread_cond_wait((*SOCKET->notifyThreads)[myId],(*SOCKET->notifyThreads_mutex)[myId]);
         }
         pthread_mutex_unlock((*SOCKET->notifyThreads_mutex)[myId]);
+
         pthread_mutex_lock(&(SOCKET->mutex));
     }
     return 0;
@@ -158,7 +158,6 @@ OOPSocket::OOPSocket()
     }
     // criando as threads de envio
     threads = new vector<pthread_t>();
-    isRunning = new vector<bool>();
     for(i=0; i<SEND_NUM_THREADS; i++)
     {
         pthread_t s;
@@ -168,8 +167,8 @@ OOPSocket::OOPSocket()
             exit(1);
         }
         threads->push_back(s);
-        isRunning->push_back(false);
     }
+    srand(time(NULL));
 }
 
 
@@ -178,7 +177,6 @@ OOPSocket::~OOPSocket()
     // joining das threads
     for(uint i=0; i<threads->size(); i++)
     {
-        (*isRunning)[i] = true;
         SOCKET_Thread_Message m;
         m.buf = NULL;
         pthread_mutex_lock((*notifyThreads_mutex)[i]);
@@ -187,7 +185,6 @@ OOPSocket::~OOPSocket()
         pthread_mutex_unlock((*notifyThreads_mutex)[i]);
         pthread_join((*threads)[i], NULL);
     }
-    delete isRunning;
     delete messages;
     delete threads;
     // destruindo os mutex de notificacao de threads
@@ -646,35 +643,32 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
 pthread_mutex_t fSend = PTHREAD_MUTEX_INITIALIZER;
 int OOPSocket::Send(OOPSocketStorageBuffer *buf, int dtype, int dest, int tag)
 {
+	int thread=0;
+	while(true)
+	{
+		if(pthread_mutex_trylock((*notifyThreads_mutex)[thread]) != 0)
+			thread = (thread+1) % SEND_NUM_THREADS;
+		else
+			break;
+		if(thread == 0)
+		{
+			thread = rand() % SEND_NUM_THREADS;
+			pthread_mutex_lock((*notifyThreads_mutex)[thread]);
+			break;
+		}
+	}
     pthread_mutex_lock(&fSend);
-    int thread=0;
-    while(true)
-    {
-        if((*isRunning)[thread] == false)
-        {
-            // thread se torna ocupada
-            (*isRunning)[thread] = true;
-            // guarda a mensagem no vetor
-            SOCKET_Thread_Message m;
-            m.buf = buf;
-            m.dtype = dtype;
-            m.dest = dest;
-            m.tag = tag;
-            // notifica que tem nova mensagem
-            pthread_mutex_lock((*notifyThreads_mutex)[thread]);
-            (*messages)[thread] = m;
-            pthread_cond_signal((*notifyThreads)[thread]);
-            pthread_mutex_unlock((*notifyThreads_mutex)[thread]);
-            break;
-        }
-        thread = (thread+1)%(isRunning->size());
-        if(thread == 0)
-        {
-            printf("%d - Thread capacity full: sleeping...\n", rank); fflush(stdout);
-            sleep(1);
-        }
-    }
+    SOCKET_Thread_Message m;
+    m.buf = buf;
+    m.dtype = dtype;
+    m.dest = dest;
+    m.tag = tag;
+    // notifica que tem nova mensagem
+    (*messages)[thread] = m;
     pthread_mutex_unlock(&fSend);
+    pthread_cond_signal((*notifyThreads)[thread]);
+    pthread_mutex_unlock((*notifyThreads_mutex)[thread]);
+
     return 0;
 }
 

@@ -163,6 +163,12 @@ int main(int argc, char *argv[])
       fprintf(stderr,"SRUN Error: Error creating listening socket\n");
       exit(1);
    }
+   int yes=1;
+   if (setsockopt(sSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
+   {
+       fprintf(stderr,"SRUN Error: Setsockopt\n");
+       exit(1);
+   }
 
    sAddr.sin_family = AF_INET;
    sAddr.sin_port = htons(SRUN_PORT);
@@ -172,15 +178,19 @@ int main(int argc, char *argv[])
    //bind da porta
    if (bind(sSocket, (struct sockaddr *)&sAddr, sizeof(struct sockaddr)) < 0)
    {
-       fprintf(stderr,"SRUN Error: Error on binding listening address %d \n", errno);
+       fprintf(stderr,"SRUN Error: Error on binding listening address %d \n", SRUN_PORT);
+       perror("");
+       close(sSocket);
        exit(1);
    }
 
    // listen da fila
    if (listen(sSocket,MAX_QUEUE) < 0)
    {
-      fprintf(stderr,"SRUN Error: Error on defining listening queue\n");
-      exit(1);
+       fprintf(stderr,"SRUN Error: Error on defining listening queue\n");
+       perror("");
+       close(sSocket);
+       exit(1);
    }
    //----------------------------------------
 
@@ -316,7 +326,7 @@ int main(int argc, char *argv[])
    // FASE 3
    // loop para aguardar mensagens
 
-   printf(" Aguardando mensagens de alguem \n"); fflush(stdout);
+   printf("Aguardando mensagens de alguem \n"); fflush(stdout);
 
    while(condition == STILL_RUNNING)
    {
@@ -401,8 +411,9 @@ int main(int argc, char *argv[])
       }
 
    }
-   close(sSocket);
-
+   printf("Saindo do SRUN...\n"); fflush(stdout);
+   if(close(sSocket))
+	   perror("Error in closing socket: ");
 
    return 0;
 }

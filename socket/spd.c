@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
    struct hostent *host;       // utilizada para os metodos gethostbyname , gethostbyport , etc
    struct srunEnvelope msg;    // buffer para alocar as mensagens do srun
    int sinSize, chosenPort = 0;
-   int yes = 0, portTemp;
+   int yes = 1, portTemp;
    int endPort, rankProc; // variaveis utilizadas para finalizar o processo
 
    if ((sSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)

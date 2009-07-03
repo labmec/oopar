@@ -451,7 +451,7 @@ AC_OUTPUT([ Makefile OOP.mk OOP_user.mk \
 	Projects/Makefile \
 	Projects/Flux/Makefile \
 	Projects/TestTask/Makefile \
-        Projects/PhilFlux/Makefile
+        Projects/SubStruct/Makefile
         
 ])
 

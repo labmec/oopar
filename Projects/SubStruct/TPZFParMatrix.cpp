@@ -11,6 +11,24 @@
 #include "OOPLinAlgTasks.h"
 
 
+void TPZFParMatrix::Write(TPZStream &buf, int withclassid)
+{
+	TPZSaveable::Write(buf, withclassid);
+	m_Id.Write(buf, withclassid);
+	int val = m_IsSync;
+	buf.Write( &val, 1);
+	m_Version.Write(buf, withclassid);
+}
+void TPZFParMatrix::Read(TPZStream &buf, void *context)
+{
+	TPZSaveable::Read(buf, context);
+	m_Id.Read(buf, context);
+	int val = 0;
+	buf.Read(&val, 1);
+	m_IsSync = val;
+	m_Version.Read(buf, context);
+}
+
 
 TPZFParMatrix::TPZFParMatrix(const TPZFParMatrix & copy)
 {

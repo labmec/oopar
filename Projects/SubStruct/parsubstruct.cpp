@@ -267,6 +267,37 @@ int matmain(int argc, char **argv)
 }
 
 
+int TestSerialization()
+{
+	CM = new OOPSocketCommManager;
+	((OOPSocketCommManager *)CM)->Initialize();
+	((OOPSocketCommManager *)CM)->Barrier();
+	#ifdef LOG4CXX
+	  std::stringstream sin;
+	  sin << "log4cxxclient" << CM->GetProcID() << ".cfg";
+	  log4cxx::PropertyConfigurator::configure(sin.str());
+	#endif
+
+
+	#ifdef OOP_MPE
+	  gEvtDB.AddStateEvent("taskexec","Task Execution", "blue",CM->GetProcID()==0);
+	  gEvtDB.AddStateEvent("waittask","Wait Task Call","red",CM->GetProcID()==0);
+	  gEvtDB.AddSoloEvent("grantaccess","Grant Access", "green",CM->GetProcID()==0);
+	  gEvtDB.AddSoloEvent("incrementversion","Inc Version", "red",CM->GetProcID()==0);
+	#endif
+	  TM = new OOPTaskManager (CM->GetProcID ());
+	  DM = new OOPDataManager (CM->GetProcID ());
+
+
+	  TM->SetNumberOfThreads(10);
+	  TM->Execute();
+	  if(!CM->GetProcID())
+	  {
+
+	  }
+
+}
+
 #include "TPZFParMatrix.h"
 #include "OOPDumbCommMan.h"
 #include "TPZCopySolve.h"
@@ -279,9 +310,9 @@ int TestFParMatrix()
 	TM->Execute();
 	int i, j;
 	int msize;
-	std::cout << "DimensÃ£o \n";
+	std::cout << "Dimens‹o \n";
 	std::cin >> msize;
-	std::cout << "Usando DimensÃ£o " << msize << std::endl ;
+	std::cout << "Usando Dimens‹o " << msize << std::endl ;
 	
 	
 	TPZFMatrix thefMat(msize,msize);
@@ -402,7 +433,9 @@ int main(int argc, char **argv)
   //debugmpimain(argc, argv); 
 	//matmain(argc, argv);
   //debugmain(argc, argv);
-	TestFParMatrix();
+	//TestFParMatrix();
+	TestSerialization();
+
   return 0;
 }
 

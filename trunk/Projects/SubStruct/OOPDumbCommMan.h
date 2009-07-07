@@ -1,7 +1,7 @@
 #ifndef OOPDUMBCOMMMAN_H
 #define OOPDUMBCOMMMAN_H
 
-#include "OOPCommManager.h"
+#include "oopcommmanager.h"
 
 /*
  *  OOPDumbCommMan.h

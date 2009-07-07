@@ -117,11 +117,10 @@ void TPZDohrAssembly::Read(TPZStream &buf, void *context)
 		sout << "ClassId missmatch on TPZDohrAssembly::Read";
 		LOGPZ_ERROR(logger,sout.str().c_str());
 	#endif
-  }
-	
+	}
 	ReadVector(buf, fFineEqs);
 	ReadVector(buf, fCoarseEqs);
-	
+
 }
 	
 void TPZDohrAssembly::WriteVector(TPZStream & buf, TPZVec< TPZVec < int > >  & vec)

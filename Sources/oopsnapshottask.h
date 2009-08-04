@@ -1,7 +1,7 @@
 //
 // C++ Interface: oopsnapshottask
 //
-// Description: 
+// Description:
 //
 //
 //
@@ -55,7 +55,7 @@ public:
 
 };
 
-extern OOPTaskManager *TM;
-extern OOPDataManager *DM;
+//extern OOPTaskManager *TM;
+//extern OOPDataManager *DM;
 
 #endif

@@ -16,9 +16,22 @@
 #include "pzfilebuffer.h"
 #include "pzsave.h"
 
-#include "oopsocket.h"
+//#include "oopsocket.h"
 //128
 const int MAXSIZE = 256;
+
+const int SOCKET_PACKED =      0;
+const int SOCKET_INT  =        1;
+const int SOCKET_DOUBLE  =     2;
+const int  SOCKET_CHAR   =     3;
+
+const int SOCKET_SUCCESS    =  0;
+const int  SOCKET_ERR_COMM  = -1;
+const int  SOCKET_ERR_COUNT = -2;
+const int  SOCKET_ERR_TYPE  = -3;
+const int  SOCKET_ERR_TAG   = -4;
+const int  SOCKET_ERR_RANK  = -5;
+
 
 /**
 	@author Gustavo Camargo Longhin <longhin@labmec.fec.unicamp.br>
@@ -90,6 +103,14 @@ public:
     {
         return m_Length;
     }
+
+    static int Pack_size(int incount, int dtype, int *size);
+
+    static int Pack(void *inb, int insize, int dtype, void *outb, int outsize, int *pos);
+
+    static int Unpack(void *inb, int insize, int *pos, void *outb, int outsize, int dtype);
+
+
 
 };
 

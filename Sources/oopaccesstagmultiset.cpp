@@ -14,7 +14,7 @@
 
 #include "pzlog.h"
 
-#ifdef LOGPZ
+#ifdef LOG4CXX
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPAccessTagMultiset"));
 #endif
 
@@ -42,7 +42,7 @@ OOPAccessTag OOPAccessTagMultiSet::GetCompatibleRequest(const OOPDataVersion & v
   std::multiset<OOPAccessTag>::iterator it;
   for(it = fTagMultiSet.begin(); it != fTagMultiSet.end(); it++)
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
       stringstream sout;
       sout << "it->Version().CanExecute(version) " << it->Version().CanExecute(version) <<
         " need " << need;
@@ -52,7 +52,7 @@ OOPAccessTag OOPAccessTagMultiSet::GetCompatibleRequest(const OOPDataVersion & v
     {
       result = *it;
       result.SetVersion(version);
-#ifdef LOGPZ
+#ifdef LOG4CXX
       stringstream sout;
       sout << "returning and deleting tag: ";
       result.ShortPrint( sout);
@@ -81,10 +81,10 @@ OOPAccessTag OOPAccessTagMultiSet::IncompatibleRequest(OOPDataVersion & datavers
 }
 
   /// Verifies whether a similar access request exists within the list of requests
-bool OOPAccessTagMultiSet::HasSimilarRequest(OOPAccessTag tag)
+bool OOPAccessTagMultiSet::HasSimilarRequest(OOPAccessTag tag, int processor)
 {
   OOPObjectId zeroid;
-  int processor = DM->GetProcID();
+//  int processor = DM->GetProcID();
   tag.SetTaskId(zeroid);
   tag.SetProcessor(processor);
   multiset<OOPAccessTag>::iterator it;
@@ -95,13 +95,13 @@ bool OOPAccessTagMultiSet::HasSimilarRequest(OOPAccessTag tag)
     loctag.SetProcessor(processor);
     if(tag == loctag)
     {
-#ifdef LOGPZ
+#ifdef LOG4CXX
       LOGPZ_DEBUG(logger,"HasSimilarRequest returning true")
 #endif
       return true;
     }
   }
-#ifdef LOGPZ
+#ifdef LOG4CXX
   LOGPZ_DEBUG(logger,"HasSimilarRequest returning false")
 #endif
   return false;
@@ -109,10 +109,10 @@ bool OOPAccessTagMultiSet::HasSimilarRequest(OOPAccessTag tag)
 }
 
   /// generates the set of accesstags that need to be sent when changing the owning processor
-void OOPAccessTagMultiSet::GetProcessorAccessRequests(int processor, std::set<OOPAccessTag> &requests)
+void OOPAccessTagMultiSet::GetProcessorAccessRequests(int processor, std::set<OOPAccessTag> &requests, int localprocessor)
 {
   OOPObjectId zeroid;
-  int locproc = DM->GetProcID();
+//  int locproc = DM->GetProcID();
   multiset<OOPAccessTag>::iterator it;
   for(it= fTagMultiSet.begin(); it!= fTagMultiSet.end(); it++)
   {
@@ -121,7 +121,7 @@ void OOPAccessTagMultiSet::GetProcessorAccessRequests(int processor, std::set<OO
       OOPAccessTag tag(*it);
       if(tag.TaskId())
       {
-        tag.SetProcessor(locproc);
+        tag.SetProcessor(localprocessor);
         tag.SetTaskId(zeroid);
       }
       requests.insert(tag);
@@ -133,7 +133,7 @@ void OOPAccessTagMultiSet::GetProcessorAccessRequests(int processor, std::set<OO
   fTagMultiSet.clear();
   for(it=copy.begin(); it!=copy.end(); it++)
   {
-    if(it->Proc() == locproc)
+    if(it->Proc() == localprocessor)
     {
       fTagMultiSet.insert(*it);
     }

@@ -1,7 +1,7 @@
 //
 // C++ Interface: oopaccesstagmultiset
 //
-// Description: 
+// Description:
 //
 //
 //
@@ -12,7 +12,7 @@
 #define OOPACCESSTAGMULTISET_H
 
 #include "oopaccesstag.h"
-
+class OOPDataManager;
 /**
  * Implements multi set of data dependency objects.
  */
@@ -63,12 +63,12 @@ public:
    * Prints the content of the multiset
    */
   void Print(std::ostream & out) const;
-  
+
   /// Verifies whether a similar access request exists within the list of requests
-  bool HasSimilarRequest(OOPAccessTag tag);
-  
+  bool HasSimilarRequest(OOPAccessTag tag, int processor);
+
   /// generates the set of accesstags that need to be sent when changing the owning processor
-  void GetProcessorAccessRequests(int processor, std::set<OOPAccessTag> &requests);
+  void GetProcessorAccessRequests(int processor, std::set<OOPAccessTag> &requests, int localprocessor);
 
 private:
   /**
@@ -76,6 +76,7 @@ private:
    * MultiSet container, see STL documentation for MultiSet details
    */
   multiset<OOPAccessTag> fTagMultiSet;
+
 };
 
 #endif

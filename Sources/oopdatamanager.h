@@ -29,6 +29,7 @@ using namespace std;
 class   OOPDMOwnerTask;
 class   OOPDMRequestTask;
 class   OOPCurrentLocation;
+class OOPTaskManager;
 
 /**
  * Identifies possible messages submitted to the DataManager.
@@ -72,11 +73,30 @@ public:
    * Initialization of the DataManager on the indicated processor
    * @param Procid : Processor where the data manager should be initialized
    */
-  OOPDataManager (int Procid);
+  OOPDataManager (int Procid, TPZAutoPointer<OOPTaskManager> TM);
   /**
    * Simple destructor
    */
   ~OOPDataManager ();
+
+  /**
+   * the autopointer to the task manager with which the data manager relates
+   */
+  TPZAutoPointer<OOPTaskManager> TM();
+
+  /**
+   * the autopointer to the data manager corresponding to himself
+   */
+  TPZAutoPointer<OOPDataManager> DM();
+  /**
+   * Clear the pointer so the object can be deleted
+   */
+  void ClearPointer();
+  /**
+   * Terminate the execution thread
+   */
+  void JoinThread();
+
   /**
    * Encapsulates the call for SubmittAllObjects.
    * Only for minemonic reasons
@@ -165,12 +185,21 @@ public:
   int StartService();
   void PostRequestDelete(OOPObjectId & Id);
   void RequestDelete(OOPObjectId & Id);
-	
+
 	/**
 	 * Joins the DM service thread
 	 */
 	void Wait();
-	
+
+	  /**
+	   * return the mutex which will synchronize the locking operations
+	   */
+	  pthread_mutex_t *Mutex()
+	  {
+		  return &fMutex;
+	  }
+
+
 private:
   pthread_t fServiceThread;
   /**
@@ -182,7 +211,13 @@ private:
    */
   //sem_t fServiceSemaphore;
 	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
-  /**
+
+	/**
+	 * the mutex object around which we will be locking
+	 */
+	pthread_mutex_t fMutex;
+
+	/**
    * Indicates wether ServiceThread should keep running
    */
   bool fKeepGoing;
@@ -198,6 +233,16 @@ private:
    * Id of the last created object
    */
   long    fLastCreated;
+  /**
+   * the taskmanager with which this datamanager relates
+   */
+  TPZAutoPointer<OOPTaskManager> fTM;
+
+  /**
+   * the datamanager autopointer with which this datamanager relates
+   */
+  TPZAutoPointer<OOPDataManager> fDM;
+
   /**
    * Maximum Id number that can be created
    */
@@ -311,6 +356,6 @@ public:
   virtual void Write (TPZStream  & buf, int withclassid = 0);
 };
 
-extern OOPDataManager *DM;
+//extern OOPDataManager *DM;
 
 #endif

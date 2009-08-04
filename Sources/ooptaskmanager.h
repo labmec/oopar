@@ -22,6 +22,8 @@ class OOPTaskControl;
 using namespace std;
 class OOPObjectId;
 class TMLock;
+class OOPDataManager;
+class OOPCommunicationManager;
 
 
 enum TMMessageType {
@@ -71,11 +73,50 @@ public:
   void SetNumberOfThreads (const int n);
 
   /**
+   * Associate the Datamanager with the task manager
+   */
+  void SetDataManager(TPZAutoPointer<OOPDataManager> DM);
+
+  /**
+   * Associate the Comunication Mangager with the task manager
+   */
+  void SetCommunicationManager(TPZAutoPointer<OOPCommunicationManager> CM);
+
+  /**
+   * Access method for the communication Manager
+   */
+  TPZAutoPointer<OOPCommunicationManager> CM();
+
+  /**
+   * Access method for the data manager
+   */
+  TPZAutoPointer<OOPDataManager> DM();
+
+  /**
+   * Access method for the autopointer reference to itself
+   */
+  TPZAutoPointer<OOPTaskManager> TM();
+
+  /**
+   * Clear the pointer so the object can be deleted
+   */
+  void ClearPointer();
+
+  /**
    * Get max number of simultaneous threads.
    */
   int NumberOfThreads ();
 
   void Wait ();
+
+  /**
+   * Indicates that the task manager should not send tasks anymore
+   */
+  void StopSending();
+  /**
+   * receiving a stop sending confirmation
+   */
+  void StopSendingConfirmation(int procorigin);
   /**
    * Sets the KeepGoing flag which will control the TM Execute method
    */
@@ -107,7 +148,7 @@ public:
    * Assigns to that task a unique Id on the environment.
    * @param task Pointer to the submitted task.
    */
-protected:
+public:
 
     OOPObjectId Submit (OOPTask * task);
 public:
@@ -185,6 +226,14 @@ public:
    * Complies with the data protection of the TM data structure
    */
   void TriggerTasks();
+  /**
+   * return the mutex which will synchronize the locking operations
+   */
+  pthread_mutex_t *Mutex()
+  {
+	  return &fMutex;
+  }
+
 
   /**
    * Handles the messages contained on the fMessages list
@@ -193,7 +242,22 @@ public:
 
 private:
 
-  /** 
+	/**
+	 * The associated communication manager
+	 */
+	TPZAutoPointer<OOPCommunicationManager> fCM;
+
+	/**
+	 * The associated data manager
+	 */
+	TPZAutoPointer<OOPDataManager> fDM;
+
+	/**
+	 * The autopointer associated with this
+	 */
+	TPZAutoPointer<OOPTaskManager> fTM;
+
+  /**
    * Max number of threads
    */
   int fNumberOfThreads;
@@ -205,11 +269,27 @@ private:
    * Thread which owns the lock
    */
   pthread_t fLockThread;
+
+  /**
+   * the mutex object around which we will be locking
+   */
+  pthread_mutex_t fMutex;
+
   /**
    * Indicates if TM must continue its processing
    */
   bool fKeepGoing;
-  
+
+  /**
+   * Indicates the the TM should not send tasks or not
+   */
+  bool fStopSending;
+
+  /**
+   * The processors which confirmed the stop sending command
+   */
+  std::set<int> fConfirmedProcessors;
+
   /**
    * Semaphore for the ServiceThread
    */
@@ -223,7 +303,7 @@ private:
   /**
    * Find the task with the given id.
    */
-  OOPTask *FindTask (OOPObjectId taskid);	// 
+  OOPTask *FindTask (OOPObjectId taskid);	//
   /**
    * reorder the tasks according to their priority
    */
@@ -268,40 +348,9 @@ private:
   /**
    * Translates a CancelTask message to its necessary action on the TM context
    */
-  void ExtractCancelTaskFromTag(const OOPAccessTag & tag); 
-};
-
-/**
- * Implements a class which is responsible for turning Off both TM and DM.
- * In its execute method it calls SetKeepGoing() for both managers setting them to false.
- */
-class OOPTerminationTask:public OOPTask
-{
-public:
-  ~OOPTerminationTask ();
-  /**
-   * Simple constructor
-   */
-  OOPTerminationTask ()
-  {
-  }
-  OOPTerminationTask (int ProcId);
-  OOPTerminationTask (const OOPTerminationTask & term);
-  /**
-   * Returns execution type
-   */
-  OOPMReturnType Execute ();
-  virtual int ClassId () const
-  {
-    return TTERMINATIONTASK_ID;
-  }
-   ;
-  void Write (TPZStream & buf, int withclassid);
-  void Read (TPZStream & buf, void *context = 0);
-  long int ExecTime ();
-  static TPZSaveable *Restore (TPZStream & buf, void *context = 0);
+  void ExtractCancelTaskFromTag(const OOPAccessTag & tag);
 };
 
 
-extern OOPTaskManager *TM;
+//extern OOPTaskManager *TM;
 #endif

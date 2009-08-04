@@ -42,7 +42,7 @@ void OOPAccessTagList::AppendTag(const OOPAccessTag & tag)
 }
 
 
-void OOPAccessTagList::Clear()
+void OOPAccessTagList::Clear(TPZAutoPointer<OOPDataManager> DM)
 {
   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   std::set<OOPObjectId> lset;
@@ -77,7 +77,7 @@ bool OOPAccessTagList::CanExecute()
   {
     if(!it->CanExecute())
     {
-#ifdef LOGPZ
+#ifdef LOG4CXX
       {
         stringstream sout;
         sout << "CanExecute returned FALSE on Id " << it->Id();
@@ -103,7 +103,7 @@ void OOPAccessTagList::IncrementWriteDependent()
 
 }
 
-void OOPAccessTagList::SubmitIncrementedVersions()
+void OOPAccessTagList::SubmitIncrementedVersions(TPZAutoPointer<OOPDataManager> DM)
 {
   std::vector<OOPAccessTag>::iterator it = fTagList.begin();
   for(;it!=fTagList.end();it++)
@@ -112,7 +112,7 @@ void OOPAccessTagList::SubmitIncrementedVersions()
     {
       DM->PostData(*it);
     }
-#ifdef LOGPZ
+#ifdef LOG4CXX
     {
       stringstream sout;
       sout << "Releasing Access according to Tag:";
@@ -174,27 +174,27 @@ void OOPAccessTagList::Read(TPZStream & buf, void *context)
   }
 }
 
-void OOPAccessTagList::PostRequests(OOPObjectId & Id)
+void OOPAccessTagList::PostRequests(OOPObjectId & Id, TPZAutoPointer<OOPDataManager> DM)
 {
-#ifdef LOGPZ
+#ifdef LOG4CXX
   stringstream sout;
   sout << "Posting Access Requests for Task T:" << Id;
 #endif
   int processor = DM->GetProcID();
   int i = 0;
-#ifdef LOGPZ
+#ifdef LOG4CXX
   sout << " with " << fTagList.size() << " Tag(s):";
 #endif
   for(i=0;i<(signed int)fTagList.size();i++)
   {
     fTagList[i].SetProcessor(processor);
     fTagList[i].SetTaskId(Id);
-#ifdef LOGPZ
+#ifdef LOG4CXX
     fTagList[i].ShortPrint(sout);
 #endif
     DM->PostAccessRequest( fTagList[i]);
   }
-#ifdef LOGPZ
+#ifdef LOG4CXX
   LOGPZ_DEBUG(logger,sout.str().c_str());
   LOGPZ_DEBUG(tasklogger,sout.str().c_str());
 #endif

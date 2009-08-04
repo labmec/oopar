@@ -1,7 +1,7 @@
 //
 // C++ Interface: oopdelobjecttask
 //
-// Description: 
+// Description:
 //
 //
 // Author: Gustavo Camargo Longhin <longhin@labmec.fec.unicamp.br>, (C) 2007
@@ -31,7 +31,7 @@ private:
   OOPObjectId fTargetObject;
 public:
   OOPDelObjectTask();
-  OOPDelObjectTask(OOPObjectId & Id);
+  OOPDelObjectTask(OOPObjectId & Id, int procid);
 
   ~OOPDelObjectTask();
   virtual void Write(TPZStream & buf, int withclassid);

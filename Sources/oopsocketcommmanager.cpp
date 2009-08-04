@@ -28,7 +28,7 @@ static LoggerPtr logger(Logger::getLogger("OOPar.OOPSocketCommManager"));
 #endif
 
 using namespace std;
-extern OOPTaskManager *TM;
+//extern OOPTaskManager *TM;
 
 
 pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
@@ -49,7 +49,7 @@ void *OOPSocketCommManager::receiver(void * data)
         }
         catch(const exception & e)
         {
-#ifdef LOGPZ
+#ifdef LOG4CXX
             {
                 stringstream sout;
                 sout << "OOPSocketStorage: Exception catched on SOCKET_Probe ! " << e.what();
@@ -68,13 +68,13 @@ void *OOPSocketCommManager::receiver(void * data)
         {
             stringstream sout;
             sout << "OOPSocketStorage: Exception catched on SOCKET_Get_count ! " << e.what();
-#ifdef LOGPZ
+#ifdef LOG4CXX
             LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
             cout << sout.str().c_str();
             exit(-1);
         }
-#ifdef LOGPZ
+#ifdef LOG4CXX
         {
             stringstream sout;
             sout << "OOPSocketStorage: Receiving " << count << " bytes !!" << " probres = " << probres ;
@@ -100,7 +100,7 @@ void *OOPSocketCommManager::receiver(void * data)
         {
             stringstream sout;
             sout << "OOPSocketStorage: Exception catched on SOCKET.Recv ! " << e.what();
-#ifdef LOGPZ
+#ifdef LOG4CXX
             LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
             cout << sout.str().c_str();
@@ -110,7 +110,7 @@ void *OOPSocketCommManager::receiver(void * data)
         {
             stringstream sout;
             sout << "OOPSocketStorage: SOCKET.Recv called successfully ! ";
-#ifdef LOGPZ
+#ifdef LOG4CXX
             LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
         }
@@ -118,7 +118,7 @@ void *OOPSocketCommManager::receiver(void * data)
         {
             stringstream sout;
             sout << "OOPSocketStorage: SOCKET.Recv called FAILED! ";
-#ifdef LOGPZ
+#ifdef LOG4CXX
             LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
             exit(-1);
@@ -132,7 +132,7 @@ void *OOPSocketCommManager::receiver(void * data)
 
         if(obj == NULL)
         {
-#ifdef LOGPZ
+#ifdef LOG4CXX
             std::stringstream sout;
             sout << "OOPSocketCommManager::Restored buffer NULL!";
             LOGPZ_DEBUG(logger,sout.str().c_str());
@@ -140,9 +140,9 @@ void *OOPSocketCommManager::receiver(void * data)
         }
         OOPTask *task = dynamic_cast<OOPTask *> (obj);
         if(task) {
-            task->Submit();
+            CM->TM()->Submit(task);
         } else {
-#ifdef LOGPZ
+#ifdef LOG4CXX
             std::stringstream sout;
             sout << "OOPSocketCommManager::ProcessMessage received an object which is not a task";
             LOGPZ_DEBUG(logger,sout.str().c_str());
@@ -155,9 +155,9 @@ void *OOPSocketCommManager::receiver(void * data)
 }
 
 
-OOPSocketCommManager::OOPSocketCommManager()
+OOPSocketCommManager::OOPSocketCommManager() : OOPCommunicationManager()
 {
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "OOPSocketCommManager: Initializing SocketCommManager" << std::endl;
@@ -166,7 +166,7 @@ OOPSocketCommManager::OOPSocketCommManager()
   }
 #endif
   SOCKET.Init_thread();
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "OOPSocketCommManager: SOCKET.Init_thread called." << std::endl;
@@ -181,7 +181,7 @@ OOPSocketCommManager::OOPSocketCommManager()
   res = pthread_create(&fReceiveThread, NULL, receiver, this);
   if(res)
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
       stringstream sout;
       sout << __PRETTY_FUNCTION__ << " OOPSocketCommManager: Fail to create thread";
       LOGPZ_DEBUG(logger,sout.str().c_str());
@@ -193,13 +193,28 @@ OOPSocketCommManager::OOPSocketCommManager()
 
 OOPSocketCommManager::~OOPSocketCommManager()
 {
-    cout << "Terminating OOPSocketCommManager" << endl;
-    cout << "OOPSocketCommManager: Processor " << f_myself  << " reached synchronization point !" << endl;
-    cout.flush();
+	{
+		std::stringstream sout;
+		sout << "Terminating OOPSocketCommManager" << endl;
+		sout << "OOPSocketCommManager: Processor " << f_myself  << " reached synchronization point !" << endl;
+		cout << sout.str();
+		cout.flush();
+#ifdef LOG4CXX
+		LOGPZ_DEBUG(logger,sout.str())
+#endif
+	}
     SOCKET.Barrier();
-    cout << "OOPSocketCommManager: Calling Finalize for " << f_myself << endl;
-    cout.flush();
+    {
+    	std::stringstream sout;
+        sout << "OOPSocketCommManager: Calling Finalize for " << f_myself << endl;
+        cout << sout.str();
+        cout.flush();
+#ifdef LOG4CXX
+        LOGPZ_DEBUG(logger,sout.str())
+#endif
+    }
     SOCKET.Finalize();
+    LOGPZ_DEBUG(logger,"Leaving destructor of OOPSocketCommManager")
 }
 
 
@@ -209,7 +224,7 @@ int OOPSocketCommManager::Initialize (char *process_name, int num_of_process)
     f_myself = SOCKET.Comm_rank();
     SOCKET.Barrier();
 
-#ifdef LOGPZ
+#ifdef LOG4CXX
     {
         stringstream sout;
         sout << "OOPSocketCommManager: SocketComm Initialize f_myself " << f_myself << " f_num_proc " << f_num_proc;
@@ -229,7 +244,7 @@ int OOPSocketCommManager::SendTask (OOPTask * pTask)
 {
     // Preparando mensagem
     {
-#ifdef LOGPZ
+#ifdef LOG4CXX
         stringstream sout;
         sout << "OOPSocketCommManager: Sending Task Id:" << pTask->Id() << " ClassId:" << pTask->ClassId() <<
                 " to proc " << pTask->GetProcID ();
@@ -240,7 +255,7 @@ int OOPSocketCommManager::SendTask (OOPTask * pTask)
   if (process_id >= f_num_proc || process_id < 0) {
       stringstream sout;
       sout << "OOPSocketCommManager: Sending Task to a processor which doesn't exist!\nFinishing SocketCommManager !\nFarewell !";
-#ifdef LOGPZ
+#ifdef LOG4CXX
       LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
       delete pTask;
@@ -251,7 +266,7 @@ int OOPSocketCommManager::SendTask (OOPTask * pTask)
   {
       stringstream sout;
       sout << "OOPSocketCommManager: Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !";
-#ifdef LOGPZ
+#ifdef LOG4CXX
       LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
       delete pTask;
@@ -264,7 +279,7 @@ int OOPSocketCommManager::SendTask (OOPTask * pTask)
   // Enviando mensagem
   int tag = 0, ret;
 
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
       stringstream sout;
       sout << "OOPSocketStorage: Calling SOCKET.Send";
@@ -277,7 +292,7 @@ int OOPSocketCommManager::SendTask (OOPTask * pTask)
   }
   catch(const exception& e)
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
       {
           stringstream sout;
           sout << "OOPSocketStorage: Exception catched ! " << e.what();
@@ -286,7 +301,7 @@ int OOPSocketCommManager::SendTask (OOPTask * pTask)
       }
 #endif
   }
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
       stringstream sout;
       sout << "OOPSocketStorage: Called SOCKET.Send";

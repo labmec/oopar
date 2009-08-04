@@ -45,13 +45,13 @@ public:
     int IAmTheMaster ();
 
     char *ClassName();
-		
+
 	void Barrier()
 	{
 		SOCKET.Barrier();
 	}
-		
-	
+
+
 };
 
 #endif

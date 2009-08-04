@@ -63,7 +63,7 @@ OOPSaveable *OOPStorageBuffer::Restore ()
 	UpkLong (&class_id);
 #ifdef DEBUG
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     stringstream sout;
     sout << "PID" << getpid() << " Restorig object of class Id " << class_id;
     LOGPZ_DEBUG (logger,sout.str().c_str());
@@ -71,7 +71,7 @@ OOPSaveable *OOPStorageBuffer::Restore ()
   }
 #endif
 	if (!class_id) {
-#ifdef LOGPZ
+#ifdef LOG4CXX
 	  stringstream sout;
 	  sout << "Invalid class Id " << class_id << " Going out of OOPReceiveStorage::Restore";
     LOGPZ_DEBUG (logger,sout.str().c_str());
@@ -82,7 +82,7 @@ OOPSaveable *OOPStorageBuffer::Restore ()
 	i = gFuncTree.find (class_id);
 	// i = gFuncTree.find(class_id);
 	if (i == gFuncTree.end ()) {
-#ifdef LOGPZ
+#ifdef LOG4CXX
 	  stringstream sout;
 	  sout << "Restore <class_id << " << class_id << " not recognized>\n";
     LOGPZ_ERROR (logger,sout.str().c_str());

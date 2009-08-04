@@ -13,7 +13,7 @@
 
 #include <sstream>
 #include <pzlog.h>
-#ifdef LOGPZ
+#ifdef LOG4CXX
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
@@ -92,7 +92,7 @@ void OOPStateEvent::SetManager(OOPEvtManager<OOPStateEvent> *manager)
 }
 OOPStateEvent::~OOPStateEvent()
 {
-  
+
   if(f_manager) {
     MPE_Log_comm_event(MPI_COMM_WORLD, f_EvtEnd, (char*)&fMess);
 //     MPE_Log_event(f_ThreadId,f_EvtEnd, (char*)&fMess);
@@ -102,14 +102,14 @@ OOPStateEvent::~OOPStateEvent()
 }
 void OOPStateEvent::Print(std::ostream & out)
 {
-  out << "-------------Index " << f_ThreadId << " Start ID " << f_EvtStart 
+  out << "-------------Index " << f_ThreadId << " Start ID " << f_EvtStart
       << " End ID " << f_EvtEnd << endl;
   out.flush();
 }
 
 void OOPSoloEvent::Print(std::ostream & out)
 {
-  out << "-------------Index " << f_ThreadId << " Start ID " << f_EvtStart 
+  out << "-------------Index " << f_ThreadId << " Start ID " << f_EvtStart
       << endl;
   out.flush();
 }
@@ -128,7 +128,7 @@ OOPSoloEvent::OOPSoloEvent(){
   f_ThreadId = -1;
   f_EvtStart = -1;
   f_manager = 0;
-  
+
 }
 
 void OOPSoloEvent::Log(){
@@ -142,7 +142,7 @@ void OOPSoloEvent::Initialize(int myindex, std::string &description, bool withde
   f_ThreadId = myindex;
   // initializar o f_EvtStart
   MPE_Log_get_solo_eventID(&f_EvtStart);
-  
+
   if(withdescription)
   {
     MPE_Describe_info_event( f_EvtStart, description.c_str(), color.c_str(), "%s");

@@ -1,7 +1,7 @@
 //
 // C++ Interface: oopaccesstaglist
 //
-// Description: 
+// Description:
 //
 //
 // Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2007
@@ -17,7 +17,7 @@
 #include <vector>
 
 class OOPDataManager;
-extern OOPDataManager *DM;
+//extern OOPDataManager *DM;
 
 
 
@@ -39,7 +39,7 @@ public:
   /**
    * Ivalidates the TPZAutoPointer contained object pointer
    */
-  void Clear();
+  void Clear(TPZAutoPointer<OOPDataManager> DM);
   /**
    * Appends a new tag to fTagList
    */
@@ -75,9 +75,9 @@ public:
   /**
    * After Incrementing the DataVersions. All new versions has to be submitted to the DM
    */
-  void SubmitIncrementedVersions();
-  void PostRequests(OOPObjectId & Id);
-	
+  void SubmitIncrementedVersions(TPZAutoPointer<OOPDataManager> DM);
+  void PostRequests(OOPObjectId & Id, TPZAutoPointer<OOPDataManager> DM);
+
 	OOPAccessTag GetTag(int i);
 private:
   /**

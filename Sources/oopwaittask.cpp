@@ -63,7 +63,7 @@ int OOPWaitTask::ClassId() const
 
 OOPMReturnType OOPWaitTask::Execute()
 {
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "Inside Execute of WaitTask ID " << Id() << " Posting fMainSemaphore";
@@ -73,7 +73,7 @@ OOPMReturnType OOPWaitTask::Execute()
   //this->IncrementWriteDependentData();
   //sem_post(&fMainSemaphore);
 	fMainSemaphore->post();
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "WaitTask ID " << Id() << " waiting post on fExecSemaphore";
@@ -82,7 +82,7 @@ OOPMReturnType OOPWaitTask::Execute()
 #endif
   //sem_wait(&fExecSemaphore);
 	fExecSemaphore->wait();
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "WaitTask ID " <<  Id() << " Leaving execute";
@@ -97,7 +97,7 @@ OOPMReturnType OOPWaitTask::Execute()
  */
 void OOPWaitTask::Finish()
 {
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " WaitTask ID " << Id() << " Finished ! Posting fExecSemaphore";
@@ -114,7 +114,7 @@ void OOPWaitTask::Finish()
  */
 void OOPWaitTask::Wait()
 {
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "WaitTask ID " << Id() << " Waiting for Post in fMainSemaphore";
@@ -127,7 +127,7 @@ void OOPWaitTask::Wait()
 	fMainSemaphore->wait();
 	if(retval == -1)
 	{
-#ifdef LOGPZ
+#ifdef LOG4CXX
 		{
 			stringstream sout;
 			sout << "WaitTask ID " << Id() << " sem_wai failed ! killing application ... bye bye\nError number = " << errno;
@@ -147,8 +147,8 @@ void OOPWaitTask::Wait()
 #endif
 		exit(-1);
 	}
-		
-#ifdef LOGPZ
+
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "WaitTask ID " << Id() << " fMainSemaphore Posted ! Leaving Wait";

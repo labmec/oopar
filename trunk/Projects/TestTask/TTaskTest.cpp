@@ -1,6 +1,7 @@
 #include "TTaskTest.h"
 #include "OOPInt.h"
 #include "ooptaskmanager.h"
+#include "oopterminationtask.h"
 //#include "OOPCommManager.h"
 
 
@@ -26,7 +27,7 @@ OOPMReturnType TTaskTest::Execute()
 	for(i = 0; i < 4; i++)
 	{
 		OOPTerminationTask * tt = new OOPTerminationTask(i);
-		tt->Submit();
+		TM()->Submit(tt);
 	}
   return ESuccess;
 }

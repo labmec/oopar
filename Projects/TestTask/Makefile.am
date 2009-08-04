@@ -19,4 +19,5 @@ main_SOURCES = TTaskTest.cpp \
 	OOPParMatrix.cpp
 ##main_LDADD = $(top_builddir)/lib/liboopar.a @MPILIBDIR@ @MPILAMLIBDIR@ @PZ_LIBDIR@ @PZ_LIB@ @MPILIB@ @MPELIB@ @MPILAMLIB@ -lpthread
 
+main_DEPENDENCIES = $(top_builddir)/lib/liboopar.a
 ## --| OOPar |------------------------------------------------------------------

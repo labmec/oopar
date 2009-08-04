@@ -11,6 +11,7 @@
 #include "pzfmatrix.h"
 
 #include "OOPMergeMatrix.h"
+#include "ooptaskmanager.h"
 #include <sstream>
 
 #ifdef LOGPZ
@@ -36,7 +37,7 @@ static LoggerPtr MetaLogger(Logger::getLogger("OOPar.OOPDataManager.MetaData"));
 
 OOPMReturnType OOPMatVecMultiply::Execute()
 {
-	
+
 #ifdef LOGPZ
 	{
 		std::stringstream sout;
@@ -44,7 +45,7 @@ OOPMReturnType OOPMatVecMultiply::Execute()
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
-	
+
   cout << "Executing Task " << Id() << " For Matrix Vector multiplication\n";
 	cout.flush();
 	TPZMatrix * Matrix = dynamic_cast<TPZMatrix * >(fDependRequest.ObjectPtr(0));
@@ -83,7 +84,7 @@ OOPMReturnType OOPMatVecMultiply::Execute()
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
-	
+
   //IncrementWriteDependentData();
   CreateMergeTask(Vector);
 	cout << "Leaving Executing Task " << endl;
@@ -91,7 +92,7 @@ OOPMReturnType OOPMatVecMultiply::Execute()
 }
 
 void OOPMatVecMultiply::CreateMergeTask(TPZFMatrix & vector)
-{	
+{
 	std::cout << "Creating Merge Tasks\n";
 	std::cout.flush();
 	OOPObjectId vecId;
@@ -101,13 +102,13 @@ void OOPMatVecMultiply::CreateMergeTask(TPZFMatrix & vector)
 	OOPMergeMatrix * task = new OOPMergeMatrix(0);
 	std::cout << "From Processor " << GetProcID() << endl;
 	std::cout.flush();
-	
+
 	task->SetFVector(vector);
 	task->m_SubId = subMatTarget;
-	
+
 	//vector.Print("Vetor depois do task", cout, EFormatted);
 	cout.flush();
-	
+
 	cout << "Tag de acesso Antes " << endl;
 	cout.flush();
 	OOPAccessTag tag = fDependRequest.GetTag(0);
@@ -118,8 +119,8 @@ void OOPMatVecMultiply::CreateMergeTask(TPZFMatrix & vector)
 	task->AddDependentData(OOPAccessTag(m_GlobalVecId, EWriteAccess, globalVer, 0));
 
 	task->AddDependentData(OOPAccessTag(m_IndexId, EReadAccess, globalVer, 0));
-	task->Submit();
-	
+	TM()->Submit(task);
+
 #ifdef LOGPZ
 	{
 		std::stringstream sout;
@@ -127,8 +128,8 @@ void OOPMatVecMultiply::CreateMergeTask(TPZFMatrix & vector)
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
-	
-	
+
+
 	std::cout << "Submitted task for Vector merge\n";
 	std::cout.flush();
 
@@ -141,13 +142,13 @@ void OOPMatVecMultiply::Write(TPZStream & buf, int withclassid)
 		sout << "Task T:" << Id() << " Being Written on Buffer";
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
-	
+
 #endif
 	OOPTask::Write(buf, withclassid);
-	
+
 	m_IndexId.Write(buf, 0);
 	m_GlobalVecId.Write(buf, 0);
-	
+
 	m_Vector.Write(buf, 0);
 
 	int clsid = ClassId();
@@ -161,7 +162,7 @@ void OOPMatVecMultiply::Read(TPZStream & buf, void * context)
 		sout << "Task T:" << Id() << " Being read from Buffer";
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
-	
+
 #endif
 	OOPTask::Read(buf, context);
 

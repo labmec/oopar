@@ -25,6 +25,7 @@
 #include "ooptaskmanager.h"
 #include "oopwaittask.h"
 #include "oopsnapshottask.h"
+#include "oopterminationtask.h"
 #include "pzlog.h"
 
 #ifdef LOGPZ
@@ -80,11 +81,11 @@ int matmain(int argc, char **argv)
   std::stringstream sin;
   sin << "log4cxxclient" << CM->GetProcID() << ".cfg";
   log4cxx::PropertyConfigurator::configure(sin.str());
-	
+
 #endif
-	
+
 #endif
-	
+
 #ifdef OOP_MPE
   gEvtDB.AddStateEvent("taskexec","Task Execution", "blue",CM->GetProcID()==0);
   gEvtDB.AddStateEvent("waittask","Wait Task Call","red",CM->GetProcID()==0);
@@ -92,9 +93,13 @@ int matmain(int argc, char **argv)
   gEvtDB.AddSoloEvent("incrementversion","Inc Version", "red",CM->GetProcID()==0);
 #endif
   TM = new OOPTaskManager (CM->GetProcID ());
-  DM = new OOPDataManager (CM->GetProcID ());
-	
-	
+  DM = new OOPDataManager (CM->GetProcID (), TM->TM());
+
+  TM->SetDataManager(DM->DM());
+  TM->SetCommunicationManager(CM->CM());
+
+  CM->SetTaskManager(TM->TM());
+
   TM->SetNumberOfThreads(10);
   TM->Execute();
   if(!CM->GetProcID())
@@ -105,7 +110,7 @@ int matmain(int argc, char **argv)
 		std::cout.flush();
 		int nprocs = CM->NumProcessors();
 		int i;
-		
+
 		/**
 		 * Submit DohrSubStruct object for each processor in the environment
 		 * Obviouslly this call must processed by something similar to GenSubstruct
@@ -118,8 +123,8 @@ int matmain(int argc, char **argv)
 			substr = new TPZDohrSubstruct;
 			m_SubStrIds[i] = DM->SubmitObject(substr);
 		}
-		
-		
+
+
 		/**
 		 * Submit Diagonal Object on the main processor.
 		 * Submit Assembly objects for the mapping from original to distributed meshes.
@@ -145,7 +150,7 @@ int matmain(int argc, char **argv)
 			cdiagt->AddDependentData(OOPAccessTag(m_SubStrIds[i], EReadAccess, assemblyVersion, 0));
 			cdiagt->SetMainDiagId(DiagId);
 		}
-		
+
 		/**
 		 * In the processor ZERO, the MainDiagonal object must receive CM->NumProcessors() contribuitons. Therefore at this points its version
 		 * will CM->NumProcessors(). At this stage NProcs tasks for propagating the result obtained in the MainDiag object must be submitted to
@@ -153,13 +158,13 @@ int matmain(int argc, char **argv)
 		 * studies can verify the implications of that choice.
 		 * Wait tasks for each main stages are submitted as well.
 		 */
-		
+
 		OOPWaitTask * wt = new OOPWaitTask(0);
 		OOPDataVersion wtVersion;
 		wtVersion.SetLevelVersion(0, CM->NumProcessors());
-		
+
 		wt->AddDependentData( OOPAccessTag(DiagId, EReadAccess, wtVersion,0));
-    wt->Submit();
+    TM->Submit(wt);
 		cout << "Submitting WT with version " << wtVersion << endl;
 		cout.flush();
     wt->Wait();
@@ -172,7 +177,7 @@ int matmain(int argc, char **argv)
 		}
 #endif
     wt->Finish();
-		
+
 		/**
 		 * Submitting ContributeWeightTask
 		 */
@@ -182,18 +187,18 @@ int matmain(int argc, char **argv)
 		{
 			ctask = new OOPContribWeightTask(i);
 			ctask->AddDependentData(OOPAccessTag(m_SubStrIds[i], EWriteAccess, DDVersion,0));
-			ctask->Submit();			
+			TM->Submit(ctask);
 		}
 
-		
+
 		/**
 		 * For a distributed vector.
 		 * Scatter data contained in local copy to the corresponding distributed parts
 		 */
-		
+
 		//OOPCollector<TPZVec<double> > * collector;
-		
-		
+
+
 #ifdef LOGPZ
 		{
 			std::stringstream sout;
@@ -201,15 +206,15 @@ int matmain(int argc, char **argv)
 			LOGPZ_DEBUG(logger, sout.str().c_str());
 		}
 #endif
-		
+
     for(i = 1;i< CM->NumProcessors();i++)
     {
       OOPTerminationTask * tt = new OOPTerminationTask(i);
-      tt->Submit();
+      TM->Submit(tt);
     }
     OOPTerminationTask * tt = new OOPTerminationTask(0);
-    tt->Submit();
-		
+    TM->Submit(tt);
+
 	}
 #ifdef LOGPZ
 	{
@@ -233,7 +238,6 @@ int matmain(int argc, char **argv)
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
-	delete  DM;
 #ifdef OOP_SOCKET
 	//	((OOPSocketCommManager *)CM)->Barrier();
 #endif
@@ -244,7 +248,6 @@ int matmain(int argc, char **argv)
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
-	delete  TM;
 #ifdef LOGPZ
 	{
 		std::stringstream sout;
@@ -255,7 +258,6 @@ int matmain(int argc, char **argv)
 #ifdef OOP_SOCKET
 	//((OOPSocketCommManager *)CM)->Barrier();
 #endif
-	delete  CM;
 #ifdef LOGPZ
 	{
 		std::stringstream sout;
@@ -286,7 +288,10 @@ int TestSerialization()
 	  gEvtDB.AddSoloEvent("incrementversion","Inc Version", "red",CM->GetProcID()==0);
 	#endif
 	  TM = new OOPTaskManager (CM->GetProcID ());
-	  DM = new OOPDataManager (CM->GetProcID ());
+	  DM = new OOPDataManager (CM->GetProcID (),TM->TM());
+	  TM->SetCommunicationManager(CM->CM());
+	  TM->SetDataManager(DM->DM());
+	  CM->SetTaskManager(TM->TM());
 
 
 	  TM->SetNumberOfThreads(10);
@@ -304,17 +309,20 @@ int TestSerialization()
 
 int TestFParMatrix()
 {
-	DM = new OOPDataManager(0);
 	TM = new OOPTaskManager(0);
+	DM = new OOPDataManager(0,TM->TM());
 	CM = new OOPDumbCommManager;
+	TM->SetDataManager(DM->DM());
+	CM->SetTaskManager(TM->TM());
+	TM->SetCommunicationManager(CM->CM());
 	TM->Execute();
 	int i, j;
 	int msize;
 	std::cout << "Dimens‹o \n";
 	std::cin >> msize;
 	std::cout << "Usando Dimens‹o " << msize << std::endl ;
-	
-	
+
+
 	TPZFMatrix thefMat(msize,msize);
 	TPZFMatrix fullv1(msize, 1);
 	TPZFMatrix fullv2(msize, 1);
@@ -331,68 +339,68 @@ int TestFParMatrix()
 		thefMat.PutVal(i,i, thefMat.GetVal(i,i) * 10000);
 	}
 	TPZFParMatrix * par = new TPZFParMatrix(thefMat);
-	
-	
+
+
 	TPZFParMatrix par2(thefMat);
 	TPZFParMatrix res(thefMat.Rows(), thefMat.Cols());
 	TPZFParMatrix res2(thefMat.Rows(), thefMat.Cols());
-	
+
 	TPZFParMatrix v1(fullv1);
 	TPZFParMatrix v2(fullv2);
 	TPZFParMatrix * v3 = new TPZFParMatrix(fullv2);
-	
+
 	TPZAutoPointer<TPZMatrix> pointerPar(par);
-	
+
 	TPZStepSolver solver(pointerPar);
 	//(const int numiterations, const TPZMatrixSolver &pre, const REAL tol, const int FromCurrent)
 	TPZCopySolve csolve(NULL);
 	solver.SetCG(50, csolve, 0.01, 0);
-	
+
 	solver.Solve(v1, v2, v3);
-	
+
 /*
  {
-		
-		
+
+
 //		TPZFParMatrix par2(thefMat);
 //		TPZFParMatrix res(thefMat.Rows(), thefMat.Cols());
 //		TPZFParMatrix res2(thefMat.Rows(), thefMat.Cols());
-		
+
 		//TPZFParMatrix v1(fullv1);
 		//TPZFParMatrix v2(fullv2);
 		TPZFMatrix * v3 = new TPZFMatrix(fullv2);
-		
+
 		TPZAutoPointer<TPZMatrix> pointerPar(par);
-		
+
 		TPZStepSolver solver(pointerPar);
 		//(const int numiterations, const TPZMatrixSolver &pre, const REAL tol, const int FromCurrent)
 		TPZCopySolve csolve(NULL);
 		solver.SetCG(50, csolve, 0.01, 0);
-		
+
 		solver.Solve(fullv1, fullv2, v3);
-	}	
-*/	
+	}
+*/
 	/**
 	 thefMat.Print("Full", std::cout, EFormatted);
 	double ddot = -1;
 	ddot = Dot(par, par2);
-	
+
 	double ddotf = Dot(thefMat, thefMat);
 	if(ddot == ddotf)
 	{
 		std::cout << "Dot Ok\n";
 	}
-	
-	
+
+
 	par.SynchronizeFromRemote();
 	par.Print("Prior to ZAXPY", std::cout, EFormatted);
-	
+
 	par.ZAXPY(1.1, par2);
 	{
 		TPZFParMatrix::TPZAccessParMatrix accPar(par);
 		accPar.GetMatrix().Print("After ZAXPY", std::cout, EFormatted);
 	}
-	
+
 	par.Multiply(par2, res, 1, 1);
 	{
 		TPZFParMatrix::TPZAccessParMatrix accPar(par);
@@ -419,18 +427,18 @@ int TestFParMatrix()
 		TPZFParMatrix::TPZAccessParMatrix accPar(par);
 		accPar.GetMatrix().Print("After Zero", std::cout, EFormatted);
 	}
-	
+
 	*/
-	
+
 	OOPTerminationTask * tt = new OOPTerminationTask(0);
 	tt->AddDependentData(OOPAccessTag(par->Id(), EReadAccess, par->Version(),0));
-	tt->Submit();
+	TM->Submit(tt);
 	TM->Wait();
 	return 0;
 }
 int main(int argc, char **argv)
 {
-  //debugmpimain(argc, argv); 
+  //debugmpimain(argc, argv);
 	//matmain(argc, argv);
   //debugmain(argc, argv);
 	//TestFParMatrix();

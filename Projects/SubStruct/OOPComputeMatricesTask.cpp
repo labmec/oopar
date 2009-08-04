@@ -11,6 +11,7 @@
 #include "OOPContributeDiagonalTask.h"
 #include "tpzdohrassembly.h"
 #include "tpzdohrsubstruct.h"
+#include "ooptaskmanager.h"
 
 
 
@@ -32,7 +33,7 @@ OOPMReturnType OOPComputeMatricesTask::Execute()
 	OOPDataVersion version;
 	version.SetLevelVersion(0, -1);
 	contribDiagTask->AddDependentData(OOPAccessTag(m_MainDiagId, EWriteAccess, version,0));
-	contribDiagTask->Submit();
+	TM()->Submit(contribDiagTask);
 	return ESuccess;
 }
 

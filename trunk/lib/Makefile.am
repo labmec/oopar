@@ -29,6 +29,11 @@ OOPMPE_LIBADD =	../Sources/oopevtid.o \
 	  ../Sources/oopevtmanager.o
 endif
 
+if OOPINTERNAL
+OOPINTERNAL_LIBADD = ../Sources/oopsocketstorage.o \
+		../Sources/oopinternalcommanager.o
+endif
+
 GENERAL_OOP_LIBADD = ../Sources/OOPDouble.o \
 	  ../Sources/oopaccesstag.o \
 	  ../Sources/oopaccesstaglist.o \
@@ -37,7 +42,6 @@ GENERAL_OOP_LIBADD = ../Sources/OOPDouble.o \
 	  ../Sources/oopdatamanager.o \
 	  ../Sources/oopdataversion.o \
 	  ../Sources/oopdelobjecttask.o \
-	  ../Sources/oopdmlock.o \
 	  ../Sources/OOPInt.o \
 	  ../Sources/oopmetadata.o \
 	  ../Sources/oopobjectid.o \
@@ -47,7 +51,6 @@ GENERAL_OOP_LIBADD = ../Sources/OOPDouble.o \
 	  ../Sources/ooptask.o \
 	  ../Sources/ooptaskcontrol.o \
 	  ../Sources/ooptaskmanager.o \
-	  ../Sources/ooptmlock.o \
 	  ../Sources/OOPVector.o \
 	  ../Sources/oopwaittask.o \
 	  ../Sources/oopcollector.o \
@@ -58,7 +61,6 @@ GENERAL_OOP_LIBADD = ../Sources/OOPDouble.o \
 	  ../Sources/oopdatamanager.o \
 	  ../Sources/oopdataversion.o \
 	  ../Sources/oopdelobjecttask.o \
-	  ../Sources/oopdmlock.o \
 	  ../Sources/OOPInt.o \
 	  ../Sources/oopmetadata.o \
 	  ../Sources/oopobjectid.o \
@@ -68,11 +70,11 @@ GENERAL_OOP_LIBADD = ../Sources/OOPDouble.o \
 	  ../Sources/ooptask.o \
 	  ../Sources/ooptaskcontrol.o \
 	  ../Sources/ooptaskmanager.o \
-	  ../Sources/ooptmlock.o \
 	  ../Sources/OOPVector.o \
 	  ../Sources/oopwaittask.o \
-	  ../Sources/oopcollector.o
+	  ../Sources/oopcollector.o \
+	  ../Sources/oopterminationtask.o
 
-liboopar_a_LIBADD = $(GENERAL_OOP_LIBADD) $(OOPSOCKET_LIBADD) $(OOPMPE_LIBADD) $(OOPMPI_LIBADD)
+liboopar_a_LIBADD = $(GENERAL_OOP_LIBADD) $(OOPSOCKET_LIBADD) $(OOPMPE_LIBADD) $(OOPMPI_LIBADD) $(OOPINTERNAL_LIBADD)
 
 ## --| OOPar |------------------------------------------------------------------

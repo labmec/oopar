@@ -34,6 +34,19 @@ using namespace std;
 
 template class TPZRestoreClass<OOPTask, TTASK_ID>;
 
+
+/**
+ * Constructor based on a processor-id
+ * @param Procid Id of processor where the object is being created
+ */
+OOPTask::OOPTask():fProc(-1) ,  fLabel("non initialized"), fTM(0)
+{
+}
+
+OOPTask::~OOPTask()
+{
+
+}
 void
 OOPTask::Print (std::ostream & out)
 {
@@ -44,7 +57,7 @@ OOPTask::Print (std::ostream & out)
   fDependRequest.Print(out);
 }
 
-OOPTask::OOPTask (int proc)
+OOPTask::OOPTask (int proc) : fTM(0)
 {
   fProc = proc;
   fLabel = "non initialized";
@@ -53,7 +66,8 @@ OOPTask::OOPTask (const OOPTask & task):
   fProc (task.fProc),
   fTaskId (),
   fDependRequest (task.fDependRequest),
-  fLabel (task.fLabel)
+  fLabel (task.fLabel),
+  fTM(task.fTM)
 {
 }
 void
@@ -69,12 +83,14 @@ OOPTask::PrintLog (std::ostream & out, char *message)
     GetId () << ":" << message;
 }
 
+/*
 OOPObjectId
 OOPTask::Submit ()
 {
   OOPObjectId val = TM->Submit (this);
   return val;
 }
+*/
 
 
 template class TPZRestoreClass<OOPDaemonTask, TDAEMONTASK_ID>;
@@ -124,7 +140,7 @@ OOPTask::Write (TPZStream & buf, int withclassid)
   buf.Write (&fProc);		// Processor where the task should be
   // executed
   fDependRequest.Write(buf,0);//, withclassid);
-#ifdef LOGPZ
+#ifdef LOG4CXX
   stringstream sout;
   sout << "Writing Task ClassId: " << ClassId() << " ObjID: " << Id() << " Depend list \n";
   fDependRequest.ShortPrint( sout);
@@ -142,7 +158,7 @@ OOPTask::Read (TPZStream & buf, void *context)
   //Logging purpose only
   buf.Read (&fProc);
   fDependRequest.Read (buf, context);
-#ifdef LOGPZ
+#ifdef LOG4CXX
   stringstream sout;
   sout << "Read Task ClassId: " << ClassId() << " ObjID:" << Id();
   fDependRequest.ShortPrint( sout);
@@ -156,7 +172,7 @@ OOPTask::GetDepObjPtr (int idepend)
 {
   int numdep = fDependRequest.Count();
   if (idepend < 0 || idepend >= numdep) {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << " depend index is larger than numdep " <<
       idepend << " " << numdep;
@@ -171,17 +187,17 @@ void
 OOPTask::IncrementWriteDependentData ()
 {
   fDependRequest.IncrementWriteDependent();
-  TM->WakeUpCall();
+  TM()->WakeUpCall();
 }
 
 void OOPTask::SubmitDependencyList()
 {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     stringstream sout;
     sout << "Submitting Access Requests for Task " << fTaskId;
     LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
-  fDependRequest.PostRequests(fTaskId);
+  fDependRequest.PostRequests(fTaskId, fTM->DM());
 }
 
 OOPAccessTag OOPTask::GetTag(int i)
@@ -189,3 +205,31 @@ OOPAccessTag OOPTask::GetTag(int i)
 	return fDependRequest.GetTag(i);
 }
 
+/**
+ * Release access to the pointers, submit write dependent data to the DataManager and
+ * notify the DM that the access count of the objects has changed
+ */
+void OOPTask::ReleaseDepObjPtr()
+{
+  fDependRequest.SubmitIncrementedVersions(fTM->DM());
+}
+void OOPTask::ClearDependentData()
+{
+  fDependRequest.Clear(fTM->DM());
+}
+
+/**
+ * Set the associated task manager
+ */
+void OOPTask::SetTaskManager(TPZAutoPointer<OOPTaskManager> TM)
+{
+	  fTM = TM;
+}
+
+/**
+ * return the TaskManager
+ */
+TPZAutoPointer<OOPTaskManager> OOPTask::TM()
+{
+	  return fTM;
+}

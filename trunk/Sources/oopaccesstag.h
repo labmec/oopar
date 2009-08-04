@@ -98,7 +98,7 @@ private:
    */
   int fProcessor;
   /**
-   * AutoPointer to the object refered to by OOPObjectId
+   * AutoPointer to the object referred to by OOPObjectId
    */
   TPZAutoPointer<TPZSaveable> fObjectAutoPtr;
   /**

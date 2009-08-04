@@ -82,7 +82,7 @@ void OOPAccessTag::Read (TPZStream & buf, void * context)
   buf.Read(&proc);
   fProcessor = proc;
   fVersion.Read(buf,context);
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "Before reading an object";
@@ -95,7 +95,7 @@ void OOPAccessTag::Read (TPZStream & buf, void * context)
   if(r)
   {
     this->fObjectAutoPtr = TPZAutoPointer<TPZSaveable>(r);
-#ifdef LOGPZ
+#ifdef LOG4CXX
     {
       stringstream sout;
       sout << "Read object of class id C:" << this->fObjectAutoPtr->ClassId();

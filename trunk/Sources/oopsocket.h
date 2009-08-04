@@ -31,24 +31,13 @@ class OOPSocketStorageBuffer;
 
 #include <vector>
 
-#define RECEIVE_BUFFER_SIZE  128
-#define SEND_NUM_THREADS     10
+const int RECEIVE_BUFFER_SIZE = 128;
+const int SEND_NUM_THREADS   =  10;
 
-#define SOCKET_ANY_SOURCE   -1
+const int SOCKET_ANY_SOURCE =  -1;
 
-#define SOCKET_ANY_TAG      -1
+const int SOCKET_ANY_TAG   = -1;
 
-#define SOCKET_PACKED        0
-#define SOCKET_INT           1
-#define SOCKET_DOUBLE        2
-#define SOCKET_CHAR          3
-
-#define SOCKET_SUCCESS       0
-#define SOCKET_ERR_COMM     -1
-#define SOCKET_ERR_COUNT    -2
-#define SOCKET_ERR_TYPE     -3
-#define SOCKET_ERR_TAG      -4
-#define SOCKET_ERR_RANK     -5
 
 typedef struct
 {

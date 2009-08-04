@@ -36,7 +36,7 @@ void OOPMPIStorageBuffer::ExpandBuffer(int more_dimension)
     std::stringstream sout;
     sout << "Expanding buffer to invalid size " << more_dimension;
     std::cout << sout.str().c_str() << std::endl;
-#ifdef LOGPZ
+#ifdef LOG4CXX
     LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
 
@@ -57,7 +57,7 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
   }
   catch(const std::exception& e)
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     std::stringstream sout;
     sout << "Exception catched on PMPI_Pack_size! " << e.what();
     LOGPZ_ERROR(logger,sout.str().c_str());
@@ -74,7 +74,7 @@ int OOPMPIStorageBuffer::PackGeneric (void *ptr, int n, MPI_Datatype mpitype)
   }
   catch(const std::exception& e)
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     std::stringstream sout;
     sout << "Exception catched on PMPI_Pack! " << e.what();
     LOGPZ_ERROR(logger,sout.str().c_str());
@@ -88,7 +88,7 @@ int OOPMPIStorageBuffer::Send (int target)
 {
 #ifdef DEBUGALL
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     std::stringstream sout;
     sout << "PID" << getpid() << " Called MPI_Send ret = ";
     LOGPZ_DEBUG(logger,sout.str().c_str()):
@@ -98,7 +98,7 @@ int OOPMPIStorageBuffer::Send (int target)
   if(m_Length >= MAXSIZE)
   {
 
-#ifdef LOGPZ
+#ifdef LOG4CXX
     std::stringstream st;
     st << "Sending " << m_Length << " Bytes to Processor " << target;
     std::cout << st.str() << endl;
@@ -108,7 +108,7 @@ int OOPMPIStorageBuffer::Send (int target)
   int ret;
   int tag = 0;
 
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "Calling MPI_Send";
@@ -123,7 +123,7 @@ int OOPMPIStorageBuffer::Send (int target)
   }
   catch(const std::exception& e)
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     {
       stringstream sout;
       sout << "Exception catched ! " << e.what();
@@ -132,7 +132,7 @@ int OOPMPIStorageBuffer::Send (int target)
     }
 #endif
   }
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "Called MPI_Send";
@@ -145,7 +145,7 @@ int OOPMPIStorageBuffer::Send (int target)
   {
       case MPI_SUCCESS:
       {
-#ifdef LOGPZ
+#ifdef LOG4CXX
         stringstream sout;
         sout <<" - No error; MPI routine completed successfully";
         LOGPZ_DEBUG(logger,sout.str().c_str());
@@ -154,7 +154,7 @@ int OOPMPIStorageBuffer::Send (int target)
       }
       case MPI_ERR_COMM:
       {
-#ifdef LOGPZ
+#ifdef LOG4CXX
         stringstream sout;
         sout << "-  Invalid communicator.  A common error is to use a null communicator in a call (not even allowed in MPI_Comm_rank ).";
         LOGPZ_ERROR(logger,sout.str().c_str());
@@ -163,7 +163,7 @@ int OOPMPIStorageBuffer::Send (int target)
       }
       case MPI_ERR_COUNT:
       {
-#ifdef LOGPZ
+#ifdef LOG4CXX
 
         stringstream sout;
         sout << "- Invalid count argument.  Count arguments must be non-negative a count of zero is often valid";
@@ -173,7 +173,7 @@ int OOPMPIStorageBuffer::Send (int target)
       }
       case MPI_ERR_TYPE:
       {
-#ifdef LOGPZ
+#ifdef LOG4CXX
         stringstream sout;
         sout << "- Invalid datatype argument.  May be an uncommitted MPI_Datatype (see MPI_Type_commit ).";
         LOGPZ_ERROR(logger,sout.str().c_str());
@@ -182,7 +182,7 @@ int OOPMPIStorageBuffer::Send (int target)
       }
       case MPI_ERR_TAG:
       {
-#ifdef LOGPZ
+#ifdef LOG4CXX
         stringstream sout;
         sout << "- Invalid tag argument.  Tags must be non-negative;  tags  in  a\n"
         << "receive  (  MPI_Recv , MPI_Irecv , MPI_Sendrecv , etc.) may also\n"
@@ -194,7 +194,7 @@ int OOPMPIStorageBuffer::Send (int target)
       }
       case MPI_ERR_RANK:
       {
-#ifdef LOGPZ
+#ifdef LOG4CXX
         stringstream sout;
         sout << "-  Invalid  source  or  destination rank.";
         LOGPZ_ERROR(logger,sout.str().c_str());
@@ -327,7 +327,7 @@ TPZSaveable *OOPMPIStorageBuffer::Restore ()
   m_Length = 0;
   TPZSaveable *obj = TPZSaveable::Restore(*this, 0);
   this->ResetBuffer(0);
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << __PRETTY_FUNCTION__ << "Proc " << CM->GetProcID() << " Restored object with classid ";
@@ -348,7 +348,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   }
   catch(const exception & e)
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     {
       stringstream sout;
       sout << "Exception catched on PMPI_Probe ! " << e.what();
@@ -367,13 +367,13 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   {
     stringstream sout;
     sout << "Exception catched on PMPI_Get_count ! " << e.what();
-#ifdef LOGPZ
+#ifdef LOG4CXX
     LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
     cout << sout.str().c_str();
     exit(-1);
   }
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "Receiving " << count << " bytes !!" << " probres = " << probres ;
@@ -398,7 +398,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   {
     stringstream sout;
     sout << "Exception catched on PMPI_recv ! " << e.what();
-#ifdef LOGPZ
+#ifdef LOG4CXX
     LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
     cout << sout.str().c_str();
@@ -408,7 +408,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   {
     stringstream sout;
     sout << "MPI_Recv called successfully ! ";
-#ifdef LOGPZ
+#ifdef LOG4CXX
     LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
      return 1;
@@ -417,7 +417,7 @@ int OOPMPIStorageBuffer::ReceiveBlocking ()
   {
     stringstream sout;
     sout << "MPI_Recv called FAILED! ";
-#ifdef LOGPZ
+#ifdef LOG4CXX
     LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
     return -1;

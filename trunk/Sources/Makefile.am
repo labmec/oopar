@@ -43,6 +43,10 @@ MPE_SOURCES = oopevtid.cpp \
 	oopevtmanager.cpp
 endif	
 
+if OOPINTERNAL
+INTERNAL_SOURCES = oopinternalcommanager.cpp \
+	oopsocketstorage.cpp
+endif
 
 GENERAL_SOURCES = OOPDouble.cpp \
 	oopaccesstag.cpp \
@@ -86,9 +90,10 @@ GENERAL_SOURCES = OOPDouble.cpp \
 	ooptmlock.cpp \
 	OOPVector.cpp \
 	oopwaittask.cpp \
-	oopcollector.cpp
+	oopcollector.cpp \
+	oopterminationtask.cpp
 
-liboopar_a_SOURCES = $(GENERAL_SOURCES) $(SOCKET_SOURCES) $(MPI_SOURCES) $(MPE_SOURCES)
+liboopar_a_SOURCES = $(GENERAL_SOURCES) $(SOCKET_SOURCES) $(MPI_SOURCES) $(MPE_SOURCES) $(INTERNAL_SOURCES)
 	
 ## --| OOPar |------------------------------------------------------------------
 

@@ -11,8 +11,9 @@
 //
 #include "oopdelobjecttask.h"
 #include "oopdatamanager.h"
+#include "ooptaskmanager.h"
 
-extern OOPDataManager *DM;
+//extern OOPDataManager *DM;
 
 #ifdef LOG4CXX
 #include <pzlog.h>
@@ -24,11 +25,11 @@ template class TPZRestoreClass<OOPDelObjectTask, TDELOBJECTTASK_ID>;
 
 
 OOPDelObjectTask::OOPDelObjectTask()
- : OOPTask(DM->GetProcID())
+ : OOPTask()
 {
 }
-OOPDelObjectTask::OOPDelObjectTask(OOPObjectId & Id)
- : OOPTask(DM->GetProcID())
+OOPDelObjectTask::OOPDelObjectTask(OOPObjectId & Id, int procid)
+ : OOPTask(procid)
 {
   fTargetObject = Id;
 }
@@ -57,14 +58,14 @@ int OOPDelObjectTask::ClassId() const
 
 OOPMReturnType OOPDelObjectTask::Execute()
 {
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "OOPDelObjectTask Executing";
     LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
-  DM->RequestDelete(fTargetObject);
+  fTM->DM()->RequestDelete(fTargetObject);
   OOPTask::Execute();
   return ESuccess;
 }

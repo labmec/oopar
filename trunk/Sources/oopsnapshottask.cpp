@@ -1,7 +1,7 @@
 //
 // C++ Implementation: oopsnapshottask
 //
-// Description: 
+// Description:
 //
 //
 // Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2006
@@ -12,7 +12,7 @@
 #include "oopsnapshottask.h"
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
-#include "ooptmlock.h"
+#include "ooplock.h"
 
 
 template class TPZRestoreClass<OOPSnapShotTask, TSNAPSHOTTASK_ID>;
@@ -26,9 +26,10 @@ OOPSnapShotTask::~OOPSnapShotTask()
 OOPMReturnType OOPSnapShotTask::Execute(){
   cout << "Executing Task SnapShotTask on Processor " << fProc << endl;
   cout.flush();
-  OOPTMLock lock;
-  DM->SnapShotMe(cout);
-  TM->SnapShotMe(cout);
+  OOPLock<OOPTaskManager> lock(TM());
+  OOPLock<OOPDataManager> lock2(TM()->DM());
+  TM()->DM()->SnapShotMe(cout);
+  TM()->SnapShotMe(cout);
   //IncrementWriteDependentData();
   return ESuccess;
 }
@@ -46,5 +47,5 @@ void OOPSnapShotTask::Read(TPZStream & buf, void * context){
     cout << "ClassId Missmatch\n";
   }
 }
-extern OOPTaskManager *TM;
-extern OOPDataManager *DM;
+//extern OOPTaskManager *TM;
+//extern OOPDataManager *DM;

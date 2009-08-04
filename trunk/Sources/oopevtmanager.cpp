@@ -18,7 +18,7 @@
 
 #include <sstream>
 #include <pzlog.h>
-#ifdef LOGPZ
+#ifdef LOG4CXX
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
@@ -86,13 +86,13 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
   }
   std::set<int>::iterator it = m_Avail.begin();
   if(it == m_Avail.end()){
-#ifdef LOGPZ
+#ifdef LOG4CXX
     std::stringstream sout;
     sout << __FUNCTION__ << __LINE__ << " MPE Event ID management failed ";
     LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   }else{
-#ifdef LOGPZ
+#ifdef LOG4CXX
     std::stringstream sout;
     sout << __FUNCTION__ << " L:" << __LINE__ << " Inserted on Used and removed from Avail " << *it;
     //LOGPZ_DEBUG(logger,sout.str());
@@ -109,7 +109,7 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
     m_Used.insert(*it);
     m_Avail.erase(*it);
     Evt.SetManager(this);
-#ifdef LOGPZ
+#ifdef LOG4CXX
     {
     std::stringstream sout;
     Evt.Print(sout);
@@ -124,7 +124,7 @@ void OOPEvtManager<TEvt>::GetEvent(TEvt & Evt){
 
 template<>
 void OOPEvtManager<OOPSoloEvent>::ReleaseEvent(int index){
-#ifdef LOGPZ
+#ifdef LOG4CXX
   std::map<int, OOPSoloEvent>::iterator it;
   it = m_Evts.find(index);
   if(it!=m_Evts.end()){
@@ -145,7 +145,7 @@ void OOPEvtManager<OOPSoloEvent>::ReleaseEvent(int index){
 
 template<>
 void OOPEvtManager<OOPStateEvent>::ReleaseEvent(int index){
-#ifdef LOGPZ
+#ifdef LOG4CXX
   std::map<int, OOPStateEvent>::iterator it;
   it = m_Evts.find(index);
   if(it!=m_Evts.end()){

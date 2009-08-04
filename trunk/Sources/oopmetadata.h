@@ -13,7 +13,7 @@
 using namespace std;
 // NOT IMPLEMENTED :
 class   OOPDataManager;
-extern OOPDataManager *DM;
+//extern OOPDataManager *DM;
 class   OOPDMOwnerTask;
 /**
  * Implements some sort of tag which must be attatched to any obejct subjected
@@ -28,7 +28,7 @@ class   OOPMetaData//:public TPZSaveable
 {
 public:
   bool ShouldDelete(){return fShouldDelete;}
-  void SubmitTag(OOPAccessTag & Tag);
+  void SubmitTag(OOPAccessTag & Tag, TPZAutoPointer<OOPDataManager> DM);
   int AccessCounter(OOPDataVersion & version);
   int AccessCounter(const OOPDataVersion & version) ;
   /**
@@ -46,7 +46,7 @@ private:
    * pointer to the object
    */
 //  TPZAutoPointer<TPZSaveable> fObjPtr;
-  
+
   /**
    * Id of the object
    */
@@ -63,7 +63,8 @@ public:
    * Each different version is therefore stored in a map of OOPVersion to Saveable pointer.
    * This Method provides the necessary interface for submitting new versions for a given object
    */
-  void SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr,const OOPDataVersion  & nextversion);
+  void SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr,const OOPDataVersion  & nextversion,
+		  TPZAutoPointer<OOPDataManager> DM);
   /**
    * Different levels of printing.
    * Amount of information and layout are modified in each method
@@ -91,7 +92,7 @@ public:
   OOPMetaData (const OOPObjectId & ObjId,
 			     const int proc);
   OOPMetaData (TPZAutoPointer<TPZSaveable> ObPtr, const OOPObjectId & ObjId,
-                    const int ProcId, const OOPDataVersion & ver);				 
+                    const int ProcId, const OOPDataVersion & ver, TPZAutoPointer<OOPDataManager> DM);
   virtual int ClassId () const
   {
     return OOPMETADATA_ID;
@@ -99,20 +100,20 @@ public:
   /**
    * Checks if some task on the task access list is satisfied by the current data state
    */
-  void    VerifyAccessRequests ();
+  void    VerifyAccessRequests (TPZAutoPointer<OOPDataManager> DM);
   bool fShouldDelete;
 public:
   /**
    * Submits a task which requires access on current data.
    * @param depend dependency type requested.
    */
-  void    SubmitAccessRequest (const OOPAccessTag & depend);
+  void    SubmitAccessRequest (const OOPAccessTag & depend, TPZAutoPointer<OOPDataManager> DM);
 private:
   /**
    * The access request is sent to the owning processor if it cannot
    * be honoured on the local processor
    */
-  void    SendAccessRequest (const OOPAccessTag & depend);
+  void    SendAccessRequest (const OOPAccessTag & depend, TPZAutoPointer<OOPDataManager> DM);
 public:
   /**
    * Transfer an object based on the parameters.
@@ -125,7 +126,7 @@ public:
    * Takes action on an incoming message
    * @param &ms Identifies owner of the task.
    */
-  void    HandleOwnerMessage (OOPAccessTag & ms);
+  void    HandleOwnerMessage (OOPAccessTag & ms, TPZAutoPointer<OOPDataManager> DM);
   /**
    * Returns the processor to which the object belongs
    */
@@ -133,7 +134,7 @@ public:
   /**
    * returns true if the current processor is owner of the object
    */
-  bool    IamOwner () const;
+  bool IamOwner (int localprocessor) const;
   /**
    * Sends a TDMOwnerTask granting the access state to the processor
    */
@@ -142,13 +143,13 @@ public:
    * Returns the version of the data
    */
   OOPDataVersion Version () const;
-  
+
 private:
   /**
    * Give assess to the data of the metadata
    */
   TPZAutoPointer<TPZSaveable> Ptr(const OOPDataVersion &ver);
-  
+
 public:
   /**
    * Returns current object Id

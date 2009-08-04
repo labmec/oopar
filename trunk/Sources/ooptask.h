@@ -10,7 +10,8 @@
 #include "tpzautopointer.h"
 class OOPStorageBuffer;
 class OOPAccessTagList;
-//using namespace std; 
+class OOPTaskManager;
+//using namespace std;
 //class   OOPMetaData;
 /**
  * Implements a abstract Task on the environment.
@@ -26,19 +27,14 @@ public:
 
   void SubmitDependencyList();
   void IncrementWriteDependentData();
-  
+
   /**
    * Release access to the pointers, submit write dependent data to the DataManager and
    * notify the DM that the access count of the objects has changed
    */
-  void ReleaseDepObjPtr()
-  {
-    fDependRequest.SubmitIncrementedVersions();
-  }
-  void ClearDependentData()
-  {
-    fDependRequest.Clear();
-  }
+  void ReleaseDepObjPtr();
+
+  void ClearDependentData();
 
   bool CanExecute()
   {
@@ -81,13 +77,10 @@ public:
    * Constructor based on a processor-id
    * @param Procid Id of processor where the object is being created
    */
-  OOPTask():fProc(-1) ,  fLabel("non initialized"){}
+  OOPTask();
   OOPTask (int Procid);
   OOPTask (const OOPTask & task);
-  virtual ~ OOPTask ()
-  {
-    //fDataDepend.ReleaseAccessRequests(Id());
-  }
+  virtual ~ OOPTask ();
   /**
    * Returns the Id of current object
    */
@@ -107,6 +100,17 @@ public:
   {
     fTaskId = id;
   }
+
+  /**
+   * Set the associated task manager
+   */
+  void SetTaskManager(TPZAutoPointer<OOPTaskManager> TM);
+
+  /**
+   * return the TaskManager
+   */
+  TPZAutoPointer<OOPTaskManager> TM();
+
   /**
    * Processor where the task should execute
    */
@@ -141,7 +145,7 @@ public:
   /**
   * Submits the task to the TM, TaskId is returned.
   */
-  virtual OOPObjectId Submit ();
+  //virtual OOPObjectId Submit ();
   /**
   * Returns last created Id.
   */
@@ -160,13 +164,13 @@ public:
 //  virtual void Work()  { Debug( "\nTSaveable::Work." ); }
 //  virtual void Print() { Debug( "  TSaveable::Print." ); }
   /**
-   * Returns the recurrence information 
+   * Returns the recurrence information
    */
   int IsRecurrent ();
   /**
    * Sets the recurrence parameter
    * @param recurrence Holds the recurrence value
-   * @since 12/06/2003 
+   * @since 12/06/2003
    */
   void    SetRecurrence (bool recurrence = true);
   int NumDepObj()
@@ -177,7 +181,7 @@ public:
    * Return the pointer to the ith object from which this task depends
    */
   TPZSaveable * GetDepObjPtr(int idepend);
-	
+
 	/**
 	 * Return the dependency tag
 	 * @param i : The ith dependency tag
@@ -203,6 +207,11 @@ protected:
    * Holds a brief description of the task purpose
    */
   string fLabel;
+
+  /**
+   * The task manager to which this task was submitted
+   */
+  TPZAutoPointer<OOPTaskManager> fTM;
 };
 
 

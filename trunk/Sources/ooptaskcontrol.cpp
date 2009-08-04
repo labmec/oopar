@@ -1,10 +1,16 @@
 #include "ooptaskcontrol.h"
 #include "ooptask.h"
 #include "ooptaskmanager.h"
-#include "ooptmlock.h"
+#include "ooplock.h"
+#include "oopwaittask.h"
+#ifdef STEP_MUTEX
+#include "oopgenericlockservice.h"
+extern OOPGenericLockService gMutex;
+#endif
+
 #include <sstream>
 #include <pzlog.h>
-#ifdef LOGPZ
+#ifdef LOG4CXX
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPTaskControl"));
@@ -37,7 +43,7 @@ void OOPTaskControl::Execute()
 {
   fExecFinished =0;
   if(pthread_create(&fExecutor, NULL, ThreadExec, this)){
-#ifdef LOGPZ
+#ifdef LOG4CXX
     stringstream sout;
     sout << "Fail to create service thread -- ";
     sout << "Going out";
@@ -57,7 +63,7 @@ void OOPTaskControl::UpdateVersions()
   {
     if(TaskDepend().Dep(i).State() == EWriteAccess)
     {
-#ifdef LOGPZ
+#ifdef LOG4CXX
       stringstream sout;
       sout << "Submitting new Versions from Task " << fTaskId
       << " On ObjectId " << TaskDepend().Dep(i).Id()
@@ -81,6 +87,13 @@ void OOPTaskControl::Print(std::ostream & out)
 void *OOPTaskControl::ThreadExec(void *threadobj)
 {
   OOPTaskControl *tc = (OOPTaskControl *) threadobj;
+#ifdef STEP_MUTEX
+#ifdef LOG4CXX
+		LOGPZ_DEBUG(logger, "waiting for lock");
+#endif
+		OOPLock<OOPGenericLockService> lock(&gMutex);
+#endif
+
 #ifdef OOP_MPE
   stringstream sout;
   sout << "T:" << tc->fTask->Id().GetId()
@@ -88,7 +101,7 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   tc->Task()->PrintDependency(sout);
   OOPStateEvent evt("taskexec",sout.str().c_str());
 #endif
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
     stringstream sout;
     sout << "Task T:" << tc->fTask->Id() << " Started";
@@ -96,10 +109,25 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   }
 #endif
   tc->fExecStarted = 1;
+  TPZAutoPointer<OOPTaskManager> TM = tc->fTask->TM();
+#ifdef STEP_MUTEX
+  // a wait task depends on other tasks to execute
+  // it cannot run in a step lock fashion
+  if(dynamic_cast<OOPWaitTask*> (tc->fTask))
+  {
+	  lock.Unlock();
+  }
+#endif
   tc->fTask->Execute();
+#ifdef STEP_MUTEX
+  if(dynamic_cast<OOPWaitTask *>(tc->fTask))
+  {
+	  lock.Lock();
+  }
+#endif
   OOPObjectId id = tc->fTask->Id();
   int lClassId = tc->fTask->ClassId();
-#ifdef LOGPZ
+#ifdef LOG4CXX
   {
   stringstream sout;
   sout << "Task T:" << tc->fTask->Id() << " ClassId CId:" << lClassId << " Finished";
@@ -110,10 +138,10 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
   tc->UpdateVersions();
 
   {
-    OOPTMLock lock;
+    OOPLock<OOPTaskManager> lock(TM);
     tc->fExecFinished =1;
   }
-	
+
   TM->WakeUpCall();
   return 0;
 }
@@ -122,7 +150,7 @@ void OOPTaskControl::Join()
 {
   if(fExecutor == pthread_self())
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     stringstream sout;
     sout << __FUNCTION__ << " called by the taskcontrol object itself";
     LOGPZ_ERROR(logger,sout.str().c_str());
@@ -134,7 +162,7 @@ void OOPTaskControl::Join()
   int result = pthread_join(fExecutor,executorresultptr);
   if(result)
   {
-#ifdef LOGPZ
+#ifdef LOG4CXX
     stringstream sout;
     sout << __FUNCTION__ << __LINE__ << " join operation failed with result " << result;
     LOGPZ_ERROR(logger,sout.str().c_str());

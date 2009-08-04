@@ -54,6 +54,7 @@ dnl                          ARCHITECTURE SPECIFICS
 dnl ----------------------------------------------------------------------------
 
 dnl Determining standard include location and system architecture
+
 case "$target" in
   i*86-*-linux-*)
     ARCH_INCLUDES=
@@ -94,7 +95,7 @@ case "${comp_mode}" in
   devel)
     echo "Development mode chosen. Debug symbols will be added."
     COMPILATION_MODE="Development compilation mode."
-        MODE_OPTIONS="-DDEBUG -Wall -ggdb3 -pipe -fno-default-inline -fno-inline -m64 -DMT"
+        MODE_OPTIONS="-DDEBUG -DSTEP_MUTEX -Wall -ggdb3 -pipe -fno-default-inline -fno-inline -m64 -DMT"
     ;;
   profiling)
     echo "Profiling mode chosen. Information for gprof will be added."
@@ -163,7 +164,7 @@ AC_ARG_ENABLE(log4cxx,
 case "${log4cxx_enabled}" in
   yes)
     echo "Enabling log4cxx code."
-    USING_LOG4CXX="-DLOG4CXX -DLOGPZ"
+    USING_LOG4CXX="-DLOG4CXX -DLOGPZ -DSTEP_MUTEX"
     LOG4CXX_LIB="-llog4cxx"
 	
   ;;
@@ -320,6 +321,35 @@ esac
 AM_CONDITIONAL(MPILAM, test ${mpilam_enabled} = yes )
 AM_CONDITIONAL(OOPMPILAM, test "$mpilam_enabled" = yes)
 AC_SUBST(USING_MPILAM)
+
+dnl ----------------------------------------------------------------------------
+dnl                              ENABLE INTERNAL COMMUNICATION?
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(internal,
+  [  --enable-internal=no      Enables the use of internal communication [default=no]],
+  [internal_enabled=$enableval],
+  [internal_enabled="no"])
+
+case "${internal_enabled}" in
+  yes)
+    echo "Enabling internal communication."
+    USING_INTERNAL="-DOOP_INTERNAL"
+	
+  ;;
+  no)
+    echo "Internal communication not chosen."
+    USING_INTERNAL=""
+	
+  ;;
+  *)
+    AC_MSG_ERROR(bad value ${internal_enabled} for --enable-internal)
+  ;;
+esac
+
+AM_CONDITIONAL(INTERNAL, test ${internal_enabled} = yes )
+AM_CONDITIONAL(OOPINTERNAL, test "$internal_enabled" = yes)
+AC_SUBST(USING_INTERNAL)
 
 
 dnl ----------------------------------------------------------------------------

@@ -25,3 +25,5 @@ substruct_SOURCES = OOPComputeMatricesTask.cpp	parsubstruct.cpp \
 ##main_LDADD = $(top_builddir)/lib/liboopar.a @MPILIBDIR@ @MPILAMLIBDIR@ @PZ_LIBDIR@ @PZ_LIB@ @MPILIB@ @MPILAMLIB@ @MPELIB@ -lpthread
 ## --| OOPar |------------------------------------------------------------------
 noinst_HEADERS = 
+
+substruct_DEPENDENCIES = $(top_builddir)/lib/liboopar.a

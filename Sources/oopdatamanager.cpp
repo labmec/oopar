@@ -789,6 +789,13 @@ void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
     stringstream sout;
     sout << "<--Receiveing OwnerTask with Tag:";
     fTag.ShortPrint( sout);
+    sout << "\nAccess Requests : ";
+    std::set<OOPAccessTag>::iterator it;
+    for(it = fTransferRequests.begin(); it != fTransferRequests.end(); it++)
+    {
+    	sout << endl;
+    	it->ShortPrint(sout);
+    }
     LOGPZ_DEBUG(DaemonLogger, sout.str().c_str());
   }
 #endif
@@ -803,6 +810,13 @@ void OOPDMOwnerTask::Write (TPZStream& buf, int withclassid)
 	 << " To Proc " << fTag.Proc();
     if(fTag.AutoPointer()) sout << " class id " << fTag.AutoPointer()->ClassId();
     sout << "\nTransferReqTask size " << fTransferRequests.size() << endl;
+    sout << "Access Requests : ";
+    std::set<OOPAccessTag>::iterator it;
+    for(it = fTransferRequests.begin(); it != fTransferRequests.end(); it++)
+    {
+    	sout << endl;
+    	it->ShortPrint(sout);
+    }
     LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
   }

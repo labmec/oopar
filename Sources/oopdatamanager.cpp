@@ -579,7 +579,9 @@ void * OOPDataManager::ServiceThread(void * data)
 			LOGPZ_DEBUG(ServiceLogger, sout.str().c_str());
 #endif
 		}
+#ifdef STEP_MUTEX
 		lock.Unlock();
+#endif
 	}
 	{
 #ifdef LOG4CXX

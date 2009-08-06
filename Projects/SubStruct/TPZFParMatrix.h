@@ -11,6 +11,10 @@
 #define TPZFPARDOTTASK_ID		33102
 #define TPZFPARMATRIX_ID		33103
 
+
+extern OOPDataManager * DM;
+
+
 /**
  * Implements a parallel full matrix for the OOPar environment.
  * Must support the required interfaces for some specific parallel operations.
@@ -35,7 +39,7 @@ public:
 
 	TPZFParMatrix(TPZFMatrix & matrix) : TPZFMatrix(matrix)
 	{
-		TPZFMatrix * lMatrix = new TPZFMatrix(matrix); 
+		TPZFMatrix * lMatrix = new TPZFMatrix(matrix);
 		m_Id = DM->SubmitObject(lMatrix);
 		m_IsSync = false;
 
@@ -212,8 +216,5 @@ public:
 
 REAL Dot(const TPZFParMatrix &A,const TPZFParMatrix &B);
 
-inline REAL Norm(const TPZFParMatrix &A) 
-{
-	return sqrt(Dot(A,A));
-}
+REAL Norm(const TPZFParMatrix &A);
 #endif

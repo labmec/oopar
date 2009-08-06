@@ -422,7 +422,7 @@ void OOPMetaData::VerifyAccessRequests (TPZAutoPointer<OOPDataManager> DM)
         }
 #endif
         std::set<OOPAccessTag> requests;
-        fAccessList.GetProcessorAccessRequests(tag.Proc(),requests,DM);
+        fAccessList.GetProcessorAccessRequests(tag.Proc(),requests,DM->GetProcID());
         OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag,requests);
         DM->TM()->Submit(otask);
         fProc = tag.Proc();

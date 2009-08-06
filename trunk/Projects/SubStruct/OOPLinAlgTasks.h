@@ -68,28 +68,28 @@ public:
 		
 	virtual OOPMReturnType Execute();
 	
-	void RemoteZAXPY(TPZFParMatrix & x, REAL beta, const TPZFParMatrix & z);
+	 void RemoteZAXPY(TPZFParMatrix & x, REAL beta, const TPZFParMatrix & z);
 	void ZAXPY();
 
-	void RemoteTimesBetaPlusZ(TPZFParMatrix & x, const REAL beta, const TPZFParMatrix & z);
+	 void RemoteTimesBetaPlusZ(TPZFParMatrix & x, const REAL beta, const TPZFParMatrix & z);
 	void TimesBetaPlusZ();
 
-	void RemoteMultAdd(const TPZFParMatrix & me, const TPZFParMatrix &x,const TPZFParMatrix &y, TPZFParMatrix &z, const REAL alpha,const REAL beta,const int opt, const int stride);
+	 void RemoteMultAdd(const TPZFParMatrix & me, const TPZFParMatrix &x,const TPZFParMatrix &y, TPZFParMatrix &z, const REAL alpha,const REAL beta,const int opt, const int stride);
 	void MultAdd();
 	
-	void RemoteMultiply(const TPZFParMatrix & me, const TPZFParMatrix &A, TPZFParMatrix&B, int opt, int stride);
+	 void RemoteMultiply(const TPZFParMatrix & me, const TPZFParMatrix &A, TPZFParMatrix&B, int opt, int stride);
 	void Multiply();
 	
-	void RemoteZero(TPZFParMatrix & me);
+	 void RemoteZero(TPZFParMatrix & me);
 	void Zero();
 	
-	void RemoteCopy(TPZFParMatrix & me, const TPZFParMatrix & copy);
+	 void RemoteCopy(TPZFParMatrix & me, const TPZFParMatrix & copy);
 	void Copy();
 
-	void RemoteRedim(TPZFParMatrix & me, int rows, int cols);
+	 void RemoteRedim(TPZFParMatrix & me, int rows, int cols);
 	void Redim();
 	
-	REAL RemoteDot(const TPZFParMatrix & A, const TPZFParMatrix & B);
+	static REAL RemoteDot(const TPZFParMatrix & A, const TPZFParMatrix & B, int ProcId);
 	void Dot();
 	
 	

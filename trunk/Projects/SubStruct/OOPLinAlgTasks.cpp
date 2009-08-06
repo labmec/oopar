@@ -7,21 +7,26 @@
  *
  */
 
-
 #include "OOPInt.h"
 #include "OOPDouble.h"
 
 #include "TPZFParMatrix.h"
 #include "OOPLinAlgTasks.h"
 
+#include "pzlog.h"
+#ifdef LOG4CXX
+static LoggerPtr logger(Logger::getLogger("OOPAR.mainprogram"));
+#endif
 
 
 
-OOPLinAlgTasks::OOPLinAlgTasks(int processor) : OOPTask(processor)
+OOPLinAlgTasks::OOPLinAlgTasks(int processor) :
+	OOPTask(processor)
 {
 	m_Type = EUndefined;
 }
-OOPLinAlgTasks::OOPLinAlgTasks() : OOPTask()
+OOPLinAlgTasks::OOPLinAlgTasks() :
+	OOPTask()
 {
 	m_Type = EUndefined;
 }
@@ -40,125 +45,180 @@ void OOPLinAlgTasks::Write(TPZStream & buf, int withclassid)
 	OOPTask::Write(buf, withclassid);
 	int clsid = ClassId();
 	buf.Write(&clsid);
-	buf.Write((int*)&m_Type, 1);
+	buf.Write((int*) &m_Type, 1);
 }
 void OOPLinAlgTasks::Read(TPZStream & buf, void * context)
 {
 	OOPTask::Read(buf, context);
 	int clsid = 0;
 	buf.Read(&clsid);
-	if(ClassId()!=clsid){
+	if (ClassId() != clsid)
+	{
 		cout << "ClassId Missmatch\n";
 	}
-	buf.Read((int*)&m_Type, 1);
+	buf.Read((int*) &m_Type, 1);
 }
 
 OOPMReturnType OOPLinAlgTasks::Execute()
 {
-	switch (m_Type) 
+#ifdef LOG4CXX
 	{
-		case EZAXPY:
+		std::stringstream sout;
+		sout << "Entering " << __PRETTY_FUNCTION__ << std::endl;
+		sout << "With Type " << m_Type;
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+#endif
+
+	switch (m_Type) {
+	case EZAXPY: {
+		ZAXPY();
+		break;
+	}
+	case ETimesBetaPlusZ: {
+		TimesBetaPlusZ();
+		break;
+	}
+	case EMultAdd: {
+		MultAdd();
+		break;
+	}
+	case EMultiply: {
+		Multiply();
+		break;
+	}
+	case EZero: {
+#ifdef LOG4CXX
 		{
-			ZAXPY();
-			break;
+			std::stringstream sout;
+			sout << "Calling Zero on " << __PRETTY_FUNCTION__ << "\n";
+			sout << "In processor # " << this->GetProcID();
+			LOGPZ_DEBUG(logger, sout.str());
+			std::cout << sout.str().c_str() << std::endl;
+			std::cout.flush();
 		}
-		case ETimesBetaPlusZ:
+#endif
+		Zero();
+		break;
+	}
+	case ECopyOperator: {
+#ifdef LOG4CXX
 		{
-			TimesBetaPlusZ();
-			break;
+			std::stringstream sout;
+			sout << "Calling Copy on " << __PRETTY_FUNCTION__ << "\n";
+			sout << "In processor # " << this->GetProcID();
+			LOGPZ_DEBUG(logger, sout.str());
+			std::cout << sout.str().c_str() << std::endl;
+			std::cout.flush();
 		}
-		case EMultAdd:
+#endif
+		Copy();
+		break;
+	}
+	case ERedim: {
+		Redim();
+		break;
+	}
+	case EDot: {
+#ifdef LOG4CXX
 		{
-			MultAdd();
-			break;
+			std::stringstream sout;
+			sout << "Calling Dot on " << __PRETTY_FUNCTION__ << "\n";
+			sout << "In processor # " << this->GetProcID();
+			LOGPZ_DEBUG(logger, sout.str());
+			std::cout << sout.str().c_str() << std::endl;
+			std::cout.flush();
 		}
-		case EMultiply:
+#endif
+		Dot();
+		break;
+	}
+	default: {
+#ifdef LOG4CXX
 		{
-			Multiply();
-			break;
+			std::stringstream sout;
+			sout << "Going out of " << __PRETTY_FUNCTION__ << " with Type NOT SET\n";
+			LOGPZ_DEBUG(logger, sout.str());
+			std::cout << sout.str().c_str() << std::endl;
+			std::cout.flush();
 		}
-		case EZero:
-		{
-			Zero();
-			break;
-		}
-		case ECopyOperator:
-		{
-			Copy();
-			break;
-		}
-		case ERedim:
-		{
-			Redim();
-			break;
-		}
-		case EDot:
-		{
-			Dot();
-			break;
-		}
-		default:
-			break;
+#endif
+		break;
+	}
 	}
 	return ESuccess;
 }
-void OOPLinAlgTasks::RemoteTimesBetaPlusZ(TPZFParMatrix & x, const REAL beta, const TPZFParMatrix & z)
+void OOPLinAlgTasks::RemoteTimesBetaPlusZ(TPZFParMatrix & x, const REAL beta,
+		const TPZFParMatrix & z)
 {
+
+	int ProcId = GetProcID();
 	this->SetType(ETimesBetaPlusZ);
-	this->AddDependentData(OOPAccessTag(x.Id(), EWriteAccess, x.Version(),0));
+	this->AddDependentData(OOPAccessTag(x.Id(), EWriteAccess, x.Version(),
+			ProcId));
 	OOPDouble * dbeta = new OOPDouble;
 	dbeta->fValue = beta;
 	OOPObjectId betaId = DM->SubmitObject(dbeta);
 	OOPDataVersion betaVersion;
-	this->AddDependentData(OOPAccessTag(betaId, EReadAccess, betaVersion, 0));
-	this->AddDependentData(OOPAccessTag(z.Id(), EReadAccess, z.Version(),0));
+	this->AddDependentData(OOPAccessTag(betaId, EReadAccess, betaVersion,
+			ProcId));
+	this->AddDependentData(OOPAccessTag(z.Id(), EReadAccess, z.Version(),
+			ProcId));
 	x.IncrementVersion();
-	this->Submit();
-	
+	DM->TM()->Submit(this);
+
 }
-void OOPLinAlgTasks::RemoteZAXPY(TPZFParMatrix & x, REAL beta, const TPZFParMatrix & z)
-{
+void OOPLinAlgTasks::RemoteZAXPY(TPZFParMatrix & x, REAL beta,
+		const TPZFParMatrix & z) {
+	int ProcId = GetProcID();
 	this->SetType(EZAXPY);
-	this->AddDependentData(OOPAccessTag(x.Id(), EWriteAccess, x.Version(),0));
+	this->AddDependentData(OOPAccessTag(x.Id(), EWriteAccess, x.Version(),
+			ProcId));
 	OOPDouble * dbeta = new OOPDouble;
 	dbeta->fValue = beta;
 	OOPObjectId betaId = DM->SubmitObject(dbeta);
 	OOPDataVersion betaVersion;
-	this->AddDependentData(OOPAccessTag(betaId, EReadAccess, betaVersion, 0));
-	this->AddDependentData(OOPAccessTag(z.Id(), EReadAccess, z.Version(),0));
+	this->AddDependentData(OOPAccessTag(betaId, EReadAccess, betaVersion,
+			ProcId));
+	this->AddDependentData(OOPAccessTag(z.Id(), EReadAccess, z.Version(),
+			ProcId));
 	x.IncrementVersion();
-	this->Submit();
+	DM->TM()->Submit(this);
 }
 
-void OOPLinAlgTasks::ZAXPY()
-{
+void OOPLinAlgTasks::ZAXPY() {
 	//Implements x.ZAXPY(alpha, p);
-	TPZFMatrix * x = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
-	OOPDouble * alpha = dynamic_cast<OOPDouble * > (fDependRequest.ObjectPtr(1));
-	TPZFMatrix * p = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(2));
+	TPZFMatrix * x = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(0));
+	OOPDouble * alpha = dynamic_cast<OOPDouble *> (fDependRequest.ObjectPtr(1));
+	TPZFMatrix * p = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(2));
 	x->ZAXPY(alpha->fValue, *p);
 }
 
-void OOPLinAlgTasks::TimesBetaPlusZ()
-{
+void OOPLinAlgTasks::TimesBetaPlusZ() {
 	//Implements p.TimesBetaPlusZ(beta,z);
-	TPZFMatrix * p = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
-	OOPDouble * beta = dynamic_cast<OOPDouble * > (fDependRequest.ObjectPtr(1));
-	TPZFMatrix * z = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(2));
+	TPZFMatrix * p = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(0));
+	OOPDouble * beta = dynamic_cast<OOPDouble *> (fDependRequest.ObjectPtr(1));
+	TPZFMatrix * z = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(2));
 	p->TimesBetaPlusZ(beta->fValue, *z);
 }
 
-void OOPLinAlgTasks::RemoteMultAdd(const TPZFParMatrix & me, const TPZFParMatrix & x,const TPZFParMatrix &y, 
-																	 TPZFParMatrix &z, const REAL alpha,const REAL beta,const int opt,
-																	 const int stride)
-{
+void OOPLinAlgTasks::RemoteMultAdd(const TPZFParMatrix & me,
+		const TPZFParMatrix & x, const TPZFParMatrix &y, TPZFParMatrix &z,
+		const REAL alpha, const REAL beta, const int opt, const int stride) {
+	int ProcId = GetProcID();
 	//It triggers the task for the distributed operation
 	this->SetType(EMultAdd);
-	this->AddDependentData(OOPAccessTag(me.Id(), EReadAccess, me.Version(), 0));
-	this->AddDependentData(OOPAccessTag(x.Id(), EReadAccess, x.Version(), 0));
-	this->AddDependentData(OOPAccessTag(y.Id(), EReadAccess, y.Version(), 0));
-	this->AddDependentData(OOPAccessTag(z.Id(), EWriteAccess, z.Version(), 0));
-	
+	this->AddDependentData(OOPAccessTag(me.Id(), EReadAccess, me.Version(),
+			ProcId));
+	this->AddDependentData(OOPAccessTag(x.Id(), EReadAccess, x.Version(),
+			ProcId));
+	this->AddDependentData(OOPAccessTag(y.Id(), EReadAccess, y.Version(),
+			ProcId));
+	this->AddDependentData(OOPAccessTag(z.Id(), EWriteAccess, z.Version(),
+			ProcId));
+
 	z.IncrementVersion();
 
 	OOPDataVersion theVersion;
@@ -166,176 +226,285 @@ void OOPLinAlgTasks::RemoteMultAdd(const TPZFParMatrix & me, const TPZFParMatrix
 	OOPDouble * dalpha = new OOPDouble;
 	dalpha->fValue = alpha;
 	OOPObjectId alphaId = DM->SubmitObject(dalpha);
-	
+
 	OOPDouble * dbeta = new OOPDouble;
 	dbeta->fValue = beta;
 	OOPObjectId betaId = DM->SubmitObject(dbeta);
-	
+
 	OOPInt * dopt = new OOPInt;
 	dopt->fValue = opt;
 	OOPObjectId optId = DM->SubmitObject(dopt);
-	
+
 	OOPInt * dstride = new OOPInt;
 	dstride->fValue = stride;
 	OOPObjectId strideId = DM->SubmitObject(dstride);
-	
-	this->AddDependentData(OOPAccessTag(alphaId, EReadAccess, theVersion, 0));
-	this->AddDependentData(OOPAccessTag(betaId, EReadAccess, theVersion, 0));
-	this->AddDependentData(OOPAccessTag(optId, EReadAccess, theVersion, 0));
-	this->AddDependentData(OOPAccessTag(strideId, EReadAccess, theVersion, 0));
-	
-	this->Submit();
+
+	this->AddDependentData(OOPAccessTag(alphaId, EReadAccess, theVersion,
+			ProcId));
+	this->AddDependentData(
+			OOPAccessTag(betaId, EReadAccess, theVersion, ProcId));
+	this->AddDependentData(OOPAccessTag(optId, EReadAccess, theVersion, ProcId));
+	this->AddDependentData(OOPAccessTag(strideId, EReadAccess, theVersion,
+			ProcId));
+
+	DM->TM()->Submit(this);
 }
 
-void OOPLinAlgTasks::MultAdd()
-{
+void OOPLinAlgTasks::MultAdd() {
 	//Implements me.MultAdd(x,b,r,-1.,1.);
 
-	TPZFMatrix * me = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
-	TPZFMatrix * x = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(1));
-	TPZFMatrix * y = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(2));
-	TPZFMatrix * z = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(3));
-	
-	OOPDouble * alpha = dynamic_cast<OOPDouble * > (fDependRequest.ObjectPtr(4));
-	OOPDouble * beta = dynamic_cast<OOPDouble * > (fDependRequest.ObjectPtr(5));
-	OOPInt * opt = dynamic_cast<OOPInt * > (fDependRequest.ObjectPtr(6));
-	OOPInt * stride = dynamic_cast<OOPInt * > (fDependRequest.ObjectPtr(7));
+	TPZFMatrix * me = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(0));
+	TPZFMatrix * x = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(1));
+	TPZFMatrix * y = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(2));
+	TPZFMatrix * z = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(3));
 
-	me->MultAdd(*x, *y, *z, alpha->fValue, beta->fValue, opt->fValue, stride->fValue);
+	OOPDouble * alpha = dynamic_cast<OOPDouble *> (fDependRequest.ObjectPtr(4));
+	OOPDouble * beta = dynamic_cast<OOPDouble *> (fDependRequest.ObjectPtr(5));
+	OOPInt * opt = dynamic_cast<OOPInt *> (fDependRequest.ObjectPtr(6));
+	OOPInt * stride = dynamic_cast<OOPInt *> (fDependRequest.ObjectPtr(7));
+
+	me->MultAdd(*x, *y, *z, alpha->fValue, beta->fValue, opt->fValue,
+			stride->fValue);
 }
 
-void OOPLinAlgTasks::RemoteMultiply(const TPZFParMatrix & me, const TPZFParMatrix &A, TPZFParMatrix&B, int opt, int stride)
-{
+void OOPLinAlgTasks::RemoteMultiply(const TPZFParMatrix & me,
+		const TPZFParMatrix &A, TPZFParMatrix&B, int opt, int stride) {
+	int ProcId = GetProcID();
 	this->SetType(EMultiply);
-	this->AddDependentData(OOPAccessTag(me.Id(), EReadAccess, me.Version(), 0));
-	this->AddDependentData(OOPAccessTag(A.Id(), EReadAccess, A.Version(), 0));
-	this->AddDependentData(OOPAccessTag(B.Id(), EWriteAccess, B.Version(), 0));
-	
+	this->AddDependentData(OOPAccessTag(me.Id(), EReadAccess, me.Version(),
+			ProcId));
+	this->AddDependentData(OOPAccessTag(A.Id(), EReadAccess, A.Version(),
+			ProcId));
+	this->AddDependentData(OOPAccessTag(B.Id(), EWriteAccess, B.Version(),
+			ProcId));
+
 	B.IncrementVersion();
-	
+
 	OOPDataVersion theVersion;
-	
+
 	OOPInt * dopt = new OOPInt;
 	dopt->fValue = opt;
 	OOPObjectId optId = DM->SubmitObject(dopt);
-	
+
 	OOPInt * dstride = new OOPInt;
 	dstride->fValue = stride;
 	OOPObjectId strideId = DM->SubmitObject(dstride);
-	
-	this->AddDependentData(OOPAccessTag(optId, EReadAccess, theVersion, 0));
-	this->AddDependentData(OOPAccessTag(strideId, EReadAccess, theVersion, 0));
-	
-	this->Submit();
+
+	this->AddDependentData(OOPAccessTag(optId, EReadAccess, theVersion, ProcId));
+	this->AddDependentData(OOPAccessTag(strideId, EReadAccess, theVersion,
+			ProcId));
+
+	DM->TM()->Submit(this);
 }
 
-void OOPLinAlgTasks::Multiply()
-{
-	TPZFMatrix * me = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
-	TPZFMatrix * A = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(1));
-	TPZFMatrix * B = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(2));
+void OOPLinAlgTasks::Multiply() {
+	TPZFMatrix * me = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(0));
+	TPZFMatrix * A = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(1));
+	TPZFMatrix * B = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(2));
 
-	OOPInt * opt = dynamic_cast<OOPInt * > (fDependRequest.ObjectPtr(3));
-	OOPInt * stride = dynamic_cast<OOPInt * > (fDependRequest.ObjectPtr(4));
-	
+	OOPInt * opt = dynamic_cast<OOPInt *> (fDependRequest.ObjectPtr(3));
+	OOPInt * stride = dynamic_cast<OOPInt *> (fDependRequest.ObjectPtr(4));
+
 	me->Multiply(*A, *B, opt->fValue, stride->fValue);
-	
+
 }
 
-void OOPLinAlgTasks::RemoteZero(TPZFParMatrix & me)
-{
+void OOPLinAlgTasks::RemoteZero(TPZFParMatrix & me) {
+	int ProcId = GetProcID();
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Calling " << __PRETTY_FUNCTION__ << " on Processor # " << ProcId << "\n";
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+#endif
+
 	this->SetType(EZero);
-	this->AddDependentData(OOPAccessTag(me.Id(), EWriteAccess, me.Version(), 0));
-	this->Submit();
+	this->AddDependentData(OOPAccessTag(me.Id(), EWriteAccess, me.Version(),
+			ProcId));
 	me.IncrementVersion();
+	DM->TM()->Submit(this);
+
 }
-void OOPLinAlgTasks::Zero()
-{
-	TPZFMatrix * me = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
-  me->Zero();	
+void OOPLinAlgTasks::Zero() {
+	TPZFMatrix * me = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(0));
+	me->Zero();
 }
 
 void OOPLinAlgTasks::RemoteCopy(TPZFParMatrix & me, const TPZFParMatrix & copy)
 {
-	this->AddDependentData(OOPAccessTag(me.Id(), EWriteAccess, me.Version(), 0));
-	this->AddDependentData(OOPAccessTag(copy.Id(), EReadAccess, copy.Version(), 0));
+	int ProcId = GetProcID();
+	this->AddDependentData(OOPAccessTag(me.Id(), EWriteAccess, me.Version(),
+			ProcId));
+	this->AddDependentData(OOPAccessTag(copy.Id(), EReadAccess, copy.Version(),
+			ProcId));
 	this->SetType(ECopyOperator);
-	this->Submit();
 	me.IncrementVersion();
+	DM->TM()->Submit(this);
+
 }
 void OOPLinAlgTasks::Copy()
 {
-	TPZFMatrix * me = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
-	TPZFMatrix * copy = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(1));
+	TPZFMatrix * me = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(0));
+	TPZFMatrix * copy =
+			dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(1));
 	*me = *copy;
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Me->Rows " << me->Rows() << endl;
+		sout << "Copy->Rows " << copy->Rows() << endl;
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+#endif
+
 }
 
 void OOPLinAlgTasks::RemoteRedim(TPZFParMatrix & me, int rows, int cols)
 {
-	this->AddDependentData(OOPAccessTag(me.Id(), EWriteAccess, me.Version(), 0));
+	int ProcId = GetProcID();
+	this->AddDependentData(OOPAccessTag(me.Id(), EWriteAccess, me.Version(),
+			ProcId));
 	OOPInt * drows = new OOPInt;
 	drows->fValue = rows;
 	OOPObjectId rowsId = DM->SubmitObject(drows);
-	
+
 	OOPInt * dcols = new OOPInt;
 	dcols->fValue = cols;
 	OOPObjectId colsId = DM->SubmitObject(dcols);
 	OOPDataVersion dv;
-	
-	this->AddDependentData(OOPAccessTag(rowsId, EWriteAccess, dv, 0));
-	this->AddDependentData(OOPAccessTag(colsId, EWriteAccess, dv, 0));
-	
+
+	this->AddDependentData(OOPAccessTag(rowsId, EWriteAccess, dv, ProcId));
+	this->AddDependentData(OOPAccessTag(colsId, EWriteAccess, dv, ProcId));
+
 	this->SetType(ERedim);
-	this->Submit();
 	me.IncrementVersion();
+	DM->TM()->Submit(this);
 }
-void OOPLinAlgTasks::Redim()
-{
-	TPZFMatrix * me = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
+void OOPLinAlgTasks::Redim() {
+	TPZFMatrix * me = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(0));
 	OOPInt * rows = dynamic_cast<OOPInt *> (fDependRequest.ObjectPtr(1));
 	OOPInt * cols = dynamic_cast<OOPInt *> (fDependRequest.ObjectPtr(2));
 	me->Redim(rows->fValue, cols->fValue);
 }
 
-REAL OOPLinAlgTasks::RemoteDot(const TPZFParMatrix & A, const TPZFParMatrix & B)
+REAL OOPLinAlgTasks::RemoteDot(const TPZFParMatrix & A, const TPZFParMatrix & B, int ProcId)
 {
-	this->AddDependentData(OOPAccessTag(A.Id(), EReadAccess, A.Version(), 0));
-	this->AddDependentData(OOPAccessTag(B.Id(), EReadAccess, B.Version(), 0));
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Entering " << __PRETTY_FUNCTION__ << " on Processor # " << ProcId << "\n";
+		sout << "Adding Dependent Data with ReadAccess over " << A.Id() << " and " << B.Id();
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+#endif
+	OOPLinAlgTasks * lTask = new OOPLinAlgTasks(ProcId);
+	lTask->AddDependentData(OOPAccessTag(A.Id(), EReadAccess, A.Version(),
+			ProcId));
+	lTask->AddDependentData(OOPAccessTag(B.Id(), EReadAccess, B.Version(),
+			ProcId));
 	OOPDouble * dotval = new OOPDouble;
 	dotval->fValue = 0;
 	OOPObjectId dotId = DM->SubmitObject(dotval);
 	OOPDataVersion dv;
-	
-	this->AddDependentData(OOPAccessTag(dotId, EWriteAccess, dv, 0));
-	
-	this->SetType(EDot);
-	this->Submit();
-	
+
+	lTask->AddDependentData(OOPAccessTag(dotId, EWriteAccess, dv, ProcId));
+	lTask->SetType(EDot);
+	OOPObjectId lId = DM->TM()->Submit(lTask);
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Submitting LinalgTask with Type EDot with ID:" << lId << endl;
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+#endif
+
 	//Submit wait task which will bring the dot result back to the main thread
-	dv++;
-	OOPWaitTask * wdot = new OOPWaitTask(0);
-	wdot->AddDependentData(OOPAccessTag(dotId, EReadAccess, dv, 0));
-	wdot->Submit();
+	dv.Increment();
+	OOPWaitTask * wdot = new OOPWaitTask(DM->GetProcID());
+	wdot->AddDependentData(
+			OOPAccessTag(dotId, EReadAccess, dv,DM->GetProcID()));
+	OOPObjectId id = DM->TM()->Submit(wdot);
+
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Waiting for Dot operation completion on Processor # " << ProcId << "\n";
+		sout << "Waiting for DotResult in Version " << dv << endl;
+		sout << "My ID " << id << endl;
+		sout << "Waiting for DotId " << dotId << endl;
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+#endif
 	wdot->Wait();
 	OOPDouble * dot = dynamic_cast<OOPDouble *> (wdot->GetDepObjPtr(0));
 	REAL result = dot->fValue;
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Dot operation result = " << result << " on Processor # " << ProcId << "\n";;
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+#endif
 	wdot->Finish();
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Dot finished on Processor # " << ProcId << "\n";;
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+#endif
 	return result;
 }
 
 void OOPLinAlgTasks::Dot()
 {
-	TPZFMatrix * A = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
-	TPZFMatrix * B = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(1));
-	OOPDouble * result = dynamic_cast<OOPDouble * > (fDependRequest.ObjectPtr(2));
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Inside " << __PRETTY_FUNCTION__ << " On Processor # " << GetProcID() << "\n";;
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+
+#endif
+	TPZFMatrix * A = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(0));
+	TPZFMatrix * B = dynamic_cast<TPZFMatrix *> (fDependRequest.ObjectPtr(1));
+	OOPDouble * result =
+			dynamic_cast<OOPDouble *> (fDependRequest.ObjectPtr(2));
 	result->fValue = ::Dot(*A, *B);
+#ifdef LOG4CXX
+	{
+		std::stringstream sout;
+		sout << "Leaving " << __PRETTY_FUNCTION__ << " On Processor # " << GetProcID() << "\n";;
+		sout << "Computed Dot value = " << result->fValue << endl;
+		LOGPZ_DEBUG(logger, sout.str());
+		std::cout << sout.str().c_str() << std::endl;
+		std::cout.flush();
+	}
+
+#endif
+
 }
 
-int OOPLinAlgTasks::ClassId() const
-{
+int OOPLinAlgTasks::ClassId() const {
 	return OOPLINALGTASK_ID;
 }
 
-
-template class TPZRestoreClass<OOPLinAlgTasks, OOPLINALGTASK_ID>;
+template class TPZRestoreClass<OOPLinAlgTasks, OOPLINALGTASK_ID> ;
 

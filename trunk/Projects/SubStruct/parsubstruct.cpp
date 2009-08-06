@@ -83,7 +83,7 @@ int matmain(int argc, char **argv)
 #ifdef OOP_MPI
 	CM = new OOPMPICommManager(argc, argv);
 #elif OOP_SOCKET
-  OOPSocketCommManager * CM = new OOPSocketCommManager;
+  CM = new OOPSocketCommManager;
 	((OOPSocketCommManager *)CM)->Initialize();
 	//CM->Initialize(argv[0], 4);
 	((OOPSocketCommManager *)CM)->Barrier();
@@ -289,7 +289,7 @@ int TestSerialization()
 {
 	OOPCommunicationManager * CM;
 #ifdef OOP_SOCKET
-	OOPSocketCommManager * CM = new OOPSocketCommManager;
+	CM = new OOPSocketCommManager;
 	((OOPSocketCommManager *)CM)->Initialize();
 	((OOPSocketCommManager *)CM)->Barrier();
 #endif
@@ -330,13 +330,14 @@ int TestFParMatrix()
 {
 	OOPTaskManager * TM = new OOPTaskManager(0);
 	DM = new OOPDataManager(0,TM->TM());
+	OOPCommunicationManager *CM;
 	//OOPDumbCommManager * CM = new OOPDumbCommManager;
 #ifdef OOP_INTERNAL
-	OOPInternalCommunicationManager * CM = new OOPInternalCommunicationManager(0,NumProcessors);
+	CM = new OOPInternalCommunicationManager(0,NumProcessors);
 #endif
 #ifdef LOG4CXX
   std::stringstream sin;
-  sin << "log4cxxclient" << CM->GetProcID() << ".cfg";
+  sin << "log4cxxclient" << ".cfg";
   log4cxx::PropertyConfigurator::configure(sin.str());
 #endif
 

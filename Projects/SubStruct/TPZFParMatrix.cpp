@@ -130,8 +130,7 @@ void TPZFParMatrix::ZAXPY(const REAL alpha, const TPZFParMatrix &p)
 		std::cout.flush();
 	}
 #endif
-	OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-	lintask->RemoteZAXPY(*this, alpha, p);
+	OOPLinAlgTasks::RemoteZAXPY(*this, alpha, p, TARGET_PROC);
 	m_IsSync = false;
 }
 
@@ -150,8 +149,7 @@ void TPZFParMatrix::ZAXPY(const REAL alpha, const TPZFMatrix &p)
 	pmat = dynamic_cast<const TPZFParMatrix * > (&p);
 	if(pmat)
 	{
-		OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-		lintask->RemoteZAXPY(*this, alpha, *pmat);
+		OOPLinAlgTasks::RemoteZAXPY(*this, alpha, *pmat, TARGET_PROC);
 		m_IsSync = false;
 	}
 	else
@@ -173,8 +171,7 @@ void TPZFParMatrix::TimesBetaPlusZ(const REAL beta, const TPZFParMatrix &z)
 		std::cout.flush();
 	}
 #endif
-	OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-	lintask->RemoteTimesBetaPlusZ(*this, beta, z);
+	OOPLinAlgTasks::RemoteTimesBetaPlusZ(*this, beta, z, TARGET_PROC);
 	m_IsSync = false;
 }
 void TPZFParMatrix::TimesBetaPlusZ(const REAL beta, const TPZFMatrix &z)
@@ -192,13 +189,12 @@ void TPZFParMatrix::TimesBetaPlusZ(const REAL beta, const TPZFMatrix &z)
 	pmat = dynamic_cast<const TPZFParMatrix*>(&z);
 	if(pmat)
 	{
-		OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-		lintask->RemoteTimesBetaPlusZ(*this, beta, *pmat);
-		m_IsSync = false;
+	  OOPLinAlgTasks::RemoteTimesBetaPlusZ(*this, beta, *pmat, TARGET_PROC);
+	  m_IsSync = false;
 	}
 	else
 	{
-		TPZFMatrix::TimesBetaPlusZ(beta, z);
+	  TPZFMatrix::TimesBetaPlusZ(beta, z);
 	}
 }
 
@@ -213,8 +209,7 @@ void TPZFParMatrix::MultAdd(const TPZFParMatrix &x,const TPZFParMatrix &y, TPZFP
 		std::cout.flush();
 	}
 #endif
-	OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-	lintask->RemoteMultAdd(*this, x, y, z, alpha, beta, opt, stride);
+	OOPLinAlgTasks::RemoteMultAdd(*this, x, y, z, alpha, beta, opt, stride, TARGET_PROC);
 }
 void TPZFParMatrix::MultAdd(const TPZFMatrix &x,const TPZFMatrix &y, TPZFMatrix &z, const REAL alpha,const REAL beta,const int opt,const int stride) const 
 {
@@ -237,8 +232,7 @@ void TPZFParMatrix::MultAdd(const TPZFMatrix &x,const TPZFMatrix &y, TPZFMatrix 
 	
 	if(px && py && pz)
 	{
-		OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-		lintask->RemoteMultAdd(*this, *px, *py, *pz, alpha, beta, opt, stride);
+		OOPLinAlgTasks::RemoteMultAdd(*this, *px, *py, *pz, alpha, beta, opt, stride, TARGET_PROC);
 	}
 	else
 	{
@@ -258,8 +252,7 @@ void TPZFParMatrix::Multiply(const TPZFParMatrix &A, TPZFParMatrix&B, int opt, i
 		std::cout.flush();
 	}
 #endif
-	OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-	lintask->RemoteMultiply(*this, A, B, opt, stride);
+	OOPLinAlgTasks::RemoteMultiply(*this, A, B, opt, stride, TARGET_PROC);
 }
 void TPZFParMatrix::Multiply(const TPZFMatrix &A, TPZFMatrix&B, int opt, int stride) const 
 {
@@ -279,8 +272,7 @@ void TPZFParMatrix::Multiply(const TPZFMatrix &A, TPZFMatrix&B, int opt, int str
 	
 	if(pA && pB)
 	{
-		OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-		lintask->RemoteMultiply(*this, *pA, *pB, opt, stride);
+	  OOPLinAlgTasks::RemoteMultiply(*this, *pA, *pB, opt, stride, TARGET_PROC);
 	}
 	else
 	{
@@ -300,8 +292,7 @@ int TPZFParMatrix::Zero()
 	}
 #endif
 	TPZFMatrix::Zero();
-	OOPLinAlgTasks * lintask = new OOPLinAlgTasks(TARGET_PROC);
-	lintask->RemoteZero(*this);
+	OOPLinAlgTasks::RemoteZero(*this, TARGET_PROC);
 /**
 	int size = fRow * fCol * sizeof(REAL);
 	memset(fElem,'\0',size);
@@ -323,16 +314,14 @@ int TPZFParMatrix::Redim(const int rows, const int cols)
 	}
 #endif
 	TPZMatrix::Redim(rows, cols);
-	OOPLinAlgTasks * rtask = new OOPLinAlgTasks(TARGET_PROC);
-	rtask->RemoteRedim(*this, rows, cols);
+	OOPLinAlgTasks::RemoteRedim(*this, rows, cols, TARGET_PROC);
 	return 0;
 }
 
 TPZFMatrix & TPZFParMatrix::operator = (const TPZFParMatrix & copy)
 {
-	OOPLinAlgTasks * copyt = new OOPLinAlgTasks(TARGET_PROC);
-	copyt->RemoteCopy(*this, copy);
-	return *this;
+  OOPLinAlgTasks::RemoteCopy(*this, copy, TARGET_PROC);
+  return *this;
 }
 
 
@@ -340,8 +329,7 @@ TPZFMatrix & TPZFParMatrix::operator = (const TPZFMatrix & copy)
 {
 	const TPZFParMatrix * parcopy = dynamic_cast<const TPZFParMatrix *>(&copy);
 	if(!parcopy) exit (-1);
-	OOPLinAlgTasks * copyt = new OOPLinAlgTasks(TARGET_PROC);
-	copyt->RemoteCopy(*this, *parcopy);
+	OOPLinAlgTasks::RemoteCopy(*this, *parcopy, TARGET_PROC);
 	return *this;
 }
 
@@ -400,8 +388,7 @@ TPZFMatrix & TPZFParMatrix::TPZAccessParMatrix::GetMatrix()
 #include "cg.h"
 #include "pzsolve.h"
 
-void TPZFParMatrix::SolveCG(	int & 	numiterations,
-											 TPZSolver & 	preconditioner,
+void TPZFParMatrix::SolveCG(	int & 	numiterations,TPZSolver & 	preconditioner,
 											 const TPZFMatrix & 	F,
 											 TPZFMatrix & result,
 											 TPZFMatrix * residual,
@@ -421,6 +408,11 @@ void TPZFParMatrix::SolveCG(	int & 	numiterations,
 	TPZFParMatrix * parResult = dynamic_cast<TPZFParMatrix *>(&result);
 	TPZFParMatrix * parResidual = dynamic_cast<TPZFParMatrix *>(residual);
 	CG(*this, *parResult, *parF, preconditioner, parResidual, numiterations, tol, FromCurrent);
+	OOPWaitTask * wt = new OOPWaitTask(DM->GetProcID());
+	wt->AddDependentData(OOPAccessTag(parResult->Id(), EReadAccess, parResult->Version(), DM->GetProcID()));
+	DM->TM()->Submit(wt);
+	wt->Wait();
+	wt->Finish();
 }
 
 REAL Norm(const TPZFParMatrix &A)

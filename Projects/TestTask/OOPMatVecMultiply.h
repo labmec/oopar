@@ -16,7 +16,10 @@
 class TPZFMatrix;
 
 #define OOPMATVECMULTIPLY_ID 1002
-
+/**
+ * Implements a Matrix Vector multiplication on the OOPar environment.
+ * Objects which take part on the operation are obtained by means of ObjectIds.
+ */
 class OOPMatVecMultiply : public OOPTask
 {
 	/**

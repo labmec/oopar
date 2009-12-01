@@ -132,7 +132,7 @@ void * OOPMPICommManager::SendTaskMT(void * Data)
 #endif
   }
   int process_id = pTask->GetProcID ();
-  if (process_id >= CM->NumProcessors() || process_id < 0) {
+  if (process_id >= pTask->TM()->CM()->NumProcessors() || process_id < 0) {
     stringstream sout;
     sout << "Sending Task to a processor which doesn't exist!\nFinishing MPICommManager !\nFarewell !";
 #ifdef LOG4CXX
@@ -143,13 +143,15 @@ void * OOPMPICommManager::SendTaskMT(void * Data)
     return NULL;
   }
   // Se estiver tentando enviar para mim mesmo.
-  if (process_id == CM->GetProcID()) {
+  if (process_id == pTask->TM()->CM()->GetProcID()) {
     stringstream sout;
     sout << "Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !";
 #ifdef LOG4CXX
     LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-    ((OOPMPICommManager *)CM)->Finish("Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !");
+    OOPMPICommManager * lMPIComm;
+    lMPIComm = dynamic_cast<OOPMPICommManager *>(pTask->TM()->CM().operator->());
+    lMPIComm->Finish("Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !");
     delete pTask;
     return NULL;
   }
@@ -303,7 +305,7 @@ int OOPMPICommManager::ProcessMessage(OOPMPIStorageBuffer & msg)
   }
   OOPTask *task = dynamic_cast<OOPTask *> (obj);
   if(task) {
-    task->Submit();
+    TM()->Submit(task);
   } else {
 #ifdef LOG4CXX
     std::stringstream sout;
@@ -343,7 +345,7 @@ void OOPMPICommManager::UnlockReceiveBlocking()
 #ifdef LOG4CXX
   {
     std::stringstream sout;
-    sout << "Setting KeepReceiving flag to FALSE on Processor " << CM->GetProcID();
+    sout << "Setting KeepReceiving flag to FALSE on Processor " << CM().operator->()->GetProcID();
     LOGPZ_DEBUG(logger,sout.str().c_str());
     cout << sout.str().c_str() << endl;
   }
@@ -353,12 +355,12 @@ void OOPMPICommManager::UnlockReceiveBlocking()
   pthread_mutex_lock(&fCommunicate);
   OOPMPIStorageBuffer buff;
   buff.PkInt( &classid, 1);
-  buff.Send( CM->GetProcID() );
+  buff.Send( CM().operator->()->GetProcID() );
   pthread_mutex_unlock(&fCommunicate);
 #ifdef LOG4CXX
   {
     std::stringstream sout;
-    sout << "Waiting for ReceiveThread sinalization on Processor " << CM->GetProcID();
+    sout << "Waiting for ReceiveThread sinalization on Processor " << CM().operator->()->GetProcID();
     LOGPZ_DEBUG(logger,sout.str().c_str());
     cout << sout.str().c_str() << endl;
   }
@@ -367,7 +369,7 @@ void OOPMPICommManager::UnlockReceiveBlocking()
 #ifdef LOG4CXX
   {
     std::stringstream sout;
-    sout << "Processor " << CM->GetProcID() << " Received ReceiveThread termination confirmation";
+    sout << "Processor " << CM().operator->()->GetProcID() << " Received ReceiveThread termination confirmation";
     LOGPZ_DEBUG(logger,sout.str().c_str());
     cout << sout.str().c_str() << endl;
   }

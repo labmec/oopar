@@ -477,7 +477,7 @@ bool OOPTaskManager::KeepRunning()
 }
 
 
-#ifdef OOP_MPI
+#ifdef OOP_MPI_OLD
 
 /**
 * Inicio das definicoes para MPI
@@ -1173,7 +1173,8 @@ void OOPTaskManager::Wait()
 #elif OOP_MPI
   MPI_Barrier(MPI_COMM_WORLD);
 #ifdef BLOCKING
-  ((OOPMPICommManager *)CM())->UnlockReceiveBlocking();
+  OOPMPICommManager * lCM = dynamic_cast<OOPMPICommManager *>(CM().operator->());
+  lCM->UnlockReceiveBlocking();
 #endif
 
 #endif

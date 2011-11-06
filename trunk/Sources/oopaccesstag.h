@@ -33,7 +33,7 @@ using namespace std;
  * OOPDataDepend and OOPTaskDepend.
  * OOPAccessTag is the new OOPar access currency, OOPAccessTags are axchanged among processors, tasks, etc.
  */
-class OOPAccessTag{
+class OOPAccessTag {
 public:
   OOPAccessTag();
   int Count() const

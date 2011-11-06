@@ -57,7 +57,7 @@ OOPStorageBuffer::~OOPStorageBuffer ()
 }
 /***************/
 /*** Restore ***/
-OOPSaveable *OOPStorageBuffer::Restore ()
+TPZSaveable *OOPStorageBuffer::Restore ()
 {
 	long class_id = 0;
 	UpkLong (&class_id);

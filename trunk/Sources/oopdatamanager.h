@@ -16,14 +16,14 @@
 #include <pthread.h>
 //#include <semaphore.h>
 #include "tpzautopointer.h"
+#include "pzsave.h"
+#include "pzstream.h"
 
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+#include "boost/interprocess/sync/interprocess_semaphore.hpp"
 
 
 class TPZSaveable;
 class   OOPStorageBuffer;
-class   OOPStorageBuffer;
-class   OOPSaveable;
 using namespace std;
 //class   OOPMetaData;
 class   OOPDMOwnerTask;
@@ -284,6 +284,8 @@ private:
 class   OOPDMOwnerTask:public OOPDaemonTask
 {
 public:
+	void LogMe(std::ostream & out);
+	void LogMeReceived(std::ostream & out);
 
   /// data associated with the owner task
   /**

@@ -5,9 +5,10 @@ class TPZStream;
 TParVector::TParVector ()
 {
 }
+
 void TParVector::Write (TPZStream & buf, int withclassid)
 {
-	TPZSaveable::Write(buf);
+	TPZSaveable::Write(buf,withclassid);
 	vector < double >::iterator i = fData.begin ();
 	int aux = fData.size ();
 	buf.Write (&aux);
@@ -15,9 +16,10 @@ void TParVector::Write (TPZStream & buf, int withclassid)
 		buf.Write (&(*i), 1);
 	}
 }
+
 void TParVector::Read (TPZStream & buf, void * context)
 {
-	TPZSaveable::Read(buf);
+	TPZSaveable::Read(buf,context);
 	int aux = 0;
 	int i = 0;
 	buf.Read (&aux);
@@ -27,6 +29,7 @@ void TParVector::Read (TPZStream & buf, void * context)
 		fData.push_back (val);
 	}
 }
+
 void TParVector::SetVector (vector < double >data)
 {
 #ifndef WIN32
@@ -34,12 +37,16 @@ void TParVector::SetVector (vector < double >data)
 #endif
 	fData = data;
 }
+
 void TParVector::Resize (int size)
 {
 	fData.resize (size);
 }
+
 TPZSaveable *TParVector::Restore (TPZStream & buf, void * context) {
 	TParVector *loc = new TParVector;//();
 	loc->Read(buf);
 	return loc;
 }
+
+template class TPZRestoreClass<TParVector, TPARVECTOR_ID>;

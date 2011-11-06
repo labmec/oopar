@@ -6,7 +6,7 @@
 #include "oopfilecomm.h"
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
-#include "ooppartask.h"
+#include "ooptask.h"
 #include <errno.h> 
 
 #include "tmultitask.h"

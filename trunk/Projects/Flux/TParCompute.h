@@ -159,7 +159,8 @@ public:
       */
 	int     fNPartitions;
 };
-template class TPZRestoreClass<TParCompute, TPARCOMPUTE_ID>;
+
 extern int GLogMsgCounter;
 extern ofstream TaskLog;
+
 #endif // TPARCOMPUTE_H

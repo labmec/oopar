@@ -8,10 +8,12 @@
 #include "ooptask.h"
 #include "oopdataversion.h"
 #include "fluxdefs.h"
+
 class TPZStream;
 using namespace std;
+
 /**
- * Implements the functionalities of the Analysis classes incorporating
+ * @brief Implements the functionalities of the Analysis classes incorporating
  * parallelization optimization.
  * This class is not part of the parallel environment, although it make some calls to the Data and Task manager.
  * Its an auxiliar class which triggers the environment.
@@ -58,15 +60,18 @@ public:
    */
 	virtual void Read (TPZStream & buf, void * context = 0);
 	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
-      private:
+	
+private:
 	OOPObjectId fRelationTable;
 	int     fNumPartitions;
 	int fNumProcessors;
 	OOPDataVersion fTaskVersion;
+	
 	vector < OOPObjectId > fRhsId;
 	vector < OOPObjectId > fMeshId;
 	vector < OOPObjectId > fStateId;
 };
-template class TPZRestoreClass<TParAnalysis, TPARANAYSIS_ID>;
+
 extern ofstream TaskLog;
+
 #endif // TPARANALYSIS_H

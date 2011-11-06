@@ -35,7 +35,7 @@ class   TTaskComm:public OOPTask
 	virtual long GetClassID () {
 		return TTASKCOMM_ID;
 	}
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+	static TPZSaveable *Restore (OOPStorageBuffer * buf);
 	        TTaskComm (int ProcId);
   /** Sets the value the communication task will transport */
   void SetValue(double val);

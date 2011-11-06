@@ -67,8 +67,8 @@ void TContribution::InitializeRandom ()
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-int TContribution::Pack (OOPSendStorage * buf){
-	fDestinationMesh.Pack(buf);
+int TContribution::Write(OOPStorageBuffer * buf, int classid){
+	fDestinationMesh.Write(buf,classid);
 	int i,sz;
 	sz = fFrom.size();
 	buf->PkInt(&sz);
@@ -93,8 +93,8 @@ int TContribution::Pack (OOPSendStorage * buf){
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-int TContribution::Unpack (OOPReceiveStorage * buf){
-	fDestinationMesh.Unpack(buf);
+int TContribution::Read(OOPStorageBuffer * buf,void *context){
+	fDestinationMesh.Read(buf,context);
 	int i,sz;
 	buf->UpkInt(&sz);
 	fFrom.resize(sz);

@@ -3,9 +3,9 @@
 #ifndef TDISTNORM_H
 #define TDISTNORM_H
 #include "ooptask.h"
-#include <bicgdefs.h>
+#include "bicgdefs.h"
 #include "TTaskComm.h"
-#include <oopdatamanager.h>
+#include "oopdatamanager.h"
 class OOPObjectId;
 
 /**
@@ -54,4 +54,5 @@ private:
 	OOPObjectId fId_Target;
 	
 };
+
 #endif //TDISTNORM_H

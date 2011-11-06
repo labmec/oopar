@@ -1,6 +1,6 @@
 #ifndef PARDEFSH
 #define PARDEFSH
-/*enum OOPMDMOwnerMessageType
+enum OOPMDMOwnerMessageType
 {
   ENoMessage,
   ETransferOwnership,
@@ -11,7 +11,7 @@ enum OOPDMRequestMessageType
   ENoRequest,
   ERequestReadAccess,
   ERequestWriteAccess,
-};*/
+};
 //BlockingReadAccess concept no longer exists
 //longhin: 30/01/2003
 /**
@@ -22,6 +22,7 @@ enum OOPMDataState
   ENoAccess,
   EReadAccess,
   EWriteAccess,
+  EVersionAccess,
   EDelete
 };
 enum OOPMReturnType

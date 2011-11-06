@@ -3,8 +3,8 @@
 //#include <istream>
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
-//#include "oopfilecomm.h"
-#include "ooperror.h"
+#include "oopfilecomm.h"
+
 #ifdef OOP_MPI
 #include "oopmpicomm.h"
 #endif
@@ -19,16 +19,11 @@
 
 #include "OOPDataLogger.h"
 
-ofstream TaskLog("tasklog.log");
-ofstream DataLog("datalog.log");
-ofstream DataManLog("datamanlog.log");
-ofstream TransferDataLog("transferdatalog.log");
-ofstream TaskQueueLog("taskqueue.log");
-ofstream TaskManLog("taskmanlog.log");
-ofstream DataQueueLog("dataqueuelog.log");
-
-//int GLogMsgCounter;
 int numproc = 4;
+
+OOPCommunicationManager *CM;
+OOPDataManager *DM;
+OOPTaskManager *TM;
 
 vector < OOPCommunicationManager * >CMList (numproc);
 vector < OOPDataManager * >DMList (numproc);
@@ -39,6 +34,7 @@ void    Load (int iproc);
 using namespace std;
 #include <pthread.h>
 //pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
+
 int multimain ()
 {
 
@@ -59,7 +55,7 @@ int multimain ()
 		TMList[iproc] =
 			new OOPTaskManager (CMList[iproc]->GetProcID ());
 		DMList[iproc] =
-			new OOPDataManager (CMList[iproc]->GetProcID ());
+			new OOPDataManager (CMList[iproc]->GetProcID (), TMList[iproc]);
 	}
 /*	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
 					    TParAnalysis::Restore);
@@ -81,42 +77,24 @@ int multimain ()
 	
 	
 	TParAnalysis *partask = new TParAnalysis (1, numproc, numproc);
-	TM->Submit (partask);
+	TMList[0]->Submit (partask);
 	int nsteps=100;
 	int k=0;
 	while (NumTasks () && k<nsteps) {
 		for (iproc = 0; iproc < numproc; iproc++) {
 			Load (iproc);
-			TM->Execute ();
+			TMList[iproc]->Execute ();
 			k++;
 		}
 	}
 	TaskLog.close();
-	DataLog.close();
-	DataManLog.close();
-	TaskManLog.close();
-	TransferDataLog.close();
-	TaskQueueLog.close();
-	DataQueueLog.close();
 	delete LogDM;
 	return 0;
 }
+
 #ifdef OOP_MPI
 int mpimain (int argc, char **argv)
 {
-/*
-	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
-					    TParAnalysis::Restore);
-	OOPStorageBuffer::AddClassRestore(TPARCOMPUTE_ID, TParCompute::Restore);
-	OOPStorageBuffer::AddClassRestore(TLOCALCOMPUTE_ID, TLocalCompute::Restore);
-	OOPStorageBuffer::AddClassRestore(TTASKCOMM_ID, TTaskComm::Restore);
-	OOPStorageBuffer::AddClassRestore(TPARMESH_ID, TParMesh::Restore);
-	OOPStorageBuffer::AddClassRestore(TPARTITIONRELATION_ID, TPartitionRelation::Restore);
-	OOPStorageBuffer::AddClassRestore(TDMOWNERTASK_ID, OOPDMOwnerTask::Restore);
-	OOPStorageBuffer::AddClassRestore(TDMREQUESTTASK_ID, OOPDMRequestTask::Restore);
-	OOPStorageBuffer::AddClassRestore(TPARVECTOR_ID, TParVector::Restore);
-	OOPStorageBuffer::AddClassRestore(TTERMINATIONTASK_ID, OOPTerminationTask::Restore);
-*/
 	CM = new OOPMPICommManager (argc, argv);
 	CM->Initialize((char*)argv, argc);
 	char filename[256];
@@ -126,7 +104,6 @@ int mpimain (int argc, char **argv)
 	TM = new OOPTaskManager (CM->GetProcID ());
 	DM = new OOPDataManager (CM->GetProcID ());
 				    
-//	Load (0);
 	numproc = CM->NumProcessors();//atoi(argv[argc-1]);
 	if(!CM->GetProcID()){
 		cout << "Create ParAnalysis on processor " << CM->GetProcID() << endl;
@@ -135,12 +112,6 @@ int mpimain (int argc, char **argv)
 		TM->Submit (partask);
 	}
 	TM->Execute();
-	/*while (NumTasks ()) {
-		for (iproc = 0; iproc < numproc; iproc++) {
-			Load (iproc);
-			TM->Execute ();
-		}
-	}*/
 	
 	TM->Wait();
 	delete  DM;
@@ -154,6 +125,7 @@ int mpimain (int argc, char **argv)
 	
 }
 #endif
+
 int NumTasks ()
 {
 	int     numproc = TMList.size ();
@@ -163,6 +135,7 @@ int NumTasks ()
 	}
 	return numtask;
 }
+
 void Load (int iproc)
 {
 	CM = CMList[iproc];

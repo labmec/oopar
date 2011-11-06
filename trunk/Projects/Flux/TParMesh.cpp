@@ -13,17 +13,20 @@ TParMesh::~TParMesh() {
    * @param *buff A pointer to TSendStorage class to be packed.
    */
 void TParMesh::Write (TPZStream & buf, int withclassid) {
-	TPZSaveable::Write(buf);
+	TPZSaveable::Write(buf,withclassid);
 }
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
 void TParMesh::Read (TPZStream & buf, void * context) {
-	TPZSaveable::Read(buf);
+	TPZSaveable::Read(buf,context);
 }
+
 TPZSaveable *TParMesh::Restore (TPZStream & buf, void * context) {
 	TParMesh *pm = new TParMesh();
 	pm->Read(buf);
 	return pm;
 }
+
+template class TPZRestoreClass<TParMesh, TPARMESH_ID>;

@@ -4,27 +4,39 @@
 #define TLOCALCOMPUTE_H
 #include "ooptask.h"
 #include "fluxdefs.h"
+
 class OOPStorageBuffer;
-class   TPartitionRelation;
-class   TContribution;
+class TPartitionRelation;
+class TContribution;
+
 /**
- * Implements the local flux computation on each partition.
+ * @brief Implements the local flux computation on each partition.
+ *
  * Objects of this class are created by TParCompute object which also submits them to the TaskManager.
- * Each TLocalCompute is a OOPTask dependent on the following objects:
- * --One State objects with read access.
- * --One Rhs objects with write access.
+ * @note Each TLocalCompute is a OOPTask dependent on the following objects: \n
+ * --One State objects with read access.\n
+ * --One Rhs objects with write access.\n
  * --The TPartitionRelation object with read access.
  * @author Gustavo Camargo Longhin
  * @version 0.9 
  */
-class   TLocalCompute:public OOPTask
+class TLocalCompute : public OOPTask
 {
+
 public:
-	virtual ~TLocalCompute(){}
-	
-	TLocalCompute(){}
 	/**
-     * Simple constructor 
+	 * @brief Default destructor.
+	 */
+	virtual ~TLocalCompute() { }
+	/**
+	 * @brief Default constructor.
+	 */
+	TLocalCompute() { }
+
+	/**
+     * @brief Simple constructor
+	 * @param ProcId Id of the processor
+	 * @param partition Partition number to which this object corresponds
      */
 	TLocalCompute (int ProcId, int partition);
     /**
@@ -83,6 +95,7 @@ public:
      */
 	void    InitializePartitionRelationPointer ();
 };
-template class TPZRestoreClass<TLocalCompute, TLOCALCOMPUTE_ID>;
+
 extern ofstream TaskLog;
+
 #endif // TLOCALCOMPUTE_H

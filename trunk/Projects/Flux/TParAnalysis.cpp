@@ -3,8 +3,10 @@
 #include <iostream>
 #include "TParVector.h" 
 #include "ooptaskmanager.h"
+#include "oopterminationtask.h"
+
 class OOPStorageBuffer;
-//ofstream TaskLog("tasklog.log");
+
 void TParAnalysis::Print (ostream & out)
 {
 	out << "Print ParAnalysis" << endl;
@@ -19,12 +21,12 @@ void TParAnalysis::SetupEnvironment ()
 	int npartitions = table->GetNPartitions ();
 	int ip;
 	// message #1.3 to rhs:TParVector
-	vector < TParVector * >RhsVec (npartitions);
+	vector< TParVector * > RhsVec (npartitions);
 	fRhsId.resize (npartitions);
 	for (ip = 0; ip < npartitions; ip++)
 		RhsVec[ip] = new TParVector ();
 	// message #1.4 to state:TParVector
-	vector < TParVector * >StateVec (npartitions);
+	vector < TParVector * > StateVec (npartitions);
 	fStateId.resize (npartitions);
 	for (ip = 0; ip < npartitions; ip++)
 		StateVec[ip] = new TParVector ();
@@ -37,11 +39,11 @@ void TParAnalysis::SetupEnvironment ()
 	// message #1.7 to ver:OOPDataVersion
 	for (i = 0; i < npartitions; i++) {
 		// message #1.8.1 to DM:OOPDataManager
-		fRhsId[i] = DM->SubmitObject (RhsVec[i], 1);
+		fRhsId[i] = TM()->DM()->SubmitObject (RhsVec[i]);
 		// message #1.8.3 to DM:OOPDataManager
-		fStateId[i] = DM->SubmitObject (StateVec[i], 1);
+		fStateId[i] = TM()->DM()->SubmitObject (StateVec[i]);
 		// message #1.8.5 to DM:OOPDataManager
-		fMeshId[i] = DM->SubmitObject (MeshVec[i], 1);
+		fMeshId[i] = TM()->DM()->SubmitObject (MeshVec[i]);
 		table->SetMeshId (i, fMeshId[i]);
 	}
 	// message #1.6 to ver:OOPDataVersion
@@ -50,22 +52,23 @@ void TParAnalysis::SetupEnvironment ()
 	int version = 0;
 	ver.SetLevelVersion (level, version);
 	OOPMDataState st = EReadAccess;
-	fRelationTable = DM->SubmitObject (table, 1);
-	fDataDepend.Clear ();
+	fRelationTable = TM()->DM()->SubmitObject (table);
+	GetDependencyList().Clear(TM()->DM());
+	int processor = GetProcID();
 	char * msg = "TParAnalysis dependency on all data relationtable version ";
 	PrintLog(TaskLog, msg);
 	ver.ShortPrint (TaskLog);
 	TaskLog << endl;
-	AddDependentData (OOPMDataDepend (fRelationTable, st, ver));
+	AddDependentData (OOPAccessTag (fRelationTable, st, ver, processor));
 	st = EVersionAccess;
 	for (ip = 0; ip < npartitions; ip++) {
-		AddDependentData (OOPMDataDepend (fMeshId[ip], st, ver));
+		AddDependentData (OOPAccessTag (fMeshId[ip], st, ver, processor));
 	}
 	for (ip = 0; ip < npartitions; ip++) {
-		AddDependentData (OOPMDataDepend (fStateId[ip], st, ver));
+		AddDependentData (OOPAccessTag (fStateId[ip], st, ver, processor));
 	}
 	for (ip = 0; ip < npartitions; ip++) {
-		AddDependentData (OOPMDataDepend (fRhsId[ip], st, ver));
+		AddDependentData (OOPAccessTag (fRhsId[ip], st, ver, processor));
 	}
 	/* 
 	 * OOPObjectId tempid; tempid.SetId(200);
@@ -76,12 +79,12 @@ void TParAnalysis::SetupEnvironment ()
 }
 void TParAnalysis::CreateParCompute ()
 {
-	int ndepend = fDataDepend.NElements ();
+	int ndepend = GetDependencyList().Count();
 	if (ndepend != 3 * fNumPartitions + 1) {
 		PrintLog(TaskLog, "TParAnalysis I dont understand\n");
 		cout << "TParAnalysis I dont understand\n";
 	}
-	OOPObjectId tableid = fDataDepend.Dep (0).Id ();
+	OOPObjectId tableid = GetTag(0).Id();
 	OOPDataVersion randver;
 	randver.SetLevelVersion (0, 10);
 	randver.IncrementLevel (13);
@@ -113,15 +116,14 @@ void TParAnalysis::CreateParCompute ()
 	}*/
 	
 	while (count < 2 * fNumPartitions) {
-		fDataDepend.Dep (count + fNumPartitions +
-				 1).ObjPtr ()->SetVersion (randver, Id ());
+		GetTag(count + fNumPartitions + 1).SetVersion(randver);
 		count++;
 	}
 	// message #1.1 to pc:TParCompute
 	TParCompute *pc = new TParCompute (fNumProcessors-1-GetProcID(), fNumPartitions);
 	//TParCompute *pc = new TParCompute (GetProcID(), fNumPartitions);
 	OOPDataVersion ver;
-	pc->AddDependentData(OOPMDataDepend(tableid,EReadAccess,ver));
+	pc->AddDependentData(OOPAccessTag(tableid,EReadAccess,ver,GetProcID()));
 	pc->SetMeshId (fMeshId, ver);
 	pc->SetRhsId (fRhsId, taskver);
 	pc->SetStateId (fStateId, taskver);
@@ -130,8 +132,8 @@ void TParAnalysis::CreateParCompute ()
 	// pc->AddDependentData(tableid,st,ver);
 	// pc->SetPartitionRelationId(tableId , ver);
 	// message #1.9 to pc:TParCompute
-	pc->Submit ();
-	fDataDepend.Clear ();
+	TM()->Submit(pc);
+	GetDependencyList().Clear(TM()->DM());
 	count = 0;
 	randver.Increment ();
 	PrintLog(TaskLog, "TParAnalysis::CreateParCompute I depend on version for rhs and state");
@@ -150,8 +152,7 @@ void TParAnalysis::CreateParCompute ()
 	while (count < fNumPartitions) {
 		// Na primeira passada por aqui, ObjPtr de *dep está nulo
 		// !!!!
-		AddDependentData (OOPMDataDepend
-				  (fRhsId[count], EVersionAccess, randver));
+		AddDependentData (OOPAccessTag(fRhsId[count], EVersionAccess, randver, GetProcID()));
 		count++;
 	}
 	// SubmitDependentData !!!
@@ -161,11 +162,10 @@ void TParAnalysis::SetAppropriateVersions ()
 {
 	OOPDataVersion ver;
 	// OOPMDataState st = EReadAccess;
-	int ndep = fDataDepend.NElements ();
+	int ndep = GetDependencyList().Count();
 	int id = 0;
 	while (id < ndep) {
-		OOPDataVersion solver =
-			fDataDepend.Dep (id).ObjPtr ()->Version ();
+		OOPDataVersion solver = GetTag(id).Version ();
 		AdaptSolutionVersion (solver);
 		PrintLog(TaskLog,"TParAnalysis::SetAppropriateVersion new version is ");
 		solver.ShortPrint (TaskLog);
@@ -174,12 +174,12 @@ void TParAnalysis::SetAppropriateVersions ()
 		cout << "TParAnalysis::SetAppropriateVersion new version is ";
 		solver.ShortPrint (cout);
 #endif
-		fDataDepend.Dep (id).ObjPtr ()->SetVersion (solver, Id ());
+		GetTag(id).SetVersion(solver);
 		ver = solver;
 		id++;
 	}
 	ver.Increment ();
-	fDataDepend.Clear ();
+	GetDependencyList().Clear(TM()->DM());
 	if (ver.GetNLevels () < 2) {
 		this->SetRecurrence (false);
 #ifdef VERBOSE
@@ -191,7 +191,7 @@ void TParAnalysis::SetAppropriateVersions ()
 		int i;
 		for(i=0;i<fNumPartitions;i++){
 			OOPTerminationTask * termtask = new OOPTerminationTask(i);
-			termtask->Submit();
+			TM()->Submit(termtask);
 		}
 	}
 	else {
@@ -199,9 +199,7 @@ void TParAnalysis::SetAppropriateVersions ()
 		while (count < fNumPartitions) {
 			// Na primeira passada por aqui, ObjPtr de *dep está
 			// nulo !!!!
-			AddDependentData (OOPMDataDepend
-					  (fRhsId[count], EVersionAccess,
-					   ver));
+			AddDependentData (OOPAccessTag(fRhsId[count], EVersionAccess,ver,GetProcID()));
 			count++;
 		}
 	}
@@ -262,7 +260,7 @@ TParAnalysis::TParAnalysis (int Procid, int numpartitions, int numproc):OOPTask 
    */
 void TParAnalysis::Write (TPZStream & buf, int withclassid)
 {
-	OOPTask::Write (buf);
+	OOPTask::Write(buf,withclassid);
 	buf.Write (&fNumPartitions);
 	buf.Write (&fNumProcessors);
 	fRelationTable.Write (buf);
@@ -281,7 +279,7 @@ void TParAnalysis::Write (TPZStream & buf, int withclassid)
    */
 void TParAnalysis::Read (TPZStream & buf, void * context)
 {
-	OOPTask::Read (buf);
+	OOPTask::Read(buf,context);
 	buf.Read (&fNumPartitions);
 	buf.Read (&fNumProcessors);
 	fRelationTable.Read (buf);
@@ -304,3 +302,6 @@ TPZSaveable *TParAnalysis::Restore (TPZStream & buf, void * context)
 	par->Read (buf);
 	return par;
 }
+
+template class TPZRestoreClass<TParAnalysis, TPARANAYSIS_ID>;
+

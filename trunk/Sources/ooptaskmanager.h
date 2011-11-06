@@ -1,10 +1,13 @@
 // -*- c++ -*-
 #ifndef TTASKMANAGER
 #define TTASKMANAGER
+
 #ifndef WIN32
 #include <pthread.h>
 #endif
+
 #include "ooptask.h"
+#include "oopcommmanager.h"
 
 #ifdef OOP_MPE
 #include "oopevtmanager.h"
@@ -13,7 +16,6 @@
 #include <list>
 #include <set>
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
-//#include <semaphore.h>
 
 class OOPStorageBuffer;
 class OOPDataVersion;
@@ -23,8 +25,6 @@ using namespace std;
 class OOPObjectId;
 class TMLock;
 class OOPDataManager;
-class OOPCommunicationManager;
-
 
 enum TMMessageType {
   ETMAccessGranted,
@@ -53,7 +53,7 @@ struct SszQueues
 };
 
 /**
- * Implements the manager of tasks on the environment.
+ * @brief Implements the manager of tasks on the environment.
  * All parallelized task are submitted to environment through the TaskManager.
  * Along with Communication Manager and Data Manager, Task Manager acts as daemon on all nodes
  * present on the environment.

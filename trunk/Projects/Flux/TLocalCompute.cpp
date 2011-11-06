@@ -3,12 +3,14 @@
 #include "TPartitionRelation.h"
 #include "TTaskComm.h"
 #include "oopmetadata.h"
-class OOPStorageBuffer;
+
+#include "ooptaskmanager.h"
+
+
 void TLocalCompute::InitializePartitionRelationPointer ()
 {
-	OOPMetaData *objptr = fDataDepend.Dep (0).ObjPtr ();
-	fPartRelationPtr =
-		dynamic_cast < TPartitionRelation * >(objptr->Ptr ());
+	OOPMetaData *objptr = (OOPMetaData *)GetDepObjPtr(0);
+	fPartRelationPtr = dynamic_cast < TPartitionRelation * >(objptr);
 }
 void TLocalCompute::ComputeLocalFluxes ()
 {
@@ -19,9 +21,10 @@ void TLocalCompute::ComputeLocalFluxes ()
 //	ver.Increment();
 //	ptr->SetVersion(ver,Id());
 	
-	ptr = fDataDepend.Dep (3).ObjPtr ();
+//	ptr = fDataDepend.Dep (3).ObjPtr ();
+	ptr = (OOPMetaData *)GetDepObjPtr(3);
 	PrintLog(TaskLog, "TLocalCompute contributes to object id ");
-	ptr->Id ().ShortPrint (TaskLog);
+	ptr->Id().ShortPrint (TaskLog);
 	TaskLog << endl;
 #ifdef VERBOSE		
 	cout << "TLocalCompute contributes to object id " << ptr->Id();
@@ -49,8 +52,7 @@ void TLocalCompute::ComputeLocalFluxes ()
 	cout << "TLocalCompute number of contributions " << ncontr <<
 		" new version " << ver << endl;
 #endif
-//	ver.Print (cout);
-	ptr->SetVersion (ver, Id ());
+
 }
 void TLocalCompute::SetRhsIds (vector < OOPObjectId > &rhsids,
 			       OOPDataVersion & rhsversion)
@@ -62,7 +64,7 @@ void TLocalCompute::TransmitFLuxes ()
 {
 	int npartitions = fPartRelationPtr->GetNPartitions ();
 	int i = 0;
-	OOPMetaData *ptr = fDataDepend.Dep (3).ObjPtr ();
+	OOPMetaData *ptr = (OOPMetaData *)GetDepObjPtr(3);   //fDataDepend.Dep (3).ObjPtr ();
 	OOPDataVersion rhsver = ptr->Version ();
 	rhsver.IncrementLevel (-1);
 	int nver = rhsver.GetNLevels ();
@@ -76,7 +78,7 @@ void TLocalCompute::TransmitFLuxes ()
 			continue;
 		int procid = fPartRelationPtr->Processor(i);
 		TTaskComm *task = new TTaskComm (procid);
-		OOPMDataDepend depend (fRhsIds[i], EWriteAccess, rhsver);
+		OOPAccessTag depend (fRhsIds[i], EWriteAccess, rhsver,procid);
 		PrintLog(TaskLog,"TLocalCompute::TransmitFluxes targets ");
 		fRhsIds[i].ShortPrint (TaskLog);
 		TaskLog << " and depends on version " << rhsver <<  endl;
@@ -88,10 +90,12 @@ void TLocalCompute::TransmitFLuxes ()
 #endif
 		//		rhsver.Print (TaskLog);
 		task->AddDependentData (depend);
-		task->Submit ();
+		//task->Submit();
+		TM()->Submit(task);
 		TaskLog << "Id of TTaskComm is " << task->Id() << endl;
 	}
 }
+
 void TLocalCompute::ComputeFrontierFluxes ()
 {
 #ifndef WIN32
@@ -128,7 +132,7 @@ fPartition (partition)
    * @param *buff A pointer to TSendStorage class to be packed.
    */
 void TLocalCompute::Write (TPZStream & buf, int withclassid){
-	OOPTask::Write (buf);
+	OOPTask::Write(buf,withclassid);
 	buf.Write(&fPartition);
 	int i,sz = fRhsIds.size();
 	buf.Write(&sz);
@@ -141,7 +145,7 @@ void TLocalCompute::Write (TPZStream & buf, int withclassid){
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
 void TLocalCompute::Read (TPZStream & buf, void * context){
-	OOPTask::Read(buf);
+	OOPTask::Read(buf,context);
 	buf.Read(&fPartition);
 	int i,sz;
 	buf.Read(&sz);
@@ -149,8 +153,11 @@ void TLocalCompute::Read (TPZStream & buf, void * context){
 	for(i=0; i<sz; i++) fRhsIds[i].Read(buf);
 	fRhsVersion.Read(buf);
 }
+
 TPZSaveable *TLocalCompute::Restore (TPZStream & buf, void * context) {
 	TLocalCompute *loc = new TLocalCompute(0,0);
 	loc->Read(buf);
 	return loc;
 }
+
+template class TPZRestoreClass<TLocalCompute, TLOCALCOMPUTE_ID>;

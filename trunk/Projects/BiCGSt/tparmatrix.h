@@ -18,14 +18,14 @@
 #ifndef TPARMATRIX_H
 #define TPARMATRIX_H
 
-#include <oopsaveable.h>
-#include <bicgdefs.h>
+//#include <oopsaveable.h>
+#include "bicgdefs.h"
 
 /**Implements a matrix which can be trasnmitted through the network.
   *@author longhin
   */
 
-class TParMatrix : public OOPSaveable  {
+class TParMatrix : public TPZSaveable  {
 public: 
 	TParMatrix();
 	~TParMatrix();

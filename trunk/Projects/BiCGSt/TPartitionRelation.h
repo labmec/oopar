@@ -3,13 +3,12 @@
 #ifndef TPARTITIONRELATION_H
 #define TPARTITIONRELATION_H
 #include "TContribution.h"
-#include "oopsaveable.h"
 #include "bicgdefs.h"
 #include <vector>
 /**
  * This class describe the relationship between the partitions of a mesh
  */
-class   TPartitionRelation:public OOPSaveable
+class   TPartitionRelation:public TPZSaveable
 {
       public:
 		  virtual long    GetClassID () {
@@ -45,13 +44,13 @@ class   TPartitionRelation:public OOPSaveable
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	virtual int Pack (OOPSendStorage * buf);
+	virtual int Write(OOPStorageBuffer * buf,int classid);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	virtual int Unpack (OOPReceiveStorage * buf);
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+	virtual int Read(OOPStorageBuffer * buf,void *context);
+	static TPZSaveable *Restore (OOPStorageBuffer * buf);
       private:
 	int     fNumPartitions;
 	/**

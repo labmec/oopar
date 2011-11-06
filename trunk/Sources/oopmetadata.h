@@ -24,8 +24,9 @@ class   OOPDMOwnerTask;
  * @since Jan/2003
  * @author Gustavo Longhin
  */
-class   OOPMetaData//:public TPZSaveable
+class OOPMetaData : public TPZSaveable
 {
+	
 public:
   bool ShouldDelete(){return fShouldDelete;}
   void SubmitTag(OOPAccessTag & Tag, TPZAutoPointer<OOPDataManager> DM);
@@ -42,10 +43,6 @@ private:
    * List of tasks which requires specific access to this data.
    */
   OOPAccessTagMultiSet fAccessList;
-  /**
-   * pointer to the object
-   */
-//  TPZAutoPointer<TPZSaveable> fObjPtr;
 
   /**
    * Id of the object
@@ -156,8 +153,10 @@ public:
    */
   OOPObjectId Id () const;
 };
+
 inline int OOPMetaData::Proc () const
 {
   return fProc;
 }
+
 #endif

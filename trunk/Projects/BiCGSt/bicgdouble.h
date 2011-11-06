@@ -18,24 +18,25 @@
 #ifndef BICGDOUBLE_H
 #define BICGDOUBLE_H
 
-#include <bicgdefs.h>
-#include <oopsaveable.h>
+#include "bicgdefs.h"
+#include "oopstorage.h"
+#include "pzsave.h"
 
 
 /**Implements the transmitable double variable
   *@author longhin
   */
 
-class BiCGDouble : public OOPSaveable {
+class BiCGDouble : public TPZSaveable {
 public:
   double value;
 	BiCGDouble();
 	~BiCGDouble();
   long GetClassID();
 
-  int Pack (OOPSendStorage * buf);
-	int Unpack (OOPReceiveStorage * buf);
-	static OOPSaveable *Restore (OOPReceiveStorage * buf);
+  int Write(OOPStorageBuffer * buf,int classid);
+	int Read(OOPStorageBuffer * buf,void * context);
+	static TPZSaveable *Restore (OOPStorageBuffer * buf);
 
 };
 

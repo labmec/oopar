@@ -21,7 +21,7 @@
 class OOPTaskManager;
 
 //class OOPSaveable;
-class   OOPTask;
+class OOPTask;
 /**
  * Implements the communication manager for the oopar environment
  * Defines interface for any communication library used as communication layer
@@ -29,7 +29,7 @@ class   OOPTask;
  * environment.
  * Acts as daemon in all nodes on the environment.
  */
-class   OOPCommunicationManager
+class OOPCommunicationManager
 {
       public:
 	/**
@@ -85,7 +85,6 @@ class   OOPCommunicationManager
       */
      virtual void JoinThread()
      {
-
      }
 
 	// Armazena "*pObject" no buffer enderecado para o processo

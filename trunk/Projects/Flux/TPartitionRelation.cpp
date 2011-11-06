@@ -47,7 +47,7 @@ TPartitionRelation::TPartitionRelation (int npart)
 	fProcessor.resize(npart);
 	int     i;
 	for (i = 0; i < npart; i++) {
-		fProcessor[i] = i%CM->NumProcessors();
+//		fProcessor[i] = i%CM->NumProcessors();
 		fRelation[i].resize (npart);
 	}
 	fNumPartitions = npart;
@@ -102,7 +102,7 @@ TContribution & TPartitionRelation::GetRelation (int parfrom, int parto)
    * @param *buff A pointer to TSendStorage class to be packed.
    */
 void TPartitionRelation::Write (TPZStream & buf, int withclassid) {
-	TPZSaveable::Write(buf);
+	TPZSaveable::Write(buf,withclassid);
 	buf.Write(&fNumPartitions);
 	int i,sz = fRelation.size();
 	for(i=0; i<fNumPartitions;i++) {
@@ -121,7 +121,7 @@ void TPartitionRelation::Write (TPZStream & buf, int withclassid) {
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
 void TPartitionRelation::Read (TPZStream & buf, void * context) {
-	TPZSaveable::Read(buf);
+	TPZSaveable::Read(buf,context);
 	buf.Read(&fNumPartitions);
 	int i,sz;
 	fProcessor.resize(fNumPartitions);
@@ -139,8 +139,11 @@ void TPartitionRelation::Read (TPZStream & buf, void * context) {
 		for(il=0; il<lsz; il++) fRelation[i][il].Read(buf);
 	}
 }
+
 TPZSaveable *TPartitionRelation::Restore (TPZStream & buf, void * context) {
 	TPartitionRelation *par = new TPartitionRelation;//(0);
 	par->Read(buf);
 	return par;
 }
+
+template class TPZRestoreClass<TPartitionRelation, TPARTITIONRELATION_ID>;

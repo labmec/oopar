@@ -762,6 +762,17 @@ OOPDMRequestTask (const OOPDMRequestTask & task):OOPDaemonTask (task), fDepend (
 OOPDMRequestTask::OOPDMRequestTask ():OOPDaemonTask (-1)
 {
 }
+void OOPDMOwnerTask::LogMe(std::ostream & out){
+	out << " fProc " << fProc;
+	out << " fTag: " << endl;
+	fTag.Print(out);
+}
+void OOPDMOwnerTask::LogMeReceived(std::ostream & out){
+	out << "Received: " << endl;
+	out << " fProc " << fProc;
+	out << " fTag: " << endl;
+	fTag.Print(out);
+}
 void OOPDMOwnerTask::Read (TPZStream & buf, void * context)
 {
   OOPDaemonTask::Read (buf, context);

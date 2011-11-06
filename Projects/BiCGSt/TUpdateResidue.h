@@ -2,8 +2,9 @@
 
 #ifndef TUPDATERESIDUE_H
 #define TUPDATERESIDUE_H
-#include <ooptask.h>
-#include <bicgdefs.h>
+#include "ooptask.h"
+#include "bicgdefs.h"
+
 class TUpdateResidue : public OOPTask {
 public:
   TUpdateResidue(int nproc);
@@ -28,4 +29,5 @@ public:
 		return TUPDATERESIDUE_ID;
 	}
 };
+
 #endif //TUPDATERESIDUE_H

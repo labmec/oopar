@@ -33,11 +33,12 @@
 
 #include "tmedonhotask.h"
 
-// include log4cxx header files.
+// including log4cxx header files.
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
+
 using namespace std;
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -50,6 +51,7 @@ static LoggerPtr logger(Logger::getLogger("MainApp"));
 OOPCommunicationManager *CM;
 OOPDataManager *DM;
 OOPTaskManager *TM;
+
 void SubmitMed(int proc, OOPObjectId &xid, OOPObjectId &yid, OOPObjectId &crossid, OOPObjectId &dotid, 
    OOPDataVersion &verread, OOPDataVersion &verwrite,int first, int last);
 
@@ -100,20 +102,6 @@ int mpimain (int argc, char **argv)
   sprintf(filename,"datalogger%d.log", CM->GetProcID());
   OOPDataLogger * LogDM = new OOPDataLogger(filename);
   ::LogDM = LogDM;
-//   sprintf(filename,"tasklog%d.log", CM->GetProcID());  
-//   TaskLog.open(filename);
-//   sprintf(filename,"datalog%d.log", CM->GetProcID());  
-//   DataLog.open(filename);
-//   sprintf(filename,"datamanlog%d.log", CM->GetProcID());  
-//   DataManLog.open(filename);
-//   sprintf(filename,"transferdatalog%d.log", CM->GetProcID());  
-//   TransferDataLog.open(filename);
-//   sprintf(filename,"taskqueue%d.log", CM->GetProcID());  
-//   TaskQueueLog.open(filename);
-//   sprintf(filename,"taskmanlog%d.log", CM->GetProcID());  
-//   TaskManLog.open(filename);
-//   sprintf(filename,"dataqueuelog%d.log", CM->GetProcID());  
-//   DataQueueLog.open(filename);
 
   TM = new OOPTaskManager (CM->GetProcID ());
   DM = new OOPDataManager (CM->GetProcID ());
@@ -263,14 +251,14 @@ void SubmitMed(int proc, OOPObjectId &xid, OOPObjectId &yid, OOPObjectId &crossi
    OOPDataVersion &verread, OOPDataVersion &verwrite,int first, int last)
 {
   TMedonhoTask *med = new TMedonhoTask (0,first,last);
-  OOPMDataDepend depx(xid,EReadAccess,verread);
-  OOPMDataDepend depy(yid,EReadAccess,verread);
-  OOPMDataDepend depcross(crossid,EWriteAccess,verwrite);
-  OOPMDataDepend depdot(dotid,EWriteAccess,verwrite);
+  OOPAccessTag depx(xid,EReadAccess,verread,proc);
+  OOPAccessTag depy(yid,EReadAccess,verread,proc);
+  OOPAccessTag depcross(crossid,EWriteAccess,verwrite,proc);
+  OOPAccessTag depdot(dotid,EWriteAccess,verwrite,proc);
   med->AddDependentData(depx);
   med->AddDependentData(depy);
   med->AddDependentData(depcross);
   med->AddDependentData(depdot);
-  med->Submit();
+  TM->Submit(med);
   ++verwrite;
 }

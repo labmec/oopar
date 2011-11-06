@@ -3,7 +3,7 @@
 #ifndef TLOOPFOR_H
 #define TLOOPFOR_H
 #include <ooptask.h>
-#include <bicgdefs.h>
+#include "bicgdefs.h"
 class TLoopFor : public OOPTask {
 public:
   TLoopFor(int proc);

@@ -3,56 +3,60 @@
 #include "TTaskComm.h"
 #include "TParCompute.h"
 #include "fluxdefs.h"
+
 class TPZStream;
+
 void TTaskComm::Read (TPZStream & buf, void * context)
 {
-	OOPTask::Read (buf);
+	OOPTask::Read (buf,context);
 }
+
 void TTaskComm::Write (TPZStream & buf, int withclassid)
 {
-	OOPTask::Write (buf);
+	OOPTask::Write (buf,withclassid);
 }
+
 OOPMReturnType TTaskComm::Execute ()
 {
 	int i;
-	for (i = 0; i < fDataDepend.NElements (); i++) {
-		if (fDataDepend.Dep (i).State () == EWriteAccess) {
+	for (i = 0; i < fDependRequest.Count(); i++) {
+		OOPAccessTag deptag = fDependRequest.GetTag(i);
+		if (deptag.AccessMode() == EWriteAccess) {
 			// dat->IncrementVersion();
 			// DM->GetObjPtr(i->fDataId)->IncrementVersion();
 #ifdef VERBOSE
 			cout << "TTaskComm object id ";
-			fDataDepend.Dep (i).ObjPtr ()->Id ().Print (cout);
+			deptag.Id ().Print (cout);
 			cout << "TTaskComm::Execute the previous version is " << endl;
-			fDataDepend.Dep (i).ObjPtr ()->Version ().Print (cout);
+			deptag.Version ().Print (cout);
 #endif
-			TaskLog << "TTaskComm object id " << fDataDepend.Dep (i).ObjPtr ()->Id ();
-			TaskLog << "TTaskComm::Execute the previous version is "
-				<< fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
-			OOPDataVersion ver =
-				fDataDepend.Dep (i).ObjPtr ()->Version ();
-			ver.Increment ();
-			fDataDepend.Dep (i).ObjPtr ()->SetVersion (ver,
-								   this->
-								   Id ());
+			TaskLog << "TTaskComm object id " << deptag.Id ();
+			TaskLog << "TTaskComm::Execute the previous version is " << deptag.Version () << endl;
+			OOPDataVersion ver = deptag.Version();
+			ver.Increment();
+			deptag.SetVersion(ver);
+			deptag.SetTaskId(Id());
 #ifdef VERBOSE
-			cout << "TTaskComm::Execute the new version is " <<
-				endl;
-			fDataDepend.Dep (i).ObjPtr ()->Version ().
-				Print (cout);
+			cout << "TTaskComm::Execute the new version is " << endl;
+			deptag.Version().Print (cout);
 #endif
-			TaskLog << "TTaskComm::Execute the new version is " <<
-				fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
+			TaskLog << "TTaskComm::Execute the new version is " << deptag.Version () << endl;
 		}
 	}
 	TaskFinished ();
 	return ESuccess;	// execute the task, verifying that
 }
+
 TTaskComm::TTaskComm():OOPTask(){}
+
 TTaskComm::TTaskComm (int ProcId):OOPTask (ProcId)
 {
 }
+
 TPZSaveable *TTaskComm::Restore (TPZStream & buf, void * context) {
 	TTaskComm *loc = new TTaskComm;//(0);
 	loc->Read(buf);
 	return loc;
 }
+
+template class TPZRestoreClass<TTaskComm, TTASKCOMM_ID>;

@@ -12,9 +12,9 @@ long TParVector::GetClassID ()
 {
 	return TPARVECTOR_ID;
 }
-int TParVector::Pack (OOPSendStorage * buf)
+int TParVector::Write(OOPStorageBuffer * buf,int classid)
 {
-	OOPSaveable::Pack(buf);
+	TPZSaveable::Write(buf,classid);
 //	buf->PkLong (TPARVECTOR_ID);
 	vector < double *>::iterator i = fData.begin ();
 	int aux = fData.size ();
@@ -22,12 +22,11 @@ int TParVector::Pack (OOPSendStorage * buf)
 	while (i != fData.end ()) {
 		buf->PkDouble (*i, 1);
 	}
-//	OOPSaveable::Pack (buf);
 	return 1;
 }
-int TParVector::Unpack (OOPReceiveStorage * buf)
+int TParVector::Read(OOPStorageBuffer * buf, void *context)
 {
-	OOPSaveable::Unpack(buf);
+	TPZSaveable::Read(buf,context);
 	int aux = 0;
 	int i = 0;
 	buf->UpkInt (&aux);
@@ -52,6 +51,6 @@ void TParVector::Resize (int size)
 }
 OOPSaveable *TParVector::Restore (OOPReceiveStorage * buf) {
 	TParVector *loc = new TParVector();
-	loc->Unpack(buf);
+	loc->Read(buf,0);
 	return loc;
 }

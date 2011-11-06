@@ -6,6 +6,8 @@
 #include "pzsave.h"
 #include "fluxdefs.h"
 
+using namespace std;
+
 class   TParVector:public TPZSaveable
 {
 public:
@@ -22,6 +24,5 @@ public:
 private:
 	vector < double >fData;
 };
-template class TPZRestoreClass<TParVector, TPARVECTOR_ID>;
 
 #endif // TPARRHS_H

@@ -1,14 +1,8 @@
-//
-// C++ Interface: oopaccesstaglist
-//
-// Description:
-//
-//
-// Author: Edimar Cesar Rylo <ecrylo@uol.com.br>, (C) 2007
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
+/**
+ * @file
+ * @brief Contains the OOPAccessTagList class which implements a list of OOPAccessTags.
+ */
+
 #ifndef OOPACCESSTAGLIST_H
 #define OOPACCESSTAGLIST_H
 
@@ -17,52 +11,57 @@
 #include <vector>
 
 class OOPDataManager;
-//extern OOPDataManager *DM;
-
-
 
 /**
- * Implements a list of OOPAccessTags
- * Actually the container of OOPAccessTag is implemented as Vector
- * Responsible for managing a vector of AccessTag.
+ * @brief Implements a list of OOPAccessTags. 
+ * Actually the container of OOPAccessTag is implemented as Vector \n
+ * Responsible for managing a vector of AccessTag. \n
  * Used mostly by OOPTask class.
+ * @author Edimar Cesar Rylo <a href="ecrylo@uol.com.br">Lattes</a>
+ * @since 2007
  */
-class OOPAccessTagList{
+class OOPAccessTagList {
+	
 public:
+	/**
+	 * @brief Default constructor
+	 */
   OOPAccessTagList();
-
+	/**
+	 * @brief Default destructor
+	 */
   ~OOPAccessTagList();
+	
   /**
-   * Grants required access to the tags contained in the fTagList
+   * @brief Grants required access to the tags contained in the fTagList
    */
   void GrantAccess(const OOPAccessTag & granted);
   /**
-   * Ivalidates the TPZAutoPointer contained object pointer
+   * @brief Ivalidates the TPZAutoPointer contained object pointer
    */
   void Clear(TPZAutoPointer<OOPDataManager> DM);
   /**
-   * Appends a new tag to fTagList
+   * @brief Appends a new tag to fTagList
    */
   void AppendTag(const OOPAccessTag & tag);
   /**
-   * Indicates if all the Tags on the TagList have its AutoPtr valids.
+   * @brief Indicates if all the Tags on the TagList have its AutoPtr valids. \n
    * This indicates that all requirements are fullfiled
    */
   bool CanExecute();
   /**
-   * Returns the ObjectPointer for the ith object on the list
+   * @brief Returns the ObjectPointer for the ith object on the list
    */
   TPZSaveable * ObjectPtr(int idepend)
   {
     return fTagList[idepend].AutoPointer().operator->();
-    //return fTagList[idepend].fObjectAutoPtr;//  .AutoPointer().operator->();
   }
-  /**
-   * Atomically increments all data versions to which the access mode was WriteAccess
+  /** 
+   * @brief Atomically increments all data versions to which the access mode was WriteAccess 
    */
   void IncrementWriteDependent();
-  /**
-   * Returns the amount of Items on the TagList
+  /** 
+   * @brief Returns the amount of Items on the TagList
    */
   int Count()
   {
@@ -73,7 +72,7 @@ public:
   void Read(TPZStream & buf, void *context);
   void Write(TPZStream & buf, int withclassid);
   /**
-   * After Incrementing the DataVersions. All new versions has to be submitted to the DM
+   * @brief After Incrementing the DataVersions. All new versions has to be submitted to the DM
    */
   void SubmitIncrementedVersions(TPZAutoPointer<OOPDataManager> DM);
   void PostRequests(OOPObjectId & Id, TPZAutoPointer<OOPDataManager> DM);
@@ -81,7 +80,7 @@ public:
 	OOPAccessTag GetTag(int i);
 private:
   /**
-   * Holds the list the OOPAccessTag objects
+   * @brief Holds the list the OOPAccessTag objects
    */
   vector<OOPAccessTag> fTagList;
 

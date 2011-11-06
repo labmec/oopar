@@ -14,9 +14,9 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <oopsaveable.h>
-#include <bicgdefs.h>
-class TBiCGInt : public OOPSaveable{
+#include "bicgdefs.h"
+
+class TBiCGInt : public TPZSaveable{
 public:
   TBiCGInt();
   int value;
@@ -24,8 +24,8 @@ public:
     return BICGINT_ID;
   }
 
-  int Pack (OOPSendStorage * buf);
-	int Unpack (OOPReceiveStorage * buf);
+  int Write(OOPStorageBuffer * buf,int classid);
+	int Read(OOPStorageBuffer * buf,void *context);
   
 };
 

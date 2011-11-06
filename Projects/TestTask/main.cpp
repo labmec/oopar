@@ -81,7 +81,7 @@ int debugmpimain(int argc, char **argv)
 #endif
 #ifdef LOG4CXX
   std::stringstream sin;
-  sin << "log4cxxclient" << pCM->GetProcID() << ".cfg";
+  sin << "log4cxxclient" << pCM->CM()->GetProcID() << ".cfg";
   log4cxx::PropertyConfigurator::configure(sin.str());
 #endif
 
@@ -313,7 +313,7 @@ int matmain(int argc, char **argv)
   ((OOPSocketCommManager *)pCM)->Initialize();
   //CM->Initialize(argv[0], 4);
   ((OOPSocketCommManager *)pCM)->Barrier();
-#else
+#elif OOP_INTERNAL
   pCM = new OOPInternalCommunicationManager(0, NumProcessors);
 #endif
   TPZAutoPointer<OOPCommunicationManager> CM(pCM->CM());
@@ -549,18 +549,10 @@ int matmain(int argc, char **argv)
     LOGPZ_DEBUG(logger, sout.str().c_str());
   }
 #endif
-#ifdef OOP_SOCKET
-  //	((OOPSocketCommManager *)CM)->Barrier();
-#endif
-  //#ifdef LOG4CXX
-  //	{
-  //		std::stringstream sout;
-  //		sout << "Leaving Application on Processor " << CM->GetProcID();
-  //		LOGPZ_DEBUG(logger, sout.str().c_str());
-  //	}
-  //#endif
-  return 0;
+
+	return 0;
 }
+
 int main(int argc, char **argv)
 {
   //debugmpimain(argc, argv);

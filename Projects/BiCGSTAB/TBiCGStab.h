@@ -3,13 +3,19 @@
 #ifndef TBICGSTAB_H
 #define TBICGSTAB_H
 #include <ooptask.h>
-#include <TLoopFor.h>
-#include <TDistNorm.h>
-#include <TIfConditional.h>
-class OOPMReturnType;
+
+#include "bicgdefs.h"
+#include "TLoopFor.h"
+#include "TDistNorm.h"
+#include "oopobjectid.h"
+
+
 class TBiCGStab : public OOPTask {
 public:    
 
+      static TPZSaveable * Restore(OOPStorageBuffer * buf);
+  TBiCGStab(int nproc);
+  ~TBiCGStab();
   /**
   * Returns the estimated execution time.
   * returns 0 if the task is instantaneous
@@ -32,6 +38,7 @@ public:
 	}
   
 private:
+	bool fObjectsSubmitted;
 	/**
 	 * Submits the necessary data objects for the BiCGStab completion
 	 */
@@ -70,14 +77,12 @@ private:
 	vector <OOPObjectId> f_lId_p;
 	vector <OOPObjectId> f_lId_shat;
 	vector <OOPObjectId> f_lId_s;
-	vector <OOPObjectId> f_lId_shat;
+	vector <OOPObjectId> f_lId_phat;
 	vector <OOPObjectId> f_lId_t;
 	vector <OOPObjectId> f_lId_v;
 	vector <OOPObjectId> f_lId_CMatrix;
 	vector <OOPObjectId> f_lId_rtilde;
 	vector <OOPObjectId> f_lId_r;
-
-
-
 };
+
 #endif //TBICGSTAB_H

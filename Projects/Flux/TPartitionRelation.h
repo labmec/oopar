@@ -8,23 +8,25 @@
 #include <vector>
 #include "pzsave.h"
 /**
- * This class describe the relationship between the partitions of a mesh
+ * @brief This class describe the relationship between the partitions of a mesh
  */
-class   TPartitionRelation:public TPZSaveable
+class TPartitionRelation : public TPZSaveable
 {
+
 public:
 	virtual ~TPartitionRelation(){}
-	virtual int    ClassId () const {
+	virtual int ClassId () const {
 	  return TPARTITIONRELATION_ID;
 	}
 	TPartitionRelation ();
 	TPartitionRelation (int npart);
+	static TPartitionRelation *CreateRandom (int numpart);
     /**
      * Returns the total number of 
      */
-	static TPartitionRelation *CreateRandom (int numpart);
 	int     GetNPartitions ();
-	        TContribution & GetRelation (int parfrom, int parto);
+	
+	TContribution & GetRelation (int parfrom, int parto);
 	int     IncomingContribution (int partition);
     /**
      * Returns a vector containing the ID of all the partitions to each the local partitions will contribute to. 
@@ -63,6 +65,6 @@ public:
 	        
 	vector < vector < TContribution > >fRelation;
 };
-template class TPZRestoreClass<TPartitionRelation, TPARTITIONRELATION_ID>;
+
 
 #endif // TPARTITIONRELATION_H

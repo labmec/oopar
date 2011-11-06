@@ -2,8 +2,9 @@
 
 #ifndef TMULTADD_H
 #define TMULTADD_H
-#include <ooptask.h>
-#include <bicgdefs.h>
+#include "ooptask.h"
+#include "bicgdefs.h"
+
 class TMultAdd : public OOPTask {
 public:	
   TMultAdd(int proc);

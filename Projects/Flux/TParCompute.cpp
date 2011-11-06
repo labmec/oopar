@@ -2,6 +2,9 @@
 #include "TLocalCompute.h"
 #include "oopdatamanager.h"
 #include "pzsave.h"
+
+#include "ooptaskmanager.h"
+
 class TPZStream;
 OOPMReturnType TParCompute::Execute ()
 {
@@ -13,21 +16,23 @@ OOPMReturnType TParCompute::Execute ()
 	for (i = 0; i < fNPartitions; i++) {
 		int procid = this->fPartRelationPtr->Processor(i);
 		TLocalCompute *ltask = new TLocalCompute (procid, i);
-		ltask->AddDependentData (OOPMDataDepend
+		int processor = GetProcID();
+		ltask->AddDependentData (OOPAccessTag
 					 (fPartRelationId, EReadAccess,
-					  fPartRelationVersion));
-		ltask->AddDependentData (OOPMDataDepend
+					  fPartRelationVersion,processor));
+		ltask->AddDependentData (OOPAccessTag
 					 (fMeshIds[i], EReadAccess,
-					  fMeshVersions));
-		ltask->AddDependentData (OOPMDataDepend
+					  fMeshVersions,processor));
+		ltask->AddDependentData (OOPAccessTag
 					 (fStateIds[i], EWriteAccess,
-					  fDataVersions));
-		ltask->AddDependentData (OOPMDataDepend
+					  fDataVersions,processor));
+		ltask->AddDependentData (OOPAccessTag
 					 (fRhsIds[i], EWriteAccess,
-					  fDataVersions));
+					  fDataVersions,processor));
 		ltask->SetRhsIds (fRhsIds, fDataVersions);
 		ltask->SetRecurrence (true);
-		ltask->Submit ();
+		TM()->Submit(ltask);
+//		ltask->Submit ();
 		ltask->PrintLog(TaskLog,"Submitted local task");
 	}
 	PrintLog(TaskLog,"TParCompute::Execute\n");
@@ -85,7 +90,7 @@ void TParCompute::SetMeshId (vector < OOPObjectId > &Id,
 void TParCompute::Write (TPZStream & buf, int withclassid)
 {
 	PrintLog(TaskLog, "Packing TParCompute object");
-	OOPTask::Write (buf);
+	OOPTask::Write(buf,withclassid);
 	int i;
 	int sz = fRhsIds.size();
 	buf.Write(&sz);
@@ -114,7 +119,7 @@ void TParCompute::Write (TPZStream & buf, int withclassid)
 void TParCompute::Read (TPZStream & buf, void * context)
 {
 	PrintLog(TaskLog, "Unpacking TParCompute object");
-	OOPTask::Read (buf);
+	OOPTask::Read (buf,context);
 	int i;
 	int sz;
 	buf.Read(&sz);
@@ -141,15 +146,19 @@ void TParCompute::Read (TPZStream & buf, void * context)
 #endif
 	buf.Read(&fNPartitions);
 }
+
 TPZSaveable *TParCompute::Restore (TPZStream & buf, void * context)
 {
 	TParCompute *par = new TParCompute;// (0,0);
 	par->Read (buf);
 	return par;
 }
+
 /**
  * Within the Execute Method we should be able to get the data pointer
  */
 void TParCompute::InitializePartitionRelationPointer () {
-	fPartRelationPtr = dynamic_cast<TPartitionRelation *> (this->Depend().Dep(0).ObjPtr()->Ptr());
+	fPartRelationPtr = dynamic_cast<TPartitionRelation *> (GetDepObjPtr(0));
 }
+
+template class TPZRestoreClass<TParCompute, TPARCOMPUTE_ID>;

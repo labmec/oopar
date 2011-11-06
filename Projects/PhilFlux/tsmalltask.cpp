@@ -10,7 +10,7 @@
 //
 //
 #include "tsmalltask.h"
-#include "oopmdatadepend.h"
+//#include "oopmdatadepend.h"
 #include "oopmetadata.h"
 
 #include <unistd.h>
@@ -46,19 +46,20 @@ int TSmallTask::ClassId () const{
   return TSMALLTASKID;
 }
 
-template class TPZRestoreClass<TSmallTask,TSMALLTASKID>;
-
 OOPMReturnType TSmallTask::Execute()
 {
-  OOPMDataDependList &deplist = this->GetDependencyList();
-  int i,nel = deplist.NElements();
+//  OOPMDataDependList &deplist = this->GetDependencyList();
+	OOPAccessTagList &deplist = this->GetDependencyList();
+  int i,nel = deplist.Count();
   for(i=0; i<nel; i++) 
   {
-    OOPMDataDepend &dep = deplist.Dep(i);
-    if(dep.State() == EWriteAccess || dep.State() == EVersionAccess) {
-      OOPDataVersion ver = dep.ObjPtr()->Version();
+//    OOPMDataDepend &dep = deplist.Dep(i);
+	  OOPAccessTag dep = deplist.GetTag(i);
+    if(dep.AccessMode() == EWriteAccess || dep.AccessMode() == EVersionAccess) {
+      OOPDataVersion ver = dep.Version();
       ver.Increment();
-      dep.ObjPtr()->SetVersion(ver,Id());
+		dep.SetVersion(ver);
+		dep.SetTaskId(Id());
     }
   }
   sleep(2);
@@ -66,3 +67,4 @@ OOPMReturnType TSmallTask::Execute()
   return ESuccess;
 }
 
+template class TPZRestoreClass<TSmallTask,TSMALLTASKID>;

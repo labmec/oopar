@@ -28,7 +28,6 @@ class OOPStorageBuffer;
 class OOPObjectId;
 class OOPDataVersion;
 class OOPDaemonTask;
-class OOPMDataDepend;
 class OOPSaveable;
 using namespace std;
 

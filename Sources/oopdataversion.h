@@ -105,7 +105,7 @@ public:
     /**
      * Copy constructor 
      */
-	        OOPDataVersion (const::OOPDataVersion & version);
+	OOPDataVersion (const::OOPDataVersion & version);
 	/**
 	 * Ordinary destructor
 	 */
@@ -158,7 +158,9 @@ public:
 	 */
 	        std::vector < int >fVersion;
 };
+
 inline std::ostream & operator<<(std::ostream &out, const OOPDataVersion &obj) {
 	return obj.ShortPrint(out);
 }
+
 #endif // TDATAVERSION_H

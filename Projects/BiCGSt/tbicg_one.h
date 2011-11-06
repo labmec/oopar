@@ -18,10 +18,10 @@
 #ifndef TBICG_ONE_H
 #define TBICG_ONE_H
 
-#include <ooptask.h>
-#include <bicgdefs.h>
-#include <bicgdouble.h>
-#include <BiCGInt.h>
+#include "ooptask.h"
+#include "bicgdefs.h"
+#include "bicgdouble.h"
+#include "BiCGInt.h"
 
 /**Implements the last operations on the BiCGStab method before the loop. The operations are:
   if(resid = normr/normb){
@@ -34,7 +34,7 @@
 
 class TBiCG_One : public OOPTask  {
 public:
-      static OOPSaveable * Restore(OOPReceiveStorage * buf);
+      static TPZSaveable * Restore(OOPStorageBuffer * buf);
 	TBiCG_One(int proc);
 	~TBiCG_One();
 	/**
@@ -56,8 +56,8 @@ public:
     return TBICG_ONE_ID;
   }
 
-  int Pack (OOPSendStorage * buf);
-	int Unpack (OOPReceiveStorage * buf);
+  int Write(OOPStorageBuffer * buf,int classid);
+  int Read(OOPStorageBuffer * buf,void *context);
 
 };
 

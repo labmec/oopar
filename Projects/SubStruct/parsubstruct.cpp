@@ -29,7 +29,7 @@ void SetupEnvironment(TPZVec<TPZAutoPointer<OOPTaskManager> > &TMVec);
 
 #include <iostream>
 #include <sstream>
-//#include <istream>
+
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 #include "oopwaittask.h"
@@ -46,12 +46,7 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.mainprogram"));
 #include "oopevtmanager.h"
 #endif
 
-//Dohr Includes
-
-/**
- *
- #include "pzfmatrix.h"
- */
+// Dohr includes
 #include "tpzdohrassembly.h"
 #include "tpzdohrsubstruct.h"
 
@@ -67,8 +62,7 @@ OOPDataManager *DM;
 
 const int NumThreads = 10;
 
-int
-matmain(int argc, char **argv)
+int matmain(int argc, char **argv)
 {
   std::cout << "argc " << argc << std::endl;
   std::cout << "argv " << argv[0][1] << std::endl;
@@ -279,8 +273,7 @@ matmain(int argc, char **argv)
   return 0;
 }
 
-int
-TestSerialization()
+int TestSerialization()
 {
   OOPCommunicationManager * CM;
 #ifdef OOP_SOCKET
@@ -315,12 +308,13 @@ TestSerialization()
 
 }
 
+
+
 #include "TPZFParMatrix.h"
 #include "OOPDumbCommMan.h"
 #include "TPZCopySolve.h"
 
-int
-TestFParMatrix()
+int TestFParMatrix()
 {
   OOPCommunicationManager * CM;
 #ifdef OOP_SOCKET
@@ -490,8 +484,8 @@ TestFParMatrix()
 #endif
   return 0;
 }
-int
-main(int argc, char **argv)
+
+int main(int argc, char **argv)
 {
   //debugmpimain(argc, argv);
   //matmain(argc, argv);
@@ -546,77 +540,4 @@ void SetupEnvironment(TPZVec<TPZAutoPointer<OOPTaskManager> >&TMVec)
     }
 }
 #endif
-
-/*
-   {
-
-
-   //           TPZFParMatrix par2(thefMat);
-   //           TPZFParMatrix res(thefMat.Rows(), thefMat.Cols());
-   //           TPZFParMatrix res2(thefMat.Rows(), thefMat.Cols());
-
-   //TPZFParMatrix v1(fullv1);
-   //TPZFParMatrix v2(fullv2);
-   TPZFMatrix * v3 = new TPZFMatrix(fullv2);
-
-   TPZAutoPointer<TPZMatrix> pointerPar(par);
-
-   TPZStepSolver solver(pointerPar);
-   //(const int numiterations, const TPZMatrixSolver &pre, const REAL tol, const int FromCurrent)
-   TPZCopySolve csolve(NULL);
-   solver.SetCG(50, csolve, 0.01, 0);
-
-   solver.Solve(fullv1, fullv2, v3);
-   }
-   */
-  /**
-   thefMat.Print("Full", std::cout, EFormatted);
-   double ddot = -1;
-   ddot = Dot(par, par2);
-
-   double ddotf = Dot(thefMat, thefMat);
-   if(ddot == ddotf)
-   {
-   std::cout << "Dot Ok\n";
-   }
-
-
-   par.SynchronizeFromRemote();
-   par.Print("Prior to ZAXPY", std::cout, EFormatted);
-
-   par.ZAXPY(1.1, par2);
-   {
-   TPZFParMatrix::TPZAccessParMatrix accPar(par);
-   accPar.GetMatrix().Print("After ZAXPY", std::cout, EFormatted);
-   }
-
-   par.Multiply(par2, res, 1, 1);
-   {
-   TPZFParMatrix::TPZAccessParMatrix accPar(par);
-   accPar.GetMatrix().Print("After Multiply", std::cout, EFormatted);
-   }
-   {
-   TPZFParMatrix::TPZAccessParMatrix accPar(res);
-   accPar.GetMatrix().Print("After Multiply on Res", std::cout, EFormatted);
-   }
-
-   par.MultAdd( par2, res, res2, 1.1, 1.1, 1, 1);
-   {
-   {
-   TPZFParMatrix::TPZAccessParMatrix accPar(res);
-   accPar.GetMatrix().Print("After MultAdd on Res", std::cout, EFormatted);
-   }
-   {
-   TPZFParMatrix::TPZAccessParMatrix accPar(res2);
-   accPar.GetMatrix().Print("After MultAdd on Res2", std::cout, EFormatted);
-   }
-   }
-   par.Zero();
-   {
-   TPZFParMatrix::TPZAccessParMatrix accPar(par);
-   accPar.GetMatrix().Print("After Zero", std::cout, EFormatted);
-   }
-
-   */
-
 

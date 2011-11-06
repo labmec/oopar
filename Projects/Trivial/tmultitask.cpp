@@ -7,9 +7,9 @@
 //class OOPSendStorage;
 class OOPStorageBuffer;
 
-class OOPSaveable;
+class TPZSaveable;
 
-OOPSaveable * TMultiTask::Restore(OOPStorageBuffer *buf){
+TPZSaveable * TMultiTask::Restore(OOPStorageBuffer *buf){
 	TMultiTask *t = new TMultiTask(0);
 	t->Unpack(buf);
 	return t;
@@ -25,27 +25,27 @@ void TMultiTask::SetData(TMultiData & data, TResultData & resdata){
 
 int TMultiTask::DerivedFrom(char *classname){
   if(!strcmp(ClassName(),classname)) return 1;
-  //return OOPSaveable::DerivedFrom(classname);
+  //return TPZSaveable::DerivedFrom(classname);
 }
 int TMultiTask::DerivedFrom(long Classid){
   if(Classid == GetClassID()) return 1;
-  //return OOPSaveable::DerivedFrom(Classid);
+  //return TPZSaveable::DerivedFrom(Classid);
 }
-int TMultiTask::Pack(OOPStorageBuffer *buf)
+int TMultiTask::Write(OOPStorageBuffer *buf,int classid)
 {
-  OOPTask::Pack(buf);
+  OOPTask::Write(buf,classid);
   return 0;
 }
-int TMultiTask::Unpack( OOPStorageBuffer *buf )
+int TMultiTask::Read( OOPStorageBuffer *buf,void *context )
 {
-	//OOPSaveable::Unpack(buf);
-	OOPTask::Unpack(buf);
-	long clid;
-	buf->UpkLong(&clid);
-	if(clid != LONGVEC_ID) {
-    cout << __PRETTY_FUNCTION__ << "wrong class id" << endl;
-		exit(-1);
-	}
+	//TPZSaveable::Unpack(buf);
+	OOPTask::Read(*buf,context);
+//	long clid;
+//	buf->UpkLong(&clid);
+//	if(clid != LONGVEC_ID) {
+ //   cout << __PRETTY_FUNCTION__ << "wrong class id" << endl;
+//		exit(-1);
+//	}
 	//fTaskDepend.Unpack(buf);
 	return 0;
 }

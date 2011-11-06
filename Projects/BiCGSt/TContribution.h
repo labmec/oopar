@@ -5,7 +5,6 @@
 #include "oopobjectid.h"
 #include <vector>
 #include "bicgdefs.h"
-#include <oopsaveable.h>
 class   OOPDataVersion;
 using namespace std;
 /**
@@ -16,7 +15,7 @@ using namespace std;
  * Implements the number of contributing vectors the partition ¨i¨ contains
  * addressed to partition ¨j¨.
  */
-class   TContribution : public OOPSaveable
+class   TContribution : public TPZSaveable
 {
       public:
       long GetClassID(){
@@ -64,12 +63,12 @@ class   TContribution : public OOPSaveable
    * allowing the user to identify the next object to be unpacked.
    * @param *buff A pointer to TSendStorage class to be packed.
    */
-	int Pack (OOPSendStorage * buf);
+	int Write(OOPStorageBuffer * buf,int classid);
   /**
    * Unpacks the object class_id
    * @param *buff A pointer to TSendStorage class to be unpacked.
    */
-	int Unpack (OOPReceiveStorage * buf);
+	int Read(OOPStorageBuffer * buf,void *context);
       private:
     /**
      * ObjectId of the destination mesh
@@ -95,4 +94,5 @@ class   TContribution : public OOPSaveable
      */
 	int     fNContributions;
 };
+
 #endif // TCONTRIBUTION_H

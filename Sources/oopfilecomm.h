@@ -15,14 +15,13 @@
 //
 #ifndef _COM_FILEHH_
 #define _COM_FILEHH_
-#include "ooperror.h"
+//#include "ooperror.h"
 #include "oopcommmanager.h"
 #include "oopfilestorage.h"
 #include "oopcommmanager.h"
 class   OOPTask;
 //class   OOPFileStorageBuffer;
 class   OOPTaskManager;
-class   OOPSaveable;
 /**
  * Implements communication manager functionality through files.
  * Very useful in a NIS / LDAP environment.

@@ -16,16 +16,16 @@
  ***************************************************************************/
 #include "BiCGInt.h"
 
-TBiCGInt::TBiCGInt() : OOPSaveable(){}
+TBiCGInt::TBiCGInt() : TPZSaveable(){}
 
-int TBiCGInt::Pack(OOPSendStorage * buf){
-  OOPSaveable::Pack(buf);
+int TBiCGInt::Pack(OOPStorageBuffer * buf,int classid){
+  TPZSaveable::Write(buf,classid);
   buf->PkInt(&value);
   return 1;
 }
 
-int TBiCGInt::Unpack(OOPReceiveStorage * buf){
-  OOPSaveable::Unpack(buf);
+int TBiCGInt::Unpack(OOPStorageBuffer * buf,void *context){
+  TPZSaveable::Read(buf,context);
   int aux;
   buf->UpkInt(&aux);
   value = aux;

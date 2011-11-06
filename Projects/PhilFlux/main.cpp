@@ -9,10 +9,13 @@
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
 //#include "oopfilecomm.h"
-#include "ooperror.h"
+//#include "ooperror.h"
 #include "TParVector.h"
 #include "tsmalltask.h"
 #include "oopwaittask.h"
+
+#include "oopterminationtask.h"
+
 //#include "fluxdefs.h"
 #include <iostream>
 #include <fstream>
@@ -35,7 +38,6 @@ ofstream TaskManLog;
 ofstream DataQueueLog;
 
 void InsertTasks(int numtasks);
-// void RegisterPhilFluxRestore();
 
 
 struct DataAccessOrg {
@@ -60,7 +62,7 @@ struct DataAccessOrg {
   }
 };
 
-void WriteDataAccess(ostream &out, vector<OOPMDataDepend> &list){
+void WriteDataAccess(ostream &out, vector<OOPAccessTag> &list){
   cout << "Entering WriteDataAccess...";
   int i,nt = list.size();
 //  out << ": Number of tasks = " << endl;
@@ -76,7 +78,7 @@ void WriteDataAccess(ostream &out, vector<OOPMDataDepend> &list){
     for (int c=0;c<sz;c++){
       out  << "\t" << level[c] << "\t" << cardin[c]; 
     }
-    out << "\t" << (int)(list[i].State()) << endl;
+    out << "\t" << (int)(list[i].AccessMode()) << endl;
   }
   cout << " exiting!!!" << endl;
 }
@@ -105,15 +107,16 @@ void ReadDataAccess (istream &arq, std::list<DataAccessOrg> &mylist) {
 
 void CreateObjIds (list<DataAccessOrg> &mylist, 
                    map<int,OOPObjectId,less<int> >&fileId2globalId,
-                   vector<OOPMDataDepend> &depend,
-                   map<OOPObjectId,OOPMDataDepend> &higVersions){
+                   vector<OOPAccessTag> &depend,
+                   map<OOPObjectId,OOPAccessTag> &higVersions){
   
   cout << "Entering CreateObjIds...";
   int i,nt = mylist.size();
   depend.resize(nt);
   list<DataAccessOrg>::iterator ac_It;
   
-  for (i=0,ac_It=mylist.begin();i<nt,ac_It!=mylist.end();i++,ac_It++){
+  for (i=0,ac_It=mylist.begin();ac_It!=mylist.end();i++,ac_It++){
+	  if(i>=nt) break;
     //Verifies if the object_id was already created
     int file_id = (*ac_It).fDataId;//mylist[i].fDataId;
     map<int,OOPObjectId,less<int> >::iterator file_id_It;
@@ -124,7 +127,7 @@ void CreateObjIds (list<DataAccessOrg> &mylist,
     if (fileId2globalId.find(file_id) == fileId2globalId.end()){
       TParVector *victim = new TParVector();
       victim->Resize(10);
-      vicid = DM->SubmitObject(victim,1);
+      vicid = DM->SubmitObject(victim);
       fileId2globalId [ file_id ] = vicid;
     } else {
       vicid = (*file_id_It).second;
@@ -134,17 +137,17 @@ void CreateObjIds (list<DataAccessOrg> &mylist,
     //Create the depend object
     OOPDataVersion localversion;
     localversion.SetLevelVersion(0,/*mylist[i]*/(*ac_It).fVersion);
-    OOPMDataDepend dp (vicid, /*mylist[i]*/(*ac_It).fAccessType , localversion);
+    OOPAccessTag dp(vicid, /*mylist[i]*/(*ac_It).fAccessType , localversion, 0);
     depend [i] = dp;
 
     //Identify the higher versions for each object_id    
-    map<OOPObjectId,OOPMDataDepend>::iterator hig_It;
+    map<OOPObjectId,OOPAccessTag>::iterator hig_It;
     hig_It = higVersions.find(vicid);
     if (hig_It == higVersions.end()){
       higVersions[vicid] = dp;
       continue;
     }
-    if (dp.State()==EWriteAccess || dp.State() == EVersionAccess) dp.IncrementVersion();
+    if (dp.AccessMode()==EWriteAccess || dp.AccessMode() == EVersionAccess) dp.IncrementVersion();
     OOPDataVersion prevHg = ((*hig_It).second).Version();
     OOPDataVersion curr_ver = dp.Version();
     if (curr_ver > prevHg) {
@@ -156,7 +159,7 @@ void CreateObjIds (list<DataAccessOrg> &mylist,
 
 
 void CreateTaskFromFile(string &file) {
-  int i,nt;
+  int i;
 
   ifstream arq (file.c_str());
   list<DataAccessOrg> mylist;
@@ -166,15 +169,15 @@ void CreateTaskFromFile(string &file) {
 
   //Create the depends
   map<int,OOPObjectId,less<int> > fileId2globalId;
-  vector<OOPMDataDepend> depend;
-  map<OOPObjectId,OOPMDataDepend> higVersions;
+  vector<OOPAccessTag> depend;
+  map<OOPObjectId,OOPAccessTag> higVersions;
   
   CreateObjIds (mylist, fileId2globalId, depend, higVersions);
   
   int /*it,*/ numproc = CM->NumProcessors();
   int lasttask = -1;
   list<DataAccessOrg>::iterator it;
-  int numdeps = depend.size();
+//  int numdeps = depend.size();
   TSmallTask *st = 0;
   int counter;
   for(it=mylist.begin(),counter=0; it!=mylist.end(); it++,counter++) {
@@ -184,25 +187,25 @@ void CreateTaskFromFile(string &file) {
       lasttask = task;
       if(st) 
       {
-        OOPObjectId id = st->Submit();
+        OOPObjectId id = TM->Submit(st);
         cout << __PRETTY_FUNCTION__ << " submitted task id " << id << " task " << lasttask << endl;
       }
       st = new TSmallTask((*it).fProcid);
     }
     st->AddDependentData(depend[counter]);
   }
-  OOPObjectId id = st->Submit();
+  OOPObjectId id = TM->Submit(st);
   cout << __PRETTY_FUNCTION__ << " submitted task id " << id << " task " << lasttask << endl;
 
   // build a task such that the current thread has access to internal OOP data
   OOPWaitTask *wt = new OOPWaitTask(CM->GetProcID());
-  map<OOPObjectId,OOPMDataDepend>::iterator hig_It;
+  map<OOPObjectId,OOPAccessTag>::iterator hig_It;
   for (hig_It = higVersions.begin();hig_It != higVersions.end();hig_It++){
-    OOPMDataDepend depend = (*hig_It).second;
+    OOPAccessTag depend = (*hig_It).second;
     wt->AddDependentData(depend);      
   }  
   cout << "Before sumitting the wait task" << endl;
-  wt->Submit();
+  TM->Submit(wt);
   // This will put the current thread to wait till the data is available
   cout << "Before waiting\n";
   wt->Wait();
@@ -220,7 +223,7 @@ void CreateTaskFromFile(string &file) {
   OOPTerminationTask * tt;
   for(i=0;i < numproc;i++){
     tt = new OOPTerminationTask(i);
-    tt->Submit();
+    TM->Submit(tt);
   }
 }
 
@@ -230,8 +233,6 @@ void CreateTaskFromFile(string &file) {
 int mpimain (int argc, char **argv)
 {
 
-//  RegisterOOParRestore();
-//  RegisterPhilFluxRestore();
   CM = new OOPMPICommManager (argc, argv);
   CM->Initialize((char*)argv, argc);
   
@@ -310,24 +311,24 @@ void InsertTasks(int numtasks)
   TParVector *victim = new TParVector();
   victim->Resize(1000);
   
-  OOPObjectId vicid = DM->SubmitObject(victim,1);
+  OOPObjectId vicid = DM->SubmitObject(victim);
   
   cout << "The object id for victim is " << vicid << endl;
   // build a task such that the current thread has access to internal OOP data
   OOPWaitTask *wt = new OOPWaitTask(CM->GetProcID());
   OOPDataVersion ver;
-  wt->AddDependentData(OOPMDataDepend(vicid,EWriteAccess,ver));
+  wt->AddDependentData(OOPAccessTag (vicid,EWriteAccess,ver, 0));
   cout << "Before sumitting the wait task" << endl;
-  wt->Submit();
+  TM->Submit(wt);
   // This will put the current thread to wait till the data is available
   cout << "Before waiting\n";
   wt->Wait();
   cout << "Got out of wait\n";
   // At this point I have version access to victim
-  OOPMetaData *obj = wt->Depend().Dep(0).ObjPtr();
-  ver= obj->Version();
+//  OOPMetaData *obj = wt->Depend().Dep(0).ObjPtr();
+//  ver= obj->Version();
   ver.IncrementLevel(numtasks);
-  obj->SetVersion(ver,wt->Id());
+//  obj->SetVersion(ver,wt->Id());
   cout << "Before wait finish\n";
   wt->Finish();
   cout << "After wait finish\n";
@@ -340,25 +341,25 @@ void InsertTasks(int numtasks)
     cout << "Created the smalltask numproc " << numproc << "\n";
     if((numproc>1) && it%(numproc-1)) 
     {
-      OOPMDataDepend dp(vicid,EWriteAccess,stver);
+      OOPAccessTag dp(vicid,EWriteAccess,stver, 0);
       st->AddDependentData(dp);
     }
     else
     {
       cout << "Adding data dependency\n";
       cout.flush();
-      OOPMDataDepend dp(vicid,EVersionAccess,stver);
+      OOPAccessTag dp(vicid,EVersionAccess,stver , 0);
       st->AddDependentData(dp);
     }
     cout << "Submitting the small task\n";
-    st->Submit();
+    TM->Submit(st);
   }
   cout << "Before another wait task\n";
   wt = new OOPWaitTask(CM->GetProcID());
   ver = OOPDataVersion();
   ver.Increment();
-  wt->AddDependentData(OOPMDataDepend(vicid,EWriteAccess,ver));
-  wt->Submit();
+  wt->AddDependentData(OOPAccessTag(vicid,EWriteAccess,ver, 0));
+  TM->Submit(wt);
   // This will put the current thread to wait till the data is available
   wt->Wait();
   wt->Finish();
@@ -367,13 +368,6 @@ void InsertTasks(int numtasks)
   OOPTerminationTask * tt;
   for(it=0;it < numproc;it++){
     tt = new OOPTerminationTask(it);
-    tt->Submit();
+    TM->Submit(tt);
   }
 }
-/*
-void RegisterPhilFluxRestore() 
-{
-  OOPStorageBuffer::AddClassRestore (TSMALLTASKID, TSmallTask::Restore);
-  OOPStorageBuffer::AddClassRestore (TPARVECTOR_ID, TParVector::Restore);
-}
-*/

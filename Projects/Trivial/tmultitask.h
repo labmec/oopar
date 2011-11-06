@@ -8,7 +8,7 @@
 #include "tresultdata.h"
 #include "ooptask.h"
 //class OOPMReturnType;
-class OOPSaveable;
+class TPZSaveable;
 
 class OOPStorageBuffer;
 
@@ -16,7 +16,7 @@ class OOPStorageBuffer;
 class TMultiTask : public OOPTask {
 public:
 	
-static	OOPSaveable * Restore(OOPStorageBuffer *buf);
+static	TPZSaveable * Restore(OOPStorageBuffer *buf);
 	
 //	TMultiTask();
 public:
@@ -53,9 +53,9 @@ public:
     * Defines the necessary interface for task communication along the network.
     * @param * buf Buffer for data manipulation.
     */
-	virtual int Unpack (OOPStorageBuffer * buf);
+	virtual int Read(OOPStorageBuffer * buf,void *context);
 
-	virtual int Pack (OOPStorageBuffer * buf);
+	virtual int Write(OOPStorageBuffer * buf, int classid);
 
     /**
     * Returns class name

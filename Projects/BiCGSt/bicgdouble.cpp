@@ -17,27 +17,28 @@
 
 #include "bicgdouble.h"
 
-OOPSaveable * BiCGDouble::Restore (OOPReceiveStorage * buf) {
+TPZSaveable * BiCGDouble::Restore (OOPStorageBuffer * buf) {
 	BiCGDouble *bd = new BiCGDouble;
-	bd->Unpack(buf);
+	void *context;
+	bd->Read(buf,context);
 	return bd;
 }
 
-BiCGDouble::BiCGDouble() : OOPSaveable() {
+BiCGDouble::BiCGDouble() : TPZSaveable() {
 }
 BiCGDouble::~BiCGDouble(){
 }
-int BiCGDouble::Pack (OOPSendStorage * buf)
+int BiCGDouble::Write(OOPStorageBuffer * buf, int classid)
 {
-  OOPSaveable::Pack(buf);
+  TPZSaveable::Write(*buf,classid);
   buf->PkDouble(&value);
 	return 1;
 }
 /**************/
 /*** Unpack ***/
-int BiCGDouble::Unpack (OOPReceiveStorage * buf)
+int BiCGDouble::Read(OOPStorageBuffer * buf,void * context)
 {
-  OOPSaveable::Unpack(buf);
+  TPZSaveable::Read(*buf,context);
   double aux;
   buf->UpkDouble(&aux);
   value=aux;  

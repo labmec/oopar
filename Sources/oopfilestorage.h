@@ -25,7 +25,7 @@
 #include <string>
 #define FILE_NAME_SIZE  16
 /*********************/
-class   OOPSendStorageFile:public OOPSendStorage
+class OOPSendStorageFile:public OOPSendStorage
 {
       public:
 	// 'prefix' = prefixo a ser usado na geracao dos nomes dos
@@ -152,6 +152,9 @@ public:
 	int     f_sender;
 	FILE   *f_file;
 };
+
 typedef OOPFileStorageBuffer *PTFileStorageBuffer;
+
 #endif // _STR_FILEHH_
-#ifdef //FILE_COMM
+
+#endif //FILE_COMM

@@ -4,7 +4,9 @@
 
 #include "fluxdefs.h"
 #include "pzsave.h"
+
 class TPZStream;
+
 class   TParMesh:public TPZSaveable
 {
 public:
@@ -30,5 +32,5 @@ public:
 	virtual void Read (TPZStream & buf, void * context = 0);
 	static TPZSaveable *Restore (TPZStream & buf, void * context = 0);
 };
-template class TPZRestoreClass<TParMesh, TPARMESH_ID>;
+
 #endif // TPARMESH_H

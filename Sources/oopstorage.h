@@ -33,13 +33,13 @@
 #include <pzfilebuffer.h>
 
 using namespace std;
-class   OOPSaveable;
+class   TPZSaveable;
 class   OOPStorageBuffer;
 typedef unsigned int u_int;
 typedef unsigned short u_short;
 typedef unsigned long u_long;
-typedef OOPSaveable * ( *TRestFunction ) ( OOPStorageBuffer * );
-class   OOPSaveable;
+typedef TPZSaveable * ( *TRestFunction ) ( OOPStorageBuffer * );
+class   TPZSaveable;
 /**
  * Base class for for input buffers used on data transmition
  */
@@ -131,7 +131,7 @@ class   OOPStorageBuffer:public TPZStream
 		/**
 		 * Restores next object in the buffer
 		 */
-		OOPSaveable *Restore ();
+		TPZSaveable *Restore ();
 
 		/**
 		* 	Methods for packing data to be transmitted.

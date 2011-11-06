@@ -5,12 +5,12 @@
 #include "oopmetadata.h"
 
 #include <vector>
-#include "oopsaveable.h"
+#include "pzsave.h"
 
 using namespace std;
 
 
-class TMultiData : public OOPSaveable {
+class TMultiData : public TPZSaveable {
 public:
 	TMultiData();
     void SetData(vector<double> & vec);

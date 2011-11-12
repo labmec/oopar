@@ -22,4 +22,4 @@ add_subdirectory(TestCesar)
 add_subdirectory(TestTask)
 
 # This project ...
-add_subdirectory(Trivial)
+#add_subdirectory(Trivial)

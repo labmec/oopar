@@ -28,8 +28,8 @@ void OOPComputeMatricesTask::SetMainDiagId(OOPObjectId & Id)
 OOPMReturnType OOPComputeMatricesTask::Execute()
 {
 	OOPContributeDiagonalTask * contribDiagTask = new OOPContributeDiagonalTask(0);
-	TPZDohrAssembly * assembly = dynamic_cast<TPZDohrAssembly *> (fDependRequest.ObjectPtr(0));
-	TPZDohrSubstruct * sub = dynamic_cast<TPZDohrSubstruct *> (fDependRequest.ObjectPtr(1));
+	//TPZDohrAssembly * assembly = dynamic_cast<TPZDohrAssembly *> (fDependRequest.ObjectPtr(0));
+	//TPZDohrSubstruct * sub = dynamic_cast<TPZDohrSubstruct *> (fDependRequest.ObjectPtr(1));
 	OOPDataVersion version;
 	version.SetLevelVersion(0, -1);
 	contribDiagTask->AddDependentData(OOPAccessTag(m_MainDiagId, EWriteAccess, version,0));

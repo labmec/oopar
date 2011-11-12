@@ -9,6 +9,7 @@
 #include "ooptask.h"
 #include <errno.h> 
 
+#include "fluxdefs.h"
 #include "tmultitask.h"
 #include "tmultidata.h"
 #include "tresultdata.h"
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]) {
 	CM = new OOPFileComManager();
 	CM->Initialize( argv[0], 0 );
 	TM = new OOPTaskManager(CM->GetProcID());
-	DM = new OOPDataManager(CM->GetProcID());
+	DM = new OOPDataManager(CM->GetProcID(), TM);
 
 	//Criar tasks e datas
 	//submeter aos respectivos managers,

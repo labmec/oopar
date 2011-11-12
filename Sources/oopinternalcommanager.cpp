@@ -131,7 +131,7 @@ extern OOPGenericLockService gMutex;
     		 sout << __PRETTY_FUNCTION__ << " Destination processor does not exist " << procdest;
 #ifdef LOG4CXX
     		 LOGPZ_ERROR(logger,sout.str());
-#elif
+#else
     		 cout << sout.str();
 #endif
     		 exit(-1);

@@ -44,4 +44,6 @@ public:
 	TTaskComm ();
 };
 
+extern ofstream TaskLog;
+
 #endif // TTASKCOMM_H

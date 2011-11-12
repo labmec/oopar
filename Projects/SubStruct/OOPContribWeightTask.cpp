@@ -40,9 +40,10 @@ void OOPContribWeightTask::Read(TPZStream & buf, void * context)
 
 OOPMReturnType OOPContribWeightTask::Execute()
 {
-	TPZDohrAssembly * assembly = dynamic_cast<TPZDohrAssembly *> (fDependRequest.ObjectPtr(0));
-	TPZDohrSubstruct * subStr = dynamic_cast<TPZDohrSubstruct * > (fDependRequest.ObjectPtr(1));
-	//subStr->
+	//TPZDohrAssembly * assembly = dynamic_cast<TPZDohrAssembly *> (fDependRequest.ObjectPtr(0));
+	//TPZDohrSubstruct * subStr = dynamic_cast<TPZDohrSubstruct * > (fDependRequest.ObjectPtr(1));
+		// variables are not referenced ... ???
+	
 	return ESuccess;
 }
 

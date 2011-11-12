@@ -5,6 +5,7 @@
 #include "mpi.h"
 #ifdef OOP_MPI
 #include "oopmpicomm.h"
+#include "OOPDataLogger.h"
 #endif
 #include "oopdatamanager.h"
 #include "ooptaskmanager.h"
@@ -256,7 +257,7 @@ int mpimain (int argc, char **argv)
   DataQueueLog.open(filename);
 
   TM = new OOPTaskManager (CM->GetProcID ());
-  DM = new OOPDataManager (CM->GetProcID ());
+  DM = new OOPDataManager (CM->GetProcID (), TM);
 
   //int numproc = CM->NumProcessors();//atoi(argv[argc-1]);
   // At this point the environment will lock because it will go into a blocking receive...

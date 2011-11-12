@@ -75,7 +75,7 @@ public:
    * @brief This method is called when a task terminates its execution
    * Update information such as data access, ownership etc pending on that task.
    */
-  void TaskFinished ();
+	void TaskFinished();
   /**
    * @brief Constructor based on a processor-id
    * @param Procid Id of processor where the object is being created
@@ -168,13 +168,17 @@ public:
   /**
    * @brief Returns the recurrence information
    */
-  int IsRecurrent ();
+	int IsRecurrent () {
+		return (int)fRecurrence;
+	}
   /**
    * @brief Sets the recurrence parameter
    * @param recurrence Holds the recurrence value
    * @since 12/06/2003
    */
-  void    SetRecurrence (bool recurrence = true);
+	void    SetRecurrence (bool recurrence = true) {
+		fRecurrence = recurrence;
+	}
   int NumDepObj()
   {
     return fDependRequest.Count();
@@ -190,6 +194,8 @@ public:
 	 */
 protected:
 	OOPAccessTag GetTag(int i);
+	/** @brief Parameter for recurrence process */
+	bool fRecurrence;
   /**
   * @brief Processor where the task should be executed
   */

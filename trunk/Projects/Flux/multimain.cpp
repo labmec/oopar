@@ -21,6 +21,8 @@
 
 int numproc = 4;
 
+int GLogMsgCounter = 0;
+
 OOPCommunicationManager *CM;
 OOPDataManager *DM;
 OOPTaskManager *TM;
@@ -102,7 +104,7 @@ int mpimain (int argc, char **argv)
 	OOPDataLogger * LogDM = new OOPDataLogger(filename);
     ::LogDM = LogDM;
 	TM = new OOPTaskManager (CM->GetProcID ());
-	DM = new OOPDataManager (CM->GetProcID ());
+	DM = new OOPDataManager (CM->GetProcID (), TM);
 				    
 	numproc = CM->NumProcessors();//atoi(argv[argc-1]);
 	if(!CM->GetProcID()){

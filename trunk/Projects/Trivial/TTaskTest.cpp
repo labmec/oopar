@@ -3,11 +3,11 @@
 #include "TTaskTest.h"
 int TTaskTest::DerivedFrom(char *classname){
   if(!strcmp(ClassName(),classname)) return 1;
-  return OOPSaveable::DerivedFrom(classname);
+  return TPZSaveable::DerivedFrom(classname);
 }
 int TTaskTest::DerivedFrom(long Classid){
   if(Classid == GetClassID()) return 1;
-  return OOPSaveable::DerivedFrom(Classid);
+  return TPZSaveable::DerivedFrom(Classid);
 }
 int TTaskTest::Pack(OOPSendStorage *buf)
 {

@@ -5,6 +5,7 @@
 #include "fluxdefs.h"
 
 class TPZStream;
+ofstream TaskLog;
 
 void TTaskComm::Read (TPZStream & buf, void * context)
 {

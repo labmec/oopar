@@ -62,11 +62,13 @@ class   OOPSendStorage:public TPZStream
 			return ( "OOPSendStorage::" );
 		}
 };
+
 typedef OOPSendStorage *PTSendStorage;
+
 /**
  * Base class for for output buffers used on data transmition
  */
-class   OOPStorageBuffer:public TPZStream
+class OOPStorageBuffer:public TPZStream
 {
 	public:
 		/**
@@ -209,5 +211,7 @@ class   OOPStorageBuffer:public TPZStream
 		 */
 		static  map < long, TRestFunction >gFuncTree;
 };
+
 typedef OOPStorageBuffer *PTReceiveStorage;
+
 #endif // _STORAGEHH_

@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
   sub.GenerateMesh();
   //TPZDohrSubstruct::fWeightType = TPZDohrSubstruct::Uniform;
 	TPZAutoPointer<TPZDohrAssembly> dohrassembly = new TPZDohrAssembly;
-  TPZDohrMatrix *dohrptr = new TPZDohrMatrix(dohrassembly);
+  TPZDohrMatrix<TPZDohrSubstruct> *dohrptr = new TPZDohrMatrix<TPZDohrSubstruct>(dohrassembly);
   TPZAutoPointer<TPZMatrix> dohr(dohrptr);
   sub.InitializeDohr(dohr,dohrassembly);
 	// loop over the substructures
@@ -115,14 +115,14 @@ int main(int argc, char *argv[])
 #endif
 
 
-	TPZDohrPrecond *precondptr = new TPZDohrPrecond(*dohrptr,dohrassembly);
+	TPZDohrPrecond<TPZDohrSubstruct> *precondptr = new TPZDohrPrecond<TPZDohrSubstruct>(*dohrptr,dohrassembly);
 
 
 #ifdef LOG4CXX
 	{
 		std::stringstream sout;
 		sout << "Printing after creating the preconditioner\n";
-		dohrptr->Print(sout);
+		dohrptr->Print("Matrix dohr", sout);
 		LOGPZ_DEBUG(loggerconverge,sout.str());
 	}
 #endif

@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string>
 #define FILE_NAME_SIZE  16
+
 /*********************/
 class OOPSendStorageFile:public OOPSendStorage
 {
@@ -58,7 +59,9 @@ class OOPSendStorageFile:public OOPSendStorage
 	// onde: arquivo_ligado = prefixo + XX.
 	FILE   *f_file;
 };
+
 typedef OOPSendStorageFile *PTSendStorageFile;
+
 /**
  * Same attributions as its base class.
  * Works with File Communication

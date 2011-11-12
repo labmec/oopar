@@ -19,7 +19,8 @@ add_custom_target(Doxygen_Files SOURCES  ${doxyfiles})
 #To cmake
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG" CACHE STRING "c++ debug flags go here" FORCE)
 #To search files and libraries
-	set(SEARCH_DIRS ENV PATH /usr/include /usr/local/include /usr/local/include/boost /usr/local/include/log4cxx /usr/lib /usr/local/lib ./../library ./../library/include ./../library/include/neopz ./../library/lib /usr/local/include/neopz /usr/local/lib/neopz)
+	set(SEARCH_DIRS ENV PATH /usr/include /usr/local/include /usr/local/include/boost /usr/local/include/log4cxx /usr/lib /usr/local/lib ./. ./.. ./../libs ./../libs/fad ./../libs/metis ./../libs/metis/include ./../libs/metis/lib ./../libs/metis-5.0.1 ./../libs/metis-5.0.1/include ./../libs/metis-5.0.1/lib ./../externallibs ./../externallibs/fad ./../externallibs/metis ./../externallibs/metis/include ./../externallibs/metis/lib ./../externallibs/metis-5.0.1 ./../externallibs/metis-4.0 ./../externallibs/metis-5.0.1/include ./../externallibs/metis-4.0/include ./../externallibs/metis-5.0.1/lib ./../library/include ./../library/include/neopz ./../library/lib)
+
 #To install oopar
 	set(OOPAR_INCLUDE ${PROJECT_SOURCE_DIR}/../library/include/oopar)
 	set(OOPAR_LIB ${PROJECT_SOURCE_DIR}/../library/lib)
@@ -113,8 +114,12 @@ if(USING_SOCKET)
 	set(USING_OOP_INTERNAL OFF)
 endif(USING_SOCKET)
 if(USING_MPI)
+#Exist several linker erros about mpi. See: http://www.cmake.org/Wiki/CMake_2.8.4_Docs
+	add_definitions(-DOOP_MPI)
 	set(USING_SOCKET OFF)
 	set(USING_OOP_INTERNAL OFF)
+	#Enable MPI options
+	find_package(MPI)
 endif(USING_MPI)
 if(USING_OOP_INTERNAL)
 	set(USING_SOCKET OFF)
@@ -122,7 +127,8 @@ if(USING_OOP_INTERNAL)
 endif(USING_OOP_INTERNAL)
 
 #DEFINITIONS for Communications type
-add_definitions(-DFILE_COMM -DBLOCKING)
+add_definitions(-DFILE_COMM)
+add_definitions(-DBLOCKING)
 
 
 #increment all the directories where the sources files is

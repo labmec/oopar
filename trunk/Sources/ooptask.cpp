@@ -38,7 +38,7 @@ template class TPZRestoreClass<OOPTask, TTASK_ID>;
  * Constructor based on a processor-id
  * @param Procid Id of processor where the object is being created
  */
-OOPTask::OOPTask():fProc(-1) ,  fLabel("non initialized"), fTM(0)
+OOPTask::OOPTask():fProc(-1) ,  fLabel("non initialized"), fTM(0), fRecurrence(false)
 {
 }
 
@@ -46,6 +46,11 @@ OOPTask::~OOPTask()
 {
 
 }
+
+void OOPTask::TaskFinished() {
+	fDependRequest.Clear (TM()->DM());
+}
+
 void
 OOPTask::Print (std::ostream & out)
 {
@@ -56,7 +61,7 @@ OOPTask::Print (std::ostream & out)
   fDependRequest.Print(out);
 }
 
-OOPTask::OOPTask (int proc) : fTM(0)
+OOPTask::OOPTask (int proc) : fTM(0), fRecurrence(false)
 {
   fProc = proc;
   fLabel = "non initialized";
@@ -66,7 +71,7 @@ OOPTask::OOPTask (const OOPTask & task):
   fTaskId (),
   fDependRequest (task.fDependRequest),
   fLabel (task.fLabel),
-  fTM(task.fTM)
+  fTM(task.fTM), fRecurrence(false)
 {
 }
 void

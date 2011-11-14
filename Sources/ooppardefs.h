@@ -1,37 +1,44 @@
 #ifndef PARDEFSH
 #define PARDEFSH
+
+/**
+ * @addtogroup managertask
+ * @{
+ */
 enum OOPMDMOwnerMessageType
 {
-  ENoMessage,
-  ETransferOwnership,
-  EGrantReadAccess,
+	ENoMessage,
+	ETransferOwnership,
+	EGrantReadAccess,
 };
+
 enum OOPDMRequestMessageType
 {
-  ENoRequest,
-  ERequestReadAccess,
-  ERequestWriteAccess,
+	ENoRequest,
+	ERequestReadAccess,
+	ERequestWriteAccess,
 };
-//BlockingReadAccess concept no longer exists
-//longhin: 30/01/2003
+
 /**
- * Describes the possible access states for a data
+ * @brief Describes the possible access states for a data
  */
 enum OOPMDataState
 {
-  ENoAccess,
-  EReadAccess,
-  EWriteAccess,
-  EVersionAccess,
-  EDelete
+	ENoAccess,
+	EReadAccess,
+	EWriteAccess,
+	EVersionAccess,
+	EDelete
 };
+
 enum OOPMReturnType
 {
-  ESuccess,
-  EFail,
-  EContinue
+	ESuccess,
+	EFail,
+	EContinue
 };
-//#definE NUMOBJECTS  0x100000
+
+
 #define OOP_MAX_BUFFER_SIZE 5120
 #define NUMOBJECTS  1000
 #define OOPSAVEABLE_ID -1
@@ -50,5 +57,8 @@ enum OOPMReturnType
 
 #define OOPCOLLECTOR_TASK_ID 3011
 
+/**
+ * @}
+ */
 
 #endif

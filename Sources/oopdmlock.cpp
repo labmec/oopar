@@ -14,13 +14,13 @@ pthread_mutex_t OOPDMLock::fLock = PTHREAD_MUTEX_INITIALIZER;
 
 OOPDMLock::OOPDMLock()
 {
-  pthread_mutex_lock(&fLock);
+	pthread_mutex_lock(&fLock);
 }
 
 
 OOPDMLock::~OOPDMLock()
 {
-  pthread_mutex_unlock(&fLock);
+	pthread_mutex_unlock(&fLock);
 }
 
 

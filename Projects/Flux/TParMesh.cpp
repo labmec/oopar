@@ -6,19 +6,19 @@ TParMesh::TParMesh ()
 }
 TParMesh::~TParMesh() {
 }
-  /**
-   * Packs the object in on the buffer so it can be transmitted through the network.
-   * The Pack function  packs the object's class_id while function Unpack() doesn't,
-   * allowing the user to identify the next object to be unpacked.
-   * @param *buff A pointer to TSendStorage class to be packed.
-   */
+/**
+ * Packs the object in on the buffer so it can be transmitted through the network.
+ * The Pack function  packs the object's class_id while function Unpack() doesn't,
+ * allowing the user to identify the next object to be unpacked.
+ * @param buf A pointer to TSendStorage class to be packed.
+ */
 void TParMesh::Write (TPZStream & buf, int withclassid) {
 	TPZSaveable::Write(buf,withclassid);
 }
-  /**
-   * Unpacks the object class_id
-   * @param *buff A pointer to TSendStorage class to be unpacked.
-   */
+/**
+ * Unpacks the object class_id
+ * @param buf A pointer to TSendStorage class to be unpacked.
+ */
 void TParMesh::Read (TPZStream & buf, void * context) {
 	TPZSaveable::Read(buf,context);
 }

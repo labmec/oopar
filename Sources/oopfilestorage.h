@@ -1,22 +1,8 @@
 #ifdef FILE_COMM
-// -*- c++ -*-
-//
-// Autor:   Mauro Enrique de Souza Munoz,  RA: 911472.
-//
-// Arquivo: str_file.hh
-//
-// Classe:  TSendStorageFile, TReceiveStorageFile.
-//
-// Descr.:  TSendStorageFile:
-//            Classe derivada de TSendStorage que implementa o buffer
-//            usando arquivos para a comunicacao entre processos.
-//
-//          TReceiveStorageFile:
-//            Classe derivada de TReceiveStorage que implementa o buffer
-//            usando arquivos para a comunicacao entre processos.
-//
-// Versao:  09 / 08 / 95.
-//
+/**
+ * @file
+ */
+
 #ifndef _STR_FILEHH_
 #define _STR_FILEHH_
 #include <oopstorage.h>
@@ -25,18 +11,23 @@
 #include <string>
 #define FILE_NAME_SIZE  16
 
-/*********************/
+/**
+ * @brief Implements a buffer using files for communication between processes.
+ * @author Mauro Enrique de Souza Munoz
+ * @since 09/08/1995
+ * @ingroup managercomm
+ */
 class OOPSendStorageFile:public OOPSendStorage
 {
-      public:
+public:
 	// 'prefix' = prefixo a ser usado na geracao dos nomes dos
 	// arquivos que serao usados como buffers.
 	// 
 	// nome_arq_buffer = prefix + XX.
 	// 
 	OOPSendStorageFile (char *prefix, int my_id);
-	       ~OOPSendStorageFile ();
-
+	~OOPSendStorageFile ();
+	
 	// Metodos para EMPACOTAR os dados a serem enviados.
 	// p : Ponteiro para o buffer que contem os dados a serem
 	// empacotados.
@@ -47,14 +38,14 @@ class OOPSendStorageFile:public OOPSendStorage
 	// em 'file_to_send' e procura outro arquivo para se ligar.
 	// Obs.: Nao esquecer de acrescentar um '0' no final do arquivo!
 	// 
-      private:
+private:
 	// Procura por um novo arquivo a ser usado como buffer.
 	// Se nao encontrar retorna 0.
 	// 
-
-// Prefixo dos arquivos que podem ser usados
+	
+	// Prefixo dos arquivos que podem ser usados
 	// como buffer.
-// 2 ultimos digitos do nome do arq ligado
+	// 2 ultimos digitos do nome do arq ligado
 	// (XX)
 	// onde: arquivo_ligado = prefixo + XX.
 	FILE   *f_file;
@@ -63,15 +54,16 @@ class OOPSendStorageFile:public OOPSendStorage
 typedef OOPSendStorageFile *PTSendStorageFile;
 
 /**
- * Same attributions as its base class.
+ * @brief Same attributions as its base class. \n
  * Works with File Communication
+ * @ingroup managercomm
  */
-class   OOPFileStorageBuffer:public OOPStorageBuffer
+class   OOPFileStorageBuffer : public OOPStorageBuffer
 {
-      public:
+public:
 	OOPFileStorageBuffer (char *prefix, int my_id);
 	OOPFileStorageBuffer (char *fname);
-	       ~OOPFileStorageBuffer ();
+	~OOPFileStorageBuffer ();
 	int     GetSender ()
 	{
 		return f_sender;
@@ -86,67 +78,67 @@ class   OOPFileStorageBuffer:public OOPStorageBuffer
 	int     UpkFloat (float *p, int n = 1);
 	int     UpkDouble (double *p, int n = 1);
 	int     UpkStr (char *str);
-
+	
 	int     PkByte (char *p, int n = 1);
-
+	
 	int     PkInt (int *p, int n = 1);
-
+	
 	int     PkShort (short *p, int n = 1);
-
+	
 	int     PkLong (long *p, int n = 1);
-
+	
 	int     PkUint (u_int * p, int n = 1);
-
+	
 	int     PkUshort (u_short * p, int n = 1);
-
+	
 	int     PkUlong (u_long * p, int n = 1);
-
+	
 	int     PkFloat (float *p, int n = 1);
-
+	
 	int     PkDouble (double *p, int n = 1);
-
+	
 	int     PkStr (char *str);
-
+	
 	int     HasSomeThingToSend (char *file_to_send);
-
+	
 	int     Open ();
-
+	
 	int     Close ();
-
+	
 	void    FileName (char *);
-
+	
 	char   *ClassName1 ()
 	{
 		return ("TSendStorageFile::");
 	}
-
+	
 private:
-
+	
 	int     FindNewBuffer ();
-
+	
 public:
 	virtual char *ClassName ()
 	{
 		return ("TReceiveStorageFile::");
 	}
-
+	
     virtual void Write(int *p, int size);
-
+	
     virtual void Write(double *p, int size);
-
+	
     virtual void Write(const char *p, int size);
-
+	
     virtual void Write(string *p, int size);
-
+	
     virtual void Read(int *p, int size);
-
+	
     virtual void Read(double *p, int size);
-
+	
     virtual void Read(char *p, int size);
-
+	
     virtual void Read(string *p, int size);
-
-      private:
+	
+private:
 	int     f_myID;
 	char    f_wrote;
 	char   *f_prefix;

@@ -14,7 +14,7 @@ void TParAnalysis::Print (ostream & out)
 void TParAnalysis::SetupEnvironment ()
 {
 	TPartitionRelation *table =
-		TPartitionRelation::CreateRandom (fNumPartitions);
+	TPartitionRelation::CreateRandom (fNumPartitions);
 	// int ProcId = DM->GetProcID();
 	// message #1.2 to table:TPartitionRelation
 	// TPartitionRelation * table = ;
@@ -104,16 +104,16 @@ void TParAnalysis::CreateParCompute ()
 	TaskLog << endl;
 #ifdef VERBOSE
 	cout << "TParAnalysis setting the version of rhs and state to " <<
-		endl;
-
+	endl;
+	
 	randver.ShortPrint (cout);
 #endif
 	/*while (count < fNumPartitions) {
-		int index=count*3+2;
-		fDataDepend.Dep (index).ObjPtr()->SetVersion (randver, Id ());
-		fDataDepend.Dep (index+1).ObjPtr()->SetVersion (randver, Id ());
-		count++;
-	}*/
+	 int index=count*3+2;
+	 fDataDepend.Dep (index).ObjPtr()->SetVersion (randver, Id ());
+	 fDataDepend.Dep (index+1).ObjPtr()->SetVersion (randver, Id ());
+	 count++;
+	 }*/
 	
 	while (count < 2 * fNumPartitions) {
 		GetTag(count + fNumPartitions + 1).SetVersion(randver);
@@ -143,11 +143,11 @@ void TParAnalysis::CreateParCompute ()
 	cout << "TParAnalysis::CreateParCompute I depend on version for rhs and state" << endl;
 	randver.ShortPrint (cout);
 #endif
-//  while(count < fNumPartitions) {
+	//  while(count < fNumPartitions) {
 	// Na primeira passada por aqui, ObjPtr de *dep está nulo !!!!
-//    AddDependentData(OOPMDataDepend(fStateId[count],st,randver));
-//    count++;
-//  }
+	//    AddDependentData(OOPMDataDepend(fStateId[count],st,randver));
+	//    count++;
+	//  }
 	count = 0;
 	while (count < fNumPartitions) {
 		// Na primeira passada por aqui, ObjPtr de *dep está nulo
@@ -208,7 +208,7 @@ void TParAnalysis::AdaptSolutionVersion (OOPDataVersion & version)
 {
 	int depth = fTaskVersion.GetNLevels ();
 	int versdepth = version.GetNLevels ();
-//  cout << "TParAnalysis::AdaptSolutionVersion before "; version.Print(cout);
+	//  cout << "TParAnalysis::AdaptSolutionVersion before "; version.Print(cout);
 	int d;
 	for (d = versdepth; d < depth; d++) {
 		int taskver = fTaskVersion.GetLevelVersion (d);
@@ -221,7 +221,7 @@ void TParAnalysis::AdaptSolutionVersion (OOPDataVersion & version)
 			version.SetLevelVersion (d, 1);
 		}
 	}
-//  cout << "TParAnalysis::AdaptSolutionVersion after "; version.Print(cout);
+	//  cout << "TParAnalysis::AdaptSolutionVersion after "; version.Print(cout);
 }
 OOPMReturnType TParAnalysis::Execute ()
 {
@@ -252,12 +252,12 @@ TParAnalysis::TParAnalysis (int Procid, int numpartitions, int numproc):OOPTask 
 	fNumProcessors = numproc;
 	SetRecurrence ();
 }
-  /**
-   * Packs the object in on the buffer so it can be transmitted through the network.
-   * The Pack function  packs the object's class_id while function Unpack() doesn't,
-   * allowing the user to identify the next object to be unpacked.
-   * @param *buff A pointer to TSendStorage class to be packed.
-   */
+/**
+ * Packs the object in on the buffer so it can be transmitted through the network.
+ * The Pack function  packs the object's class_id while function Unpack() doesn't,
+ * allowing the user to identify the next object to be unpacked.
+ * @param buf A pointer to TSendStorage class to be packed.
+ */
 void TParAnalysis::Write (TPZStream & buf, int withclassid)
 {
 	OOPTask::Write(buf,withclassid);
@@ -273,10 +273,10 @@ void TParAnalysis::Write (TPZStream & buf, int withclassid)
 		fStateId[ip].Write (buf);
 	}
 }
-  /**
-   * Unpacks the object class_id
-   * @param *buff A pointer to TSendStorage class to be unpacked.
-   */
+/**
+ * Unpacks the object class_id
+ * @param buf A pointer to TSendStorage class to be unpacked.
+ */
 void TParAnalysis::Read (TPZStream & buf, void * context)
 {
 	OOPTask::Read(buf,context);
@@ -294,7 +294,7 @@ void TParAnalysis::Read (TPZStream & buf, void * context)
 		fMeshId[ip].Read (buf);
 		fStateId[ip].Read (buf);
 	}
-
+	
 }
 TPZSaveable *TParAnalysis::Restore (TPZStream & buf, void * context)
 {

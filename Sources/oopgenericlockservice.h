@@ -12,31 +12,31 @@
 
 class OOPGenericLockService
 {
-
+	
 public:
-
+	
 	OOPGenericLockService()
 	{
 		pthread_mutex_init (&fMutex, 0);
 	}
-
+	
 	~OOPGenericLockService()
 	{
 		pthread_mutex_destroy (&fMutex);
 	}
-
+	
 	pthread_mutex_t *Mutex()
 	{
 		return &fMutex;
 	}
-
+	
 private:
-
+	
 	/**
 	 * the mutex object around which we will be locking
 	 */
 	pthread_mutex_t fMutex;
-
+	
 };
 
 #endif /* OOPGENERICLOCKSERVICE_H_ */

@@ -40,176 +40,179 @@ typedef unsigned short u_short;
 typedef unsigned long u_long;
 typedef TPZSaveable * ( *TRestFunction ) ( OOPStorageBuffer * );
 class   TPZSaveable;
+
 /**
- * Base class for for input buffers used on data transmition
+ * @brief Base class for for input buffers used on data transmition
+ * @ingroup managerdata
  */
 class   OOPSendStorage:public TPZStream
 {
-	public:
-		/**
-		 * Simple constructor
-		 */
-		OOPSendStorage ()
-		{}
-		virtual ~ OOPSendStorage ()
-		{}
-
-		/**
-		 * Returns class name.
-		 */
-		virtual char *ClassName ()
-		{
-			return ( "OOPSendStorage::" );
-		}
+public:
+	/**
+	 * @brief Simple constructor
+	 */
+	OOPSendStorage ()
+	{}
+	virtual ~ OOPSendStorage ()
+	{}
+	
+	/**
+	 * @brief Returns class name.
+	 */
+	virtual char *ClassName ()
+	{
+		return ( "OOPSendStorage::" );
+	}
 };
 
 typedef OOPSendStorage *PTSendStorage;
 
 /**
- * Base class for for output buffers used on data transmition
+ * @brief Base class for for output buffers used on data transmition
+ * @ingroup managerdata
  */
 class OOPStorageBuffer:public TPZStream
 {
-	public:
-		/**
-		 * Simple constructor.
-		 */
-		OOPStorageBuffer ()
-		{}
-		virtual ~OOPStorageBuffer ();	// {}
-		/**
-		Methods for unpacking data transmitted.
-		@param p Pointer to the buffer which holds the data to be packed
-		@param n Number of elements on the buffer
-		*/
-		virtual int UpkByte ( char *p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkInt ( int *p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkShort ( short *p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkLong ( long *p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkUint ( u_int * p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkUshort ( u_short * p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkUlong ( u_long * p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkFloat ( float *p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkDouble ( double *p, int n = 1 )
-		{
-			return 0;
-		}
-		virtual int UpkStr ( char *str )
-		{
-			return 0;
-		}
-		static void AddClassRestore ( long classid, TRestFunction f );
-		/**
-		 * Receives the data to he buffer
-		 */
-		virtual int Receive ( int msg_id, int tid )
-		{
-			return 0;
-		}
-		/**
-		 * Restores next object in the buffer
-		 */
-		TPZSaveable *Restore ();
-
-		/**
-		* 	Methods for packing data to be transmitted.
-		* 	@param p Pointer to the buffer which holds the data to be packed
-		* 	@param n Number of elements on the buffer
-		*/
-		virtual int PkByte ( char *p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkInt ( int *p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkShort ( short *p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkLong ( long *p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkUint ( u_int * p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkUshort ( u_short * p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkUlong ( u_long * p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkFloat ( float *p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkDouble ( double *p, int n = 1 )
-		{
-			return 0;
-		}
-
-		virtual int PkStr ( char *str )
-		{
-			return 0;
-		}
-
-		/**
-		 * Undocumented
-		 */
-		virtual int Send ( int msg_id, int tid )
-		{
-			return 0;
-		}
-
-		/**
-		 * Returns class name
-		 */
-		virtual char *ClassName ()
-		{
-			return ( "OOPStorageBuffer" );
-		}
-	private:
-		/**
-		 * Pointer to restore functions of all classes present on the environment.
-		 */
-		static  map < long, TRestFunction >gFuncTree;
+public:
+	/**
+	 * @brief Simple constructor.
+	 */
+	OOPStorageBuffer ()
+	{}
+	virtual ~OOPStorageBuffer ();	// {}
+	/**
+	 @brief Methods for unpacking data transmitted.
+	 @param p Pointer to the buffer which holds the data to be packed
+	 @param n Number of elements on the buffer
+	 */
+	virtual int UpkByte ( char *p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkInt ( int *p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkShort ( short *p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkLong ( long *p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkUint ( u_int * p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkUshort ( u_short * p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkUlong ( u_long * p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkFloat ( float *p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkDouble ( double *p, int n = 1 )
+	{
+		return 0;
+	}
+	virtual int UpkStr ( char *str )
+	{
+		return 0;
+	}
+	static void AddClassRestore ( long classid, TRestFunction f );
+	/**
+	 * @brief Receives the data to he buffer
+	 */
+	virtual int Receive ( int msg_id, int tid )
+	{
+		return 0;
+	}
+	/**
+	 * @brief Restores next object in the buffer
+	 */
+	TPZSaveable *Restore ();
+	
+	/**
+	 * 	@brief Methods for packing data to be transmitted.
+	 * 	@param p Pointer to the buffer which holds the data to be packed
+	 * 	@param n Number of elements on the buffer
+	 */
+	virtual int PkByte ( char *p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkInt ( int *p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkShort ( short *p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkLong ( long *p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkUint ( u_int * p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkUshort ( u_short * p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkUlong ( u_long * p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkFloat ( float *p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkDouble ( double *p, int n = 1 )
+	{
+		return 0;
+	}
+	
+	virtual int PkStr ( char *str )
+	{
+		return 0;
+	}
+	
+	/**
+	 * @brief Undocumented
+	 */
+	virtual int Send ( int msg_id, int tid )
+	{
+		return 0;
+	}
+	
+	/**
+	 * @brief Returns class name
+	 */
+	virtual char *ClassName ()
+	{
+		return ( "OOPStorageBuffer" );
+	}
+private:
+	/**
+	 * @brief Pointer to restore functions of all classes present on the environment.
+	 */
+	static  map < long, TRestFunction >gFuncTree;
 };
 
 typedef OOPStorageBuffer *PTReceiveStorage;

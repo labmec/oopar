@@ -34,17 +34,17 @@ int OOPParMatIndexation::ClassId() const
 }
 void OOPParMatIndexation::Read(TPZStream & buf, void * context)
 {
-  TPZSaveable::Read(buf, context);
-  int clsid=0;
-  buf.Read(&clsid);
-  if(clsid!=ClassId())
+	TPZSaveable::Read(buf, context);
+	int clsid=0;
+	buf.Read(&clsid);
+	if(clsid!=ClassId())
 	{
 #ifdef LOGPZ
-    std::stringstream sout;
-    sout << "ClassId missmatch on OOPDouble::Read";
-    LOGPZ_ERROR(logger,sout.str().c_str());
+		std::stringstream sout;
+		sout << "ClassId missmatch on OOPDouble::Read";
+		LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-  }
+	}
 	int size = 0;
 	buf.Read(&size, 1);
 	m_Indices.resize(size);
@@ -75,9 +75,9 @@ void OOPParMatIndexation::Write(TPZStream & buf, int withclassid)
 {
 	std::cout << "Write do MatIndexation" << std::endl;
 	std::cout.flush();
-  TPZSaveable::Write(buf, withclassid);
-  int clsid = ClassId();
-  buf.Write(&clsid);
+	TPZSaveable::Write(buf, withclassid);
+	int clsid = ClassId();
+	buf.Write(&clsid);
 	
 	int size = m_Indices.size();
 	buf.Write(&size, 1);

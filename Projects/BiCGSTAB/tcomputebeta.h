@@ -25,22 +25,31 @@
   */
 
 class TComputeBeta : public OOPTask  {
+	/**
+	 * @brief Constructor
+	 */
+	TComputeBeta();
+	/**
+	 * @brief Destructor
+	 */
+	~TComputeBeta();
+	
 public: 
 	/**
-	* Returns the estimated execution time.
-	* returns 0 if the task is instantaneous
-	* returns > 0 if estimate is known
+	* @brief Returns the estimated execution time.
+	* @return Returns 0 if the task is instantaneous. 
+	* returns > 0 if estimate is known. 
 	* return < 0 if no estimate is known
 	*/
 	virtual long ExecTime ();
 
 	/**
-	* Execute the task, verifying that all needed data acesses are satisfied.
+	* @brief Execute the task, verifying that all needed data acesses are satisfied.
 	*/
 	virtual OOPMReturnType Execute ();
 
 	/**
-	* Returns last created Id.
+	* @brief Returns last created Id.
 	*/
 	virtual long GetClassID ()
 	{
@@ -55,6 +64,7 @@ private:
   OOPObjectId fId_beta;
   OOPObjectId fId_rho_1;
   OOPObjectId fId_rho_2;
+	
 };
 
 #endif

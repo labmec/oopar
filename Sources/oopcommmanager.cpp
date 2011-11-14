@@ -2,59 +2,47 @@
 #include "oopcommmanager.h"
 
 OOPCommunicationManager::OOPCommunicationManager() : fTM(0) {
-  f_num_proc = f_myself = 0;
-  fCM = this;
+	f_num_proc = f_myself = 0;
+	fCM = this;
 }
 
 OOPCommunicationManager::~OOPCommunicationManager(){}
 
 int OOPCommunicationManager::Initialize (char *process_name, int num_of_process){
-  return 0;
+	return 0;
 }
 
 int OOPCommunicationManager::GetProcID(){
-  return f_myself;
+	return f_myself;
 }
 
 int OOPCommunicationManager::NumProcessors (){
-  return f_num_proc;
+	return f_num_proc;
 }
 
 int OOPCommunicationManager::IAmTheMaster(){
-  return 0;
+	return 0;
 }
 
 char * OOPCommunicationManager::ClassName(){
-  return ("");
+	return ("");
 }
 
-/**
- * Set the associated task manager
- */
 void OOPCommunicationManager::SetTaskManager(TPZAutoPointer<OOPTaskManager> TM)
 {
 	fTM = TM;
 }
 
-/**
- * return the associated task manager
- */
 TPZAutoPointer<OOPTaskManager> OOPCommunicationManager::TM()
 {
-	 return fTM;
+	return fTM;
 }
 
-/**
- * return the autopointer corresponding to itself
- */
 TPZAutoPointer<OOPCommunicationManager> OOPCommunicationManager::CM()
 {
-	 return fCM;
+	return fCM;
 }
 
-/**
- * Clear the pointer so the object can be deleted
- */
 void OOPCommunicationManager::ClearPointer()
 {
 	fCM = TPZAutoPointer<OOPCommunicationManager>(0);

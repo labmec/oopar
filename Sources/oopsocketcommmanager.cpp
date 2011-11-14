@@ -36,11 +36,11 @@ pthread_mutex_t fCommunicate = PTHREAD_MUTEX_INITIALIZER;
 void *OOPSocketCommManager::receiver(void * data)
 {
     OOPSocketCommManager *CM = static_cast<OOPSocketCommManager*>(data);
-
+	
     while(true)
     {
         // Recebendo mensagem (Task)
-
+		
         SOCKET_Status status;
         int probres=-1;
         try
@@ -123,13 +123,13 @@ void *OOPSocketCommManager::receiver(void * data)
 #endif
             exit(-1);
         }
-
-
+		
+		
         // Processando mensagem (Task)
         pthread_mutex_lock(&fCommunicate);
         TPZSaveable *obj = buffer.Restore();
         pthread_mutex_unlock(&fCommunicate);
-
+		
         if(obj == NULL)
         {
 #ifdef LOG4CXX
@@ -150,7 +150,7 @@ void *OOPSocketCommManager::receiver(void * data)
             delete obj;
         }
     }
-
+	
     return 0;
 }
 
@@ -158,36 +158,36 @@ void *OOPSocketCommManager::receiver(void * data)
 OOPSocketCommManager::OOPSocketCommManager() : OOPCommunicationManager()
 {
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "OOPSocketCommManager: Initializing SocketCommManager" << std::endl;
-    cout << sout.str().c_str();
-    cout.flush();
-  }
+	{
+		stringstream sout;
+		sout << "OOPSocketCommManager: Initializing SocketCommManager" << std::endl;
+		cout << sout.str().c_str();
+		cout.flush();
+	}
 #endif
-  SOCKET.Init_thread();
+	SOCKET.Init_thread();
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "OOPSocketCommManager: SOCKET.Init_thread called." << std::endl;
-    cout << sout.str().c_str();
-    cout.flush();
-  }
+	{
+		stringstream sout;
+		sout << "OOPSocketCommManager: SOCKET.Init_thread called." << std::endl;
+		cout << sout.str().c_str();
+		cout.flush();
+	}
 #endif
-
-  Initialize();
-
-  int res = -1;
-  res = pthread_create(&fReceiveThread, NULL, receiver, this);
-  if(res)
-  {
+	
+	Initialize();
+	
+	int res = -1;
+	res = pthread_create(&fReceiveThread, NULL, receiver, this);
+	if(res)
+	{
 #ifdef LOG4CXX
-      stringstream sout;
-      sout << __PRETTY_FUNCTION__ << " OOPSocketCommManager: Fail to create thread";
-      LOGPZ_DEBUG(logger,sout.str().c_str());
-      cout << sout.str().c_str() << endl;
+		stringstream sout;
+		sout << __PRETTY_FUNCTION__ << " OOPSocketCommManager: Fail to create thread";
+		LOGPZ_DEBUG(logger,sout.str().c_str());
+		cout << sout.str().c_str() << endl;
 #endif
-  }
+	}
 }
 
 
@@ -223,7 +223,7 @@ int OOPSocketCommManager::Initialize (char *process_name, int num_of_process)
     f_num_proc = SOCKET.Comm_size();
     f_myself = SOCKET.Comm_rank();
     SOCKET.Barrier();
-
+	
 #ifdef LOG4CXX
     {
         stringstream sout;
@@ -247,85 +247,85 @@ int OOPSocketCommManager::SendTask (OOPTask * pTask)
 #ifdef LOG4CXX
         stringstream sout;
         sout << "OOPSocketCommManager: Sending Task Id:" << pTask->Id() << " ClassId:" << pTask->ClassId() <<
-                " to proc " << pTask->GetProcID ();
+		" to proc " << pTask->GetProcID ();
         LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
     }
-  int process_id = pTask->GetProcID ();
-  if (process_id >= f_num_proc || process_id < 0) {
-      stringstream sout;
-      sout << "OOPSocketCommManager: Sending Task to a processor which doesn't exist!\nFinishing SocketCommManager !\nFarewell !";
+	int process_id = pTask->GetProcID ();
+	if (process_id >= f_num_proc || process_id < 0) {
+		stringstream sout;
+		sout << "OOPSocketCommManager: Sending Task to a processor which doesn't exist!\nFinishing SocketCommManager !\nFarewell !";
 #ifdef LOG4CXX
-      LOGPZ_ERROR(logger,sout.str().c_str());
+		LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-      delete pTask;
-      return -1;
-  }
-  // Se estiver tentando enviar para mim mesmo.
-  if (process_id == f_myself)
-  {
-      stringstream sout;
-      sout << "OOPSocketCommManager: Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !";
+		delete pTask;
+		return -1;
+	}
+	// Se estiver tentando enviar para mim mesmo.
+	if (process_id == f_myself)
+	{
+		stringstream sout;
+		sout << "OOPSocketCommManager: Trying to send a Task to myself!\nSorry but this is wrong!\nFarewell !";
 #ifdef LOG4CXX
-      LOGPZ_ERROR(logger,sout.str().c_str());
+		LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-      delete pTask;
-      return -1;
-  }
-
-  OOPSocketStorageBuffer *Buffer = new OOPSocketStorageBuffer;
-  pTask->Write (*Buffer, 1);
-
-  // Enviando mensagem
-  int tag = 0, ret;
-
+		delete pTask;
+		return -1;
+	}
+	
+	OOPSocketStorageBuffer *Buffer = new OOPSocketStorageBuffer;
+	pTask->Write (*Buffer, 1);
+	
+	// Enviando mensagem
+	int tag = 0, ret;
+	
 #ifdef LOG4CXX
-  {
-      stringstream sout;
-      sout << "OOPSocketStorage: Calling SOCKET.Send";
-      LOGPZ_DEBUG(logger,sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "OOPSocketStorage: Calling SOCKET.Send";
+		LOGPZ_DEBUG(logger,sout.str().c_str());
+	}
 #endif
-  try
-  {
-      ret = SOCKET.Send(Buffer, SOCKET_PACKED, process_id, tag);
-  }
-  catch(const exception& e)
-  {
+	try
+	{
+		ret = SOCKET.Send(Buffer, SOCKET_PACKED, process_id, tag);
+	}
+	catch(const exception& e)
+	{
 #ifdef LOG4CXX
-      {
-          stringstream sout;
-          sout << "OOPSocketStorage: Exception catched ! " << e.what();
-          LOGPZ_ERROR(logger,sout.str().c_str());
-          exit (-1);
-      }
+		{
+			stringstream sout;
+			sout << "OOPSocketStorage: Exception catched ! " << e.what();
+			LOGPZ_ERROR(logger,sout.str().c_str());
+			exit (-1);
+		}
 #endif
-  }
+	}
 #ifdef LOG4CXX
-  {
-      stringstream sout;
-      sout << "OOPSocketStorage: Called SOCKET.Send";
-      LOGPZ_DEBUG(logger,sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "OOPSocketStorage: Called SOCKET.Send";
+		LOGPZ_DEBUG(logger,sout.str().c_str());
+	}
 #endif
-  delete pTask;
-  return 1;
+	delete pTask;
+	return 1;
 }
 
 
 int OOPSocketCommManager::SendMessages ()
 {
-  return 0;
+	return 0;
 }
 
 
 int OOPSocketCommManager::IAmTheMaster ()
 {
-  return (f_myself == 0);
+	return (f_myself == 0);
 }
 
 
 char * OOPSocketCommManager::ClassName()
 {
-  return ("OOPSocketCommManager::");
+	return ("OOPSocketCommManager::");
 }

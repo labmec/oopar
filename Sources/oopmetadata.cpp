@@ -22,276 +22,276 @@ static LoggerPtr MetaLogger(Logger::getLogger("OOPar.OOPDataManager.MetaData"));
 OOPMetaData::OOPMetaData ()
 {
 #ifdef LOG4CXX
-  LOGPZ_DEBUG(logger,"Empty constructor for metadata");
+	LOGPZ_DEBUG(logger,"Empty constructor for metadata");
 #endif
-  fProc = -1;
-  fShouldDelete = false;
+	fProc = -1;
+	fShouldDelete = false;
 }
 
 OOPMetaData::OOPMetaData (TPZAutoPointer<TPZSaveable> ObPtr, const OOPObjectId & ObjId,
-			  const int ProcId, const OOPDataVersion & ver,TPZAutoPointer<OOPDataManager> DM)
+						  const int ProcId, const OOPDataVersion & ver,TPZAutoPointer<OOPDataManager> DM)
 {
 #ifdef LOG4CXX
-  LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
+	LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
 #endif
-  fProc = ProcId;
-  fObjId = ObjId;
-  fShouldDelete = false;
-  SubmitVersion(ObPtr,ver,DM);
-//  fObjPtr = ObPtr;
+	fProc = ProcId;
+	fObjId = ObjId;
+	fShouldDelete = false;
+	SubmitVersion(ObPtr,ver,DM);
+	//  fObjPtr = ObPtr;
 }
 
 OOPMetaData::OOPMetaData (const OOPObjectId & ObjId,
-			  const int ProcId)
+						  const int ProcId)
 {
 #ifdef LOG4CXX
-  LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
+	LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
 #endif
-  fShouldDelete = false;
-  fProc = ProcId;
-  fObjId = ObjId;
+	fShouldDelete = false;
+	fProc = ProcId;
+	fObjId = ObjId;
 }
 
 OOPMetaData::OOPMetaData (const OOPMetaData &copy) : fAccessList(copy.fAccessList),
-  fObjId(copy.fObjId),fProc(copy.fProc),fAvailableVersions(copy.fAvailableVersions)
+fObjId(copy.fObjId),fProc(copy.fProc),fAvailableVersions(copy.fAvailableVersions)
 {
-  fShouldDelete = copy.fShouldDelete;
+	fShouldDelete = copy.fShouldDelete;
 #ifdef LOG4CXX
-  LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
+	LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
 #endif
 }
 
 OOPMetaData &OOPMetaData::operator=(const OOPMetaData &copy)
 {
-  fProc = copy.fProc;
-  fObjId = copy.fObjId;
-  fAccessList = copy.fAccessList;
-  fAvailableVersions = copy.fAvailableVersions;
-  fShouldDelete = copy.fShouldDelete;
+	fProc = copy.fProc;
+	fObjId = copy.fObjId;
+	fAccessList = copy.fAccessList;
+	fAvailableVersions = copy.fAvailableVersions;
+	fShouldDelete = copy.fShouldDelete;
 #ifdef LOG4CXX
-  LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
+	LOGPZ_DEBUG(logger,__PRETTY_FUNCTION__);
 #endif
-  return *this;
+	return *this;
 }
 
 OOPMetaData::~OOPMetaData()
 {
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "Calling Destructor for Object Id:" << Id() << " Clear available versions size = " << fAvailableVersions.size();
-    LOGPZ_DEBUG(logger, sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "Calling Destructor for Object Id:" << Id() << " Clear available versions size = " << fAvailableVersions.size();
+		LOGPZ_DEBUG(logger, sout.str().c_str());
+	}
 #endif
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    map<OOPDataVersion , TPZAutoPointer<TPZSaveable> >::iterator it;
-    for (it=fAvailableVersions.begin(); it!=fAvailableVersions.end(); it++)
-    {
-      sout << " reference count " << it->second.Count() << " ";
-    }
-    if(fAvailableVersions.size())
+	{
+		stringstream sout;
+		map<OOPDataVersion , TPZAutoPointer<TPZSaveable> >::iterator it;
+		for (it=fAvailableVersions.begin(); it!=fAvailableVersions.end(); it++)
+		{
+			sout << " reference count " << it->second.Count() << " ";
+		}
+		if(fAvailableVersions.size())
     	{
 			LOGPZ_DEBUG(logger, sout.str());
     	}
-  }
+	}
 #endif
-  fAvailableVersions.clear();
-//#ifdef LOG4CXX
-//  {
-//    stringstream sout;
-//    sout << "Available versions size = " << fAvailableVersions.size();
-//    LOGPZ_DEBUG(logger, sout.str());
-//  }
-//#endif
+	fAvailableVersions.clear();
+	//#ifdef LOG4CXX
+	//  {
+	//    stringstream sout;
+	//    sout << "Available versions size = " << fAvailableVersions.size();
+	//    LOGPZ_DEBUG(logger, sout.str());
+	//  }
+	//#endif
 }
 
 void OOPMetaData::ClearAllVersions()
 {
-  fAvailableVersions.clear();
+	fAvailableVersions.clear();
 }
 
 TPZAutoPointer<TPZSaveable> OOPMetaData::Ptr (const OOPDataVersion & version)
 {
-  if(!fAvailableVersions.size())
-  {
-    return NULL;
-  }
-  std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::iterator it;
-  it = fAvailableVersions.find(version);
-  if(it!=fAvailableVersions.end())
-  {
+	if(!fAvailableVersions.size())
+	{
+		return NULL;
+	}
+	std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::iterator it;
+	it = fAvailableVersions.find(version);
+	if(it!=fAvailableVersions.end())
+	{
 #ifdef LOG4CXX
-    stringstream sout;
-    sout << "Exact match found for Version " << version
-    << " Object Id:" << Id() << " class id " << it->second->ClassId();
-    LOGPZ_DEBUG(logger, sout.str().c_str());
+		stringstream sout;
+		sout << "Exact match found for Version " << version
+		<< " Object Id:" << Id() << " class id " << it->second->ClassId();
+		LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
-    if(!it->second)
-    {
+		if(!it->second)
+		{
 #ifdef LOG4CXX
-      stringstream sout;
-      sout << "Exact match found for Version " << version
-      << " Object Id:" << Id()
-      << " BUT POINTER IS NULL ";
-      sout << sout.str().c_str();
-      LOGPZ_ERROR(logger, sout.str().c_str());
+			stringstream sout;
+			sout << "Exact match found for Version " << version
+			<< " Object Id:" << Id()
+			<< " BUT POINTER IS NULL ";
+			sout << sout.str().c_str();
+			LOGPZ_ERROR(logger, sout.str().c_str());
 #endif
-    }
-    return it->second;
-  }else
-  {
+		}
+		return it->second;
+	}else
+	{
 #ifdef LOG4CXX
-    stringstream sout;
-    sout << "Exact match Not found for Version " << version
-    << " Object Id:" << Id() << " Checking for ANY VERSION requirements."
-    << " Going for the first compatible version : ";
-    for(it=fAvailableVersions.begin();it!=fAvailableVersions.end();it++) sout << it->first << " {" << (it->first == version) << "} ";
-    LOGPZ_DEBUG(logger, sout.str().c_str());
+		stringstream sout;
+		sout << "Exact match Not found for Version " << version
+		<< " Object Id:" << Id() << " Checking for ANY VERSION requirements."
+		<< " Going for the first compatible version : ";
+		for(it=fAvailableVersions.begin();it!=fAvailableVersions.end();it++) sout << it->first << " {" << (it->first == version) << "} ";
+		LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
-
-    std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::reverse_iterator rit;
-    rit = fAvailableVersions.rbegin();
-    for(;rit!=fAvailableVersions.rend();rit++)
-    {
-      if(version.AmICompatible(rit->first))//rit->first.AmICompatible(version))
-      {
+		
+		std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::reverse_iterator rit;
+		rit = fAvailableVersions.rbegin();
+		for(;rit!=fAvailableVersions.rend();rit++)
+		{
+			if(version.AmICompatible(rit->first))//rit->first.AmICompatible(version))
+			{
 #ifdef LOG4CXX
-        stringstream sout;
-        sout << " Found Version " << version << " available on Object Id:" << Id();
-        LOGPZ_DEBUG(logger, sout.str().c_str());
+				stringstream sout;
+				sout << " Found Version " << version << " available on Object Id:" << Id();
+				LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
-        if(!rit->second)
-        {
-    #ifdef LOG4CXX
-          stringstream sout;
-          sout << "Found Available Version " << version
-          << " Object Id : " << Id()
-          << " BUT POINTER IS NULL ";
-          LOGPZ_ERROR(logger, sout.str().c_str());
-    #endif
-        }
-        return rit->second;
-      }else
-      {
+				if(!rit->second)
+				{
 #ifdef LOG4CXX
-        stringstream sout;
-        sout << " Incompatible Versions " << version << " and " << rit->first;
-        LOGPZ_DEBUG(logger, sout.str().c_str());
+					stringstream sout;
+					sout << "Found Available Version " << version
+					<< " Object Id : " << Id()
+					<< " BUT POINTER IS NULL ";
+					LOGPZ_ERROR(logger, sout.str().c_str());
 #endif
-      }
-    }
+				}
+				return rit->second;
+			}else
+			{
 #ifdef LOG4CXX
-    {
-    stringstream sout;
-    sout << "Pointer Availability. Pointer no longer available for Version " << version << " available versions ";
-    rit = fAvailableVersions.rbegin();
-    for(;rit!=fAvailableVersions.rend();rit++)
-    {
-      sout << rit->first << " ";
-    }
-
-    LOGPZ_ERROR(logger, sout.str().c_str());
-    }
+				stringstream sout;
+				sout << " Incompatible Versions " << version << " and " << rit->first;
+				LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
-    return TPZAutoPointer<TPZSaveable >(NULL);
-  }
+			}
+		}
+#ifdef LOG4CXX
+		{
+			stringstream sout;
+			sout << "Pointer Availability. Pointer no longer available for Version " << version << " available versions ";
+			rit = fAvailableVersions.rbegin();
+			for(;rit!=fAvailableVersions.rend();rit++)
+			{
+				sout << rit->first << " ";
+			}
+			
+			LOGPZ_ERROR(logger, sout.str().c_str());
+		}
+#endif
+		return TPZAutoPointer<TPZSaveable >(NULL);
+	}
 }
 
 void OOPMetaData::SubmitTag(OOPAccessTag & Tag, const TPZAutoPointer<OOPDataManager> DM)
 {
 #ifdef LOG4CXX
-  {
-    std::stringstream sout;
-    sout << "Submitting Tag ";
-    Tag.ShortPrint(sout);
-    LOGPZ_DEBUG(logger,sout.str().c_str());
-  }
+	{
+		std::stringstream sout;
+		sout << "Submitting Tag ";
+		Tag.ShortPrint(sout);
+		LOGPZ_DEBUG(logger,sout.str().c_str());
+	}
 #endif
-  if(!Tag.Id() || (fObjId && fObjId != Tag.Id()))
-  {
+	if(!Tag.Id() || (fObjId && fObjId != Tag.Id()))
+	{
 #ifdef LOG4CXX
-    {
-      std::stringstream sout;
-      sout << "Id of Tag missmatch Id of MetaData: Tag";
-      Tag.ShortPrint(sout);
-      sout << " Object Id " << fObjId;
-      LOGPZ_ERROR(logger,sout.str().c_str());
-    }
+		{
+			std::stringstream sout;
+			sout << "Id of Tag missmatch Id of MetaData: Tag";
+			Tag.ShortPrint(sout);
+			sout << " Object Id " << fObjId;
+			LOGPZ_ERROR(logger,sout.str().c_str());
+		}
 #endif
-  }
-  if(!fObjId)
-  {
-    fObjId = Tag.Id();
-    fProc = fObjId.GetProcId();
-  }
-  TPZAutoPointer<TPZSaveable> point(Tag.AutoPointer());
-  Tag.ClearPointer();
-  SubmitVersion(point, Tag.Version(),DM);
+	}
+	if(!fObjId)
+	{
+		fObjId = Tag.Id();
+		fProc = fObjId.GetProcId();
+	}
+	TPZAutoPointer<TPZSaveable> point(Tag.AutoPointer());
+	Tag.ClearPointer();
+	SubmitVersion(point, Tag.Version(),DM);
 }
 
 void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr, const OOPDataVersion & nextversion, TPZAutoPointer<OOPDataManager> DM)
 {
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "Submitting Version for object id " << Id() << " classid " << NewPtr->ClassId();
-    LOGPZ_DEBUG(logger, sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "Submitting Version for object id " << Id() << " classid " << NewPtr->ClassId();
+		LOGPZ_DEBUG(logger, sout.str().c_str());
+	}
 #endif
-  //std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::iterator it;
-  if(fAvailableVersions.find(nextversion)==fAvailableVersions.end())
-  {
+	//std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::iterator it;
+	if(fAvailableVersions.find(nextversion)==fAvailableVersions.end())
+	{
 #ifdef LOG4CXX
-    {
-    stringstream sout;
-    sout << "Submitting a new version for object " << Id()
-        << " New Version is : "
-    << nextversion << " with pointer " << NewPtr;
-    sout << " Current AccessList ";
-    fAccessList.Print(sout);
-    LOGPZ_DEBUG(logger, sout.str().c_str());
-    }
+		{
+			stringstream sout;
+			sout << "Submitting a new version for object " << Id()
+			<< " New Version is : "
+			<< nextversion << " with pointer " << NewPtr;
+			sout << " Current AccessList ";
+			fAccessList.Print(sout);
+			LOGPZ_DEBUG(logger, sout.str().c_str());
+		}
 #endif
-    std::pair<OOPDataVersion, TPZAutoPointer<TPZSaveable> > item(nextversion, NewPtr);
-    NewPtr = TPZAutoPointer<TPZSaveable>();
-    fAvailableVersions.insert(item);
-    item.second = NewPtr;
-  } else
-  {
+		std::pair<OOPDataVersion, TPZAutoPointer<TPZSaveable> > item(nextversion, NewPtr);
+		NewPtr = TPZAutoPointer<TPZSaveable>();
+		fAvailableVersions.insert(item);
+		item.second = NewPtr;
+	} else
+	{
 #ifdef LOG4CXX
-    {
-    stringstream sout;
-    sout << "Inconsistency detected on SubmitVersion for " << Id()
-    << " for Version " << nextversion
-    << " NO ACTION TAKEN !!!";
-    LOGPZ_ERROR(logger, sout.str().c_str());
-    }
+		{
+			stringstream sout;
+			sout << "Inconsistency detected on SubmitVersion for " << Id()
+			<< " for Version " << nextversion
+			<< " NO ACTION TAKEN !!!";
+			LOGPZ_ERROR(logger, sout.str().c_str());
+		}
 #endif
-  }
-  VerifyAccessRequests(DM);
-  DM->WakeUpCall();
+	}
+	VerifyAccessRequests(DM);
+	DM->WakeUpCall();
 }
 int OOPMetaData::AccessCounter(OOPDataVersion & version)
 {
-  map<OOPDataVersion , TPZAutoPointer<TPZSaveable > >::iterator it;
-  it = fAvailableVersions.find(version);
-  if(it!=fAvailableVersions.end())
-  {
-    return it->second.Count();
-  }
-  return 0;
+	map<OOPDataVersion , TPZAutoPointer<TPZSaveable > >::iterator it;
+	it = fAvailableVersions.find(version);
+	if(it!=fAvailableVersions.end())
+	{
+		return it->second.Count();
+	}
+	return 0;
 }
 int OOPMetaData::AccessCounter(const OOPDataVersion & version)
 {
-  map<OOPDataVersion , TPZAutoPointer<TPZSaveable > >::iterator it;
-  it = fAvailableVersions.find(version);
-  if(it!=fAvailableVersions.end())
-  {
-    return it->second.Count();
-  }
-  return 0;
+	map<OOPDataVersion , TPZAutoPointer<TPZSaveable > >::iterator it;
+	it = fAvailableVersions.find(version);
+	if(it!=fAvailableVersions.end())
+	{
+		return it->second.Count();
+	}
+	return 0;
 }
 void OOPMetaData::VerifyAccessRequests (TPZAutoPointer<OOPDataManager> DM)
 {
@@ -302,321 +302,321 @@ void OOPMetaData::VerifyAccessRequests (TPZAutoPointer<OOPDataManager> DM)
 		LOGPZ_DEBUG(logger,sout.str());
 	}
 #endif
-  if(!fAvailableVersions.size())
-  {
+	if(!fAvailableVersions.size())
+	{
 #ifdef LOG4CXX
-    stringstream sout;
-    sout << "VerifyAccessRequests called with empty AvailableVersions for Object Id:" << this->fObjId;
-    LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
+		stringstream sout;
+		sout << "VerifyAccessRequests called with empty AvailableVersions for Object Id:" << this->fObjId;
+		LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
 #endif
-    return;
-  }
-  std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::reverse_iterator verit = fAvailableVersions.rbegin();
-  if(verit == fAvailableVersions.rend())
-  {
+		return;
+	}
+	std::map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::reverse_iterator verit = fAvailableVersions.rbegin();
+	if(verit == fAvailableVersions.rend())
+	{
 #ifdef LOG4CXX
-    LOGPZ_DEBUG(logger,"Size of available versions empty leaving ");
+		LOGPZ_DEBUG(logger,"Size of available versions empty leaving ");
 #endif
-    return;
-  }
-  OOPDataVersion version = verit->first;
-  {
+		return;
+	}
+	OOPDataVersion version = verit->first;
+	{
 #ifdef LOG4CXX
-    stringstream sout;
-    sout << "Verifying Access Requests for Object Id:" << this->fObjId << " Count " << verit->second.Count() << " with access requests :";
-    fAccessList.Print(sout);
-    LOGPZ_DEBUG(MetaLogger,sout.str());
+		stringstream sout;
+		sout << "Verifying Access Requests for Object Id:" << this->fObjId << " Count " << verit->second.Count() << " with access requests :";
+		fAccessList.Print(sout);
+		LOGPZ_DEBUG(MetaLogger,sout.str());
 #endif
-  }
-
-  OOPAccessTag tag = fAccessList.IncompatibleRequest(version);
-  while (tag)
-  {
+	}
+	
+	OOPAccessTag tag = fAccessList.IncompatibleRequest(version);
+	while (tag)
+	{
 #ifdef LOG4CXX
-    stringstream sout;
-    sout << "Incompatible Requests found for Object Id:" << this->fObjId << " Count " << verit->second.Count() << " with access requests :";
-    fAccessList.Print(sout);
-    sout << " Current Tag ";
-    tag.Print(sout);
-    LOGPZ_WARN(MetaLogger,sout.str().c_str());
+		stringstream sout;
+		sout << "Incompatible Requests found for Object Id:" << this->fObjId << " Count " << verit->second.Count() << " with access requests :";
+		fAccessList.Print(sout);
+		sout << " Current Tag ";
+		tag.Print(sout);
+		LOGPZ_WARN(MetaLogger,sout.str().c_str());
 #endif
-    if(tag.Proc() != DM->GetProcID())
-    {
-      tag.SetAccessMode(EReadAccess);
-      tag.SetAutoPointer(verit->second);
-      OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
-      DM->TM()->Submit(otask);
-     // send an owner task with the new version, so that tasks will be canceled there
-    }
-    else
-    {
+		if(tag.Proc() != DM->GetProcID())
+		{
+			tag.SetAccessMode(EReadAccess);
+			tag.SetAutoPointer(verit->second);
+			OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
+			DM->TM()->Submit(otask);
+			// send an owner task with the new version, so that tasks will be canceled there
+		}
+		else
+		{
 #ifdef LOG4CXX
-      stringstream sout;
-      sout << "Task cancelation from tag with Object Id:" << tag.Id() ;
-      LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
+			stringstream sout;
+			sout << "Task cancelation from tag with Object Id:" << tag.Id() ;
+			LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
 #endif
-      DM->TM()->CancelTask(tag);
-    }
-    tag = fAccessList.IncompatibleRequest(version);
-  }
-  tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
-  while(tag)
-  {
-    tag.SetAutoPointer(verit->second);
-    if(tag.Proc() == DM->GetProcID())
-    {
+			DM->TM()->CancelTask(tag);
+		}
+		tag = fAccessList.IncompatibleRequest(version);
+	}
+	tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
+	while(tag)
+	{
+		tag.SetAutoPointer(verit->second);
+		if(tag.Proc() == DM->GetProcID())
+		{
 #ifdef LOG4CXX
-      {
-        std::stringstream sout;
-        sout << "Granting Local EReadAccess on Object Id:" << fObjId << " to Task T:" << tag.TaskId() << " according to Tag:";
-        tag.ShortPrint(sout);
-        LOGPZ_INFO(MetaLogger,sout.str().c_str());
-      }
+			{
+				std::stringstream sout;
+				sout << "Granting Local EReadAccess on Object Id:" << fObjId << " to Task T:" << tag.TaskId() << " according to Tag:";
+				tag.ShortPrint(sout);
+				LOGPZ_INFO(MetaLogger,sout.str().c_str());
+			}
 #endif
-      DM->TM()->GrantAccess(tag);
-    }
-    else
-    {
+			DM->TM()->GrantAccess(tag);
+		}
+		else
+		{
 #ifdef LOG4CXX
-      {
-        std::stringstream sout;
-        sout << "Generating OwnerTask for ReadAccess from Proc " << DM->GetProcID() << " to Proc "
-              << tag.Proc() << " with Tag:";
-        tag.ShortPrint(sout);
-        LOGPZ_INFO(MetaLogger,sout.str().c_str());
-      }
+			{
+				std::stringstream sout;
+				sout << "Generating OwnerTask for ReadAccess from Proc " << DM->GetProcID() << " to Proc "
+				<< tag.Proc() << " with Tag:";
+				tag.ShortPrint(sout);
+				LOGPZ_INFO(MetaLogger,sout.str().c_str());
+			}
 #endif
-      OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
-      DM->TM()->Submit(otask);
-    }
-    tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
-  }
-  if(verit->second.Count() == 1)
-  {
-    tag = fAccessList.GetCompatibleRequest(version,EWriteAccess);
-    if(tag)
-    {
-      tag.SetAutoPointer(verit->second);
-      fAvailableVersions.erase(verit->first);
-      if(tag.Proc() == DM->GetProcID())
-      {
+			OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag);
+			DM->TM()->Submit(otask);
+		}
+		tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
+	}
+	if(verit->second.Count() == 1)
+	{
+		tag = fAccessList.GetCompatibleRequest(version,EWriteAccess);
+		if(tag)
+		{
+			tag.SetAutoPointer(verit->second);
+			fAvailableVersions.erase(verit->first);
+			if(tag.Proc() == DM->GetProcID())
+			{
 #ifdef LOG4CXX
-        {
-          std::stringstream sout;
-          sout << "Granting Local EWriteAccess on Object Id:" << fObjId << " to Task T:" << tag.TaskId() << " according to Tag:";
-          tag.ShortPrint(sout);
-          LOGPZ_INFO( MetaLogger,sout.str().c_str() );
-        }
+				{
+					std::stringstream sout;
+					sout << "Granting Local EWriteAccess on Object Id:" << fObjId << " to Task T:" << tag.TaskId() << " according to Tag:";
+					tag.ShortPrint(sout);
+					LOGPZ_INFO( MetaLogger,sout.str().c_str() );
+				}
 #endif
-        DM->TM()->GrantAccess(tag);
-      }
-      else
-      {
+				DM->TM()->GrantAccess(tag);
+			}
+			else
+			{
 #ifdef LOG4CXX
-        {
-          std::stringstream sout;
-          sout << "Sending Object Id:" << tag.Id() << " with EWriteAccess from Proc " << DM->GetProcID() << " to Proc "
-                << tag.Proc() << " with Tag:";
-          tag.ShortPrint(sout);
-          LOGPZ_INFO(MetaLogger,sout.str().c_str());
-        }
+				{
+					std::stringstream sout;
+					sout << "Sending Object Id:" << tag.Id() << " with EWriteAccess from Proc " << DM->GetProcID() << " to Proc "
+					<< tag.Proc() << " with Tag:";
+					tag.ShortPrint(sout);
+					LOGPZ_INFO(MetaLogger,sout.str().c_str());
+				}
 #endif
-        std::set<OOPAccessTag> requests;
-        fAccessList.GetProcessorAccessRequests(tag.Proc(),requests,DM->GetProcID());
-        OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag,requests);
-        DM->TM()->Submit(otask);
-        fProc = tag.Proc();
-      }
-    }
-  }
-  else
-  {
+				std::set<OOPAccessTag> requests;
+				fAccessList.GetProcessorAccessRequests(tag.Proc(),requests,DM->GetProcID());
+				OOPDMOwnerTask * otask = new OOPDMOwnerTask(tag,requests);
+				DM->TM()->Submit(otask);
+				fProc = tag.Proc();
+			}
+		}
+	}
+	else
+	{
 #ifdef LOG4CXX
-    {
-      std::stringstream sout;
-      sout << "Access Counter not equal to '1' while Trying EWriteAccess verification: Count: "
-      << verit->second.Count() << " for Object Id:" << fObjId;
-      LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
-    }
+		{
+			std::stringstream sout;
+			sout << "Access Counter not equal to '1' while Trying EWriteAccess verification: Count: "
+			<< verit->second.Count() << " for Object Id:" << fObjId;
+			LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
+		}
 #endif
-  }
-  if(fAvailableVersions.size())
-  {
-    verit = fAvailableVersions.rbegin();
-    if(verit->second.Count() == 1 && fAccessList.Count() == 1 )
-    {
-      OOPAccessTag dtag = fAccessList.GetCompatibleRequest( verit->first, EDelete);
-      if(dtag)
-      {
+	}
+	if(fAvailableVersions.size())
+	{
+		verit = fAvailableVersions.rbegin();
+		if(verit->second.Count() == 1 && fAccessList.Count() == 1 )
+		{
+			OOPAccessTag dtag = fAccessList.GetCompatibleRequest( verit->first, EDelete);
+			if(dtag)
+			{
 #ifdef LOG4CXX
-        {
-          std::stringstream sout;
-          sout << "Setting ShouldDelete to TRUE for Object Id:" << fObjId;
-          LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
-        }
+				{
+					std::stringstream sout;
+					sout << "Setting ShouldDelete to TRUE for Object Id:" << fObjId;
+					LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
+				}
 #endif
-        fShouldDelete = true;
-        DM->ObjectChanged(fObjId);
-      }
-    }
-  }
+				fShouldDelete = true;
+				DM->ObjectChanged(fObjId);
+			}
+		}
+	}
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "Leaving Verifying Access Requests for Object Id:" << this->fObjId << " with access requests :";
-    fAccessList.Print(sout);
-    LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "Leaving Verifying Access Requests for Object Id:" << this->fObjId << " with access requests :";
+		fAccessList.Print(sout);
+		LOGPZ_DEBUG(MetaLogger,sout.str().c_str());
+	}
 #endif
 }
 OOPObjectId OOPMetaData::Id () const
 {
-  return fObjId;
+	return fObjId;
 }
 void OOPMetaData::ClearVersion(const OOPDataVersion & version)
 {
-  map< OOPDataVersion , TPZAutoPointer < TPZSaveable > >::iterator it;
-  it = fAvailableVersions.find(version);
-  if(it!=fAvailableVersions.end())
-  {
+	map< OOPDataVersion , TPZAutoPointer < TPZSaveable > >::iterator it;
+	it = fAvailableVersions.find(version);
+	if(it!=fAvailableVersions.end())
+	{
 #ifdef LOG4CXX
-    stringstream sout;
-    sout << "Cleaning Pointer on Object Id:" << Id() << " for Version " << it->first  ;
-    LOGPZ_INFO(MetaLogger,sout.str().c_str());
+		stringstream sout;
+		sout << "Cleaning Pointer on Object Id:" << Id() << " for Version " << it->first  ;
+		LOGPZ_INFO(MetaLogger,sout.str().c_str());
 #endif
-    fAvailableVersions.erase(it);
-  }
+		fAvailableVersions.erase(it);
+	}
 }
 /**
  * returns true if the current processor is owner of the object
  */
 bool OOPMetaData::IamOwner (int localprocessor) const
 {
-  return Proc () == localprocessor;
+	return Proc () == localprocessor;
 }
 
 void OOPMetaData::SubmitAccessRequest (const OOPAccessTag &tag, TPZAutoPointer<OOPDataManager> DM)
 {
-  if(!IamOwner(DM->GetProcID()) && tag.Proc() != DM->GetProcID())
-  {
+	if(!IamOwner(DM->GetProcID()) && tag.Proc() != DM->GetProcID())
+	{
 #ifdef LOG4CXX
-    {
-      stringstream sout;
-      sout << "Re-Routing an AccessRequest for Object Id:" << Id() << " from Proc " << tag.Proc() << " to proc " << Proc() << " with Tag ";
-      tag.ShortPrint( sout);
-      LOGPZ_DEBUG(logger,sout.str().c_str());
-    }
+		{
+			stringstream sout;
+			sout << "Re-Routing an AccessRequest for Object Id:" << Id() << " from Proc " << tag.Proc() << " to proc " << Proc() << " with Tag ";
+			tag.ShortPrint( sout);
+			LOGPZ_DEBUG(logger,sout.str().c_str());
+		}
 #endif
-    OOPDMRequestTask * req = new OOPDMRequestTask(Proc(), tag);
-    DM->TM()->ExecuteDaemon(req);
-    return;
-  }
-  if(! IamOwner(DM->GetProcID()) && fAvailableVersions.find(tag.Version()) == fAvailableVersions.end() &&
+		OOPDMRequestTask * req = new OOPDMRequestTask(Proc(), tag);
+		DM->TM()->ExecuteDaemon(req);
+		return;
+	}
+	if(! IamOwner(DM->GetProcID()) && fAvailableVersions.find(tag.Version()) == fAvailableVersions.end() &&
        !fAccessList.HasSimilarRequest(tag,DM))
-  {
+	{
 #ifdef LOG4CXX
-    {
-      LOGPZ_DEBUG(logger,"Sending an access request to a foreign processor")
-    }
+		{
+			LOGPZ_DEBUG(logger,"Sending an access request to a foreign processor")
+		}
 #endif
-    OOPAccessTag localtag(tag);
-    localtag.SetProcessor(DM->GetProcID());
-    OOPObjectId zero;
-    localtag.SetTaskId(zero);
-    SendAccessRequest(localtag,DM);
-  }
-  fAccessList.InsertTag(tag);
-  VerifyAccessRequests(DM);
+		OOPAccessTag localtag(tag);
+		localtag.SetProcessor(DM->GetProcID());
+		OOPObjectId zero;
+		localtag.SetTaskId(zero);
+		SendAccessRequest(localtag,DM);
+	}
+	fAccessList.InsertTag(tag);
+	VerifyAccessRequests(DM);
 }
 
 void OOPMetaData::SetId (OOPObjectId & id)
 {
-  fObjId = id;
+	fObjId = id;
 }
 void OOPMetaData::HandleOwnerMessage (OOPAccessTag & ownertag,TPZAutoPointer<OOPDataManager> DM)
 {
-  {
+	{
 #ifdef LOG4CXX
-    stringstream sout;
-    sout << "Handling OwnerMessage for Object Id:" << Id() << " with Tag ";
-    ownertag.ShortPrint(sout);
-    LOGPZ_INFO(MetaLogger,sout.str().c_str());
+		stringstream sout;
+		sout << "Handling OwnerMessage for Object Id:" << Id() << " with Tag ";
+		ownertag.ShortPrint(sout);
+		LOGPZ_INFO(MetaLogger,sout.str().c_str());
 #endif
-  }
-  switch(ownertag.AccessMode() ) {
-    case EReadAccess:
-    {
-      if(ownertag.AutoPointer())
-      {
-        TPZAutoPointer<TPZSaveable> point(ownertag.AutoPointer());
-        SubmitVersion(point,ownertag.Version(),DM);
-        ownertag.ClearPointer();
-      }
-      fProc = ownertag.Proc();
-      {
+	}
+	switch(ownertag.AccessMode() ) {
+		case EReadAccess:
+		{
+			if(ownertag.AutoPointer())
+			{
+				TPZAutoPointer<TPZSaveable> point(ownertag.AutoPointer());
+				SubmitVersion(point,ownertag.Version(),DM);
+				ownertag.ClearPointer();
+			}
+			fProc = ownertag.Proc();
+			{
 #ifdef LOG4CXX
-        stringstream sout;
-        sout << "Read access received for proc " << ownertag.Proc() << " with version " <<
-            ownertag.Version();
-        LOGPZ_INFO(MetaLogger,sout.str().c_str());
+				stringstream sout;
+				sout << "Read access received for proc " << ownertag.Proc() << " with version " <<
+				ownertag.Version();
+				LOGPZ_INFO(MetaLogger,sout.str().c_str());
 #endif
-      }
-      this->VerifyAccessRequests(DM);
-      break;
-    }
-    case EWriteAccess:
-    {
-      if(Ptr(ownertag.Version()))
-      {
-        LOGPZ_WARN(logger, "Receiving transfer ownership for existing object !");
-      }
-      {
+			}
+			this->VerifyAccessRequests(DM);
+			break;
+		}
+		case EWriteAccess:
+		{
+			if(Ptr(ownertag.Version()))
+			{
+				LOGPZ_WARN(logger, "Receiving transfer ownership for existing object !");
+			}
+			{
 #ifdef LOG4CXX
-        stringstream sout;
-        sout << "Receiving Object Id:" << fObjId << " from processor " << ownertag.Proc() << " with version "<<
-          ownertag.Version() << " and pointer " << ownertag.AutoPointer() << " via OwnerMessage";
-        LOGPZ_INFO(MetaLogger,sout.str().c_str());
+				stringstream sout;
+				sout << "Receiving Object Id:" << fObjId << " from processor " << ownertag.Proc() << " with version "<<
+				ownertag.Version() << " and pointer " << ownertag.AutoPointer() << " via OwnerMessage";
+				LOGPZ_INFO(MetaLogger,sout.str().c_str());
 #endif
-      }
-      if(ownertag.AutoPointer())//fObjPtr)
-      {
-        TPZAutoPointer<TPZSaveable> point(ownertag.AutoPointer());
-        SubmitVersion(point, ownertag.Version(), DM );
-        ownertag.ClearPointer();
-      }
-      fProc = DM->GetProcID();
-      this->VerifyAccessRequests(DM);
-      break;
-    }
-    default:
-    {
+			}
+			if(ownertag.AutoPointer())//fObjPtr)
+			{
+				TPZAutoPointer<TPZSaveable> point(ownertag.AutoPointer());
+				SubmitVersion(point, ownertag.Version(), DM );
+				ownertag.ClearPointer();
+			}
+			fProc = DM->GetProcID();
+			this->VerifyAccessRequests(DM);
+			break;
+		}
+		default:
+		{
 #ifdef LOG4CXX
-      stringstream sout;
-      sout << "HandleMessage for Id:"<< fObjId << " unhandled message type " << ownertag.AccessMode();
-      LOGPZ_ERROR(MetaLogger,sout.str().c_str());
+			stringstream sout;
+			sout << "HandleMessage for Id:"<< fObjId << " unhandled message type " << ownertag.AccessMode();
+			LOGPZ_ERROR(MetaLogger,sout.str().c_str());
 #endif
-    }
-    break;
-  }
+		}
+			break;
+	}
 }
 
 
 
 OOPDataVersion OOPMetaData::Version () const
 {
-  int count = 0;
-  count = fAvailableVersions.size();
-  if(count)
-  {
-    return fAvailableVersions.rbegin()->first;
-  }
+	int count = 0;
+	count = fAvailableVersions.size();
+	if(count)
+	{
+		return fAvailableVersions.rbegin()->first;
+	}
 #ifdef LOG4CXX
-  stringstream sout;
-  sout << __PRETTY_FUNCTION__ << " " << fObjId << " unhandled case ! NO OBJECTS";
-  LOGPZ_ERROR(logger,sout.str().c_str());
+	stringstream sout;
+	sout << __PRETTY_FUNCTION__ << " " << fObjId << " unhandled case ! NO OBJECTS";
+	LOGPZ_ERROR(logger,sout.str().c_str());
 #endif
-
-  return OOPDataVersion();
+	
+	return OOPDataVersion();
 }
 
 void OOPMetaData::Print (std::ostream & out)
@@ -625,7 +625,7 @@ void OOPMetaData::Print (std::ostream & out)
 	map<OOPDataVersion, TPZAutoPointer<TPZSaveable> >::iterator it;
 	for(it=fAvailableVersions.begin(); it!=fAvailableVersions.end(); it++)
 	{
-	   out << " version " << it->first << " classid " << it->second->ClassId() << " count " << it->second.Count() << " pointer " << (void *) it->second.operator->() << endl;
+		out << " version " << it->first << " classid " << it->second->ClassId() << " count " << it->second.Count() << " pointer " << (void *) it->second.operator->() << endl;
 	}
 	out << "Owning processor " << fProc << endl;
 	out << "fShouldDelete " << fShouldDelete << endl;
@@ -642,7 +642,7 @@ void OOPMetaData::ShortPrint(std::ostream & out)
 void OOPMetaData::PrintLog (std::ostream & out)
 {
 	out << "\nObj Id " << fObjId << " version " << /*fVersion
-		<< */" processor " << fProc << endl;
+													<< */" processor " << fProc << endl;
 	out << " OOPData structure" << endl;
 	out << "fAccessList size " << fAccessList.Count() << endl;
 	fAccessList.Print(out);
@@ -650,6 +650,6 @@ void OOPMetaData::PrintLog (std::ostream & out)
 }
 void OOPMetaData::SendAccessRequest (const OOPAccessTag &tag, TPZAutoPointer<OOPDataManager> DM)
 {
-  OOPDMRequestTask *req = new OOPDMRequestTask (Proc(),tag);
-  DM->TM()->ExecuteDaemon (req);
+	OOPDMRequestTask *req = new OOPDMRequestTask (Proc(),tag);
+	DM->TM()->ExecuteDaemon (req);
 }

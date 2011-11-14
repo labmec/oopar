@@ -47,7 +47,7 @@ TPartitionRelation::TPartitionRelation (int npart)
 	fProcessor.resize(npart);
 	int     i;
 	for (i = 0; i < npart; i++) {
-//		fProcessor[i] = i%CM->NumProcessors();
+		//		fProcessor[i] = i%CM->NumProcessors();
 		fRelation[i].resize (npart);
 	}
 	fNumPartitions = npart;
@@ -79,9 +79,9 @@ void TPartitionRelation::Print (ostream & out)
 	int i;
 	for (i = 0; i < fNumPartitions; i++) {
 		out << "Partition " << i << " contributes to " <<
-			OutgoingContribution (i) << " partitions\n";
+		OutgoingContribution (i) << " partitions\n";
 		out << "Partition " << i << " receives from " <<
-			IncomingContribution (i) << " partitions\n";
+		IncomingContribution (i) << " partitions\n";
 	}
 }
 void TPartitionRelation::SetMeshId (int index, OOPObjectId & meshid)
@@ -95,12 +95,7 @@ TContribution & TPartitionRelation::GetRelation (int parfrom, int parto)
 {
 	return fRelation[parfrom][parto];
 }
-  /**
-   * Packs the object in on the buffer so it can be transmitted through the network.
-   * The Pack function  packs the object's class_id while function Unpack() doesn't,
-   * allowing the user to identify the next object to be unpacked.
-   * @param *buff A pointer to TSendStorage class to be packed.
-   */
+
 void TPartitionRelation::Write (TPZStream & buf, int withclassid) {
 	TPZSaveable::Write(buf,withclassid);
 	buf.Write(&fNumPartitions);
@@ -116,10 +111,7 @@ void TPartitionRelation::Write (TPZStream & buf, int withclassid) {
 		for(il=0; il<lsz; il++) fRelation[i][il].Write(buf);
 	}
 }
-  /**
-   * Unpacks the object class_id
-   * @param *buff A pointer to TSendStorage class to be unpacked.
-   */
+
 void TPartitionRelation::Read (TPZStream & buf, void * context) {
 	TPZSaveable::Read(buf,context);
 	buf.Read(&fNumPartitions);

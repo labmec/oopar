@@ -7,9 +7,10 @@ TTaskComm::TTaskComm(int proc) : OOPTask(proc){
   fLongValue=0;
   fDoubleValue=0.;
   }
-int TTaskComm::Unpack (OOPReceiveStorage * buf)
+
+int TTaskComm::Read(OOPStorageBuffer * buf, void *context)
 {
-	OOPTask::Unpack (buf);
+	OOPTask::Read(buf,context);
   long auxlong;
   buf->UpkLong(&auxlong);
   fLongValue=auxlong;
@@ -18,10 +19,9 @@ int TTaskComm::Unpack (OOPReceiveStorage * buf)
   fDoubleValue=auxdouble;
 	return 0;
 }
-int TTaskComm::Pack (OOPSendStorage * buf)
+int TTaskComm::Write(OOPStorageBuffer * buf, int classid)
 {
-//	OOPSaveable::Pack (buf);
-	OOPTask::Pack (buf);
+	OOPTask::Write(buf,classid);
   buf->PkLong(&fLongValue);
   buf->PkDouble(&fDoubleValue);
 	return 0;
@@ -62,7 +62,7 @@ OOPMReturnType TTaskComm::Execute ()
 	return ESuccess;	// execute the task, verifying that
 }
 
-OOPSaveable *TTaskComm::Restore (OOPReceiveStorage * buf) {
+OOPSaveable *TTaskComm::Restore (OOPStorageBuffer * buf) {
 	TTaskComm *loc = new TTaskComm(0);
 	loc->Unpack(buf);
 	return loc;

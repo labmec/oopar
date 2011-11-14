@@ -61,12 +61,7 @@ void TContribution::InitializeRandom ()
 		}
 	}
 }
-  /**
-   * Packs the object in on the buffer so it can be transmitted through the network.
-   * The Pack function  packs the object's class_id while function Unpack() doesn't,
-   * allowing the user to identify the next object to be unpacked.
-   * @param *buff A pointer to TSendStorage class to be packed.
-   */
+
 int TContribution::Write(OOPStorageBuffer * buf, int classid){
 	fDestinationMesh.Write(buf,classid);
 	int i,sz;
@@ -89,10 +84,7 @@ int TContribution::Write(OOPStorageBuffer * buf, int classid){
 	buf->PkInt(&fNContributions);
 	return 0;
 }
-  /**
-   * Unpacks the object class_id
-   * @param *buff A pointer to TSendStorage class to be unpacked.
-   */
+
 int TContribution::Read(OOPStorageBuffer * buf,void *context){
 	fDestinationMesh.Read(buf,context);
 	int i,sz;

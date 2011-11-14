@@ -14,9 +14,10 @@
 
 extern OOPDataManager * DM;
 
-
 /**
- * Implements a parallel full matrix for the OOPar environment.
+ * @brief Implements a parallel full matrix for the OOPar environment.
+ */
+/**
  * Must support the required interfaces for some specific parallel operations.
  * The CG defines the necessary interface the the class must provide.
  * The CG necessary interfaces are implemented in the TPZParDohrMatrix and whenever a FullMatrix is required
@@ -28,7 +29,7 @@ extern OOPDataManager * DM;
 class TPZFParMatrix : public TPZFMatrix {
 public:
 	/**
-	 *Simple constructor
+	 * @brief Simple constructor
 	 */
 	TPZFParMatrix () : TPZFMatrix()
 	{
@@ -36,23 +37,23 @@ public:
 		m_Id = DM->SubmitObject(matrix);
 		m_IsSync = false;
 	}
-
-	TPZFParMatrix(TPZFMatrix & matrix) : TPZFMatrix(matrix)
+	
+	inline TPZFParMatrix(TPZFMatrix & matrix) : TPZFMatrix(matrix)
 	{
 		TPZFMatrix * lMatrix = new TPZFMatrix(matrix);
 		m_Id = DM->SubmitObject(lMatrix);
 		m_IsSync = false;
-
+		
 	}
 	/**
-	 * Read and Write methods
+	 * @brief Read and Write methods
 	 */
 	virtual void Read(TPZStream &buf, void *context);
 	virtual void Write(TPZStream &buf, int withclassid);
 	/**
-	 Constructor with initialization parameters
+	 @brief Constructor with initialization parameters
 	 @param rows Initial number of rows
-	 @param cols Number of columns
+	 @param columns Number of columns
 	 @param buf Preallocated memory area which can be used by the matrix object
 	 @param size Size of the area pointed to by buf
 	 */
@@ -64,9 +65,9 @@ public:
 		m_IsSync = false;
 	}
 	/**
-	 Constructor with initialization parameters
+	 @brief Constructor with initialization parameters
 	 @param rows Initial number of rows
-	 @param cols Number of columns
+	 @param columns Number of columns
 	 @param val Inital value fill all elements
 	 */
 	TPZFParMatrix (const int rows ,const int columns,const REAL & val )
@@ -77,9 +78,9 @@ public:
 		m_IsSync = false;
 	}
 	/**
-	 Constructor with initialization parameters
+	 @brief Constructor with initialization parameters
 	 @param rows Initial number of rows
-	 @param cols Number of columns
+	 @param columns Number of columns
 	 */
 	inline TPZFParMatrix(const int rows ,const int columns = 1) : TPZFMatrix(rows,columns)
 	{
@@ -87,33 +88,36 @@ public:
 		m_Id = DM->SubmitObject(matrix);
 		m_IsSync = false;
 	}
-
-
-
+	
 	/**
-	 Copy constructor
-	 @param refmat Used as a model for current object
+	 * @brief Copy constructor
+	 * @param copy Used as a model for current object
 	 */
 	TPZFParMatrix (const TPZFParMatrix & copy);
 	/**
-	 * According to the documentation in base class.
+	 * @brief Destructor
+	 */
+	inline ~TPZFParMatrix() {  }
+	
+	/**
+	 * @brief According to the documentation in base class. \n
 	 * It is performed with call to SynchronizeToLocal() and subsequently a 
 	 * call to ZAXPY of the base class.
 	 */
 	void ZAXPY(const REAL alpha, const TPZFParMatrix &p);
 	void ZAXPY(const REAL alpha, const TPZFMatrix & p);
-
-
+	
+	
 	void MultAdd(const TPZFParMatrix &x, const TPZFParMatrix &y, TPZFParMatrix &z, const REAL alpha = 1., const REAL beta = 0., const int opt = 0, const int stride = 1) const;
 	void MultAdd(const TPZFMatrix &x, const TPZFMatrix &y, TPZFMatrix &z, const REAL alpha = 1., const REAL beta = 0., const int opt = 0, const int stride = 1) const;
-
-
+	
+	
 	void Multiply(const TPZFParMatrix &A, TPZFParMatrix&B, int opt=0, int stride=1) const ;
 	void Multiply(const TPZFMatrix &A, TPZFMatrix&B, int opt=0, int stride=1) const ;
-
+	
 	void TimesBetaPlusZ(const REAL beta, const TPZFParMatrix &z);
 	void TimesBetaPlusZ(const REAL beta, const TPZFMatrix &z);
-
+	
 	OOPObjectId Id() const
 	{
 		return m_Id;
@@ -141,80 +145,79 @@ public:
 		}
 		return ver;
 	}
-
+	
 	/**
-	 * Synchronizes distributed data to local data.
+	 * @brief Synchronizes distributed data to local data. \n
 	 * A call to SynchronizeToLocal increments the version of the distributed object.
-	 * After a call to this method both distributed and local copies are identical
+	 * @note After a call to this method both distributed and local copies are identical
 	 */
 	void SynchronizeFromRemote();
 	void SynchronizeFromLocal();
-
-
+	
+	
 	int ClassId()
 	{
 		return TPZFPARMATRIX_ID;
 	}
-
+	
 	int Zero();
-
+	
 	int Redim(const int rows, const int cols);
-
-
+	
+	
 	virtual void SolveCG(int & 	numiterations, TPZSolver & 	preconditioner, const TPZFMatrix & 	F, TPZFMatrix & result, TPZFMatrix * residual, REAL & tol, const int 	FromCurrent = 0);
-
+	
 	virtual TPZFMatrix & operator = (const TPZFParMatrix & copy);
 	virtual TPZFMatrix & operator = (const TPZFMatrix & copy);
-	//TPZFParMatrix & operator = (const TPZFMatrix & copy);
-	//TPZFParMatrix & operator = (const TPZFMatrix & copy);
-
-
-
+	
+	
 protected:
 private:
 	/**
-	 * Holds the Object Id of the distributed part of the object
+	 * @brief Holds the Object Id of the distributed part of the object
 	 */
 	OOPObjectId m_Id;
 	/**
-	 * Holds the version of the distributed part of the object.
-	 * Important : This version tracks the actual version of the object on the parallel environment.
+	 * @brief Holds the version of the distributed part of the object.
+	 * @note Important : This version tracks the actual version of the object on the parallel environment.
 	 * It is not an axact copy of that distributed version.
 	 * When a call to a distributed method is performed, version arithmetic is performed on that Version object. It is used as the tracking version of the distributed part
 	 */
 	OOPDataVersion m_Version;
-
+	
 	/**
-	 * Indicates if the distributed and local copy are the same.
+	 * @brief Indicates if the distributed and local copy are the same. \n
 	 * Some operations which are going to be called locally requires such state.
 	 */
 	bool m_IsSync;
-
+	
 public:
+	
 	class TPZAccessParMatrix
 	{
 	public:
 		/**
-		 * Access to distributed object with Read permission
+		 * @brief Access to distributed object with Read permission
 		 */
 		TPZAccessParMatrix(const TPZFParMatrix & par);
 		/**
-		 * Access to distributed object with Write access
+		 * @brief Access to distributed object with Write access
 		 */
 		TPZAccessParMatrix(TPZFParMatrix & par);
-
+		
 		~TPZAccessParMatrix();
-
+		
 		TPZFMatrix & GetMatrix();
 	private:
 		OOPWaitTask * m_WT;
-
+		
 	};
-
+	
 };
 
 
 REAL Dot(const TPZFParMatrix &A,const TPZFParMatrix &B);
 
 REAL Norm(const TPZFParMatrix &A);
+
 #endif

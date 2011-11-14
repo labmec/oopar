@@ -29,8 +29,8 @@ public:
 	 * @param i : Id of the SubMatrix to which the indexation vector is being required.
 	 */
 	std::vector< int > GetRowVector(int i);
-  
-
+	
+	
 	OOPParMatIndexation();
 	
 	void Write(TPZStream & buf, int withclassid);

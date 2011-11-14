@@ -28,14 +28,14 @@ public:
 	OOPMReturnType Execute ();
 	void     Write (TPZStream & buf, int withclassid=0);
 	/**
-	* Virtual Unpack function.
-	* Defines the necessary interface for task communication along the network.
-	* @param * buf Buffer for data manipulation.
-	*/
+	 * Virtual Unpack function.
+	 * Defines the necessary interface for task communication along the network.
+	 * @param * buf Buffer for data manipulation.
+	 */
 	void     Read (TPZStream & buf, void * context = 0);
-  /**
-   * Returns a Class ID identifier
-   */
+	/**
+	 * Returns a Class ID identifier
+	 */
 	virtual int ClassId () const {
 		return TTASKCOMM_ID;
 	}

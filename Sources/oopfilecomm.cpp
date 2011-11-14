@@ -15,21 +15,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+
 #include "ooptaskmanager.h"
-//#include "oopsaveable.h"
 #include "oopfilecomm.h"
-//#include "ooperror.h"
 #include "ooptask.h"
+
 #include <errno.h>
 
 #include "pzerror.h"
 
 using namespace std;
 class   OOPTask;
-//OOPError Err;
 
 #include <sstream>
 #include <pzlog.h>
+
 #ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
@@ -40,17 +40,12 @@ using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPFileComManager"));
 #endif
 
-/************************** Public *************************/
-/*******************/
-/*** Constructor ***/
 OOPFileComManager::OOPFileComManager ()
 {
 }
+
 OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 {
-	// Inicializa variaveis.
-//	Err.GSetErrorFile("error.dat");
-//	Err.SetErrorFile("errorlocal.dat");
 	// ATENCAO!!!! f_num_proc pode ser zero e causar excecao aritmetica!!!
 	// Thiago - 2003.09.25
 	f_num_proc = num_proc % 100;
@@ -61,20 +56,18 @@ OOPFileComManager::OOPFileComManager (char *prefix, int num_proc, int myID)
 	f_buffer = new (PTFileStorageBuffer[f_num_proc]);
 	if (f_buffer == NULL) {
 		LOGPZ_ERROR(logger, "Constructor <can't alloc buffers>\n");
-//		Err.Error (1, "Constructor <can't alloc buffers>\n");
 	}
 	// Inicializa os novos buffers.
 	for (int i = 0; i < f_num_proc; i++) {
 		if (i != f_myself)
 			f_buffer[i] =
-				new OOPFileStorageBuffer (f_my_prefix,
-							f_myself);
+			new OOPFileStorageBuffer (f_my_prefix,
+									  f_myself);
 		else
 			f_buffer[i] = NULL;
 	}
 }
-/******************/
-/*** Destructor ***/
+
 OOPFileComManager::~OOPFileComManager ()
 {
 	if (f_buffer != NULL) {
@@ -84,21 +77,18 @@ OOPFileComManager::~OOPFileComManager ()
 		delete[]f_buffer;
 	}
 }
-/*******************/
-/*** Send Object ***/
+
 int OOPFileComManager::SendTaskVrt (OOPTask * pObject)
 {
 	int process_id;
 	process_id = pObject->GetProcID ();
 	// Se "process_id" nao for valido.
 	if ((process_id < -1) || (process_id >= f_num_proc)) {
-//		Err.Error (1, "SendObject <process ID out of range>\n");
 		LOGPZ_ERROR(logger, "SendObject <process ID out of range>\n");
 		return 0;
 	}
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
-//		Err.Error (1, "SendObject <I canot send to myself>\n");
 		LOGPZ_ERROR(logger, "SendObject <I canot send to myself>\n");
 		return 0;
 	}
@@ -126,19 +116,18 @@ int OOPFileComManager::SendTaskVrt (OOPTask * pObject)
 	}
 	return (1);
 }
+
 int OOPFileComManager::SendTask (OOPTask * pObject)
 {
 	int process_id;
 	process_id = pObject->GetProcID ();
 	// Se "process_id" nao for valido.
 	if ((process_id < -1) || (process_id >= f_num_proc)) {
-//		Err.Error (1, "SendObject <process ID out of range>\n");
 		LOGPZ_ERROR(logger, "SendObject <process ID out of range>\n");
 		return 0;
 	}
 	// Se estiver tentando enviar para mim mesmo.
 	if (process_id == f_myself) {
-//		Err.Error (1, "SendObject <I canot send to myself>\n");
 		LOGPZ_ERROR(logger, "SendObject <I canot send to myself>\n");
 		return 0;
 	}
@@ -167,8 +156,7 @@ int OOPFileComManager::SendTask (OOPTask * pObject)
 	}
 	return (1);
 }
-/************************/
-/*** Receive Messages ***/
+
 int OOPFileComManager::ReceiveMessages ()
 {
 	// Monta o nome do arquivo de recepcao dos dados.
@@ -180,8 +168,6 @@ int OOPFileComManager::ReceiveMessages ()
 	if ((recv = fopen (rcv_file, "r")) == NULL) {
 		// Como o arquivo de recepcao nao existe, Cria-o.
 		if ((recv = fopen (rcv_file, "w")) == NULL) {
-//			Err.Error (1,
-		//		   "ReceiveMessages <error open receive file>\n");
 			LOGPZ_ERROR(logger, "ReceiveMessages <error open receive file>\n");
 		}
 		else {
@@ -214,8 +200,6 @@ int OOPFileComManager::ReceiveMessages ()
 			TPZSaveable *new_object = 0;
 			new_object = msg.Restore ();
 			if (new_object == NULL) {
-//				Err.Error (1,
-//					   "ReceiveMessages <Erro em Restore() do objeto>.\n");
 				LOGPZ_ERROR(logger, "ReceiveMessages <Erro em Restore() do objeto>.\n");
 			}
 			//TM->ReSubmit ((OOPTask *) new_object);
@@ -227,15 +211,13 @@ int OOPFileComManager::ReceiveMessages ()
 	// Fecha e ZERA o arquivo de recepcao de dados.
 	fclose (recv);
 	if ((recv = fopen (rcv_file, "w")) == NULL) {
-	//	Err.Error (1,
-	//		   "ReceiveMessages <error truncating receive file>\n");
-    LOGPZ_ERROR(logger, "ReceiveMessages <error truncating receive file>\n");
+		LOGPZ_ERROR(logger, "ReceiveMessages <error truncating receive file>\n");
 	}
 	fclose (recv);
 	return (leu_msg);
 }
-/*********************/
-/*** Send Messages ***/
+
+
 int OOPFileComManager::SendMessages ()
 {
 	for (int i = 0; i < f_num_proc; i++) {
@@ -254,9 +236,7 @@ int OOPFileComManager::SendMessages ()
 			char dst_file[FILE_NAME_SIZE];
 			sprintf (dst_file, "%s.%1d00", f_prefix, i);
 			if ((dest = fopen (dst_file, "a")) == NULL) {
-		//		Err.Error (1,
-		//			   "SendMessages <error open dest file>\n");
-        LOGPZ_ERROR(logger, "SendMessages <error open dest file>\n");
+				LOGPZ_ERROR(logger, "SendMessages <error open dest file>\n");
 			}
 			fprintf (dest, "%s\n", file_to_send);
 			fclose (dest);
@@ -264,5 +244,5 @@ int OOPFileComManager::SendMessages ()
 	}
 	return (1);
 }
-/************************** Private *************************/
+
 #endif //FILE_COMM

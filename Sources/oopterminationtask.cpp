@@ -35,87 +35,87 @@ OOPTask (term), fStatus(term.fStatus), fProcOrigin(term.fProcOrigin)
 
 OOPMReturnType OOPTerminationTask::Execute ()
 {
-  //sleep(5)
-
+	//sleep(5)
+	
 	{
 #ifdef LOG4CXX
     	std::stringstream sout;
     	sout << __PRETTY_FUNCTION__ << " fStatus " << fStatus;
     	LOGPZ_DEBUG(logger,sout.str())
 #endif
-    if(fStatus == EStopSending)
-    {
+		if(fStatus == EStopSending)
+		{
 #ifdef LOG4CXX
-    	std::stringstream sout;
-    	sout << "Received Stop Sending command from processor " << fProcOrigin << " sending stop confirmation";
-    	LOGPZ_DEBUG(logger,sout.str())
+			std::stringstream sout;
+			sout << "Received Stop Sending command from processor " << fProcOrigin << " sending stop confirmation";
+			LOGPZ_DEBUG(logger,sout.str())
 #endif
-    	TM()->StopSending();
-    	OOPTerminationTask *task = new OOPTerminationTask(fProcOrigin);
-    	task->SetStatus(EStopSendingConfirmation);
-    	task->fProcOrigin = TM()->CM()->GetProcID();
-    	TM()->Submit(task);
-    }
-    else if(fStatus == EStopSendingConfirmation)
-    {
+			TM()->StopSending();
+			OOPTerminationTask *task = new OOPTerminationTask(fProcOrigin);
+			task->SetStatus(EStopSendingConfirmation);
+			task->fProcOrigin = TM()->CM()->GetProcID();
+			TM()->Submit(task);
+		}
+		else if(fStatus == EStopSendingConfirmation)
+		{
 #ifdef LOG4CXX
-    	std::stringstream sout;
-    	sout << "Received Stop Sending Confirmation";
-    	LOGPZ_DEBUG(logger,sout.str())
+			std::stringstream sout;
+			sout << "Received Stop Sending Confirmation";
+			LOGPZ_DEBUG(logger,sout.str())
 #endif
-    	TM()->StopSendingConfirmation(fProcOrigin);
-    }
-    else if(fStatus == EShutdown)
-    {
+			TM()->StopSendingConfirmation(fProcOrigin);
+		}
+		else if(fStatus == EShutdown)
+		{
 #ifdef LOG4CXX
-    	std::stringstream sout;
-    	sout << "Received Shutdown";
-    	LOGPZ_DEBUG(logger,sout.str())
+			std::stringstream sout;
+			sout << "Received Shutdown";
+			LOGPZ_DEBUG(logger,sout.str())
 #endif
-    	TM()->SetKeepGoing (false);
-    }
-  }
- /*
-	{
-    OOPDMLock lock;
-    DM()->SetKeepGoing (false);
-  }
- */
-
+			TM()->SetKeepGoing (false);
+		}
+	}
+	/*
+	 {
+	 OOPDMLock lock;
+	 DM()->SetKeepGoing (false);
+	 }
+	 */
+	
 	//sleep(5);
-
- // IncrementWriteDependentData();
-  /*
-	TM->WakeUpCall();
-  DM()->WakeUpCall();
-	*/
-  return ESuccess;
+	
+	// IncrementWriteDependentData();
+	/*
+	 TM->WakeUpCall();
+	 DM()->WakeUpCall();
+	 */
+	return ESuccess;
 }
 
 void OOPTerminationTask::Write (TPZStream & buf, int withclassid)
 {
-  OOPTask::Write (buf, withclassid);
-  buf.Write(&fStatus);
-  buf.Write(&fProcOrigin);
+	OOPTask::Write (buf, withclassid);
+	buf.Write(&fStatus);
+	buf.Write(&fProcOrigin);
 }
 
 void OOPTerminationTask::Read (TPZStream & buf, void *context)
 {
-  OOPTask::Read (buf, context);
-  buf.Read(&fStatus);
-  buf.Read(&fProcOrigin);
+	OOPTask::Read (buf, context);
+	buf.Read(&fStatus);
+	buf.Read(&fProcOrigin);
 }
 
 long int OOPTerminationTask::ExecTime ()
 {
-  return -1;
+	return -1;
 }
 
 TPZSaveable * OOPTerminationTask::Restore (TPZStream & buf, void *context)
 {
-  OOPTerminationTask *v = new OOPTerminationTask (0);
-  v->Read (buf);
-  return v;
+	OOPTerminationTask *v = new OOPTerminationTask (0);
+	v->Read (buf);
+	return v;
 }
 
 void OOPTerminationTask::SetStatus(ETerminate status)

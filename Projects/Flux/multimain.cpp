@@ -39,7 +39,7 @@ using namespace std;
 
 int multimain ()
 {
-
+	
 	//cout << "Number of processors\n";
 	//cin >> numproc;
 	
@@ -48,29 +48,29 @@ int multimain ()
 	for (iproc = 0; iproc < numproc; iproc++) {
 #ifndef OOP_MPI
 		CMList[iproc] =
-			new OOPFileComManager ("filecom", numproc, iproc);
+		new OOPFileComManager ("filecom", numproc, iproc);
 #else
 		char   *argv = "main";
 		CMList[iproc] = new OOPMPICommManager (numproc, &argv);
 		CMList[iproc]->Initialize (argv, numproc);
 #endif
 		TMList[iproc] =
-			new OOPTaskManager (CMList[iproc]->GetProcID ());
+		new OOPTaskManager (CMList[iproc]->GetProcID ());
 		DMList[iproc] =
-			new OOPDataManager (CMList[iproc]->GetProcID (), TMList[iproc]);
+		new OOPDataManager (CMList[iproc]->GetProcID (), TMList[iproc]);
 	}
-/*	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
-					    TParAnalysis::Restore);
-	OOPStorageBuffer::AddClassRestore(TPARCOMPUTE_ID,TParCompute::Restore);
-	OOPStorageBuffer::AddClassRestore(TLOCALCOMPUTE_ID,TLocalCompute::Restore);
-	OOPStorageBuffer::AddClassRestore(TTASKCOMM_ID,TTaskComm::Restore);
-	OOPStorageBuffer::AddClassRestore(TPARMESH_ID,TParMesh::Restore);
-	OOPStorageBuffer::AddClassRestore(TPARTITIONRELATION_ID,TPartitionRelation::Restore);
-	OOPStorageBuffer::AddClassRestore(TDMOWNERTASK_ID,OOPDMOwnerTask::Restore);
-	OOPStorageBuffer::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
-	OOPStorageBuffer::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
-	OOPStorageBuffer::AddClassRestore(TTERMINATIONTASK_ID,OOPTerminationTask::Restore);
-	*/
+	/*	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
+	 TParAnalysis::Restore);
+	 OOPStorageBuffer::AddClassRestore(TPARCOMPUTE_ID,TParCompute::Restore);
+	 OOPStorageBuffer::AddClassRestore(TLOCALCOMPUTE_ID,TLocalCompute::Restore);
+	 OOPStorageBuffer::AddClassRestore(TTASKCOMM_ID,TTaskComm::Restore);
+	 OOPStorageBuffer::AddClassRestore(TPARMESH_ID,TParMesh::Restore);
+	 OOPStorageBuffer::AddClassRestore(TPARTITIONRELATION_ID,TPartitionRelation::Restore);
+	 OOPStorageBuffer::AddClassRestore(TDMOWNERTASK_ID,OOPDMOwnerTask::Restore);
+	 OOPStorageBuffer::AddClassRestore(TDMREQUESTTASK_ID,OOPDMRequestTask::Restore);
+	 OOPStorageBuffer::AddClassRestore(TPARVECTOR_ID,TParVector::Restore);
+	 OOPStorageBuffer::AddClassRestore(TTERMINATIONTASK_ID,OOPTerminationTask::Restore);
+	 */
 	Load (0);
 	
 	//sprintf(filename,"datalogger%d", CM->GetProcID());
@@ -105,7 +105,7 @@ int mpimain (int argc, char **argv)
     ::LogDM = LogDM;
 	TM = new OOPTaskManager (CM->GetProcID ());
 	DM = new OOPDataManager (CM->GetProcID (), TM);
-				    
+	
 	numproc = CM->NumProcessors();//atoi(argv[argc-1]);
 	if(!CM->GetProcID()){
 		cout << "Create ParAnalysis on processor " << CM->GetProcID() << endl;
@@ -120,7 +120,7 @@ int mpimain (int argc, char **argv)
 	delete  TM;
 	delete  CM;
 	delete LogDM;
-
+	
 	cout << "Leaving mpimain\n";
 	cout.flush();
 	return 0;

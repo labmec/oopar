@@ -15,13 +15,13 @@ void TLocalCompute::InitializePartitionRelationPointer ()
 void TLocalCompute::ComputeLocalFluxes ()
 {
 	OOPMetaData *ptr;
-//	ptr = fDataDepend.Dep (2).ObjPtr ();
+	//	ptr = fDataDepend.Dep (2).ObjPtr ();
 	OOPDataVersion ver;
-//	ver = ptr->Version();
-//	ver.Increment();
-//	ptr->SetVersion(ver,Id());
+	//	ver = ptr->Version();
+	//	ver.Increment();
+	//	ptr->SetVersion(ver,Id());
 	
-//	ptr = fDataDepend.Dep (3).ObjPtr ();
+	//	ptr = fDataDepend.Dep (3).ObjPtr ();
 	ptr = (OOPMetaData *)GetDepObjPtr(3);
 	PrintLog(TaskLog, "TLocalCompute contributes to object id ");
 	ptr->Id().ShortPrint (TaskLog);
@@ -29,7 +29,7 @@ void TLocalCompute::ComputeLocalFluxes ()
 #ifdef VERBOSE		
 	cout << "TLocalCompute contributes to object id " << ptr->Id();
 #endif
-//	ptr->Id ().Print (cout);
+	//	ptr->Id ().Print (cout);
 	ver = ptr->Version ();
 	// int nlevel = ver.GetNLevels();
 	int ncontr = fPartRelationPtr->IncomingContribution (fPartition);
@@ -45,17 +45,17 @@ void TLocalCompute::ComputeLocalFluxes ()
 	
 	TaskLog << "After increment ";
 	TaskLog << "TLocalCompute number of contributions " << ncontr <<
-		" new version " << endl;
+	" new version " << endl;
 	ver.Print (TaskLog);
 #ifdef VERBOSE		
 	cout << "After increment ";
 	cout << "TLocalCompute number of contributions " << ncontr <<
-		" new version " << ver << endl;
+	" new version " << ver << endl;
 #endif
-
+	
 }
 void TLocalCompute::SetRhsIds (vector < OOPObjectId > &rhsids,
-			       OOPDataVersion & rhsversion)
+							   OOPDataVersion & rhsversion)
 {
 	fRhsIds = rhsids;
 	fRhsVersion = rhsversion;
@@ -73,7 +73,7 @@ void TLocalCompute::TransmitFLuxes ()
 		if (i == fPartition)
 			continue;
 		TContribution *cont =
-			&fPartRelationPtr->GetRelation (fPartition, i);
+		&fPartRelationPtr->GetRelation (fPartition, i);
 		if (cont->IsEmpty ())
 			continue;
 		int procid = fPartRelationPtr->Processor(i);
@@ -125,12 +125,12 @@ TLocalCompute::TLocalCompute (int ProcId, int partition):OOPTask (ProcId),
 fPartition (partition)
 {
 }
-  /**
-   * Packs the object in on the buffer so it can be transmitted through the network.
-   * The Pack function  packs the object's class_id while function Unpack() doesn't,
-   * allowing the user to identify the next object to be unpacked.
-   * @param *buff A pointer to TSendStorage class to be packed.
-   */
+/**
+ * Packs the object in on the buffer so it can be transmitted through the network.
+ * The Pack function  packs the object's class_id while function Unpack() doesn't,
+ * allowing the user to identify the next object to be unpacked.
+ * @param buf A pointer to TSendStorage class to be packed.
+ */
 void TLocalCompute::Write (TPZStream & buf, int withclassid){
 	OOPTask::Write(buf,withclassid);
 	buf.Write(&fPartition);
@@ -138,12 +138,12 @@ void TLocalCompute::Write (TPZStream & buf, int withclassid){
 	buf.Write(&sz);
 	for(i=0; i<sz; i++) fRhsIds[i].Write(buf);
 	fRhsVersion.Write(buf);
-
+	
 }
-  /**
-   * Unpacks the object class_id
-   * @param *buff A pointer to TSendStorage class to be unpacked.
-   */
+/**
+ * Unpacks the object class_id
+ * @param buf A pointer to TSendStorage class to be unpacked.
+ */
 void TLocalCompute::Read (TPZStream & buf, void * context){
 	OOPTask::Read(buf,context);
 	buf.Read(&fPartition);

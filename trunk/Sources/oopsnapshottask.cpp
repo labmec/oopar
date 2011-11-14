@@ -24,28 +24,27 @@ OOPSnapShotTask::~OOPSnapShotTask()
 
 
 OOPMReturnType OOPSnapShotTask::Execute(){
-  cout << "Executing Task SnapShotTask on Processor " << fProc << endl;
-  cout.flush();
-  OOPLock<OOPTaskManager> lock(TM());
-  OOPLock<OOPDataManager> lock2(TM()->DM());
-  TM()->DM()->SnapShotMe(cout);
-  TM()->SnapShotMe(cout);
-  //IncrementWriteDependentData();
-  return ESuccess;
+	cout << "Executing Task SnapShotTask on Processor " << fProc << endl;
+	cout.flush();
+	OOPLock<OOPTaskManager> lock(TM());
+	OOPLock<OOPDataManager> lock2(TM()->DM());
+	TM()->DM()->SnapShotMe(cout);
+	TM()->SnapShotMe(cout);
+	//IncrementWriteDependentData();
+	return ESuccess;
 }
 
 void OOPSnapShotTask::Write(TPZStream & buf, int withclassid){
-  OOPTask::Write(buf, withclassid);
-  int clsid = ClassId();
-  buf.Write(&clsid);
+	OOPTask::Write(buf, withclassid);
+	int clsid = ClassId();
+	buf.Write(&clsid);
 }
 void OOPSnapShotTask::Read(TPZStream & buf, void * context){
-  OOPTask::Read(buf, context);
-  int clsid = 0;
-  buf.Read(&clsid);
-  if(ClassId()!=clsid){
-    cout << "ClassId Missmatch\n";
-  }
+	OOPTask::Read(buf, context);
+	int clsid = 0;
+	buf.Read(&clsid);
+	if(ClassId()!=clsid){
+		cout << "ClassId Missmatch\n";
+	}
 }
-//extern OOPTaskManager *TM;
-//extern OOPDataManager *DM;
+

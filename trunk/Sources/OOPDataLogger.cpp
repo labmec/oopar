@@ -50,27 +50,27 @@ void OOPDataLogger::LogReleaseAccess(int proc, OOPObjectId & Id, OOPMDataState s
 			fLogger << "From task " << taskId << endl;
 			break;
 	}/*
-	fLogger << "\t" << currentstate;
-	fLogger << "\tVersion " << version;
-	fLogger << "\tTaskId " << taskId;
-	fLogger << "\t\tCheck if Action and State are consistent\n";*/
+	  fLogger << "\t" << currentstate;
+	  fLogger << "\tVersion " << version;
+	  fLogger << "\tTaskId " << taskId;
+	  fLogger << "\t\tCheck if Action and State are consistent\n";*/
 	
 }
 //OK
 void OOPDataLogger::LogSetVersion(int proc, OOPObjectId & Id, OOPDataVersion & oldver,
-					const OOPDataVersion & newver,
-					OOPMDataState state,
-					const OOPObjectId & TaskId){
+								  const OOPDataVersion & newver,
+								  OOPMDataState state,
+								  const OOPObjectId & TaskId){
 	fLogger << proc << "\tId " << Id << "\tSetting old version "
-						<< oldver << " To new version " << newver
-						<< "\t" << GetStateName(state)
-						<< "\t\ttask " << TaskId << endl;
+	<< oldver << " To new version " << newver
+	<< "\t" << GetStateName(state)
+	<< "\t\ttask " << TaskId << endl;
 	fLogger.flush();						
 }
 //OK
 
 void OOPDataLogger::LogGeneric(int proc, OOPObjectId & Id, char * msg){
-//#warning "Still can be enriched"
+	//#warning "Still can be enriched"
 	fLogger << proc;
 	fLogger << "\tId " << Id << "\t";
 	fLogger << msg << endl;
@@ -81,10 +81,10 @@ void OOPDataLogger::SendGrantAccessLog(OOPDMOwnerTask *town, int processor){
 	fLogger.flush();
 }
 void OOPDataLogger::GrantAccessLog(int proc, 
-									const OOPObjectId & objId,
-									OOPMDataState mstate,
-									const OOPDataVersion & version,
-									int procorig){
+								   const OOPObjectId & objId,
+								   OOPMDataState mstate,
+								   const OOPDataVersion & version,
+								   int procorig){
 	//town->LogMe(fLogger);
 	fLogger << proc << "\t";
 	fLogger << "Id " << objId << "\t";
@@ -99,12 +99,12 @@ void OOPDataLogger::GrantAccessLog(int proc,
 
 //Falta comment
 void OOPDataLogger::GrantAccessLog(int proc, 
-									const OOPObjectId & objId,
-									OOPMDataState mstate,
-									const OOPDataVersion & version,
-									int procorig,
-									OOPObjectId & taskId,
-									OOPMDataState currentstate){
+								   const OOPObjectId & objId,
+								   OOPMDataState mstate,
+								   const OOPDataVersion & version,
+								   int procorig,
+								   OOPObjectId & taskId,
+								   OOPMDataState currentstate){
 	//town->LogMe(fLogger);
 	fLogger << proc << "\t";
 	fLogger << "Id " << objId << "\t";
@@ -133,12 +133,12 @@ void OOPDataLogger::SendReqTask(OOPDMRequestTask *req){
 	fLogger.flush();
 }
 void OOPDataLogger::SubmitAccessRequestLog(int proc, 
-									const OOPObjectId & objId,
-									OOPMDMOwnerMessageType mtype,
-									OOPMDataState mstate,
-									OOPMDataState currentstate,
-									const OOPDataVersion & version,
-									int procorig, const OOPObjectId & taskId){
+										   const OOPObjectId & objId,
+										   OOPMDMOwnerMessageType mtype,
+										   OOPMDataState mstate,
+										   OOPMDataState currentstate,
+										   const OOPDataVersion & version,
+										   int procorig, const OOPObjectId & taskId){
 	fLogger << proc << "\t";
 	fLogger << "Id " << objId;
 	fLogger << "\tSubmitting ";

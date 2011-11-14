@@ -25,7 +25,7 @@ void *OOPSocket::receiver(void * data)
     OOP_SOCKET_Envelope envelope;
     struct sockaddr_in cAddr;
     socklen_t len;
-
+	
     while (SOCKET->threadRunning)
     {
         len = sizeof(struct sockaddr_in);
@@ -35,7 +35,7 @@ void *OOPSocket::receiver(void * data)
             perror("");
             exit(1);
         }
-
+		
         nbytes = recv(cSocket, (char*)&envelope, sizeof(OOP_SOCKET_Envelope),0);
         if (nbytes < 0)
         {
@@ -47,7 +47,7 @@ void *OOPSocket::receiver(void * data)
             fprintf(stderr,"SOCKET Error receiving: The peer has performed an orderly shutdown\n"); fflush(stderr);
             exit(1);
         }
-
+		
         envelope.cSocket = cSocket;
         // tratamento da mensagem
         switch(envelope.idOp)
@@ -90,13 +90,13 @@ void *OOPSocket::sender(void * data)
     myId = idThread;
     idThread++;
     pthread_mutex_unlock(&fThread);
-
+	
     OOPSocket *SOCKET = static_cast<OOPSocket*>(data);
     pthread_mutex_lock(&(SOCKET->mutex));
     while (SOCKET->threadRunning)
     {
         pthread_mutex_unlock(&(SOCKET->mutex));
-
+		
         pthread_mutex_lock((*SOCKET->notifyThreads_mutex)[myId]);
         SOCKET_Thread_Message m = (*(SOCKET->messages))[myId];
         if(m.buf != NULL)
@@ -110,7 +110,7 @@ void *OOPSocket::sender(void * data)
         	pthread_cond_wait((*SOCKET->notifyThreads)[myId],(*SOCKET->notifyThreads_mutex)[myId]);
         }
         pthread_mutex_unlock((*SOCKET->notifyThreads_mutex)[myId]);
-
+		
         pthread_mutex_lock(&(SOCKET->mutex));
     }
     return 0;
@@ -120,15 +120,15 @@ void *OOPSocket::sender(void * data)
 OOPSocket::OOPSocket()
 {
     pthread_mutex_init(&mutex, NULL);
-
+	
     pthread_cond_init(&notifyAll, NULL);
     pthread_mutex_init(&notifyAll_mutex, NULL);
-
+	
     barrier = new boost::interprocess::interprocess_semaphore(0);
-
+	
     threadRunning = 1;
     receiveBuffer = new vector<OOP_SOCKET_Envelope>();
-
+	
     uint i;
     // criando mutex para notificacao de threads
     notifyThreads_mutex = new vector<pthread_mutex_t*>();
@@ -209,10 +209,10 @@ OOPSocket::~OOPSocket()
         it_c++;
     }
     delete notifyThreads;
-
+	
     pthread_cond_destroy(&notifyAll);
     pthread_mutex_destroy(&notifyAll_mutex);
-
+	
     pthread_mutex_destroy(&mutex);
     delete barrier;
 }
@@ -227,7 +227,7 @@ int OOPSocket::Barrier()
     OOP_SOCKET_Envelope msgSend;
     int cSocket;
     vector<OOP_SOCKET_Envelope>::iterator iter;
-
+	
     if(rank)
     {
         if ((cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
@@ -241,7 +241,7 @@ int OOPSocket::Barrier()
         bzero((char *) &cAddr, sizeof(cAddr));
         cAddr.sin_family = AF_INET;
         cAddr.sin_port = htons(pTable[0].port);
-
+		
         pthread_mutex_lock(&gethostbyname_mutex);
         host = gethostbyname(pTable[0].hostName);
         if (host == NULL)
@@ -252,10 +252,10 @@ int OOPSocket::Barrier()
             cout.flush();
             exit(1);
         }
-
+		
         memcpy(&cAddr.sin_addr, host->h_addr, host->h_length);
         pthread_mutex_unlock(&gethostbyname_mutex);
-
+		
         if (connect(cSocket,(struct sockaddr*)&cAddr, sizeof(struct sockaddr_in)) < 0)
         {
             fprintf(stderr,"SOCKET Error: BARRIER. Could not connect to host\n"); fflush(stderr);
@@ -264,21 +264,21 @@ int OOPSocket::Barrier()
         }
         msgSend.idOp = BARRIER;
         msgSend.idSender = rank;
-
+		
         if (send(cSocket, &msgSend, sizeof(OOP_SOCKET_Envelope), 0) < 0)
         {
             fprintf(stderr,"SOCKET Error: Error sending notify message\n"); fflush(stderr);
             perror("");
             exit(1);
         }
-
+		
         if (recv(cSocket, (char*)&msgSend, sizeof(OOP_SOCKET_Envelope), 0) < 0)
         {
             fprintf(stderr,"SOCKET Error (Barrier): Error receiving notify message\n"); fflush(stderr);
             perror("");
             exit(1);
         }
-
+		
         if(close(cSocket)<0)
             perror("Barrier 1 close():");
     }
@@ -307,14 +307,14 @@ int OOPSocket::Barrier()
             msgSend.idOp = BARRIER;
             msgSend.idSender = 0;
             cSocket = cSockets[i];
-
+			
             if (send(cSocket, &msgSend, sizeof(OOP_SOCKET_Envelope), 0) < 0)
             {
                 fprintf(stderr,"SOCKET Error: Error sending notify message\n"); fflush(stderr);
                 perror("");
                 exit(1);
             }
-
+			
             if(close(cSocket)<0)
                 perror("Barrier 2 close():");
         }
@@ -328,53 +328,53 @@ void OOPSocket::Finalize()
     struct hostent *host;
     struct srunEnvelope msgSend;
     int cSocket;
-
+	
     if ((cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
-       stringstream sout;
-       sout << "SOCKET Error: Could not create socket\n";
-       cout << sout.str().c_str();
-       cout.flush();
-       exit(1);
+		stringstream sout;
+		sout << "SOCKET Error: Could not create socket\n";
+		cout << sout.str().c_str();
+		cout.flush();
+		exit(1);
     }
     bzero((char *) &cAddr, sizeof(cAddr));
     cAddr.sin_family = AF_INET;
     cAddr.sin_port = htons(SPD_PORT);
-
+	
     pthread_mutex_lock(&gethostbyname_mutex);
     host = gethostbyname("localhost");
     if (host == NULL)
     {
-       stringstream sout;
-       sout << "SOCKET Error: Could not resolve SPD host\n";
-       cout << sout.str().c_str();
-       cout.flush();
-       exit(1);
+		stringstream sout;
+		sout << "SOCKET Error: Could not resolve SPD host\n";
+		cout << sout.str().c_str();
+		cout.flush();
+		exit(1);
     }
-
+	
     memcpy(&cAddr.sin_addr, host->h_addr, host->h_length);
     pthread_mutex_unlock(&gethostbyname_mutex);
     //mAddr.sin_addr.s_addr = inet_addr(pTable[i].hostName);
-
+	
     if (connect(cSocket,(struct sockaddr*)&cAddr, sizeof(struct sockaddr_in)) < 0)
     {
         fprintf(stderr,"SOCKET Error: FINALIZE. Could not connect to SPD host\n"); fflush(stderr);
         perror("");
-       exit(1);
+		exit(1);
     }
     msgSend.msgType = FINALIZE;
     sprintf(msgSend.message,"%d %d",sPort, rank);
-
+	
     if (send(cSocket, (char*)&msgSend, sizeof(struct srunEnvelope), 0) < 0)
     {
         fprintf(stderr,"SOCKET Error: Error sending notify message\n"); fflush(stderr);
         perror("");
         exit(1);
     }
-
+	
     if(close(cSocket)<0)
         perror("Finalize 1 close():");
-
+	
     // destruindo os mutex dos receptores
     vector<pthread_mutex_t*>::iterator it;
     it = receivers->begin();
@@ -385,7 +385,7 @@ void OOPSocket::Finalize()
         it++;
     }
     delete receivers;
-
+	
     pthread_join(receiverT, NULL);
     if(close(sSocket)<0)
         perror("Finalize 2 close();");
@@ -397,7 +397,7 @@ int OOPSocket::Probe(int src, int tag, SOCKET_Status *st)
     int found=0;
     OOP_SOCKET_Envelope msgRecv;
     vector<OOP_SOCKET_Envelope>::iterator iter;
-
+	
     while(!found)
     {
         pthread_mutex_lock(&mutex);
@@ -429,7 +429,7 @@ int OOPSocket::Probe(int src, int tag, SOCKET_Status *st)
 int OOPSocket::Get_count(SOCKET_Status *st, int dtype, int *count)
 {
     vector<OOP_SOCKET_Envelope>::iterator iter;
-
+	
     pthread_mutex_lock(&mutex);
     iter = receiveBuffer->begin();
     while(iter != receiveBuffer->end())
@@ -456,7 +456,7 @@ int OOPSocket::Recv(void *buf, int count, int dtype, int src, int tag, SOCKET_St
     int datasize, nbytes, total;
     OOP_SOCKET_Envelope msgRecv;
     vector<OOP_SOCKET_Envelope>::iterator iter;
-
+	
     while(!found)
     {
         pthread_mutex_lock(&mutex);
@@ -485,12 +485,12 @@ int OOPSocket::Recv(void *buf, int count, int dtype, int src, int tag, SOCKET_St
     cSocket = msgRecv.cSocket;
     st->source = msgRecv.idSender;
     st->tag = msgRecv.tag;
-
+	
     msgRecv.idSender = rank;
     msgRecv.idOp = SENDRECV;
-
+	
     //printf("RECV open sckt %d - rk %d - thrd %d\n",cSocket,rank,pthread_self()); fflush(stdout);
-
+	
     if (send(cSocket, (char*)&msgRecv, sizeof(OOP_SOCKET_Envelope), 0) < 0)
     {
         fprintf(stderr,"RECV SOCKET Error: Error sending notify message\n"); fflush(stderr);
@@ -498,7 +498,7 @@ int OOPSocket::Recv(void *buf, int count, int dtype, int src, int tag, SOCKET_St
         fflush(stdout);
         exit(1);
     }
-
+	
     switch(dtype)
     {
         case SOCKET_INT:
@@ -533,7 +533,7 @@ int OOPSocket::Recv(void *buf, int count, int dtype, int src, int tag, SOCKET_St
         total+=nbytes;
     } while(total<datasize);
     close(cSocket);
-
+	
     return SOCKET_SUCCESS;
 }
 
@@ -544,7 +544,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
     struct sockaddr_in cAddr;
     struct hostent *host;
     OOP_SOCKET_Envelope msgSend;
-
+	
     if ((cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
         stringstream sout;
@@ -553,7 +553,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
         cout.flush();
         exit(1);
     }
-
+	
     bzero((char *) &cAddr, sizeof(cAddr));
     cAddr.sin_family = AF_INET;
     cAddr.sin_port = htons(pTable[dest].port);
@@ -569,7 +569,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
         cout.flush();
         exit(1);
     }
-
+	
     memcpy(&cAddr.sin_addr, host->h_addr, host->h_length);
     pthread_mutex_unlock(&gethostbyname_mutex);
     if (connect(cSocket,(struct sockaddr*)&cAddr, sizeof(struct sockaddr_in)) < 0)
@@ -583,7 +583,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
     msgSend.tag = tag;
     msgSend.eCount = count;
     msgSend.dtype = dtype;
-
+	
     //printf("SEND open sckt %d - rk %d - thrd %d\n",cSocket,rank,pthread_self()); fflush(stdout);
     if (send(cSocket, &msgSend, sizeof(OOP_SOCKET_Envelope), 0) < 0)
     {
@@ -591,7 +591,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
         perror("");
         exit(1);
     }
-
+	
     //printf("Send: rank: %d, tag: %d, count: %d, dtype: %d\n",rank,tag,count,dtype);fflush(stdout);
     nbytes = recv(cSocket, &msgSend, sizeof(OOP_SOCKET_Envelope), 0);
     if (nbytes < 0)
@@ -604,7 +604,7 @@ int OOPSocket::Send(void *buf, int count, int dtype, int dest, int tag)
         fprintf(stderr,"SEND SOCKET Error: The peer has performed an orderly shutdown\n"); fflush(stderr);
         exit(1);
     }
-
+	
     // preparar para enviar efetivamente os dados
     switch(dtype)
     {
@@ -668,20 +668,20 @@ int OOPSocket::Send(OOPSocketStorageBuffer *buf, int dtype, int dest, int tag)
     pthread_mutex_unlock(&fSend);
     pthread_cond_signal((*notifyThreads)[thread]);
     pthread_mutex_unlock((*notifyThreads_mutex)[thread]);
-
+	
     return 0;
 }
 
 
 int OOPSocket::Comm_size()
 {
-  return size;
+	return size;
 }
 
 
 int OOPSocket::Comm_rank()
 {
-  return rank;
+	return rank;
 }
 
 
@@ -693,7 +693,7 @@ void OOPSocket::Init_thread(int *argc, char ***argv)
     int nbytes, bufsize	;
     socklen_t length;
     int cSocket;
-
+	
     // 1a fase - criar socket para entrar em contato com SPD
     if ( (cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
@@ -704,7 +704,7 @@ void OOPSocket::Init_thread(int *argc, char ***argv)
     bzero((char *) &cAddr, sizeof(cAddr));
     cAddr.sin_family = AF_INET;
     cAddr.sin_port = htons(SPD_PORT);
-
+	
     pthread_mutex_lock(&gethostbyname_mutex);
     host = gethostbyname("localhost");
     if (host == NULL)
@@ -715,21 +715,21 @@ void OOPSocket::Init_thread(int *argc, char ***argv)
     memcpy(&cAddr.sin_addr, host->h_addr, host->h_length);
     pthread_mutex_unlock(&gethostbyname_mutex);
     //mAddr.sin_addr.s_addr = inet_addr(pTable[i].hostName);
-
+	
     //printf("THREAD_INIT: Conectando com SPD\n"); fflush(stdout);
     if (connect(cSocket,(struct sockaddr*)  &cAddr, sizeof(struct sockaddr_in)) < 0)
     {
-         fprintf(stderr,"SOCKET Error: Startup Error. Could not connect to host \n"); fflush(stderr);
-         perror("");
-         exit(1);
+		fprintf(stderr,"SOCKET Error: Startup Error. Could not connect to host \n"); fflush(stderr);
+		perror("");
+		exit(1);
     }
-
+	
     // FIXME - completar path do binario.
     // Token separador dos elementos do binario e seus argumentos eh o espaco em branco
     msgSend.msgType = GETPORT;
     //strcpy(msgSend.message,"Teste");
-
-
+	
+	
     //printf("THREAD_INIT: Msg: %s\n",msgSend.message); fflush(stdout);
     if (send(cSocket, &msgSend, sizeof(struct srunEnvelope), 0) < 0)
     {
@@ -745,12 +745,12 @@ void OOPSocket::Init_thread(int *argc, char ***argv)
         exit(1);
     }
     sscanf(msgRecv.message,"%d", &sPort);
-
+	
     //printf("THREAD_INIT:  Port Number: %d\n",sPort ); fflush(stdout);
     if(close(cSocket)<0)
         perror("Init_thread 1 close():");
-
-
+	
+	
     // fase 2 --> criar o socket para ouvir (socket servidor)
     if ((sSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP) )< 0)
     {
@@ -761,12 +761,12 @@ void OOPSocket::Init_thread(int *argc, char ***argv)
     int yes =1;
     if (setsockopt(cSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) <0)
         perror("Init_thread-setsockopt() so_reuseaddr failed");
-
+	
     sAddr.sin_family = AF_INET;
     sAddr.sin_port = htons(sPort);
     sAddr.sin_addr.s_addr = INADDR_ANY;
     memset(&(sAddr.sin_zero), '\0', 8);
-
+	
     //bind da porta
     if (bind(sSocket, (struct sockaddr *)&sAddr, sizeof(struct sockaddr)) < 0)
     {
@@ -774,7 +774,7 @@ void OOPSocket::Init_thread(int *argc, char ***argv)
         perror("");
         exit(1);
     }
-
+	
     // listen da fila
     if (listen(sSocket,MAX_PROC) < 0)
     {
@@ -782,45 +782,45 @@ void OOPSocket::Init_thread(int *argc, char ***argv)
         perror("");
         exit(1);
     }
-
+	
     // fase 2a --> receber a lista de processos
-
+	
     //printf("THREAD_INIT: - Fase 2a Aguardando solicitacao\n");fflush(stdout);
     length=sizeof(struct sockaddr_in);
     if((cSocket = accept(sSocket, (struct sockaddr*) &cAddr, &length)) < 0)
     {
-         fprintf(stderr,"SOCKET Error: Error creating socket\n"); fflush(stderr);
-         perror("");
-         exit(1);
+		fprintf(stderr,"SOCKET Error: Error creating socket\n"); fflush(stderr);
+		perror("");
+		exit(1);
     }
-
+	
     //printf("SOCKET-passou\n");fflush(stdout);
-
+	
     if ((nbytes = recv(cSocket, (char*)&msgRecv, sizeof(struct srunEnvelope), 0)) < 0)
     {
         fprintf(stderr, "SOCKET Error: Error receiving process table Size\n"); fflush(stderr);
         perror("");
         exit(1);
     }
-
+	
     sscanf(msgRecv.message,"%d %d %d" ,&bufsize, &size, &rank);
     //printf("THREAD_INIT: -> %d %d\n", msgRecv.msgType, size); fflush(stdout);
-
+	
     if ((nbytes = recv(cSocket, (char*)&pTable, bufsize, 0)) < 0)
     {
         fprintf(stderr,"SOCKET Error:\n"); fflush(stderr);
         perror("");
         exit(1);
     }
-
+	
     if(close(cSocket)<0)
         perror("Init_thread 2 close():");
-
+	
     // imprimindo a tabela de processos
     //printf("**TABELA DE PROCESSOS**\n");fflush(stdout);
     //for (i=0;i<size;i++)
     //   printf("RANK %d --> %d %s %d %c\n",rank,i,pTable[i].hostName, pTable[i].port, pTable[i].inUse); fflush(stdout);
-
+	
     // criando os mutex dos receptores
     receivers = new vector<pthread_mutex_t*>();
     for(int i=0; i<size; i++)
@@ -830,7 +830,7 @@ void OOPSocket::Init_thread(int *argc, char ***argv)
         pthread_mutex_init(t, NULL);
         receivers->push_back(t);
     }
-
+	
     // controla a execucao da thread Receiver
     if(pthread_create(&receiverT, NULL, receiver, this))
     {
@@ -931,9 +931,9 @@ int OOPSocket::Unpack(void *inb, int insize, int *pos, void *outb, int outsize, 
 }
 
 
-/// You can call MPI_TEST with a null or inactive request argument. The
-/// operation returns flag = true and empty status.
-/// http://www.physics.usyd.edu.au/~nigel/cosc3012/parallel/docs/tutorial_files/man/MPI_Test.txt
+// You can call MPI_TEST with a null or inactive request argument. The
+// operation returns flag = true and empty status.
+// http://www.physics.usyd.edu.au/~nigel/cosc3012/parallel/docs/tutorial_files/man/MPI_Test.txt
 int OOPSocket::Test(int *request, int *flag, SOCKET_Status *st)
 {
 #ifndef BLOCKING

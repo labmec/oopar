@@ -27,9 +27,9 @@ TSmallTask::~TSmallTask()
 
 TPZSaveable* TSmallTask::Restore(TPZStream & buf, void * context)
 {
-  TSmallTask *loc = new TSmallTask(-1);
-  loc->Read(buf,context);
-  return loc;
+	TSmallTask *loc = new TSmallTask(-1);
+	loc->Read(buf,context);
+	return loc;
 }
 
 void TSmallTask::Write(TPZStream & buf, int withclassid)
@@ -43,28 +43,28 @@ void TSmallTask::Read(TPZStream & buf, void * context)
 }
 
 int TSmallTask::ClassId () const{
-  return TSMALLTASKID;
+	return TSMALLTASKID;
 }
 
 OOPMReturnType TSmallTask::Execute()
 {
-//  OOPMDataDependList &deplist = this->GetDependencyList();
+	//  OOPMDataDependList &deplist = this->GetDependencyList();
 	OOPAccessTagList &deplist = this->GetDependencyList();
-  int i,nel = deplist.Count();
-  for(i=0; i<nel; i++) 
-  {
-//    OOPMDataDepend &dep = deplist.Dep(i);
-	  OOPAccessTag dep = deplist.GetTag(i);
-    if(dep.AccessMode() == EWriteAccess || dep.AccessMode() == EVersionAccess) {
-      OOPDataVersion ver = dep.Version();
-      ver.Increment();
-		dep.SetVersion(ver);
-		dep.SetTaskId(Id());
-    }
-  }
-  sleep(2);
-  
-  return ESuccess;
+	int i,nel = deplist.Count();
+	for(i=0; i<nel; i++) 
+	{
+		//    OOPMDataDepend &dep = deplist.Dep(i);
+		OOPAccessTag dep = deplist.GetTag(i);
+		if(dep.AccessMode() == EWriteAccess || dep.AccessMode() == EVersionAccess) {
+			OOPDataVersion ver = dep.Version();
+			ver.Increment();
+			dep.SetVersion(ver);
+			dep.SetTaskId(Id());
+		}
+	}
+	sleep(2);
+	
+	return ESuccess;
 }
 
 template class TPZRestoreClass<TSmallTask,TSMALLTASKID>;

@@ -15,7 +15,7 @@ void OOPParMatrix::BuildMe(int size, TPZMatrix * matrix, TPZFMatrix & vU)
 {
 	matrix->Resize(size, size);
 	int i, j;
-
+	
 	vU.Resize(size, 1);
 	for(i = 0; i < size; i++)
 	{
@@ -30,7 +30,7 @@ void OOPParMatrix::BuildMe(int size, TPZMatrix * matrix, TPZFMatrix & vU)
 	
 }
 void OOPParMatrix::DivideMe(int nPieces, TPZMatrix * OrigMatrix, std::vector<TPZMatrix *> & subMats, 
-														std::vector< std::pair< std::vector<int>, std::vector<int> > > & Indices)
+							std::vector< std::pair< std::vector<int>, std::vector<int> > > & Indices)
 {
 	int i;
 	int rows = OrigMatrix->Rows();
@@ -61,7 +61,7 @@ void OOPParMatrix::DivideMe(int nPieces, TPZMatrix * OrigMatrix, std::vector<TPZ
 	int ii = 0;
 	int jj = 0;
 	n = 0;
-
+	
 	for(i = 1; i < nPieces+1; i++)
 	{
 		for(j = 1;j < nPieces+1; j++)
@@ -91,11 +91,11 @@ void OOPParMatrix::DivideMe(int nPieces, TPZMatrix * OrigMatrix, std::vector<TPZ
 			n++;
 		}
 	}
-/*
-  std::cout << "Li " << li << " II " << ii << std::endl;
-	std::cout.flush();
-	std::cout << "Lj " << lj << " JJ " << jj << std::endl;
-	std::cout.flush();
- */
+	/*
+	 std::cout << "Li " << li << " II " << ii << std::endl;
+	 std::cout.flush();
+	 std::cout << "Lj " << lj << " JJ " << jj << std::endl;
+	 std::cout.flush();
+	 */
 	
 }

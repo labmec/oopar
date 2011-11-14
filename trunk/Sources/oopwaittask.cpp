@@ -32,23 +32,23 @@ class OOPStorageBuffer;
 
 OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
 {
-  fMainSemaphore = new boost::interprocess::interprocess_semaphore(0);
-  fExecSemaphore = new boost::interprocess::interprocess_semaphore(0);
+	fMainSemaphore = new boost::interprocess::interprocess_semaphore(0);
+	fExecSemaphore = new boost::interprocess::interprocess_semaphore(0);
 }
 
 OOPWaitTask::~OOPWaitTask()
 {
-  //sem_destroy(&fMainSemaphore);
+	//sem_destroy(&fMainSemaphore);
 	delete fMainSemaphore;
 	delete fExecSemaphore;
-  //sem_destroy(&fExecSemaphore);
+	//sem_destroy(&fExecSemaphore);
 }
 
 
 void OOPWaitTask::Write(TPZStream & buf, int withclassid)
 {
-  OOPTask::Write(buf, withclassid);
-  LOGPZ_WARN(logger,"OOPWaitTask should never be packed\n");
+	OOPTask::Write(buf, withclassid);
+	LOGPZ_WARN(logger,"OOPWaitTask should never be packed\n");
 }
 
 void OOPWaitTask::Read(TPZStream & buf, void * context)
@@ -64,66 +64,66 @@ int OOPWaitTask::ClassId() const
 OOPMReturnType OOPWaitTask::Execute()
 {
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "Inside Execute of WaitTask ID " << Id() << " Posting fMainSemaphore";
-    LOGPZ_DEBUG(logger, sout.str());
-  }
+	{
+		stringstream sout;
+		sout << "Inside Execute of WaitTask ID " << Id() << " Posting fMainSemaphore";
+		LOGPZ_DEBUG(logger, sout.str());
+	}
 #endif
-  //this->IncrementWriteDependentData();
-  //sem_post(&fMainSemaphore);
+	//this->IncrementWriteDependentData();
+	//sem_post(&fMainSemaphore);
 	fMainSemaphore->post();
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "WaitTask ID " << Id() << " waiting post on fExecSemaphore";
-    LOGPZ_DEBUG(logger, sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "WaitTask ID " << Id() << " waiting post on fExecSemaphore";
+		LOGPZ_DEBUG(logger, sout.str().c_str());
+	}
 #endif
-  //sem_wait(&fExecSemaphore);
+	//sem_wait(&fExecSemaphore);
 	fExecSemaphore->wait();
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "WaitTask ID " <<  Id() << " Leaving execute";
-    LOGPZ_DEBUG(logger, sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "WaitTask ID " <<  Id() << " Leaving execute";
+		LOGPZ_DEBUG(logger, sout.str().c_str());
+	}
 #endif
-  return ESuccess;
+	return ESuccess;
 }
 
 /*!
-    \fn OOPWaitTask::Finish()
+ \fn OOPWaitTask::Finish()
  */
 void OOPWaitTask::Finish()
 {
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << __PRETTY_FUNCTION__ << " WaitTask ID " << Id() << " Finished ! Posting fExecSemaphore";
-    LOGPZ_DEBUG(logger, sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << __PRETTY_FUNCTION__ << " WaitTask ID " << Id() << " Finished ! Posting fExecSemaphore";
+		LOGPZ_DEBUG(logger, sout.str().c_str());
+	}
 #endif
-  //sem_post(&fExecSemaphore);
+	//sem_post(&fExecSemaphore);
 	fExecSemaphore->post();
 }
 
 
 /*!
-    \fn OOPWaitTask::Wait()
+ \fn OOPWaitTask::Wait()
  */
 void OOPWaitTask::Wait()
 {
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "WaitTask ID " << Id() << " Waiting for Post in fMainSemaphore";
-    LOGPZ_DEBUG(logger, sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "WaitTask ID " << Id() << " Waiting for Post in fMainSemaphore";
+		LOGPZ_DEBUG(logger, sout.str().c_str());
+	}
 #endif
 	int retval = 0;
 	//sem_init(&fMainSemaphore, 0, 1);
-  //retval = sem_wait(&fMainSemaphore);
+	//retval = sem_wait(&fMainSemaphore);
 	fMainSemaphore->wait();
 	if(retval == -1)
 	{
@@ -147,12 +147,12 @@ void OOPWaitTask::Wait()
 #endif
 		exit(-1);
 	}
-
+	
 #ifdef LOG4CXX
-  {
-    stringstream sout;
-    sout << "WaitTask ID " << Id() << " fMainSemaphore Posted ! Leaving Wait";
-    LOGPZ_DEBUG(logger, sout.str().c_str());
-  }
+	{
+		stringstream sout;
+		sout << "WaitTask ID " << Id() << " fMainSemaphore Posted ! Leaving Wait";
+		LOGPZ_DEBUG(logger, sout.str().c_str());
+	}
 #endif
 }

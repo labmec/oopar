@@ -41,7 +41,7 @@ OOPCollector<T>::~OOPCollector()
 template <class T>
 void OOPCollector<T>::Write (TPZStream & buf, int withclassid)
 {
-  OOPTask::Write (buf, withclassid);
+	OOPTask::Write (buf, withclassid);
 	TPZSaveable::WriteObjects(buf, m_ScatterTo);
 	TPZSaveable::WriteObjects(buf, m_GatherTo);
 	TPZSaveable::WriteObjects(buf, m_FromVector);
@@ -52,22 +52,22 @@ void OOPCollector<T>::Write (TPZStream & buf, int withclassid)
 template <class T>
 void OOPCollector<T>::Read (TPZStream & buf, void *context)
 {
-  OOPTask::Read (buf, context);
+	OOPTask::Read (buf, context);
 	TPZSaveable::ReadObjects(buf, m_ScatterTo);
 	TPZSaveable::ReadObjects(buf, m_GatherTo);
 	TPZSaveable::ReadObjects(buf, m_FromVector);
 	m_TargetId.Read(buf, context);
 	buf.Read((int *)m_Type, 1);
-
+	
 }
 
 template <class T>
 TPZSaveable * OOPCollector<T>::Restore (TPZStream & buf, void *context)
 {
-  OOPCollector<T> *v = new OOPCollector<T> (0);
+	OOPCollector<T> *v = new OOPCollector<T> (0);
 #warning verify context parameter here
-  v->Read (buf, context);
-  return v;
+	v->Read (buf, context);
+	return v;
 }
 
 template <class T>
@@ -79,18 +79,18 @@ OOPMReturnType OOPCollector<T>::Execute()
 		{
 			Scatter();
 		}
-		break;
+			break;
 		case EGatherer:
 		{
 			Gather();
 		}
-		break;
+			break;
 		default:
 		{
 			std::cout << "Undefined operation type \n Bailing out !";
 			exit(-1);
 		}
-		break;
+			break;
 	}
 	return ESuccess;
 }

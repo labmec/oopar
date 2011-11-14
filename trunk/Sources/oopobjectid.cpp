@@ -65,19 +65,19 @@ int OOPObjectId::main ()
 			TestDeQue.erase (i);
 		}
 	}
-
+	
 	sout << TestDeQue.size () ;
  	for (i = TestDeQue.begin (); i != TestDeQue.end (); i++) {
 		(*i)->Print (sout);
 	}
-  LOGPZ_DEBUG(logger,sout.str().c_str());
- OOPObjectId *pt2 = new OOPObjectId;
+	LOGPZ_DEBUG(logger,sout.str().c_str());
+	OOPObjectId *pt2 = new OOPObjectId;
 	pt2->SetId (30);
 	pt2->SetProcId (2);
 	std::deque < OOPObjectId * >::iterator fd;
 	fd = find (TestDeQue.begin (), TestDeQue.end (), pt2);
-
-      i = TestDeQue.end ();
+	
+	i = TestDeQue.end ();
 	delete *i;
 	return 0;
 }
@@ -94,7 +94,7 @@ bool OOPObjectId::operator == (const OOPObjectId & obj) const
 }
 bool OOPObjectId::operator >= (const OOPObjectId & obj) const
 {
-  return !operator<(obj);
+	return !operator<(obj);
 }
 bool OOPObjectId::operator >= (int val) const
 {
@@ -127,11 +127,11 @@ OOPObjectId & OOPObjectId::operator= (const OOPObjectId & obj)
 	return *this;
 }
 /*OOPObjectId & OOPObjectId::operator=(int val){
-	if (val >= 0)  exit(-1);
-    fId=val;
-    fProcId=val;
-    return *this;
-}*/
+ if (val >= 0)  exit(-1);
+ fId=val;
+ fProcId=val;
+ return *this;
+ }*/
 void OOPObjectId::SetData (int id, int procid)
 {
 	fId = id;
@@ -169,7 +169,7 @@ void OOPObjectId::Write (TPZStream & buf, int)
 	buf.Write (&aux);
 	aux = GetProcId ();
 	buf.Write (&aux);
-
+	
 }
 void OOPObjectId::Read (TPZStream & buf, void * context )
 {
@@ -178,7 +178,7 @@ void OOPObjectId::Read (TPZStream & buf, void * context )
 	SetId (aux);
 	buf.Read (&aux);
 	SetProcId (aux);
-
+	
 }
 
 int OOPObjectId::IsZeroOOP() const

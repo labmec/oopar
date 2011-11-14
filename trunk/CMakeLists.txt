@@ -8,6 +8,7 @@ project(OOPAR)
 include_directories(
 	"${PROJECT_SOURCE_DIR}/socket"
 	"${PROJECT_SOURCE_DIR}/Sources"
+	"${PROJECT_SOURCE_DIR}/ParUtil"
  )
 
 file(GLOB_RECURSE doxyfiles Documentation/*.h ./dox*.h)
@@ -73,14 +74,16 @@ if(USING_LOG4CXX)
 	find_path(LOG4CXX_LIB NAMES liblog4cxx.dylib log4cxx.lib liblog4cxx.a PATHS ${SEARCH_DIRS} ./../log4cxx ./../log4cxx/lib)
 	if(LOG4CXX_INCLUDE-NOTFOUND)
 		set (LOG4CXX_INCLUDE "/usr/local/include" CACHE PATH "Directory where log4cxx header files can be found")
+	else()
+		add_definitions(-DLOG4CXX -DPZSOURCEDIR=\"${PROJECT_SOURCE_DIR}\")
+		include_directories(${LOG4CXX_INCLUDE})
 	endif()
 	if(LOG4CXX_LIB-NOTFOUND)
 		set (LOG4CXX_LIB "/usr/local/lib" CACHE PATH "Directory where the log4cxx library can be found")
+	else()
+		link_directories(${LOG4CXX_LIB})
+		link_libraries(log4cxx)
 	endif()
-	add_definitions(-DLOG4CXX -DPZSOURCEDIR=\"${PROJECT_SOURCE_DIR}\")
-	include_directories(${LOG4CXX_INCLUDE})
-	link_directories(${LOG4CXX_LIB})
-	link_libraries(log4cxx)
 endif(USING_LOG4CXX)
 
 #enabling METIS library
@@ -134,6 +137,7 @@ add_definitions(-DBLOCKING)
 #increment all the directories where the sources files is
 add_subdirectory(socket)
 add_subdirectory(Sources)
+add_subdirectory(ParUtil)
 add_subdirectory(lib)
 add_subdirectory(Projects)
 

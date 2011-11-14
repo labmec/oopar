@@ -21,8 +21,8 @@ static LoggerPtr logger(Logger::getLogger("OOPar.root.log"));
 
 OOPMReturnType OOPMergeMatrix::Execute()
 {
-
-  cout << "Executing Task " << Id() << " For Dispersed vector aggregation ";
+	
+	cout << "Executing Task " << Id() << " For Dispersed vector aggregation ";
 	TPZMatrix * GlobalVector = dynamic_cast<TPZMatrix * > (fDependRequest.ObjectPtr(0));
 	OOPParMatIndexation * Indices = NULL;
 	Indices = dynamic_cast<OOPParMatIndexation * >  (fDependRequest.ObjectPtr(1));
@@ -61,7 +61,7 @@ OOPMReturnType OOPMergeMatrix::Execute()
 		GlobalVector->Put(rows[i], 0, GlobalVector->Get(rows[i], 0) + m_Vector.Get(i, 0));
 	}
 	
-  //IncrementWriteDependentData();
+	//IncrementWriteDependentData();
 #ifdef LOGPZ
 	{
 		std::stringstream sout;
@@ -72,8 +72,8 @@ OOPMReturnType OOPMergeMatrix::Execute()
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
-  cout << "Leaving Merge Task execution " << endl;
-  return ESuccess;
+	cout << "Leaving Merge Task execution " << endl;
+	return ESuccess;
 }
 
 void OOPMergeMatrix::Write(TPZStream & buf, int withclassid){

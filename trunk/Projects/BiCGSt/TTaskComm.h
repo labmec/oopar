@@ -27,13 +27,13 @@ class TTaskComm:public OOPTask
      * Used by the TM to access the task´s functinality. 
      */
 	OOPMReturnType Execute ();
-	int     Pack (OOPSendStorage * buf);
+	int     Pack (OOPStorageBuffer * buf, int classid);
 	/**
 	* Virtual Unpack function.
 	* Defines the necessary interface for task communication along the network.
 	* @param * buf Buffer for data manipulation.
 	*/
-	int     Unpack (OOPReceiveStorage * buf);
+	int     Unpack (OOPStorageBuffer * buf, void *context);
   /**
    * Returns a Class ID identifier
    */

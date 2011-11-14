@@ -18,21 +18,21 @@ OOPMReturnType TParCompute::Execute ()
 		TLocalCompute *ltask = new TLocalCompute (procid, i);
 		int processor = GetProcID();
 		ltask->AddDependentData (OOPAccessTag
-					 (fPartRelationId, EReadAccess,
-					  fPartRelationVersion,processor));
+								 (fPartRelationId, EReadAccess,
+								  fPartRelationVersion,processor));
 		ltask->AddDependentData (OOPAccessTag
-					 (fMeshIds[i], EReadAccess,
-					  fMeshVersions,processor));
+								 (fMeshIds[i], EReadAccess,
+								  fMeshVersions,processor));
 		ltask->AddDependentData (OOPAccessTag
-					 (fStateIds[i], EWriteAccess,
-					  fDataVersions,processor));
+								 (fStateIds[i], EWriteAccess,
+								  fDataVersions,processor));
 		ltask->AddDependentData (OOPAccessTag
-					 (fRhsIds[i], EWriteAccess,
-					  fDataVersions,processor));
+								 (fRhsIds[i], EWriteAccess,
+								  fDataVersions,processor));
 		ltask->SetRhsIds (fRhsIds, fDataVersions);
 		ltask->SetRecurrence (true);
 		TM()->Submit(ltask);
-//		ltask->Submit ();
+		//		ltask->Submit ();
 		ltask->PrintLog(TaskLog,"Submitted local task");
 	}
 	PrintLog(TaskLog,"TParCompute::Execute\n");
@@ -52,7 +52,7 @@ OOPMReturnType TParCompute::Execute ()
 	return ESuccess;
 }
 void TParCompute::SetPartitionRelationId (OOPObjectId & Id,
-					  OOPDataVersion & version)
+										  OOPDataVersion & version)
 {
 	fPartRelationId = Id;
 	fPartRelationVersion = version;
@@ -63,30 +63,30 @@ fNPartitions (numpartitions)
 {
 }
 void TParCompute::SetStateId (vector < OOPObjectId > &Id,
-			      OOPDataVersion & stateversion)
+							  OOPDataVersion & stateversion)
 {
 	// Check if Id was already inserted
 	fStateIds = Id;
 	fDataVersions = stateversion;
 }
 void TParCompute::SetRhsId (vector < OOPObjectId > &Id,
-			    OOPDataVersion & rhsversion)
+							OOPDataVersion & rhsversion)
 {
 	fRhsIds = Id;
 	fDataVersions = rhsversion;
 }
 void TParCompute::SetMeshId (vector < OOPObjectId > &Id,
-			     OOPDataVersion & meshversion)
+							 OOPDataVersion & meshversion)
 {
 	fMeshIds = Id;
 	fMeshVersions = meshversion;
 }
-  /**
-   * Packs the object in on the buffer so it can be transmitted through the network.
-   * The Pack function  packs the object's class_id while function Unpack() doesn't,
-   * allowing the user to identify the next object to be unpacked.
-   * @param *buff A pointer to TSendStorage class to be packed.
-   */
+/**
+ * Packs the object in on the buffer so it can be transmitted through the network.
+ * The Pack function  packs the object's class_id while function Unpack() doesn't,
+ * allowing the user to identify the next object to be unpacked.
+ * @param buf A pointer to TSendStorage class to be packed.
+ */
 void TParCompute::Write (TPZStream & buf, int withclassid)
 {
 	PrintLog(TaskLog, "Packing TParCompute object");
@@ -112,10 +112,10 @@ void TParCompute::Write (TPZStream & buf, int withclassid)
 	//fMeshVersions.Print(cout);
 	buf.Write(&fNPartitions);
 }
-  /**
-   * Unpacks the object class_id
-   * @param *buff A pointer to TSendStorage class to be unpacked.
-   */
+/**
+ * Unpacks the object class_id
+ * @param buf A pointer to TSendStorage class to be unpacked.
+ */
 void TParCompute::Read (TPZStream & buf, void * context)
 {
 	PrintLog(TaskLog, "Unpacking TParCompute object");

@@ -18,13 +18,13 @@
 
 TBiCGInt::TBiCGInt() : TPZSaveable(){}
 
-int TBiCGInt::Pack(OOPStorageBuffer * buf,int classid){
+int TBiCGInt::Write(OOPStorageBuffer * buf,int classid){
   TPZSaveable::Write(buf,classid);
   buf->PkInt(&value);
   return 1;
 }
 
-int TBiCGInt::Unpack(OOPStorageBuffer * buf,void *context){
+int TBiCGInt::Read(OOPStorageBuffer * buf,void *context){
   TPZSaveable::Read(buf,context);
   int aux;
   buf->UpkInt(&aux);

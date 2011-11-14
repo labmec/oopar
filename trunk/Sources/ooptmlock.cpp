@@ -15,20 +15,20 @@ pthread_mutex_t OOPTMLock::fLock = PTHREAD_MUTEX_INITIALIZER;
 
 OOPTMLock::OOPTMLock()
 {
-  pthread_mutex_lock(&fLock);
+	pthread_mutex_lock(&fLock);
 }
 
 
 OOPTMLock::~OOPTMLock()
 {
-  pthread_mutex_unlock(&fLock);
+	pthread_mutex_unlock(&fLock);
 }
 
 void OOPTMLock::Lock()
 {
-  pthread_mutex_lock(&fLock);
+	pthread_mutex_lock(&fLock);
 }
 void OOPTMLock::Unlock()
 {
-  pthread_mutex_unlock(&fLock);
+	pthread_mutex_unlock(&fLock);
 }

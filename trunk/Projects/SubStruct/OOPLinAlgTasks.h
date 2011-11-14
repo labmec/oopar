@@ -65,15 +65,15 @@ public:
 	 */
 	virtual void Write(TPZStream & buf, int withclassid);
 	virtual void Read(TPZStream & buf, void * context);
-		
+	
 	virtual OOPMReturnType Execute();
 	
 	static void RemoteZAXPY(TPZFParMatrix & x, REAL beta, const TPZFParMatrix & z, int ProcId);
 	void ZAXPY();
-
+	
 	static void RemoteTimesBetaPlusZ(TPZFParMatrix & x, const REAL beta, const TPZFParMatrix & z, int ProcId);
 	void TimesBetaPlusZ();
-
+	
 	static void RemoteMultAdd(const TPZFParMatrix & me, const TPZFParMatrix &x,const TPZFParMatrix &y, TPZFParMatrix &z, const REAL alpha,const REAL beta,const int opt, const int stride, int ProcId);
 	void MultAdd();
 	
@@ -85,7 +85,7 @@ public:
 	
 	static void RemoteCopy(TPZFParMatrix & me, const TPZFParMatrix & copy, int ProcId);
 	void Copy();
-
+	
 	static void RemoteRedim(TPZFParMatrix & me, int rows, int cols, int ProcId);
 	void Redim();
 	

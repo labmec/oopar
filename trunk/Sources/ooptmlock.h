@@ -21,13 +21,13 @@
  */
 class OOPTMLock{
 public:
-  OOPTMLock();
-
-  ~OOPTMLock();
-  void Unlock();
-  void Lock();
+	OOPTMLock();
+	
+	~OOPTMLock();
+	void Unlock();
+	void Lock();
 private:
-  static pthread_mutex_t fLock;
+	static pthread_mutex_t fLock;
 };
 
 #endif

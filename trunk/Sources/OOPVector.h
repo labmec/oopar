@@ -10,11 +10,11 @@ public:
 	virtual ~OOPVector();
 	
     TPZVec<T> fVecValue;
-
+	
     void Write(TPZStream & buf, int withclassid);
-
+	
     void Read(TPZStream & buf, void * context);
-
+	
     virtual int ClassId() const ;
 };
 #endif //OOPVECTOR_H

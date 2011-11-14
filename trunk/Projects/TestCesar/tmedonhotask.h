@@ -15,11 +15,11 @@
 #include <ooptask.h>
 
 /**
-Teste de entendimento de programa paralelo usando o OOPar
-
-
-@author Edimar Cesar Rylo
-*/
+ Teste de entendimento de programa paralelo usando o OOPar
+ 
+ 
+ @author Edimar Cesar Rylo
+ */
 class TMedonhoTask : public OOPTask
 {
 public:
@@ -38,7 +38,7 @@ public:
      * identificador da classe
      */
     virtual int    ClassId () const {  
-      return 37882396;
+		return 37882396;
     }
     
     /**
@@ -60,8 +60,8 @@ public:
     
     
     void SetLimits (int st, int end) {
-      fStart = st;
-      fEnd = end;
+		fStart = st;
+		fEnd = end;
     }
     
 protected:

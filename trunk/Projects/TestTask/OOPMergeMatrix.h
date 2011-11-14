@@ -29,7 +29,7 @@ public:
 	int m_SubId;
 	
 	virtual ~OOPMergeMatrix(){}
-		
+	
 	OOPMergeMatrix()
 	{
 		m_SubId = -1;
@@ -39,7 +39,7 @@ public:
 		m_SubId = -1;
 	} 
 	virtual OOPMReturnType Execute (); 
-		
+	
 	virtual int ClassId () const
 	{
 		return OOPMERGETASK_ID; 
@@ -54,4 +54,5 @@ public:
 };
 
 extern ofstream MergeLog;
+
 #endif

@@ -17,13 +17,13 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.OOPVector"));
 #define OOPVECDOUBLE_ID 4041
 template class TPZRestoreClass<OOPVector < int > , OOPVECINT_ID>;
 template class TPZRestoreClass<OOPVector < REAL > , OOPVECDOUBLE_ID>;	
-	
+
 template<>
 OOPVector<REAL>::~OOPVector(){}
 
 template<>
 OOPVector<int>::~OOPVector(){}
-	
+
 template<>
 int OOPVector<REAL>::ClassId() const {
     return OOPVECDOUBLE_ID;
@@ -40,8 +40,8 @@ void OOPVector<T>::Read(TPZStream & buf, void * context){
     int size = 0;
     buf.Read(&size);
     if(size){
-      fVecValue.Resize(size);
-      buf.Read(&fVecValue[0], size);
+		fVecValue.Resize(size);
+		buf.Read(&fVecValue[0], size);
     }
     int clsid=0;
     buf.Read(&clsid);
@@ -55,7 +55,7 @@ void OOPVector<T>::Write(TPZStream & buf, int withclassid){
     int size = fVecValue.NElements();
     buf.Write(&size);
     if(size){
-      buf.Write(&fVecValue[0], size);
+		buf.Write(&fVecValue[0], size);
     }
     int clsid = ClassId();
     buf.Write(&clsid);

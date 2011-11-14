@@ -93,14 +93,9 @@ TContribution & TPartitionRelation::GetRelation (int parfrom, int parto)
 {
 	return fRelation[parfrom][parto];
 }
-  /**
-   * Packs the object in on the buffer so it can be transmitted through the network.
-   * The Pack function  packs the object's class_id while function Unpack() doesn't,
-   * allowing the user to identify the next object to be unpacked.
-   * @param *buff A pointer to TSendStorage class to be packed.
-   */
-int TPartitionRelation::Pack (OOPSendStorage * buf) {
-	OOPSaveable::Pack(buf);
+
+int TPartitionRelation::Write(OOPStorageBuffer * buf,int classid) {
+	OOPSaveable::Write(buf,classid);
 	buf->PkInt(&fNumPartitions);
 	int i,sz = fRelation.size();
 	for(i=0; i<fNumPartitions;i++) {
@@ -115,12 +110,9 @@ int TPartitionRelation::Pack (OOPSendStorage * buf) {
 	}
 	return 0;
 }
-  /**
-   * Unpacks the object class_id
-   * @param *buff A pointer to TSendStorage class to be unpacked.
-   */
-int TPartitionRelation::Unpack (OOPReceiveStorage * buf) {
-	OOPSaveable::Unpack(buf);
+
+int TPartitionRelation::Read(OOPStorageBuffer * buf, void *context) {
+	OOPSaveable::Read(buf,context);
 	buf->UpkInt(&fNumPartitions);
 	int i,sz;
 	fProcessor.resize(fNumPartitions);
@@ -139,7 +131,8 @@ int TPartitionRelation::Unpack (OOPReceiveStorage * buf) {
 	}
 	return 0;
 }
-OOPSaveable *TPartitionRelation::Restore (OOPReceiveStorage * buf) {
+
+OOPSaveable *TPartitionRelation::Restore (OOPStorageBuffer * buf) {
 	TPartitionRelation *par = new TPartitionRelation(0);
 	par->Unpack(buf);
 	return par;

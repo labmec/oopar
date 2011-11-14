@@ -20,7 +20,7 @@ public:
 	OOPParMatrix(){};
 	void BuildMe(int size, TPZMatrix * matrix, TPZFMatrix & vU);
 	void DivideMe(int nPieces, TPZMatrix * OrigMatrix, std::vector<TPZMatrix *> & subMats, 
-								std::vector< std::pair< std::vector<int>, std::vector<int> > > & Indices);
+				  std::vector< std::pair< std::vector<int>, std::vector<int> > > & Indices);
 	
 };
 

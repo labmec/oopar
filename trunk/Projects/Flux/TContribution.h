@@ -23,10 +23,10 @@ public:
 	{
 		return TCONTRIBUTION_ID;
 	}
-		  
+	
     /**
      * Returns the contribution vector identified by the index parameter
-     * @param Index Identifies each vector to be returned
+     * @param index Identifies each vector to be returned
      * @since 23/05/2003 
      */
 	vector < int >&DestinationVector (int index);
@@ -35,7 +35,7 @@ public:
      * @since 13/06/2003 
      */
 	void    InitializeRandom ();
-	        TContribution ();
+	TContribution ();
     /**
      * returns the number of volume indices to which relation will contribute
      */
@@ -60,19 +60,19 @@ public:
 	{
 		fDestinationMesh = id;
 	}
-  /**
-   * Packs the object in on the buffer so it can be transmitted through the network.
-   * The Pack function  packs the object's class_id while function Unpack() doesn't,
-   * allowing the user to identify the next object to be unpacked.
-   * @param *buff A pointer to TSendStorage class to be packed.
-   */
+	/**
+	 * Packs the object in on the buffer so it can be transmitted through the network.
+	 * The Pack function  packs the object's class_id while function Unpack() doesn't,
+	 * allowing the user to identify the next object to be unpacked.
+	 * @param buf A pointer to TSendStorage class to be packed.
+	 */
 	void Write (TPZStream & buf, int withclassid = 0);
-  /**
-   * Unpacks the object class_id
-   * @param *buff A pointer to TSendStorage class to be unpacked.
-   */
+	/**
+	 * Unpacks the object class_id
+	 * @param buf A pointer to TSendStorage class to be unpacked.
+	 */
 	void Read (TPZStream & buf, void * context = 0);
-      private:
+private:
     /**
      * ObjectId of the destination mesh
      */

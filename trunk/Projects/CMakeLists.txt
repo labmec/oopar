@@ -23,3 +23,6 @@ add_subdirectory(TestTask)
 
 # This project ...
 #add_subdirectory(Trivial)
+
+#This project tests the communication using socket
+add_subdirectory(TestSocket)

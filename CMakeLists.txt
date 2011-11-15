@@ -6,7 +6,6 @@ project(OOPAR)
 
 #Specify where the headers files must be finded
 include_directories(
-	"${PROJECT_SOURCE_DIR}/socket"
 	"${PROJECT_SOURCE_DIR}/Sources"
 	"${PROJECT_SOURCE_DIR}/ParUtil"
  )
@@ -135,7 +134,6 @@ add_definitions(-DBLOCKING)
 
 
 #increment all the directories where the sources files is
-add_subdirectory(socket)
 add_subdirectory(Sources)
 add_subdirectory(ParUtil)
 add_subdirectory(lib)

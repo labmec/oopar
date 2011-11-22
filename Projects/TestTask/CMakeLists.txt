@@ -5,5 +5,5 @@ set(testtask_SRCS main.cpp OOPMatVecMultiply.cpp OOPParMatIndexation.cpp OOPMerg
 
 add_executable(TestTask ${testtask_SRCS} ${header})
 
-target_link_libraries(TestTask pz oopar mpi metis)
+target_link_libraries(TestTask pz oopar)
 

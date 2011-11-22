@@ -25,12 +25,6 @@
 #include <pzlog.h>
 
 #ifdef LOG4CXX
-#include <log4cxx/logger.h>
-#include <log4cxx/basicconfigurator.h>
-#include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/helpers/exception.h>
-using namespace log4cxx;
-using namespace log4cxx::helpers;
 static LoggerPtr logger(Logger::getLogger("OOPAR.OOPFileStorageBuffer"));
 #endif
 
@@ -198,7 +192,7 @@ int OOPFileStorageBuffer::PkInt (int *p, int n)
 	return (n);
 }
 
-int OOPFileStorageBuffer::PkByte (char *p, int n)
+int OOPFileStorageBuffer::PkByte (const char *p, int n)
 {
 	for (int i = 0; i < n; i++)
 		if (fprintf (f_file, "%+d ", *p++) == EOF)

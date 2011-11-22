@@ -45,6 +45,7 @@ public:
 		m_IsSync = false;
 		
 	}
+    
 	/**
 	 * @brief Read and Write methods
 	 */
@@ -97,7 +98,7 @@ public:
 	/**
 	 * @brief Destructor
 	 */
-	inline ~TPZFParMatrix() {  }
+	~TPZFParMatrix();
 	
 	/**
 	 * @brief According to the documentation in base class. \n

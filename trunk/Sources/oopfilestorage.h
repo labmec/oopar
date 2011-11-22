@@ -79,7 +79,7 @@ public:
 	int     UpkDouble (double *p, int n = 1);
 	int     UpkStr (char *str);
 	
-	int     PkByte (char *p, int n = 1);
+	int     PkByte (const char *p, int n = 1);
 	
 	int     PkInt (int *p, int n = 1);
 	
@@ -122,21 +122,57 @@ public:
 		return ("TReceiveStorageFile::");
 	}
 	
-    virtual void Write(int *p, int size);
+    
+    virtual void Write(int *p, int size)
+    {
+        PkInt(p,size);
+    }
 	
-    virtual void Write(double *p, int size);
+    virtual void Write(double *p, int size)
+    {
+        PkDouble(p,size);
+    }
 	
-    virtual void Write(const char *p, int size);
+    virtual void Write(const char *p, int size)
+    {
+        PkByte(p,size);
+    }
 	
-    virtual void Write(string *p, int size);
+    virtual void Write(string *p, int size)
+    {
+        int i;
+        for (i=0; i<size; i++) {
+            int len = p[i].size();
+            Write(&len, 1);
+            Write(&p[i][0],len);
+        }
+    }
 	
-    virtual void Read(int *p, int size);
+    virtual void Read(int *p, int size)
+    {
+        UpkInt(p,size);
+    }
 	
-    virtual void Read(double *p, int size);
+    virtual void Read(double *p, int size)
+    {
+        UpkDouble(p,size);
+    }
 	
-    virtual void Read(char *p, int size);
+    virtual void Read(char *p, int size)
+    {
+        UpkByte(p,size);
+    }
 	
-    virtual void Read(string *p, int size);
+    virtual void Read(string *p, int size)
+    {
+        char buf[1000];
+        for (int i=0; i<size; i++) {
+            int len;
+            Read(&len,1);
+            Read(buf,len);
+            p[i] = buf;
+        }
+    }
 	
 private:
 	int     f_myID;

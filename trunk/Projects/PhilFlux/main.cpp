@@ -1,6 +1,6 @@
 
-#include "mpi.h"
 #ifdef OOP_MPI
+#include "mpi.h"
 #include "oopmpicomm.h"
 #include "OOPDataLogger.h"
 #endif

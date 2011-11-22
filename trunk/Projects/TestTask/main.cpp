@@ -40,10 +40,6 @@ extern OOPGenericLockService gMutex;
 #endif
 
 using namespace std;
-//class OOPCommunicationManager;
-//class OOPDataManager;
-//class OOPTaskManager;
-
 
 const int NumThreads = 10;
 
@@ -313,7 +309,7 @@ int matmain(int argc, char **argv)
 	((OOPSocketCommManager *)pCM)->Initialize();
 	//CM->Initialize(argv[0], 4);
 	((OOPSocketCommManager *)pCM)->Barrier();
-#elif OOP_INTERNAL
+#else
 	pCM = new OOPInternalCommunicationManager(0, NumProcessors);
 #endif
 	TPZAutoPointer<OOPCommunicationManager> CM(pCM->CM());

@@ -47,17 +47,15 @@ int multimain ()
 	int     iproc;
 	for (iproc = 0; iproc < numproc; iproc++) {
 #ifndef OOP_MPI
-		CMList[iproc] =
-		new OOPFileComManager ("filecom", numproc, iproc);
+		CMList[iproc] = new OOPFileComManager ("filecom", numproc, iproc);
 #else
 		char   *argv = "main";
-		CMList[iproc] = new OOPMPICommManager (numproc, &argv);
+		CMList[iproc] = new OOPMPICommManager(numproc,&argv);
 		CMList[iproc]->Initialize (argv, numproc);
 #endif
-		TMList[iproc] =
-		new OOPTaskManager (CMList[iproc]->GetProcID ());
-		DMList[iproc] =
-		new OOPDataManager (CMList[iproc]->GetProcID (), TMList[iproc]);
+		TMList[iproc] = new OOPTaskManager(CMList[iproc]->GetProcID ());
+		TMList[iproc]->SetCommunicationManager(CMList[iproc]);
+		DMList[iproc] = new OOPDataManager (CMList[iproc]->GetProcID (), TMList[iproc]);
 	}
 	/*	OOPStorageBuffer::AddClassRestore (TPARANAYSIS_ID,
 	 TParAnalysis::Restore);
@@ -72,12 +70,11 @@ int multimain ()
 	 OOPStorageBuffer::AddClassRestore(TTERMINATIONTASK_ID,OOPTerminationTask::Restore);
 	 */
 	Load (0);
-	
+
 	//sprintf(filename,"datalogger%d", CM->GetProcID());
 	OOPDataLogger * LogDM = new OOPDataLogger("filedmlogger.log");
     ::LogDM = LogDM;
-	
-	
+
 	TParAnalysis *partask = new TParAnalysis (1, numproc, numproc);
 	TMList[0]->Submit (partask);
 	int nsteps=100;

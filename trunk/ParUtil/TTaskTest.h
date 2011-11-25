@@ -14,7 +14,7 @@
 #define TTASKTEST_ID 1000
 
 /**
- * @brief Defines the structure to implement a task to test.
+ * @brief Defines the structure to implement a task to test. \ref parutil "Utilitaries"
  * @ingroup parutil
  */
 class   TTaskTest :public OOPTask

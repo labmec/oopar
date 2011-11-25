@@ -21,7 +21,9 @@
 #ifndef SOCKET_HHH
 #define SOCKET_HHH
 
-/** @ingroup socket */
+/** @addtogroup socket 
+ * @{
+ */
 
 // definicoes do protocolo
 #define STARTUP         0
@@ -71,5 +73,8 @@ typedef struct
     int idOp, idSender, dtype, eCount, tag, cSocket;
 } OOP_SOCKET_Envelope;
 
+/**
+ * @}
+ */
 
 #endif

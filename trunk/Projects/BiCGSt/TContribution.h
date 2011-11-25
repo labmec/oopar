@@ -9,13 +9,13 @@ class   OOPDataVersion;
 using namespace std;
 
 /**
- * @brief Implements the necessary information regarded to contribution from one partition ¨i¨ to a partition ¨j¨.
+ * @brief Implements the necessary information regarded to contribution from one partition \f$ i \f$ to a partition \f$ j \f$.
  */
 /**
- * Objects of this class populates a matrix which relates partition ¨i¨ to par-
- * tition ¨j¨. Each (i,j) member of this matrix holds a copy of TComtribution.
- * Implements the number of contributing vectors the partition ¨i¨ contains
- * addressed to partition ¨j¨.
+ * Objects of this class populates a matrix which relates partition \f$ i \f$ to par-
+ * tition \f$ i \f$. Each (\f$i\f$,\f$j\f$) member of this matrix holds a copy of TComtribution.
+ * Implements the number of contributing vectors the partition \f$ i \f$ contains
+ * addressed to partition \f$ i \f$.
  */
 class TContribution : public TPZSaveable
 {

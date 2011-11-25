@@ -13,7 +13,7 @@
 using namespace std;
 
 /**
- * @brief Defines the vector to parallel process.
+ * @brief Defines the vector to parallel process. \ref parutil "Utilitaries"
  * @ingroup parutil
  */
 class TParVector:public TPZSaveable

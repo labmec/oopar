@@ -12,49 +12,54 @@
 
 class TBiCGStab : public OOPTask {
 public:    
-
-      static TPZSaveable * Restore(OOPStorageBuffer * buf);
-  TBiCGStab(int nproc);
-  ~TBiCGStab();
-  /**
-  * Returns the estimated execution time.
-  * returns 0 if the task is instantaneous
-  * returns > 0 if estimate is known
-  * return < 0 if no estimate is known
-  */
+	
+	static TPZSaveable * Restore(OOPStorageBuffer * buf);
+	TBiCGStab(int nproc);
+	~TBiCGStab();
+	/**
+	 * @brief Returns the estimated execution time.
+	 * returns 0 if the task is instantaneous
+	 * returns > 0 if estimate is known
+	 * return < 0 if no estimate is known
+	 */
 	virtual long ExecTime ();
-
+	
 	/**
-	* Execute the task, verifying that all needed data acesses are satisfied.
-	*/
+	 * @brief Implements the top level task of the BiCGSTAB. \n
+	 * Will set all correct data versions for all data involved and submit all
+	 * tasks which contribute to the BiCGSTAB
+	 */
+	/** Execute the task, verifying that all needed data acesses are satisfied. */
 	virtual OOPMReturnType Execute ();
-
+	
 	/**
-	* Returns last created Id.
-	*/
+	 * @brief Returns last created Id.
+	 */
 	virtual long GetClassID ()
 	{
 		return TDISTNORM_ID;
 	}
-  
+	
 private:
+	
 	bool fObjectsSubmitted;
 	/**
-	 * Submits the necessary data objects for the BiCGStab completion
+	 * @brief Submits the necessary data objects for the BiCGStab completion
 	 */
 	void SubmitObjects();
 	/**
-	 * Sets up task/data dependency relationship.
+	 * @brief Sets up task/data dependency relationship.
 	 */
 	void SetupTaskData();
-  /** This function declares and submits the loop found on the BiCGStab code.
-@since 09-01-2004
-@author Gustavo C. Longhin
- */
+	/** 
+	 * @brief This function declares and submits the loop found on the BiCGStab code.
+	 * @since 09-01-2004
+	 * @author Gustavo C. Longhin
+	 */
     void CreateLoop(OOPDataVersion & normbVersion);
-
+	
 	/**
-	 * Global Ids
+	 * @brief Global Ids
 	 */
 	OOPObjectId fId_normb;
 	OOPObjectId fId_normr;
@@ -66,9 +71,9 @@ private:
 	OOPObjectId fId_omega;
 	OOPObjectId fId_max_iter;
 	OOPObjectId fId_tol;
-
+	
 	/**
-	 * Local Ids
+	 * @brief Local Ids
 	 */
 	vector <OOPObjectId> f_lId_A;
 	vector <OOPObjectId> f_lId_M;

@@ -1,6 +1,10 @@
-
+/**
+ * @file
+ * @brief Contains the TTaskTest class.
+ */
 #ifndef TTASKTEST_H
 #define TTASKTEST_H
+
 #include "ooptask.h"
 #include "pzsave.h"
 #include "pzfmatrix.h"
@@ -9,6 +13,10 @@
 
 #define TTASKTEST_ID 1000
 
+/**
+ * @brief Defines the structure to implement a task to test.
+ * @ingroup parutil
+ */
 class   TTaskTest :public OOPTask
 {
 	TPZFMatrix m_Matrix;

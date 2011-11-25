@@ -4,28 +4,28 @@
 #include "bicgdefs.h"
 
 TTaskComm::TTaskComm(int proc) : OOPTask(proc){
-  fLongValue=0;
-  fDoubleValue=0.;
-  }
+	fLongValue=0;
+	fDoubleValue=0.;
+}
 
-int TTaskComm::Read(OOPStorageBuffer * buf, void *context)
+void TTaskComm::Read(TPZStream &buf, void *context)
 {
 	OOPTask::Read(buf,context);
-  long auxlong;
-  buf->UpkLong(&auxlong);
-  fLongValue=auxlong;
-  double auxdouble;
-  buf->UpkDouble(&auxdouble);
-  fDoubleValue=auxdouble;
-	return 0;
+	long auxlong;
+	buf->UpkLong(&auxlong);
+	fLongValue=auxlong;
+	double auxdouble;
+	buf->UpkDouble(&auxdouble);
+	fDoubleValue=auxdouble;
 }
-int TTaskComm::Write(OOPStorageBuffer * buf, int classid)
+
+void TTaskComm::Write(TPZStream &buf, int classid)
 {
 	OOPTask::Write(buf,classid);
-  buf->PkLong(&fLongValue);
-  buf->PkDouble(&fDoubleValue);
-	return 0;
+	buf->PkLong(&fLongValue);
+	buf->PkDouble(&fDoubleValue);
 }
+
 OOPMReturnType TTaskComm::Execute ()
 {
 	int i;
@@ -41,21 +41,21 @@ OOPMReturnType TTaskComm::Execute ()
 #endif
 			TaskLog << "TTaskComm object id " << fDataDepend.Dep (i).ObjPtr ()->Id ();
 			TaskLog << "TTaskComm::Execute the previous version is "
-				<< fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
+			<< fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
 			OOPDataVersion ver =
-				fDataDepend.Dep (i).ObjPtr ()->Version ();
+			fDataDepend.Dep (i).ObjPtr ()->Version ();
 			ver.Increment ();
 			fDataDepend.Dep (i).ObjPtr ()->SetVersion (ver,
-								   this->
-								   Id ());
+													   this->
+													   Id ());
 #ifdef VERBOSE
 			cout << "TTaskComm::Execute the new version is " <<
-				endl;
+			endl;
 			fDataDepend.Dep (i).ObjPtr ()->Version ().
-				Print (cout);
+			Print (cout);
 #endif
 			TaskLog << "TTaskComm::Execute the new version is " <<
-				fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
+			fDataDepend.Dep (i).ObjPtr ()->Version () << endl;
 		}
 	}
 	TaskFinished ();
@@ -67,10 +67,11 @@ OOPSaveable *TTaskComm::Restore (OOPStorageBuffer * buf) {
 	loc->Unpack(buf);
 	return loc;
 }
+
 /** Sets the value the communication task will transport */
 void TTaskComm::SetValue(double val){
-  fDoubleValue = val;
+	fDoubleValue = val;
 }
 void TTaskComm::SetValue(long val){
-  fLongValue = val;
+	fLongValue = val;
 }

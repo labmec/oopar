@@ -19,11 +19,11 @@ add_custom_target(Doxygen_Files SOURCES  ${doxyfiles})
 #To cmake
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG" CACHE STRING "c++ debug flags go here" FORCE)
 #To search files and libraries
-	set(SEARCH_DIRS ENV PATH /usr/include /usr/local/include /usr/local/include/boost /usr/local/include/log4cxx /usr/lib /usr/local/lib ./. ./.. ./../libs ./../libs/fad ./../libs/metis ./../libs/metis/include ./../libs/metis/lib ./../libs/metis-5.0.1 ./../libs/metis-5.0.1/include ./../libs/metis-5.0.1/lib ./../externallibs ./../externallibs/fad ./../externallibs/metis ./../externallibs/metis/include ./../externallibs/metis/lib ./../externallibs/metis-5.0.1 ./../externallibs/metis-4.0 ./../externallibs/metis-5.0.1/include ./../externallibs/metis-4.0/include ./../externallibs/metis-5.0.1/lib ./../library/include ./../library/include/neopz ./../library/lib)
+	set(SEARCH_DIRS ENV PATH /usr/include /usr/local/include /usr/local/include/boost /usr/local/include/log4cxx /usr/lib /usr/local/lib ./. ./.. ./../libs ./../libs/fad ./../libs/metis ./../libs/metis/include ./../libs/metis/lib ./../libs/metis-5.0.1 ./../libs/metis-5.0.1/include ./../libs/metis-5.0.1/lib ./../externallibs ./../externallibs/fad ./../externallibs/metis ./../externallibs/metis/include ./../externallibs/metis/lib ./../externallibs/metis-5.0.1 ./../externallibs/metis-4.0 ./../externallibs/metis-5.0.1/include ./../externallibs/metis-4.0/include ./../externallibs/metis-5.0.1/lib ./../externallibs/neopz ./../externallibs/neopz/include ./../externallibs/neopz/lib)
 
 #To install oopar
-	set(OOPAR_INCLUDE ${PROJECT_SOURCE_DIR}/../library/include/oopar)
-	set(OOPAR_LIB ${PROJECT_SOURCE_DIR}/../library/lib)
+	set(OOPAR_INCLUDE ${PROJECT_SOURCE_DIR}/../externallibs/oopar/include)
+	set(OOPAR_LIB ${PROJECT_SOURCE_DIR}/../externallibs/oopar/lib)
 
 #ENABLING EXTERNAL LIBRARIES
 
@@ -31,10 +31,10 @@ add_custom_target(Doxygen_Files SOURCES  ${doxyfiles})
 find_path(NEOPZ_INCLUDE pzcreateapproxspace.h PATHS ${SEARCH_DIRS})
 find_path(NEOPZ_LIB libpz.a PATHS ${SEARCH_DIRS})
 if(NEOPZ_INCLUDE-NOTFOUND)
-	set(NEOPZ_INCLUDE "/usr/include" CACHE PATH "Directory where neopz headers can be found")
+	set(NEOPZ_INCLUDE "/usr/local/include" CACHE PATH "Directory where neopz headers can be found")
 endif()
 if(NEOPZ_LIB-NOTFOUND)
-	set (NEOPZ_LIB "/usr/lib" CACHE PATH "Directory where the neopz (pz) library can be found")
+	set (NEOPZ_LIB "/usr/local/lib" CACHE PATH "Directory where the neopz (pz) library can be found")
 endif()
 
 #To include directories of the PZ library

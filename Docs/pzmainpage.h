@@ -238,12 +238,66 @@ External libraries which are not necessarily installed at root lib directory or 
 can to be installed or copied into the indicated directory.
 
 OOPar uses until five external libraries:
- \li pthread - For the POSIX pthread threading.
- \li boost - It provides free portable peer-reviewed C++ libraries. We mainly was used as unit test framework.
- \li log4cxx - For efficient log messages.
- \li metis - To partitioning finite element meshes, and producing fill reducing orderings for sparse matrices
+ \li \ref pz "pz" - This is not optional. To implements simulations in finite element environment.
+ \li \ref pthread "pthread" - For the POSIX pthread threading.
+ \li \ref boost "boost" - It provides free portable peer-reviewed C++ libraries. We mainly was used as unit test framework.
+ \li \ref log4cxx "log4cxx" - For efficient log messages.
+ \li \ref metis "metis" - To partitioning finite element meshes, and producing fill reducing orderings for sparse matrices.
  
-\section metis Metis library
+ \section pz NeoPZ library
+ 
+ To get the source code, use this command to anonymously check out the latest project (in terminal):
+ svn checkout http://neopz.googlecode.com/svn/trunk/ neopz-read-only
+ Or use the SVN program:
+ . In the first windows check: Check out project from repository
+ . In the second windows:
+ - Check Quick Checkout (less configuration)
+ - Write http://neopz.googlecode.com/svn/trunk/ in URL:
+ - Choose your local directory where you want to store neopz source code.
+ 
+ To install pz library (libpz.a), 
+ \li Run CMake using the CMakeList.txt in neopz root directory.
+ \li Run PZ.xcodeproj into the neopz_CMake directory
+ \li Execute the target install. It's ready.
+ 
+ Then, into the externallibs directory will be installed the libpz.a and the header files into the include directory.
+ 
+ \section boost Boost library
+ If you set USING_BOOST as TRUE it is necessary to install the Boost library. \n
+ Get the latest version of BOOST library at download from <a href="http://sourceforge.net/projects/boost/files/boost">Sourceforge</a>. \n
+ 
+ It is recommended to use version <a href="http://sourceforge.net/projects/boost/files/boost/1.47.0">1.47.0</a>
+ 
+ Use boost_1_47_0.tar.gz or boost_1_47_0.tar.bz2 for unix or mac systems. \n
+ Use boost_1_47_0.7z or boost_1_47_0.zip for windows system.
+ 
+ To install following next steps:\n
+ Uncompress the version downloaded. \n
+ Using command line change into the uncompress directory. \n
+ For mac or unix systems, type the following commands and execute: \n
+ \li sudo ./bootstrap.sh
+ \li sudo ./bjam install
+ 
+ For Windows systems, execute: \n
+ \li ./bootstrap.bat
+ \li ./bjam install
+ 
+ See <a href="http://www.boost.org/doc/libs/1_47_0/doc/html/bbv2/installation.html">Installation</a>
+ 
+ \section log4cxx Log4cxx library
+ 
+ Apache <a href="http://logging.apache.org/log4cxx/">log4cxx</a> is a logging framework for C++ pattern. It has three main components: loggers, appenders and layouts.
+ These three types of components work together to enable developers to log messages according to message type and level, 
+ and to control at runtime how these messages are formatted and where they are reported.
+ 
+ To install, <a href="http://logging.apache.org/log4cxx/download.html">download</a> apache-log4cxx-0.10.0.zip for windows system, or apache-log4cxx-0.10.0.tar.gz for unix or mac systems. \n
+ Then uncompress the archive. Using command line change into uncompress directory. \n
+ Type de following commands: \n
+ \li ./configure
+ \li make check
+ \li sudo make install
+ 
+ \section metis Metis library
 If you set USING_METIS as TRUE, you must to install Metis library. \n
 Metis library is avaliable 
 from <a href="http://glaros.dtc.umn.edu/gkhome/metis/metis/download">Karypis Lab</a>
@@ -251,41 +305,6 @@ from <a href="http://glaros.dtc.umn.edu/gkhome/metis/metis/download">Karypis Lab
 METIS is a set of serial programs for partitioning graphs, partitioning finite element meshes, \n
 and producing fill reducing orderings for sparse matrices.
  
-\section boost Boost library
-If you set USING_BOOST as TRUE it is necessary to install the Boost library. \n
-Get the latest version of BOOST library at download from <a href="http://sourceforge.net/projects/boost/files/boost">Sourceforge</a>. \n
-
-It is recommended to use version <a href="http://sourceforge.net/projects/boost/files/boost/1.47.0">1.47.0</a>
- 
-Use boost_1_47_0.tar.gz or boost_1_47_0.tar.bz2 for unix or mac systems. \n
-Use boost_1_47_0.7z or boost_1_47_0.zip for windows system.
- 
-To install following next steps:\n
-Uncompress the version downloaded. \n
- Using command line change into the uncompress directory. \n
- For mac or unix systems, type the following commands and execute: \n
- \li sudo ./bootstrap.sh
- \li sudo ./bjam install
-
- For Windows systems, execute: \n
- \li ./bootstrap.bat
- \li ./bjam install
-
- See <a href="http://www.boost.org/doc/libs/1_47_0/doc/html/bbv2/installation.html">Installation</a>
- 
-\section log4cxx Log4cxx library
-
-Apache <a href="http://logging.apache.org/log4cxx/">log4cxx</a> is a logging framework for C++ pattern. It has three main components: loggers, appenders and layouts.
-These three types of components work together to enable developers to log messages according to message type and level, 
-and to control at runtime how these messages are formatted and where they are reported.
- 
-To install, <a href="http://logging.apache.org/log4cxx/download.html">download</a> apache-log4cxx-0.10.0.zip for windows system, or apache-log4cxx-0.10.0.tar.gz for unix or mac systems. \n
-Then uncompress the archive. Using command line change into uncompress directory. \n
-Type de following commands: \n
- \li ./configure
- \li make check
- \li sudo make install
-
 \section pthread Pthread library
  
 The oopar project uses <a href="http://staff.science.uva.nl/~bterwijn/Projects/PThread/">PThread</a> library for the POSIX pthread threading. 

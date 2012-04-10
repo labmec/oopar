@@ -25,6 +25,7 @@ private:
 	{
 		f_num_proc = 1;
 		f_myself = 0;
+        return 1;
 	}
 	
 	/**
@@ -49,7 +50,10 @@ private:
 	 * identified by processID. The buffer is sent through SendMessage.
 	 * @param *pTask : A pointer to the object TTask which will be sent
 	 */
-	virtual int SendTask (OOPTask * pTask) {return 0;}
+	virtual int SendTask (OOPTask * pTask) {
+        DebugStop();
+        return 0;
+    }
 	// Recebe uma mensagem qualquer que tenha chegado. Se nao huver
 	// nenhuma mensagem, retorna 0.
 	// 

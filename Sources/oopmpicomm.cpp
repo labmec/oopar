@@ -1,4 +1,7 @@
 //
+
+#ifdef OOP_MPI
+
 #include "mpi.h"
 #include <stdio.h>
 
@@ -375,3 +378,5 @@ void OOPMPICommManager::UnlockReceiveBlocking()
 	}
 #endif
 }
+
+#endif

@@ -39,8 +39,10 @@
 static LoggerPtr loggerconverge(Logger::getLogger("pz.converge"));
 #endif
 
+
 #ifdef OOPAR
-#include "parsubstruct.cpp"
+int matmain(int argc, char *argv[]);
+//#include "parsubstruct.cpp"
 #endif
 using namespace std;
 
@@ -100,7 +102,7 @@ int main(int argc, char *argv[])
 	//TPZDohrSubstruct::fWeightType = TPZDohrSubstruct::Uniform;
 	TPZAutoPointer<TPZDohrAssembly> dohrassembly = new TPZDohrAssembly;
 	TPZDohrMatrix<TPZDohrSubstruct> *dohrptr = new TPZDohrMatrix<TPZDohrSubstruct>(dohrassembly);
-	TPZAutoPointer<TPZMatrix> dohr(dohrptr);
+	TPZAutoPointer<TPZMatrix<REAL> > dohr(dohrptr);
 	sub.InitializeDohr(dohr,dohrassembly);
 	// loop over the substructures
 	// This is a lengthy process which should run on the remote processor
@@ -132,10 +134,10 @@ int main(int argc, char *argv[])
 	
 	
 	
-	TPZAutoPointer<TPZMatrix> precond(precondptr);
+	TPZAutoPointer<TPZMatrix<REAL> > precond(precondptr);
 	
 	
-	TPZFMatrix diag(dohr->Rows(),1,5.), produto(dohr->Rows(),1);
+	TPZFMatrix<REAL> diag(dohr->Rows(),1,5.), produto(dohr->Rows(),1);
 	dohr->Multiply(diag,produto);
 #ifdef LOG4CXX
 	{
@@ -188,9 +190,9 @@ int main(int argc, char *argv[])
 		LOGPZ_DEBUG(loggerconverge,sout.str())
 	}
 #endif
-	TPZStepSolver pre(precond);
+	TPZStepSolver<REAL> pre(precond);
 	pre.SetMultiply();
-	TPZStepSolver cg(dohr);
+	TPZStepSolver<REAL> cg(dohr);
 	//  void SetCG(const int numiterations,const TPZMatrixSolver &pre,const REAL tol,const int FromCurrent);
 	
 	cg.SetCG(5,pre,1.e-8,0);

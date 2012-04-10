@@ -67,7 +67,7 @@ int matmain(int argc, char **argv)
 	std::cout << "argc " << argc << std::endl;
 	std::cout << "argv " << argv[0][1] << std::endl;
 	std::cout.flush();
-	OOPCommunicationManager * CM;
+	OOPCommunicationManager * CM = 0;
 #ifdef OOP_MPI
 	CM = new OOPMPICommManager(argc, argv);
 #elif OOP_SOCKET
@@ -75,6 +75,8 @@ int matmain(int argc, char **argv)
 	((OOPSocketCommManager *)CM)->Initialize();
 	//CM->Initialize(argv[0], 4);
 	((OOPSocketCommManager *)CM)->Barrier();
+#elif OOP_INTERNAL
+    CM = new OOPInternalCommunicationManager(0, NumProcessors);
 #endif
 #ifdef LOG4CXX
 #ifdef OOP_SOCKET
@@ -136,7 +138,7 @@ int matmain(int argc, char **argv)
 		TPZDohrAssembly * assembly = new TPZDohrAssembly;
 		OOPObjectId AssemblyId = DM->SubmitObject(assembly);
 		int diagSize = 0;
-		TPZFMatrix * Diagonal = new TPZFMatrix(diagSize);
+		TPZFMatrix<REAL> * Diagonal = new TPZFMatrix<REAL>(diagSize);
 		OOPObjectId DiagId = DM->SubmitObject(Diagonal);
 		/**
 		 * For each processor a SubDiagonalTask object must be submitted. A SubDiagonal object holds in its data structure values to be added in the main diagonal
@@ -368,9 +370,9 @@ int TestFParMatrix()
 		//std::cin >> msize;
 		std::cout << "Usando Dimens‹o " << msize << std::endl;
 		
-		TPZFMatrix thefMat(msize, msize);
-		TPZFMatrix fullv1(msize, 1);
-		TPZFMatrix fullv2(msize, 1);
+		TPZFMatrix<REAL> thefMat(msize, msize);
+		TPZFMatrix<REAL> fullv1(msize, 1);
+		TPZFMatrix<REAL> fullv2(msize, 1);
 		
 		for (i = 0; i < msize; i++)
 		{
@@ -393,10 +395,10 @@ int TestFParMatrix()
 		TPZFParMatrix * v2 = new TPZFParMatrix(fullv2);
 		TPZFParMatrix * v3 = new TPZFParMatrix(fullv2);
 		
-		TPZAutoPointer<TPZMatrix> pointerPar(par);
+		TPZAutoPointer<TPZMatrix<REAL> > pointerPar(par);
 		
-		TPZStepSolver solver(pointerPar);
-		TPZCopySolve csolve(NULL);
+		TPZStepSolver<REAL> solver(pointerPar);
+		TPZCopySolve<REAL> csolve(NULL);
 		solver.SetCG(50, csolve, 0.01, 0);
 #ifdef LOG4CXX
 		{
@@ -484,6 +486,7 @@ int TestFParMatrix()
 	return 0;
 }
 
+/*
 int main(int argc, char **argv)
 {
 	//debugmpimain(argc, argv);
@@ -494,6 +497,7 @@ int main(int argc, char **argv)
 	
 	return 0;
 }
+*/
 
 #ifdef OOP_INTERNAL
 void SetupEnvironment(TPZVec<TPZAutoPointer<OOPTaskManager> >&TMVec)

@@ -13,7 +13,7 @@
 #include "pzsave.h"
 #include "pzfmatrix.h"
 
-class TPZFMatrix;
+//class TPZFMatrix;
 
 #define OOPMATVECMULTIPLY_ID 1002
 /**
@@ -25,7 +25,7 @@ class OOPMatVecMultiply : public OOPTask
 	/**
 	 * @brief For the \f$ K.u = f \f$ multiplication, it holds the u vector
 	 */
-	TPZFMatrix m_Vector;
+	TPZFMatrix<REAL> m_Vector;
 	/**
 	 * @brief Holds the Id of the Indexation object
 	 */
@@ -38,7 +38,7 @@ class OOPMatVecMultiply : public OOPTask
 	/**
 	 * @brief Triggers merge tasks
 	 */
-	void CreateMergeTask(TPZFMatrix & vector);
+	void CreateMergeTask(TPZFMatrix<REAL> & vector);
 	
 public:
 	virtual ~OOPMatVecMultiply(){}
@@ -50,7 +50,7 @@ public:
 	/**
 	 * @brief Sets the u vector
 	 */
-	void SetUVector(TPZFMatrix vector)
+	void SetUVector(TPZFMatrix<REAL> vector)
 	{
 		m_Vector = vector;
 	}

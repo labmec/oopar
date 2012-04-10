@@ -91,6 +91,17 @@ void OOPSocketStorageBuffer::Write(double *p, int size)
 	PkDouble(p, size);
 }
 
+void OOPSocketStorageBuffer::Write(long double *p, int size)
+{
+    DebugStop();
+//	PkDouble(p, size);
+}
+
+void OOPSocketStorageBuffer::Write(float *p, int size)
+{
+	PkFloat(p, size);
+}
+
 
 void OOPSocketStorageBuffer::Write(const char *p, int size)
 {
@@ -124,6 +135,17 @@ void OOPSocketStorageBuffer::Read(int *p, int size)
 void OOPSocketStorageBuffer::Read(double *p, int size)
 {
 	UpkDouble(p, size);
+}
+
+void OOPSocketStorageBuffer::Read(long double *p, int size)
+{
+    DebugStop();
+//	UpkDouble(p, size);
+}
+
+void OOPSocketStorageBuffer::Read(float *p, int size)
+{
+	UpkFloat(p, size);
 }
 
 
@@ -173,6 +195,11 @@ int OOPSocketStorageBuffer::PkDouble(double *p, int n)
 	return Pack(p, n, SOCKET_DOUBLE);
 }
 
+int OOPSocketStorageBuffer::PkFloat(float *p, int n)
+{
+	return Pack(p, n, SOCKET_FLOAT);
+}
+
 
 int OOPSocketStorageBuffer::PkByte(const char *p, int n)
 {
@@ -200,6 +227,12 @@ int OOPSocketStorageBuffer::UpkInt (int *p, int n)
 int OOPSocketStorageBuffer::UpkDouble (double *p, int n)
 {
 	OOPSocketStorageBuffer::Unpack(&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, SOCKET_DOUBLE);
+	return 1;
+}
+
+int OOPSocketStorageBuffer::UpkFloat (float *p, int n)
+{
+	OOPSocketStorageBuffer::Unpack(&m_Buffer[0], m_Buffer.NElements(), &m_Length, p, n, SOCKET_FLOAT);
 	return 1;
 }
 

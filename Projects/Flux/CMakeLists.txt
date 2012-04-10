@@ -6,5 +6,5 @@ set(flux_SRCS TTaskComm.cpp TLocalCompute.cpp TContribution.cpp TParAnalysis.cpp
 
 add_executable(Flux ${flux_SRCS} ${header})
 
-target_link_libraries(Flux pz oopar mpi)
+target_link_libraries(Flux pz oopar)
 

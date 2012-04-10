@@ -26,7 +26,7 @@ extern OOPDataManager * DM;
  * Understanding the details of the CG Template implementation are key to understanding the TPZFParMatrix required
  * reimplementation, which will be implemented in parallel using OOPar as parallel environment.
  */
-class TPZFParMatrix : public TPZFMatrix {
+class TPZFParMatrix : public TPZFMatrix<REAL> {
 public:
 	/**
 	 * @brief Simple constructor
@@ -38,7 +38,7 @@ public:
 		m_IsSync = false;
 	}
 	
-	inline TPZFParMatrix(TPZFMatrix & matrix) : TPZFMatrix(matrix)
+	inline TPZFParMatrix(TPZFMatrix & matrix) : TPZFMatrix<REAL>(matrix)
 	{
 		TPZFMatrix * lMatrix = new TPZFMatrix(matrix);
 		m_Id = DM->SubmitObject(lMatrix);
@@ -46,11 +46,6 @@ public:
 		
 	}
     
-	/**
-	 * @brief Read and Write methods
-	 */
-	virtual void Read(TPZStream &buf, void *context);
-	virtual void Write(TPZStream &buf, int withclassid);
 	/**
 	 @brief Constructor with initialization parameters
 	 @param rows Initial number of rows
@@ -98,8 +93,14 @@ public:
 	/**
 	 * @brief Destructor
 	 */
-	~TPZFParMatrix();
-	
+	virtual ~TPZFParMatrix();
+
+    /**
+	 * @brief Read and Write methods
+	 */
+	virtual void Read(TPZStream &buf, void *context);
+	virtual void Write(TPZStream &buf, int withclassid);
+
 	/**
 	 * @brief According to the documentation in base class. \n
 	 * It is performed with call to SynchronizeToLocal() and subsequently a 
@@ -110,11 +111,11 @@ public:
 	
 	
 	void MultAdd(const TPZFParMatrix &x, const TPZFParMatrix &y, TPZFParMatrix &z, const REAL alpha = 1., const REAL beta = 0., const int opt = 0, const int stride = 1) const;
-	void MultAdd(const TPZFMatrix &x, const TPZFMatrix &y, TPZFMatrix &z, const REAL alpha = 1., const REAL beta = 0., const int opt = 0, const int stride = 1) const;
+	void MultAdd(const TPZFMatrix<REAL> &x, const TPZFMatrix<REAL> &y, TPZFMatrix<REAL> &z, const REAL alpha = 1., const REAL beta = 0., const int opt = 0, const int stride = 1) const;
 	
 	
 	void Multiply(const TPZFParMatrix &A, TPZFParMatrix&B, int opt=0, int stride=1) const ;
-	void Multiply(const TPZFMatrix &A, TPZFMatrix&B, int opt=0, int stride=1) const ;
+	void Multiply(const TPZFMatrix<REAL> &A, TPZFMatrix<REAL> &B, int opt=0, int stride=1) const ;
 	
 	void TimesBetaPlusZ(const REAL beta, const TPZFParMatrix &z);
 	void TimesBetaPlusZ(const REAL beta, const TPZFMatrix &z);
@@ -156,7 +157,7 @@ public:
 	void SynchronizeFromLocal();
 	
 	
-	int ClassId()
+	int ClassId() const 
 	{
 		return TPZFPARMATRIX_ID;
 	}
@@ -166,10 +167,10 @@ public:
 	int Redim(const int rows, const int cols);
 	
 	
-	virtual void SolveCG(int & 	numiterations, TPZSolver & 	preconditioner, const TPZFMatrix & 	F, TPZFMatrix & result, TPZFMatrix * residual, REAL & tol, const int 	FromCurrent = 0);
+	virtual void SolveCG(int & 	numiterations, TPZSolver<REAL> & 	preconditioner, const TPZFMatrix<REAL> & 	F, TPZFMatrix<REAL> & result, TPZFMatrix<REAL> * residual, REAL & tol, const int 	FromCurrent = 0);
 	
-	virtual TPZFMatrix & operator = (const TPZFParMatrix & copy);
-	virtual TPZFMatrix & operator = (const TPZFMatrix & copy);
+	virtual TPZFMatrix<REAL> & operator = (const TPZFParMatrix & copy);
+	virtual TPZFMatrix<REAL> & operator = (const TPZFMatrix & copy);
 	
 	
 protected:

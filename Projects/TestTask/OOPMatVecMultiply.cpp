@@ -48,11 +48,11 @@ OOPMReturnType OOPMatVecMultiply::Execute()
 	
 	cout << "Executing Task " << Id() << " For Matrix Vector multiplication\n";
 	cout.flush();
-	TPZMatrix * Matrix = dynamic_cast<TPZMatrix * >(fDependRequest.ObjectPtr(0));
+	TPZMatrix<REAL> * Matrix = dynamic_cast<TPZMatrix<REAL> * >(fDependRequest.ObjectPtr(0));
 	//Matrix->Print("Matriz na tarefa", cout, EFormatted);
 	//m_Vector.Print("Vetor na tarefa", cout, EFormatted);
 	cout.flush();
-	TPZFMatrix Vector(Matrix->Cols(), 1);
+	TPZFMatrix<REAL> Vector(Matrix->Cols(), 1);
 	Matrix->Multiply(m_Vector, Vector);
 #ifdef LOGPZ
 	{
@@ -91,7 +91,7 @@ OOPMReturnType OOPMatVecMultiply::Execute()
 	return ESuccess;
 }
 
-void OOPMatVecMultiply::CreateMergeTask(TPZFMatrix & vector)
+void OOPMatVecMultiply::CreateMergeTask(TPZFMatrix<REAL> & vector)
 {
 	std::cout << "Creating Merge Tasks\n";
 	std::cout.flush();

@@ -19,7 +19,7 @@
  */
 class   TTaskTest :public OOPTask
 {
-	TPZFMatrix m_Matrix;
+	TPZFMatrix<REAL> m_Matrix;
 	TPZGeoMesh m_Mesh;
 public:
 	virtual ~TTaskTest(){}
@@ -33,7 +33,7 @@ public:
 		TPZVec<REAL> x0(3,0);
 		TPZVec<REAL> x1(3,1);
 		TPZGenGrid grid(nx, x0, x1,1,0);
-		grid.Read(m_Mesh);
+		grid.Read(&m_Mesh);
 	} 
     /**
 	 * @brief Execute the task, verifying that all needed data acesses are satisfied. \n

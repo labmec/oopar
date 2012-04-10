@@ -31,6 +31,10 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.mainprogram"));
 #include "oopevtmanager.h"
 #endif
 
+#ifdef OOP_INTERNAL
+#include "oopinternalcommanager.h"
+#endif
+
 #include "TTaskTest.h"
 #include "OOPInt.h"
 
@@ -369,11 +373,11 @@ int matmain(int argc, char **argv)
 		//cin >> size;
 		size = 120;
 		OOPParMatrix parMatrix;
-		TPZFMatrix * theMatrix = new TPZFMatrix;
-		TPZFMatrix theUvec;
+		TPZFMatrix<REAL> * theMatrix = new TPZFMatrix<REAL>;
+		TPZFMatrix<REAL> theUvec;
 		parMatrix.BuildMe(size, theMatrix, theUvec);
-		TPZFMatrix * theFVec = new TPZFMatrix(size, 1, 0.0);
-		std::vector<TPZMatrix *> subm;
+		TPZFMatrix<REAL> * theFVec = new TPZFMatrix<REAL>(size, 1, 0.0);
+		std::vector<TPZMatrix<REAL> *> subm;
 		std::vector<std::pair<std::vector<int>, std::vector<int> > > Indices;
 		int nparts = 0;
 		cout << "NParts\n";
@@ -401,14 +405,14 @@ int matmain(int argc, char **argv)
 		parMatrix.DivideMe(nparts, theMatrix, subm, Indices);
 		cout << "Original Matrix divided\n Subm size " << subm.size() << endl;
 		
-		std::vector<TPZMatrix *> vectors;
+		std::vector<TPZMatrix<REAL> *> vectors;
 		vectors.resize(subm.size());
 		int i, j;
 		cout.flush();
 		for(i = 0; i < vectors.size(); i++)
 		{
 			int lsize = Indices[i].second.size();
-			TPZFMatrix * lvec = new TPZFMatrix(lsize, 1);
+			TPZFMatrix<REAL> * lvec = new TPZFMatrix<REAL>(lsize, 1);
 			for(j = 0; j < lsize; j++)
 			{
 				lvec->Put(j, 0, theUvec.Get(Indices[i].second[j], 0));
@@ -483,7 +487,7 @@ int matmain(int argc, char **argv)
 		{
 			std::stringstream sout;
 			sout << "Leaving after WaitTask\n";
-			TPZFMatrix * resVec = dynamic_cast<TPZFMatrix *> (wt->GetDepObjPtr(0));
+			TPZFMatrix<REAL> * resVec = dynamic_cast<TPZFMatrix<REAL> *> (wt->GetDepObjPtr(0));
 			resVec->Print("Resultado Principal", sout, EFormatted);
 			resVec->Print("Resultado Principal Math", sout, EMathematicaInput);
 			LOGPZ_DEBUG(logger, sout.str().c_str());

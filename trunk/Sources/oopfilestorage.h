@@ -132,6 +132,17 @@ public:
     {
         PkDouble(p,size);
     }
+
+    virtual void Write(long double *p, int size)
+    {
+        DebugStop();
+//        PkDouble(p,size);
+    }
+
+    virtual void Write(float *p, int size)
+    {
+        PkFloat(p,size);
+    }
 	
     virtual void Write(const char *p, int size)
     {
@@ -156,6 +167,17 @@ public:
     virtual void Read(double *p, int size)
     {
         UpkDouble(p,size);
+    }
+	
+    virtual void Read(long double *p, int size)
+    {
+        DebugStop();
+//        UpkDouble(p,size);
+    }
+	
+    virtual void Read(float *p, int size)
+    {
+        UpkFloat(p,size);
     }
 	
     virtual void Read(char *p, int size)

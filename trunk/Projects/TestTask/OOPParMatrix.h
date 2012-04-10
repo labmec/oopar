@@ -18,8 +18,8 @@ class OOPParMatrix
 {
 public:
 	OOPParMatrix(){};
-	void BuildMe(int size, TPZMatrix * matrix, TPZFMatrix & vU);
-	void DivideMe(int nPieces, TPZMatrix * OrigMatrix, std::vector<TPZMatrix *> & subMats, 
+	void BuildMe(int size, TPZMatrix<REAL> * matrix, TPZFMatrix<REAL> & vU);
+	void DivideMe(int nPieces, TPZMatrix<REAL> * OrigMatrix, std::vector<TPZMatrix<REAL> *> & subMats, 
 				  std::vector< std::pair< std::vector<int>, std::vector<int> > > & Indices);
 	
 };

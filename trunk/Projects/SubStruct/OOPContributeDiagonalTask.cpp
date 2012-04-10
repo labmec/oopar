@@ -20,7 +20,7 @@ OOPContributeDiagonalTask::OOPContributeDiagonalTask(int processor)
 
 OOPMReturnType OOPContributeDiagonalTask::Execute()
 {
-	TPZFMatrix * matDiag = dynamic_cast<TPZFMatrix * > (fDependRequest.ObjectPtr(0));
+	TPZFMatrix<REAL> * matDiag = dynamic_cast<TPZFMatrix<REAL> * > (fDependRequest.ObjectPtr(0));
 	int i;
 	for(i = 0; i < m_Indices.NElements(); i++)
 	{

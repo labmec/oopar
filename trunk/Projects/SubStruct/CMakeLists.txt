@@ -1,7 +1,8 @@
 
 file(GLOB header *.h)
 
-set(oopfiles_SRCS OOPComputeMatricesTask.cpp OOPContributeDiagonalTask.cpp OOPContribWeightTask.cpp OOPDumbCommMan.cpp)
+set(oopfiles_SRCS OOPComputeMatricesTask.cpp OOPContributeDiagonalTask.cpp OOPContribWeightTask.cpp OOPDumbCommMan.cpp
+    TPZFParMatrix.cpp parsubstruct.cpp)
 
 
 add_executable(SubStruct ${header} ${oopfiles_SRCS} substruct.cpp)

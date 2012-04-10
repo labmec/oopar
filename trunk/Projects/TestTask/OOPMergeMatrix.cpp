@@ -23,7 +23,7 @@ OOPMReturnType OOPMergeMatrix::Execute()
 {
 	
 	cout << "Executing Task " << Id() << " For Dispersed vector aggregation ";
-	TPZMatrix * GlobalVector = dynamic_cast<TPZMatrix * > (fDependRequest.ObjectPtr(0));
+	TPZMatrix<REAL> * GlobalVector = dynamic_cast<TPZMatrix<REAL> * > (fDependRequest.ObjectPtr(0));
 	OOPParMatIndexation * Indices = NULL;
 	Indices = dynamic_cast<OOPParMatIndexation * >  (fDependRequest.ObjectPtr(1));
 	

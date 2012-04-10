@@ -23,7 +23,7 @@ class   OOPMergeMatrix :public OOPTask
 	/**
 	 * For the K.u = f multiplication, holds the f vector
 	 */
-	TPZFMatrix m_Vector;
+	TPZFMatrix<REAL> m_Vector;
 	
 public:
 	int m_SubId;
@@ -47,7 +47,7 @@ public:
 	void Write (TPZStream & buf,int withclassid);
 	void Read (TPZStream & buf, void * context);
 	
-	void SetFVector(TPZFMatrix vector)
+	void SetFVector(TPZFMatrix<REAL> vector)
 	{
 		m_Vector = vector;
 	}

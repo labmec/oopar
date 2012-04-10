@@ -28,6 +28,7 @@ const int SOCKET_PACKED =      0;
 const int SOCKET_INT  =        1;
 const int SOCKET_DOUBLE  =     2;
 const int  SOCKET_CHAR   =     3;
+const int SOCKET_FLOAT  =     4;
 
 const int SOCKET_SUCCESS    =  0;
 const int  SOCKET_ERR_COMM  = -1;
@@ -61,13 +62,21 @@ public:
 	
     void Write(double *p, int size=1);
 	
+    void Write(long double *p, int size=1);
+	
+    void Write(float *p, int size=1);
+	
     void Write(const char *p, int size=1);
 	
     void Write(std::string *p, int size=1);
 	
     void Read(int *p, int size=1);
 	
+    void Read(long double *p, int size=1);
+	
     void Read(double *p, int size=1);
+	
+    void Read(float *p, int size=1);
 	
     void Read(char *p, int size=1);
 	
@@ -80,6 +89,8 @@ public:
     int PkInt (int *p, int n = 1);
 	
     int PkDouble (double *p, int n = 1);
+
+    int PkFloat (float *p, int n = 1);
 	
     int PkByte (const char *p, int n = 1);
 	
@@ -88,6 +99,8 @@ public:
     int UpkInt (int *p, int n = 1);
 	
     int UpkDouble (double *p, int n = 1);
+	
+    int UpkFloat (float *p, int n = 1);
 	
     int UpkByte (char *p, int n = 1);
 	

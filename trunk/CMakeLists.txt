@@ -25,6 +25,7 @@ add_custom_target(Doxygen_Files SOURCES  ${doxyfiles})
 	set(OOPAR_INCLUDE ${PROJECT_SOURCE_DIR}/../externallibs/oopar/include)
 	set(OOPAR_LIB ${PROJECT_SOURCE_DIR}/../externallibs/oopar/lib)
 
+add_definitions(-DOOPAR)
 #ENABLING EXTERNAL LIBRARIES
 
 #enabling pz library

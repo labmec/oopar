@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-void OOPParMatrix::BuildMe(int size, TPZMatrix * matrix, TPZFMatrix & vU)
+void OOPParMatrix::BuildMe(int size, TPZMatrix<REAL> * matrix, TPZFMatrix<REAL> & vU)
 {
 	matrix->Resize(size, size);
 	int i, j;
@@ -29,7 +29,7 @@ void OOPParMatrix::BuildMe(int size, TPZMatrix * matrix, TPZFMatrix & vU)
 	}
 	
 }
-void OOPParMatrix::DivideMe(int nPieces, TPZMatrix * OrigMatrix, std::vector<TPZMatrix *> & subMats, 
+void OOPParMatrix::DivideMe(int nPieces, TPZMatrix<REAL> * OrigMatrix, std::vector<TPZMatrix<REAL> *> & subMats, 
 							std::vector< std::pair< std::vector<int>, std::vector<int> > > & Indices)
 {
 	int i;
@@ -66,7 +66,7 @@ void OOPParMatrix::DivideMe(int nPieces, TPZMatrix * OrigMatrix, std::vector<TPZ
 	{
 		for(j = 1;j < nPieces+1; j++)
 		{
-			TPZMatrix * subM = OrigMatrix->Clone();
+			TPZMatrix<REAL> * subM = OrigMatrix->Clone();
 			subM->Resize(lrows[i] - lrows[i-1], lcols[j] - lcols[j-1]);
 			std::vector<int> vRows;
 			vRows.resize(lrows[i] - lrows[i-1]);

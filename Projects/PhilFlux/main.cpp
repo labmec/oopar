@@ -139,7 +139,7 @@ void CreateObjIds (TPZAutoPointer<OOPTaskManager> TM, list<DataAccessOrg> &mylis
 			higVersions[vicid] = dp;
 			continue;
 		}
-		if (dp.AccessMode()==EWriteAccess || dp.AccessMode() == EVersionAccess) dp.IncrementVersion();
+		if (dp.AccessMode()==EWriteAccess) dp.IncrementVersion();
 		OOPDataVersion prevHg = ((*hig_It).second).Version();
 		OOPDataVersion curr_ver = dp.Version();
 		if (curr_ver > prevHg) {
@@ -286,9 +286,12 @@ void InsertTasks(TPZAutoPointer<OOPTaskManager> TM, int numtasks)
 	wt->Wait();
 	cout << "Got out of wait\n";
 	// At this point I have version access to victim
-	//  OOPMetaData *obj = wt->Depend().Dep(0).ObjPtr();
-	//  ver= obj->Version();
-	ver.IncrementLevel(numtasks);
+    OOPAccessTagList &tags = wt->GetDependencyList();
+    ver.SetLevelVersion(0, 1);
+	ver.IncrementLevel(numtasks+1);
+    tags.SetVersion(0, ver);
+    std::cout << "Setting the version of the object to " << ver << " class id " << tags.ObjectPtr(0)->ClassId() <<  std::endl;
+    //wt->TaskFinished();
 	//  obj->SetVersion(ver,wt->Id());
 	cout << "Before wait finish\n";
 	wt->Finish();
@@ -297,19 +300,22 @@ void InsertTasks(TPZAutoPointer<OOPTaskManager> TM, int numtasks)
 	for(it=0; it<numtasks; it++) {
 		TSmallTask *st = new TSmallTask(it%numproc);
 		OOPDataVersion stver;
+        stver.SetLevelVersion(0, 1);
 		stver.IncrementLevel(-1);
-		stver.SetLevelVersion(1,it);
+		stver.SetLevelVersion(1,it+1);
 		cout << "Created the smalltask numproc " << numproc << "\n";
 		if((numproc>1) && it%(numproc-1)) 
 		{
+			cout << "Adding data dependency with version " << stver<< "\n";
+			cout.flush();
 			OOPAccessTag dp(vicid,EWriteAccess,stver, 0);
 			st->AddDependentData(dp);
 		}
 		else
 		{
-			cout << "Adding data dependency\n";
+			cout << "Adding data dependency with version " << stver<< "\n";
 			cout.flush();
-			OOPAccessTag dp(vicid,EVersionAccess,stver , 0);
+			OOPAccessTag dp(vicid,EWriteAccess,stver , 0);
 			st->AddDependentData(dp);
 		}
 		cout << "Submitting the small task\n";
@@ -319,6 +325,7 @@ void InsertTasks(TPZAutoPointer<OOPTaskManager> TM, int numtasks)
 	wt = new OOPWaitTask(TM->CM()->GetProcID());
 	ver = OOPDataVersion();
 	ver.Increment();
+    ver.Increment();
 	wt->AddDependentData(OOPAccessTag(vicid,EWriteAccess,ver, 0));
 	TM->Submit(wt);
 	// This will put the current thread to wait till the data is available

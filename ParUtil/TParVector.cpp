@@ -14,6 +14,7 @@ void TParVector::Write (TPZStream & buf, int withclassid)
 	buf.Write (&aux);
 	while (i != fData.end ()) {
 		buf.Write (&(*i), 1);
+        i++;
 	}
 }
 

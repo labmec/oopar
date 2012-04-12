@@ -44,7 +44,8 @@ OOPAccessTag OOPAccessTagMultiSet::GetCompatibleRequest(const OOPDataVersion & v
 	{
 #ifdef LOG4CXX
 		stringstream sout;
-		sout << "it->Version().CanExecute(version) " << it->Version().CanExecute(version) <<
+		sout << __PRETTY_FUNCTION__ << "it->Version().CanExecute(version) " << it->Version().CanExecute(version) <<
+        " version " << version << 
         " need " << need;
 		LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif
@@ -54,7 +55,7 @@ OOPAccessTag OOPAccessTagMultiSet::GetCompatibleRequest(const OOPDataVersion & v
 			result.SetVersion(version);
 #ifdef LOG4CXX
 			stringstream sout;
-			sout << "returning and deleting tag: ";
+			sout << "WILL GRANT ACCESS returning and deleting tag: ";
 			result.ShortPrint( sout);
 			LOGPZ_DEBUG(logger,sout.str().c_str());
 #endif

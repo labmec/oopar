@@ -55,7 +55,7 @@ OOPMReturnType TSmallTask::Execute()
 	{
 		//    OOPMDataDepend &dep = deplist.Dep(i);
 		OOPAccessTag dep = deplist.GetTag(i);
-		if(dep.AccessMode() == EWriteAccess || dep.AccessMode() == EVersionAccess) {
+		if(dep.AccessMode() == EWriteAccess) {
 			OOPDataVersion ver = dep.Version();
 			ver.Increment();
 			dep.SetVersion(ver);

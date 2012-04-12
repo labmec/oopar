@@ -307,9 +307,13 @@ void * OOPTaskManager::ExecuteMTBlocking(void *data)
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 #endif
 	}
+    OOPTaskManager *TM = lTM.operator->();
 	lTM->DM()->SetKeepGoing(false);
 	lTM->DM()->JoinThread();
-	lTM->DM()->ClearPointer();
+    int dmref = TM->DM().Count();
+    std::cout << "DM Refcount " << dmref << std::endl;
+	TM->DM()->ClearPointer();
+    std::cout << "DM Refcount " << dmref << std::endl;
 	// this is where the datamanager will be deleted
 	lTM->SetDataManager(TPZAutoPointer<OOPDataManager>(0));
 	lTM->CM()->SetKeepGoing(false);
@@ -735,6 +739,7 @@ OOPTaskManager::~OOPTaskManager ()
 {
 #ifdef LOG4CXX
 	stringstream sout;
+    sout << "Deleting TaskManager for processor " << fProc << std::endl;
 	sout << "submitted.size : " << fSubmittedList.size()  <<
 	" executable.size " << fExecutable.size() <<
 	" tasklist.size " << fTaskList.size();
@@ -889,7 +894,7 @@ OOPObjectId OOPTaskManager::Submit (OOPTask * task)
 		delete [] compare;
 	}
 #endif
-	if(task->GetProcID() > CM()->NumProcessors())
+	if(task->GetProcID() >= CM()->NumProcessors())
 	{
 #ifdef LOG4CXX
 		{

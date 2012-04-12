@@ -47,78 +47,29 @@ using namespace log4cxx::helpers;
 // Logger instance named "MyApp".
 static LoggerPtr logger(Logger::getLogger("MainApp"));
 
-//OOPar global objects
-OOPCommunicationManager *CM;
-OOPDataManager *DM;
-OOPTaskManager *TM;
 
-void SubmitMed(int proc, OOPObjectId &xid, OOPObjectId &yid, OOPObjectId &crossid, OOPObjectId &dotid, 
+void SubmitMed(TPZAutoPointer<OOPTaskManager> TM, int proc, OOPObjectId &xid, OOPObjectId &yid, OOPObjectId &crossid, OOPObjectId &dotid, 
 			   OOPDataVersion &verread, OOPDataVersion &verwrite,int first, int last);
 
 
-#ifdef MPI
-int mpimain (int argc, char **argv);
-#endif
-
+#include "oopinitializeenvironment.h"
+#include "pzlog.h"
+#include "OOPDataLogger.h"
 void FillMedonho(TMedonhoTask &med);
 
 int main(int argc, char **argv) {
-	int result = EXIT_SUCCESS;
-	cout << "merdatry\n";
-	try {
-		// BasicConfigurator replaced with PropertyConfigurator.
-		cout << "merdatry1\n";
-		PropertyConfigurator::configure("/mnt/hd/cesar/OOPar/debug/Projects/TestCesar/log4cxx.cfg");
-		cout << "merdatry2\n";
-		LOG4CXX_INFO(logger, "Entering Main Application.");
-		cout << "merdatry3\n";
-#ifdef MPI
-		cout << "merdain\n" ;
-		result =  mpimain(argc,argv);
-		cout << "merdaout\n";
-#else
-		LOG4CXX_INFO(logger,"Exiting program...Not available mpi");
-		result =  0;
-#endif
-		LOG4CXX_INFO(logger, "Exiting application.");
-	}
-	catch(Exception&){
-		cout << "...erro..."<< endl;
-		result = EXIT_FAILURE;
-	}
-	cout << "The end of sob\n";
-	return result;
-}
-
-
-#ifdef MPI
-int mpimain (int argc, char **argv)
-{
-	LOG4CXX_INFO(logger,"Entering mpimain program");
-	CM = new OOPMPICommManager (argc, argv);
-	CM->Initialize((char*)argv, argc);
-	
+    
+    InitializePZLOG();
+    int numproc = 2;
+    int numthread = 3;
+    TPZAutoPointer<OOPTaskManager> TM = InitializeEnvironment(argc,argv,numproc,numthread);
 	char filename[256];
-	sprintf(filename,"datalogger%d.log", CM->GetProcID());
+	sprintf(filename,"datalogger%d.log", TM->CM()->GetProcID());
 	OOPDataLogger * LogDM = new OOPDataLogger(filename);
 	::LogDM = LogDM;
 	
-	TM = new OOPTaskManager (CM->GetProcID ());
-	DM = new OOPDataManager (CM->GetProcID ());
-	
-	//int numproc = CM->NumProcessors();//atoi(argv[argc-1]);
-	// At this point the environment will lock because it will go into a blocking receive...
-	{
-		stringstream sout;
-		sout << "Entering execute for " << CM->GetProcID() << endl;
-		LOG4CXX_DEBUG(logger,sout.str());
-	}
-	TM->Execute();
-	{
-		LOG4CXX_DEBUG(logger,"After TM->Execute");
-	}
-	
-	if(CM->IAmTheMaster())
+		
+	if(TM->CM()->IAmTheMaster())
 	{
 		LOG4CXX_INFO(logger,"Inserting tasks");
 		const int size = 100;
@@ -136,14 +87,14 @@ int mpimain (int argc, char **argv)
 		cross = new OOPVector<double>();
 		cross->fVecValue.Resize(size);
 		dot = new OOPDouble;
-		xid = DM->SubmitObject(x,1);
-		yid = DM->SubmitObject(y,1);
-		crossid = DM->SubmitObject(cross,1);
-		dotid = DM->SubmitObject(dot,1);
+		xid = TM->DM()->SubmitObject(x);
+		yid = TM->DM()->SubmitObject(y);
+		crossid = TM->DM()->SubmitObject(cross);
+		dotid = TM->DM()->SubmitObject(dot);
 		OOPDataVersion verread, verwrite;
 		++verwrite;
 		++verread;
-		int numproc = CM->NumProcessors();
+		int numproc = TM->CM()->NumProcessors();
 		int ipr = 0;
 		
 		int first = 0;
@@ -152,25 +103,26 @@ int mpimain (int argc, char **argv)
 		
 		for(ipr = 0; ipr<numproc-1; ipr++)
 		{
-			SubmitMed(ipr,xid,yid,crossid,dotid,verread,verwrite,first,last);
+			SubmitMed(TM,ipr,xid,yid,crossid,dotid,verread,verwrite,first,last);
 			first = last;
 			last += d;
 		}
-		SubmitMed(ipr,xid,yid,crossid,dotid,verread,verwrite,first,size);
+		SubmitMed(TM,ipr,xid,yid,crossid,dotid,verread,verwrite,first,size);
 		{
 			// x,y,cross,dot deixarem de ser acessivel
-			OOPWaitTask *wt = new OOPWaitTask(CM->GetProcID());
+			OOPWaitTask *wt = new OOPWaitTask(TM->CM()->GetProcID());
 			OOPDataVersion ver;
-			OOPMDataDepend depx(xid,EWriteAccess,ver);
-			OOPMDataDepend depy(yid,EWriteAccess,ver);
-			OOPMDataDepend depcross(crossid,EWriteAccess,ver);
-			OOPMDataDepend depdot(dotid,EWriteAccess,ver);
+
+            OOPAccessTag depx(xid, EWriteAccess, ver,0);
+			OOPAccessTag depy(yid,EWriteAccess,ver,0);
+			OOPAccessTag depcross(crossid,EWriteAccess,ver,0);
+			OOPAccessTag depdot(dotid,EWriteAccess,ver,0);
 			wt->AddDependentData(depx);
 			wt->AddDependentData(depy);
 			wt->AddDependentData(depcross);
 			wt->AddDependentData(depdot);
 			
-			wt->Submit();
+			TM->Submit(wt);
 			
 			wt->Wait();
 			
@@ -192,18 +144,18 @@ int mpimain (int argc, char **argv)
 		}
 		{
 			// x,y,cross,dot deixarem de ser acessivel
-			OOPWaitTask *wt = new OOPWaitTask(CM->GetProcID());
+			OOPWaitTask *wt = new OOPWaitTask(TM->CM()->GetProcID());
 			OOPDataVersion ver;
-			OOPMDataDepend depx(xid,EWriteAccess,verread);
-			OOPMDataDepend depy(yid,EWriteAccess,verread);
-			OOPMDataDepend depcross(crossid,EWriteAccess,verwrite);
-			OOPMDataDepend depdot(dotid,EWriteAccess,verwrite);
+			OOPAccessTag depx(xid,EWriteAccess,verread,0);
+			OOPAccessTag depy(yid,EWriteAccess,verread,0);
+			OOPAccessTag depcross(crossid,EWriteAccess,verwrite,0);
+			OOPAccessTag depdot(dotid,EWriteAccess,verwrite,0);
 			wt->AddDependentData(depx);
 			wt->AddDependentData(depy);
 			wt->AddDependentData(depcross);
 			wt->AddDependentData(depdot);
 			
-			wt->Submit();
+			TM->Submit(wt);
 			
 			wt->Wait();
 			
@@ -224,30 +176,17 @@ int mpimain (int argc, char **argv)
 			wt->IncrementWriteDependentData();
 			wt->Finish();
 		}
-		int i;
-		OOPTerminationTask * tt;
-		for(i=numproc-1;i >= 0;i--){
-			tt = new OOPTerminationTask(i);
-			tt->Submit();
-		}
-	}
-	
-	TM->Wait();
-	cout << "Deleting DM\n";
-	delete  DM;
-	cout << "Deleting TM\n";
-	delete  TM;
-	cout << "Deleting CM\n";
-	delete  CM;
+        
+    }
+    ShutDownEnvironment(TM);
 	delete LogDM;
 	
-	cout << "Leaving mpimain\n";
+	cout << "Leaving main\n";
 	cout.flush();
 	return 0;
 }
-#endif
 
-void SubmitMed(int proc, OOPObjectId &xid, OOPObjectId &yid, OOPObjectId &crossid, OOPObjectId &dotid, 
+void SubmitMed(TPZAutoPointer<OOPTaskManager> TM, int proc, OOPObjectId &xid, OOPObjectId &yid, OOPObjectId &crossid, OOPObjectId &dotid, 
 			   OOPDataVersion &verread, OOPDataVersion &verwrite,int first, int last)
 {
 	TMedonhoTask *med = new TMedonhoTask (0,first,last);

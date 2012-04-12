@@ -10,6 +10,7 @@
 #include "pzlog.h"
 #include "ooptaskmanager.h"
 #include "oopdatamanager.h"
+#include "oopterminationtask.h"
 
 #ifdef LOG4CXX
 static LoggerPtr logger(Logger::getLogger("OOPAR.initialize"));
@@ -23,7 +24,7 @@ static void SetupEnvironment(TPZVec<TPZAutoPointer<OOPTaskManager> >&TMVec);
 
 #include <iostream>
 
-TPZAutoPointer<OOPTaskManager> InitializeEnvironment(int numproc, int numthreads)
+TPZAutoPointer<OOPTaskManager> InitializeEnvironment(int argc, char *argv[], int numproc, int numthreads)
 {
     OOPCommunicationManager *pCM = 0;
 #ifdef OOP_MPI
@@ -55,11 +56,11 @@ TPZAutoPointer<OOPTaskManager> InitializeEnvironment(int numproc, int numthreads
 #endif
 
 #endif
-	OOPTaskManager *pTM = new OOPTaskManager(pCM->GetProcID());
-	TPZAutoPointer<OOPTaskManager> TM(pTM);
+	OOPTaskManager *pTM = new OOPTaskManager(CM->GetProcID());
+	TPZAutoPointer<OOPTaskManager> TM(pTM->TM());
 	CM->SetTaskManager(TM);
 	OOPDataManager *pDM = new OOPDataManager(CM->GetProcID(), TM);
-	TPZAutoPointer<OOPDataManager> DM(pDM);
+	TPZAutoPointer<OOPDataManager> DM(pDM->DM());
 	
 	TM->SetDataManager(DM);
 	TM->SetCommunicationManager(CM);
@@ -74,6 +75,46 @@ TPZAutoPointer<OOPTaskManager> InitializeEnvironment(int numproc, int numthreads
 #endif
     return TM;
 }
+
+void ShutDownEnvironment(TPZAutoPointer<OOPTaskManager> TM)
+{
+    int i;
+    OOPTerminationTask * tt;
+    int numproc = TM->CM()->NumProcessors();
+    TPZVec<TPZAutoPointer<OOPTaskManager> > AllTM(numproc);
+#ifdef OOP_INTERNAL
+    OOPInternalCommunicationManager *CMp = dynamic_cast<OOPInternalCommunicationManager *>(TM->CM().operator->());
+    if (!CMp) {
+        DebugStop();
+    }
+    {
+        TPZVec<TPZAutoPointer<OOPCommunicationManager> > AllCM(numproc);
+        AllCM = CMp->GetCommunicationManagers();
+        for (int i = 0; i<numproc; i++) {
+            AllTM[i] = AllCM[i]->TM();
+        }
+    }
+#endif
+    for(i=numproc-1;i >= 0;i--){
+        tt = new OOPTerminationTask(i);
+        TM->Submit(tt);
+    }
+    
+#ifdef OOP_INTERNAL
+    for (int i = numproc-1; i>0; i--) {
+        AllTM[i]->Wait();
+        AllTM[i]->ClearPointer();
+        std::cout << "Reference count for TaskManager " << i << " is " << AllTM[i].Count() << std::endl;
+    }
+    AllTM.Resize(0);
+#endif
+    TM->Wait();
+    TM->ClearPointer();
+    std::cout << "Reference count for TaskManager is " << TM.Count() << std::endl;
+
+    
+}
+
 
 #ifdef OOP_INTERNAL
 static void SetupEnvironment(TPZVec<TPZAutoPointer<OOPTaskManager> >&TMVec)

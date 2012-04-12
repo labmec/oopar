@@ -694,7 +694,9 @@ TPZAutoPointer<OOPDataManager> OOPDataManager::DM()
  */
 void OOPDataManager::ClearPointer()
 {
+    std::cout << __PRETTY_FUNCTION__ << " DM refcount " << fDM.Count() << std::endl;
 	fDM = TPZAutoPointer<OOPDataManager>(0);
+    std::cout << __PRETTY_FUNCTION__ << " DM refcount " << fDM.Count() << std::endl;
 	fTM = TPZAutoPointer<OOPTaskManager>(0);
 }
 

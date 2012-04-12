@@ -20,13 +20,7 @@
 #include <map>
 #include <list>
 using namespace std;
-//class OOPCommunicationManager;
-//class OOPDataManager;
-//class OOPTaskManager;
 
-OOPCommunicationManager *CM;
-OOPDataManager *DM;
-OOPTaskManager *TM;
 ofstream TaskLog;
 ofstream DataLog;
 ofstream DataManLog;
@@ -35,7 +29,7 @@ ofstream TaskQueueLog;
 ofstream TaskManLog;
 ofstream DataQueueLog;
 
-void InsertTasks(int numtasks);
+void InsertTasks(TPZAutoPointer<OOPTaskManager> TM, int numtasks);
 
 
 struct DataAccessOrg {
@@ -103,7 +97,7 @@ void ReadDataAccess (istream &arq, std::list<DataAccessOrg> &mylist) {
 	cout << " exiting!!!" << endl;
 }
 
-void CreateObjIds (list<DataAccessOrg> &mylist, 
+void CreateObjIds (TPZAutoPointer<OOPTaskManager> TM, list<DataAccessOrg> &mylist, 
                    map<int,OOPObjectId,less<int> >&fileId2globalId,
                    vector<OOPAccessTag> &depend,
                    map<OOPObjectId,OOPAccessTag> &higVersions){
@@ -125,7 +119,7 @@ void CreateObjIds (list<DataAccessOrg> &mylist,
 		if (fileId2globalId.find(file_id) == fileId2globalId.end()){
 			TParVector *victim = new TParVector();
 			victim->Resize(10);
-			vicid = DM->SubmitObject(victim);
+			vicid = TM->DM()->SubmitObject(victim);
 			fileId2globalId [ file_id ] = vicid;
 		} else {
 			vicid = (*file_id_It).second;
@@ -156,7 +150,7 @@ void CreateObjIds (list<DataAccessOrg> &mylist,
 }
 
 
-void CreateTaskFromFile(string &file) {
+void CreateTaskFromFile(TPZAutoPointer<OOPTaskManager> TM, string &file) {
 	int i;
 	
 	ifstream arq (file.c_str());
@@ -170,9 +164,9 @@ void CreateTaskFromFile(string &file) {
 	vector<OOPAccessTag> depend;
 	map<OOPObjectId,OOPAccessTag> higVersions;
 	
-	CreateObjIds (mylist, fileId2globalId, depend, higVersions);
+	CreateObjIds (TM, mylist, fileId2globalId, depend, higVersions);
 	
-	int /*it,*/ numproc = CM->NumProcessors();
+	int /*it,*/ numproc = TM->CM()->NumProcessors();
 	int lasttask = -1;
 	list<DataAccessOrg>::iterator it;
 	//  int numdeps = depend.size();
@@ -196,7 +190,7 @@ void CreateTaskFromFile(string &file) {
 	cout << __PRETTY_FUNCTION__ << " submitted task id " << id << " task " << lasttask << endl;
 	
 	// build a task such that the current thread has access to internal OOP data
-	OOPWaitTask *wt = new OOPWaitTask(CM->GetProcID());
+	OOPWaitTask *wt = new OOPWaitTask(TM->CM()->GetProcID());
 	map<OOPObjectId,OOPAccessTag>::iterator hig_It;
 	for (hig_It = higVersions.begin();hig_It != higVersions.end();hig_It++){
 		OOPAccessTag depend = (*hig_It).second;
@@ -225,95 +219,64 @@ void CreateTaskFromFile(string &file) {
 	}
 }
 
+#include "oopinitializeenvironment.h"
+#include "pzlog.h"
+#include "OOPDataLogger.h"
 
-
-#ifdef OOP_MPI
-int mpimain (int argc, char **argv)
+int main (int argc, char **argv)
 {
-	
-	CM = new OOPMPICommManager (argc, argv);
-	CM->Initialize((char*)argv, argc);
-	
+
+	InitializePZLOG();
+    TPZAutoPointer<OOPTaskManager> TM = InitializeEnvironment(argc, argv, 2, 4);
 	char filename[256];
-	sprintf(filename,"datalogger%d.log", CM->GetProcID());
+	sprintf(filename,"datalogger%d.log", TM->CM()->GetProcID());
 	OOPDataLogger * LogDM = new OOPDataLogger(filename);
 	::LogDM = LogDM;
-	sprintf(filename,"tasklog%d.log", CM->GetProcID());  
+	sprintf(filename,"tasklog%d.log", TM->CM()->GetProcID());  
 	TaskLog.open(filename);
-	sprintf(filename,"datalog%d.log", CM->GetProcID());  
+	sprintf(filename,"datalog%d.log", TM->CM()->GetProcID());  
 	DataLog.open(filename);
-	sprintf(filename,"datamanlog%d.log", CM->GetProcID());  
+	sprintf(filename,"datamanlog%d.log", TM->CM()->GetProcID());  
 	DataManLog.open(filename);
-	sprintf(filename,"transferdatalog%d.log", CM->GetProcID());  
+	sprintf(filename,"transferdatalog%d.log", TM->CM()->GetProcID());  
 	TransferDataLog.open(filename);
-	sprintf(filename,"taskqueue%d.log", CM->GetProcID());  
+	sprintf(filename,"taskqueue%d.log", TM->CM()->GetProcID());  
 	TaskQueueLog.open(filename);
-	sprintf(filename,"taskmanlog%d.log", CM->GetProcID());  
+	sprintf(filename,"taskmanlog%d.log", TM->CM()->GetProcID());  
 	TaskManLog.open(filename);
-	sprintf(filename,"dataqueuelog%d.log", CM->GetProcID());  
+	sprintf(filename,"dataqueuelog%d.log", TM->CM()->GetProcID());  
 	DataQueueLog.open(filename);
 	
-	TM = new OOPTaskManager (CM->GetProcID ());
-	DM = new OOPDataManager (CM->GetProcID (), TM);
-	
-	//int numproc = CM->NumProcessors();//atoi(argv[argc-1]);
-	// At this point the environment will lock because it will go into a blocking receive...
-	cout << "Entering execute for " << CM->GetProcID() << endl;
-	TM->Execute();
-	cout << "After TM->Execute\n";
-	cout.flush();
-	
-	if(CM->IAmTheMaster())
+	if(TM->CM()->IAmTheMaster())
 	{
 		cout << "Inserting tasks\n";
 		cout.flush();
-		//InsertTasks(30);
-		string file ("tasks.txt");
-		CreateTaskFromFile(file);
+		InsertTasks(TM,30);
+		//string file ("tasks.txt");
+		//CreateTaskFromFile(TM,file);
 	} else {
-		cout << "IAmTheMaster returned " << CM->IAmTheMaster() << endl;
+		cout << "IAmTheMaster returned " << TM->CM()->IAmTheMaster() << endl;
 		cout.flush();
 	}
 	
-	TM->Wait();
-	cout << "Deleting DM\n";
-	delete  DM;
-	cout << "Deleting TM\n";
-	delete  TM;
-	cout << "Deleting CM\n";
-	delete  CM;
+    ShutDownEnvironment(TM);
 	delete LogDM;
 	
-	cout << "Leaving mpimain\n";
+	cout << "Leaving main\n";
 	cout.flush();
 	return 0;
 }
-#endif
 
-int main(int argc, char **argv) {
-	
-	cout << "Entering main program \n";
-	cout.flush();
-#ifdef OOP_MPI
-	cout << "Entering mpimain program \n";
-	cout.flush();
-	return mpimain(argc,argv);
-#else
-	return 0;
-#endif
-	
-}
-
-void InsertTasks(int numtasks) 
+void InsertTasks(TPZAutoPointer<OOPTaskManager> TM, int numtasks) 
 {
 	TParVector *victim = new TParVector();
 	victim->Resize(1000);
 	
-	OOPObjectId vicid = DM->SubmitObject(victim);
+	OOPObjectId vicid = TM->DM()->SubmitObject(victim);
 	
 	cout << "The object id for victim is " << vicid << endl;
 	// build a task such that the current thread has access to internal OOP data
-	OOPWaitTask *wt = new OOPWaitTask(CM->GetProcID());
+	OOPWaitTask *wt = new OOPWaitTask(TM->CM()->GetProcID());
 	OOPDataVersion ver;
 	wt->AddDependentData(OOPAccessTag (vicid,EWriteAccess,ver, 0));
 	cout << "Before sumitting the wait task" << endl;
@@ -330,7 +293,7 @@ void InsertTasks(int numtasks)
 	cout << "Before wait finish\n";
 	wt->Finish();
 	cout << "After wait finish\n";
-	int it, numproc = CM->NumProcessors();
+	int it, numproc = TM->CM()->NumProcessors();
 	for(it=0; it<numtasks; it++) {
 		TSmallTask *st = new TSmallTask(it%numproc);
 		OOPDataVersion stver;
@@ -353,7 +316,7 @@ void InsertTasks(int numtasks)
 		TM->Submit(st);
 	}
 	cout << "Before another wait task\n";
-	wt = new OOPWaitTask(CM->GetProcID());
+	wt = new OOPWaitTask(TM->CM()->GetProcID());
 	ver = OOPDataVersion();
 	ver.Increment();
 	wt->AddDependentData(OOPAccessTag(vicid,EWriteAccess,ver, 0));
@@ -363,9 +326,4 @@ void InsertTasks(int numtasks)
 	wt->Finish();
 	cout << "I GOT THROUGH\n";
 	
-	OOPTerminationTask * tt;
-	for(it=0;it < numproc;it++){
-		tt = new OOPTerminationTask(it);
-		TM->Submit(tt);
-	}
 }

@@ -27,6 +27,7 @@ OOPTerminationTask::~OOPTerminationTask ()
 OOPTerminationTask::OOPTerminationTask (int ProcId):OOPTask (ProcId)
 {
 	fStatus = EStopSending;
+    fProcOrigin = 0;
 }
 OOPTerminationTask::OOPTerminationTask (const OOPTerminationTask & term):
 OOPTask (term), fStatus(term.fStatus), fProcOrigin(term.fProcOrigin)

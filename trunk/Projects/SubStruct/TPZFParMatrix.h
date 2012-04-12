@@ -31,16 +31,16 @@ public:
 	/**
 	 * @brief Simple constructor
 	 */
-	TPZFParMatrix () : TPZFMatrix()
+	TPZFParMatrix () : TPZFMatrix<REAL>()
 	{
-		TPZFMatrix * matrix = new TPZFMatrix;
+		TPZFMatrix<REAL> * matrix = new TPZFMatrix<REAL>;
 		m_Id = DM->SubmitObject(matrix);
 		m_IsSync = false;
 	}
 	
-	inline TPZFParMatrix(TPZFMatrix & matrix) : TPZFMatrix<REAL>(matrix)
+	inline TPZFParMatrix(TPZFMatrix<REAL> & matrix) : TPZFMatrix<REAL>(matrix)
 	{
-		TPZFMatrix * lMatrix = new TPZFMatrix(matrix);
+		TPZFMatrix<REAL> * lMatrix = new TPZFMatrix<REAL>(matrix);
 		m_Id = DM->SubmitObject(lMatrix);
 		m_IsSync = false;
 		
@@ -54,7 +54,7 @@ public:
 	 @param size Size of the area pointed to by buf
 	 */
 	TPZFParMatrix (const int rows ,const int columns, REAL * buf,const int size)
-	: TPZFMatrix(rows, columns, buf, size)
+	: TPZFMatrix<REAL>(rows, columns, buf, size)
 	{
 		TPZFMatrix * matrix = new TPZFMatrix(rows, columns, buf, size);
 		m_Id = DM->SubmitObject(matrix);
@@ -67,9 +67,9 @@ public:
 	 @param val Inital value fill all elements
 	 */
 	TPZFParMatrix (const int rows ,const int columns,const REAL & val )
-	: TPZFMatrix(rows, columns, val)
+	: TPZFMatrix<REAL>(rows, columns, val)
 	{
-		TPZFMatrix * matrix = new TPZFMatrix(rows, columns, val);
+		TPZFMatrix<REAL> * matrix = new TPZFMatrix<REAL>(rows, columns, val);
 		m_Id = DM->SubmitObject(matrix);
 		m_IsSync = false;
 	}
@@ -80,7 +80,7 @@ public:
 	 */
 	inline TPZFParMatrix(const int rows ,const int columns = 1) : TPZFMatrix(rows,columns)
 	{
-		TPZFMatrix * matrix = new TPZFMatrix(rows, columns);
+		TPZFMatrix<REAL> * matrix = new TPZFMatrix<REAL>(rows, columns);
 		m_Id = DM->SubmitObject(matrix);
 		m_IsSync = false;
 	}
@@ -107,7 +107,7 @@ public:
 	 * call to ZAXPY of the base class.
 	 */
 	void ZAXPY(const REAL alpha, const TPZFParMatrix &p);
-	void ZAXPY(const REAL alpha, const TPZFMatrix & p);
+	void ZAXPY(const REAL alpha, const TPZFMatrix<REAL> & p);
 	
 	
 	void MultAdd(const TPZFParMatrix &x, const TPZFParMatrix &y, TPZFParMatrix &z, const REAL alpha = 1., const REAL beta = 0., const int opt = 0, const int stride = 1) const;

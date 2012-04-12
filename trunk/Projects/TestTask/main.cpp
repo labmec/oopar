@@ -31,12 +31,10 @@ static LoggerPtr logger(Logger::getLogger("OOPAR.mainprogram"));
 #include "oopevtmanager.h"
 #endif
 
-#ifdef OOP_INTERNAL
-#include "oopinternalcommanager.h"
-#endif
-
 #include "TTaskTest.h"
 #include "OOPInt.h"
+
+#include "oopinitializeenvironment.h"
 
 #ifdef STEP_MUTEX
 #include "oopgenericlockservice.h"
@@ -47,12 +45,8 @@ using namespace std;
 
 const int NumThreads = 10;
 
-#ifdef OOP_INTERNAL
-const int NumProcessors = 2;
-void SetupEnvironment(TPZVec<TPZAutoPointer<OOPTaskManager> > &TMVec);
-#endif
 
-int debugmpimain(int argc, char **argv)
+int main2(int argc, char **argv)
 {
 	// keep only the main thread active
 #ifdef STEP_MUTEX
@@ -62,26 +56,14 @@ int debugmpimain(int argc, char **argv)
 	OOPLock<OOPGenericLockService> lock(&gMutex);
 #endif
 	
-	OOPCommunicationManager *pCM;
-	OOPDataManager *pDM;
-	OOPTaskManager *pTM;
-	
 	std::cout << "argc " << argc << std::endl;
 	std::cout << "argv " << argv[0] << std::endl;
-#ifdef OOP_MPI
-	pCM = new OOPMPICommManager(argc, argv);
-#endif
-#ifdef OOP_SOCKET
-	pCM = new OOPSocketCommManager;
-	//
-	pCM->Initialize(argv[0], 3);
-#endif
-#ifdef OOP_INTERNAL
-	pCM = new OOPInternalCommunicationManager(0,1);
-#endif
+    
+    int numproc = 2;
+    TPZAutoPointer<OOPTaskManager> TM = InitializeEnvironment(argc, argv, numproc, NumThreads);
 #ifdef LOG4CXX
 	std::stringstream sin;
-	sin << "log4cxxclient" << pCM->CM()->GetProcID() << ".cfg";
+	sin << "log4cxxclient" << TM->CM()->GetProcID() << ".cfg";
 	log4cxx::PropertyConfigurator::configure(sin.str());
 #endif
 	
@@ -91,18 +73,9 @@ int debugmpimain(int argc, char **argv)
 	gEvtDB.AddSoloEvent("grantaccess","Grant Access", "green",pCM->GetProcID()==0);
 	gEvtDB.AddSoloEvent("incrementversion","Inc Version", "red",pCM->GetProcID()==0);
 #endif
-	pTM = new OOPTaskManager(pCM->GetProcID());
-	TPZAutoPointer<OOPTaskManager> TM(pTM);
-	TPZAutoPointer<OOPCommunicationManager> CM(pCM);
-	CM->SetTaskManager(TM);
-	pDM = new OOPDataManager(CM->GetProcID(), TM);
-	TPZAutoPointer<OOPDataManager> DM(pDM);
+	TPZAutoPointer<OOPCommunicationManager> CM(TM->CM());
+	TPZAutoPointer<OOPDataManager> DM(TM->DM());
 	
-	TM->SetDataManager(DM);
-	TM->SetCommunicationManager(CM);
-	
-	TM->SetNumberOfThreads(NumThreads);
-	TM->Execute();
 	OOPObjectId IdA, IdB;
 	OOPDataVersion ver, verb;
 	if (!CM->GetProcID())
@@ -167,13 +140,6 @@ int debugmpimain(int argc, char **argv)
 		lock.Lock();
 #endif
 		
-		for(i = 1; i < CM->NumProcessors(); i++)
-		{
-			OOPTerminationTask * tt = new OOPTerminationTask(i);
-			TM->Submit(tt);
-		}
-		OOPTerminationTask * tt = new OOPTerminationTask(0);
-		TM->Submit(tt);
 	}
 	std::cout << "Calling wait on all TMs\n";
 	std::cout.flush();
@@ -183,7 +149,6 @@ int debugmpimain(int argc, char **argv)
 #endif
 	lock.Unlock();
 #endif
-	TM->Wait();
 	//sleep(2);
 	int proc = CM->GetProcID();
 #ifdef OOP_SOCKET
@@ -191,106 +156,30 @@ int debugmpimain(int argc, char **argv)
 #endif
 	DM = TPZAutoPointer<OOPDataManager> (0);
 	CM = TPZAutoPointer<OOPCommunicationManager> (0);
-	TM = TPZAutoPointer<OOPTaskManager> (0);
 #ifdef LOG4CXX
 	LOGPZ_DEBUG(logger, "All finished, terminating the main process");
 #endif
-	
-	cout << "Leaving mpimain\n";
+
+	ShutDownEnvironment(TM);
+	cout << "Leaving main\n";
 	cout.flush();
 	return 0;
 }
 
-//const int MAXSIZE = 50000000;
-#ifdef NUNCA
-int debugmain(int argc, char **argv)
-{
-#ifdef LOG4CXX
-	std::stringstream sin;
-	sin << "log4cxxclient0.cfg";
-	log4cxx::PropertyConfigurator::configure(sin.str());
-#endif
-	
-	{
-		TPZManVector<char,MAXSIZE> f_recv_buffr;
-		TPZManVector<char,MAXSIZE> f_send_buffr;
-	}
-	{
-		OOPMPIStorageBuffer buff;
-	}
-	CM = new OOPMPICommManager;//(argc, argv);
-	//OOPMPIStorageBuffer buff;
-	TM = new OOPTaskManager (0);//CM->GetProcID ());
-	DM = new OOPDataManager (0);//CM->GetProcID ());
-	
-	
-	//   OOPInt * inta = new OOPInt;
-	//   OOPInt * intb = new OOPInt;
-	//
-	//   OOPObjectId IdA, IdB;
-	//   IdA = DM->SubmitObject(inta);
-	//   IdB = DM->SubmitObject(intb);
-	//
-	//   TTaskTest * tta = new TTaskTest(0);
-	//   TTaskTest * ttb = new TTaskTest(0);
-	//   TTaskTest * ttc = new TTaskTest(0);
-	//   OOPDataVersion ver, verB;
-	//   tta->AddDependentData(OOPAccessTag(
-	//                           IdA, EReadAccess, ver,0));
-	//   tta->AddDependentData(OOPAccessTag(
-	//                           IdB, EWriteAccess, verB,0));
-	//   tta->Submit();
-	//   //++ver;
-	//   ++verB;
-	//   ttb->AddDependentData( OOPAccessTag(
-	//                            IdA, EReadAccess, ver,0));
-	//   ttb->AddDependentData( OOPAccessTag(
-	//                            IdB, EReadAccess, verB,0));
-	//   ttb->Submit();
-	//   ttc->AddDependentData( OOPAccessTag(
-	//                            IdA, EWriteAccess, ver,0));
-	//   ttc->AddDependentData( OOPAccessTag(
-	//                            IdB, EWriteAccess, verB,0));
-	//   ttc->Submit();
-	//   ++ver;
-	//   ++verB;
-	//   OOPTerminationTask * tt = new OOPTerminationTask(0);
-	//   tt->AddDependentData(  OOPAccessTag(
-	//                            IdA, EWriteAccess, ver,0));
-	//   tt->AddDependentData(  OOPAccessTag(
-	//                            IdB, EWriteAccess, verB,0));
-	//
-	//   tt->Submit();
-	//
-	//   //colocar para dentro do Execute do TM
-	//   //TM->ExecuteMTBlocking(TM);
-	//   TM->SetKeepGoing( true);
-	//   while (TM->KeepRunning())
-	//   {
-	//     //    TM->TransferSubmittedTasks();
-	//     DM->HandleMessages();
-	//     TM->HandleMessages();
-	//     DM->FlushData();
-	//     TM->TriggerTasks();
-	//     TM->WaitWakeUpCall();
-	//   }
-	
-	return 0;
-}
-#endif
 
 #include "OOPParMatrix.h"
 
 #include "OOPMatVecMultiply.h"
 #include "OOPMergeMatrix.h"
 #include "OOPParMatIndexation.h"
+#include "oopinitializeenvironment.h"
 
 #ifdef STEP_MUTEX
 #include "oopgenericlockservice.h"
 OOPGenericLockService gMutex;
 #endif
 
-int matmain(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	std::cout << "argc " << argc << std::endl;
 	std::cout << "argv " << argv[0][1] << std::endl;
@@ -299,41 +188,15 @@ int matmain(int argc, char **argv)
 		std::ofstream test("testando.out");
 		test << "Este e um teste\n";
 	}
-	OOPCommunicationManager *pCM;
-	OOPDataManager *pDM;
-	OOPTaskManager *pTM;
-#ifdef STEP_MUTEX
-	OOPLock<OOPGenericLockService> lock(&gMutex);
-#endif
-	
-#ifdef OOP_MPI
-	pCM = new OOPMPICommManager(argc, argv);
-#elif OOP_SOCKET
-	pCM = new OOPSocketCommManager;
-	((OOPSocketCommManager *)pCM)->Initialize();
-	//CM->Initialize(argv[0], 4);
-	((OOPSocketCommManager *)pCM)->Barrier();
-#else
-	pCM = new OOPInternalCommunicationManager(0, NumProcessors);
-#endif
-	TPZAutoPointer<OOPCommunicationManager> CM(pCM->CM());
-	pCM = 0;
+    
+    int numproc = 2;
+    TPZAutoPointer<OOPTaskManager> TM = InitializeEnvironment(argc, argv, numproc, NumThreads);
+	TPZAutoPointer<OOPCommunicationManager> CM(TM->CM());
+    TPZAutoPointer<OOPDataManager> DM = TM->DM();
 #ifdef LOG4CXX
-#ifdef OOP_SOCKET
 	std::stringstream sin;
 	sin << "log4cxxclient" << CM->GetProcID() << ".cfg";
-	log4cxx::PropertyConfigurator::configure(sin.str());
-#elif OOP_MPI
-	std::stringstream sin;
-	sin << "log4cxxclient" << CM->GetProcID() << ".cfg";
-	log4cxx::PropertyConfigurator::configure(sin.str());
-#elif OOP_INTERNAL
-	std::stringstream sin;
-	sin << "log4cxxclient.cfg";
-	log4cxx::PropertyConfigurator::configure(sin.str());
-	LOGPZ_DEBUG(logger,"Estou testando o log");
-#endif
-	
+	InitializePZLOG(sin.str());
 #endif
 	
 #ifdef OOP_MPE
@@ -342,27 +205,8 @@ int matmain(int argc, char **argv)
 	gEvtDB.AddSoloEvent("grantaccess","Grant Access", "green",CM->GetProcID()==0);
 	gEvtDB.AddSoloEvent("incrementversion","Inc Version", "red",CM->GetProcID()==0);
 #endif
-	pTM = new OOPTaskManager(CM->GetProcID());
-	TPZAutoPointer<OOPTaskManager> TM(pTM->TM());
-#ifdef OOP_INTERNAL
-	TPZVec<TPZAutoPointer<OOPTaskManager> > TMVec(NumProcessors);
-	TMVec[0] = TM;
-#endif
-	pTM = 0;
-	TM->SetCommunicationManager(CM);
-	CM->SetTaskManager(TM);
-	pDM = new OOPDataManager(CM->GetProcID(), TM);
-	TPZAutoPointer<OOPDataManager> DM(pDM->DM());
-	pDM = 0;
-	TM->SetDataManager(DM);
-	
-	TM->SetNumberOfThreads(NumThreads);
-	TM->Execute();
-	
-#ifdef OOP_INTERNAL
-	SetupEnvironment(TMVec);
-#endif
-	if (!CM->GetProcID())
+
+	if (CM->GetProcID() == 0)
 	{
 		
 		std::cout << "Inside Processor 0 \n";
@@ -526,19 +370,8 @@ int matmain(int argc, char **argv)
 	lock.Unlock();
 #endif
 	TM->Wait();
-	TM->ClearPointer();
-	TM = TPZAutoPointer<OOPTaskManager> (0);
 	CM = TPZAutoPointer<OOPCommunicationManager> (0);
 	DM = TPZAutoPointer<OOPDataManager> (0);
-#ifdef OOP_INTERNAL
-	int iproc;
-	for(iproc=1; iproc < NumProcessors; iproc++)
-	{
-		TMVec[iproc]->Wait();
-		TMVec[iproc]->ClearPointer();
-		TMVec[iproc] = TPZAutoPointer<OOPTaskManager>(0);
-	}
-#endif
 #ifdef STEP_MUTEX
 	lock.Lock();
 #endif
@@ -550,58 +383,8 @@ int matmain(int argc, char **argv)
 	}
 #endif
 	
+    ShutDownEnvironment(TM);
 	return 0;
 }
 
-int main(int argc, char **argv)
-{
-	//debugmpimain(argc, argv);
-	matmain(argc, argv);
-	//debugmain(argc, argv);
-	return 0;
-}
 
-#ifdef OOP_INTERNAL
-void SetupEnvironment(TPZVec<TPZAutoPointer<OOPTaskManager> >&TMVec)
-{
-	int iproc, jproc;
-	std::vector<OOPInternalCommunicationManager *> AllCMp(NumProcessors);
-	std::vector<TPZAutoPointer<OOPCommunicationManager> > AllCM(NumProcessors);
-	AllCM[0] = TMVec[0]->CM();
-	AllCMp[0] = dynamic_cast<OOPInternalCommunicationManager *>(TMVec[0]->CM().operator->());
-	if(!AllCMp[0])
-	{
-		cout << "SetupEnvironment will only work with OOPInternalCommunicationManager\n";
-		exit(-1);
-	}
-	for(iproc=1; iproc<NumProcessors; iproc++)
-	{
-		OOPTaskManager *pTM;
-		OOPDataManager *pDM;
-		AllCMp[iproc]
-		= new OOPInternalCommunicationManager(iproc, NumProcessors);
-		AllCM[iproc] = AllCMp[iproc]->CM();
-		pTM = new OOPTaskManager(AllCM[iproc]->GetProcID());
-		TPZAutoPointer<OOPTaskManager> TM(pTM->TM());
-		TMVec[iproc] = TM;
-		pTM = 0;
-		TM->SetCommunicationManager(AllCM[iproc]);
-		AllCM[iproc]->SetTaskManager(TM);
-		pDM = new OOPDataManager(AllCM[iproc]->GetProcID(), TM);
-		TPZAutoPointer<OOPDataManager> DM(pDM->DM());
-		pDM = 0;
-		TM->SetDataManager(DM);
-		
-		TM->SetNumberOfThreads(NumThreads);
-		TM->Execute();
-	}
-	for(iproc=0; iproc<NumProcessors; iproc++)
-	{
-		for(jproc=0; jproc<NumProcessors; jproc++)
-		{
-			AllCMp[iproc]->SetCommunicationManager(jproc,AllCM[jproc]);
-		}
-		AllCM[iproc]->Initialize("Dummy",-1);
-	}
-}
-#endif

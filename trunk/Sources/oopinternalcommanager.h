@@ -39,6 +39,13 @@ public:
 	 */
 	void SetCommunicationManager(int procid, TPZAutoPointer<OOPCommunicationManager> partner);
 	
+    /**
+     * @brief get the vector of communication managers
+     */
+    TPZVec<TPZAutoPointer<OOPCommunicationManager> > GetCommunicationManagers()
+    {
+        return fNeighbours;
+    }
 	/**
 	 * @brief Initialize the processing threads. \n
 	 * This method must be called before any communication activity

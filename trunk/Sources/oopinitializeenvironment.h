@@ -11,6 +11,8 @@
 
 #include "oopcommmanager.h"
 
-TPZAutoPointer<OOPTaskManager> InitializeEnvironment(int numproc, int numthreads);
+TPZAutoPointer<OOPTaskManager> InitializeEnvironment(int argv, char *argc[], int numproc, int numthreads);
+
+void ShutDownEnvironment(TPZAutoPointer<OOPTaskManager> TM);
 
 #endif

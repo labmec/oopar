@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	sscanf(msgRecv.message,"%d", &porta); 
-	printf("Port Nuumber: %d\n",porta ); fflush(stdout);
+	printf("Port Number: %d\n",porta ); fflush(stdout);
 	
 	return  0;
 }

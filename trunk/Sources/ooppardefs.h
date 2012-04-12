@@ -27,7 +27,6 @@ enum OOPMDataState
 	ENoAccess,
 	EReadAccess,
 	EWriteAccess,
-	EVersionAccess,
 	EDelete
 };
 

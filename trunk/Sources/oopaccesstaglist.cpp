@@ -51,6 +51,16 @@ void OOPAccessTagList::Clear(TPZAutoPointer<OOPDataManager> DM)
 		lset.insert(it->Id());
 		if(it->AccessMode() == EWriteAccess)
 		{
+#ifdef LOG4CXX
+            {
+                std::stringstream sout;
+                sout << __PRETTY_FUNCTION__ << " Releasing write access request for tag ";
+                it->ShortPrint(sout);
+                sout << " ClassId " << it->AutoPointer()->ClassId();
+                sout << " On processor " << DM->GetProcID();
+                LOGPZ_DEBUG(logger, sout.str())
+            }
+#endif
 			DM->PostData(*it);
 		}
 		it->ClearPointer();
@@ -103,6 +113,35 @@ void OOPAccessTagList::IncrementWriteDependent()
 	
 }
 
+/**
+ * @brief Set an explicit version for a write dependent object
+ */
+void OOPAccessTagList::SetVersion(int tagindex, OOPDataVersion newversion)
+{
+    if(tagindex <0 || tagindex >= fTagList.size())
+    {
+        DebugStop();
+    }
+    if (fTagList[tagindex].AccessMode() == EWriteAccess) 
+    {
+        fTagList[tagindex].SetVersion(newversion);
+    }
+    else {
+        LOGPZ_ERROR(logger, "SetVersion called on a ReadAccess object")
+#ifdef LOG4CXX
+        {
+            std::stringstream sout;
+            sout << "Trying to modify the version of object index " << tagindex << " Taglist : ";
+            Print(sout);
+            sout << "SetVersion WRONG CALL";
+            LOGPZ_ERROR(logger, sout.str())
+            
+        }
+#endif
+    }
+}
+
+
 void OOPAccessTagList::SubmitIncrementedVersions(TPZAutoPointer<OOPDataManager> DM)
 {
 	std::vector<OOPAccessTag>::iterator it = fTagList.begin();
@@ -115,7 +154,7 @@ void OOPAccessTagList::SubmitIncrementedVersions(TPZAutoPointer<OOPDataManager> 
 #ifdef LOG4CXX
 		{
 			stringstream sout;
-			sout << "Releasing Access according to Tag:";
+			sout << "After Posting Data with incremented version, Releasing Access according to Tag:";
 			it->ShortPrint(sout);
 			LOGPZ_DEBUG(AccessLogger,sout.str().c_str());
 		}

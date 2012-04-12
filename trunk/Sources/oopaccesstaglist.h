@@ -61,6 +61,11 @@ public:
 	 * @brief Atomically increments all data versions to which the access mode was WriteAccess 
 	 */
 	void IncrementWriteDependent();
+    
+    /**
+     * @brief Set an explicit version for a write dependent object
+     */
+    void SetVersion(int tagindex, OOPDataVersion newversion);
 	/** 
 	 * @brief Returns the amount of Items on the TagList
 	 */

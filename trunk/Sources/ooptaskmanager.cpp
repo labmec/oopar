@@ -1345,7 +1345,19 @@ void OOPTaskManager::ExtractGrantAccessFromTag(const OOPAccessTag & tag)
 }
 void OOPTaskManager::ExtractCancelTaskFromTag(const OOPAccessTag & tag)
 {
-#warning  cout << "NOT IMPLEMENTED !!!!!" << std::endl;
+    LOGPZ_WARN(logger, "ExtractCancelTaskFromTag NOT IMPLEMENTED")
+    std::list<OOPTaskControl *>::iterator it;
+    for (it = fTaskList.begin(); it != fTaskList.end(); it++) {
+        OOPTask *task = (*it)->Task();
+        if( task->Id() == tag.Id())
+        {
+            (*it)->ZeroTask();
+            task->TaskFinished();
+            fTaskList.erase(it);
+            it=fTaskList.begin();
+        }
+    }
+    //CancelTask(tag);
 }
 
 void OOPTaskManager::HandleMessages()

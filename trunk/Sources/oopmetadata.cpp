@@ -236,7 +236,7 @@ void OOPMetaData::SubmitVersion(TPZAutoPointer <TPZSaveable> &NewPtr, const OOPD
 #ifdef LOG4CXX
 	{
 		stringstream sout;
-		sout << "Submitting Version for object id " << Id() << " classid " << NewPtr->ClassId();
+		sout << "Submitting Version " << nextversion << " for object id " << Id() << " classid " << NewPtr->ClassId();
 		LOGPZ_DEBUG(logger, sout.str().c_str());
 	}
 #endif
@@ -391,7 +391,8 @@ void OOPMetaData::VerifyAccessRequests (TPZAutoPointer<OOPDataManager> DM)
 		}
 		tag = fAccessList.GetCompatibleRequest(version,EReadAccess);
 	}
-	if(verit->second.Count() == 1)
+    int accesscount = verit->second.Count();
+	if(accesscount == 1)
 	{
 		tag = fAccessList.GetCompatibleRequest(version,EWriteAccess);
 		if(tag)
@@ -525,6 +526,14 @@ void OOPMetaData::SubmitAccessRequest (const OOPAccessTag &tag, TPZAutoPointer<O
 		localtag.SetTaskId(zero);
 		SendAccessRequest(localtag,DM);
 	}
+#ifdef LOG4CXX
+    {
+        std::stringstream sout;
+        sout << "OOPMetaData submitting access request for ObjId " << fObjId << " that has version " << Version();
+        sout << " Access Request tag " << tag;
+        LOGPZ_DEBUG(logger, sout.str())
+    }
+#endif
 	fAccessList.InsertTag(tag);
 	VerifyAccessRequests(DM);
 }

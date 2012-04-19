@@ -37,7 +37,7 @@ template class TPZRestoreClass<OOPTask, TTASK_ID>;
 /**
  * Constructor based on a processor-id
  */
-OOPTask::OOPTask():fProc(-1) ,  fLabel("non initialized"), fTM(0), fRecurrence(false)
+OOPTask::OOPTask():fProc(-1) , fRecurrence(false), fUpdateVersions(true),  fLabel("non initialized"), fTM(0)
 {
 }
 
@@ -60,7 +60,7 @@ OOPTask::Print (std::ostream & out)
 	fDependRequest.Print(out);
 }
 
-OOPTask::OOPTask (int proc) : fTM(0), fRecurrence(false)
+OOPTask::OOPTask (int proc) : fTM(0), fRecurrence(false), fUpdateVersions(true)
 {
 	fProc = proc;
 	fLabel = "non initialized";
@@ -70,7 +70,7 @@ fProc (task.fProc),
 fTaskId (),
 fDependRequest (task.fDependRequest),
 fLabel (task.fLabel),
-fTM(task.fTM), fRecurrence(false)
+fTM(task.fTM), fRecurrence(false), fUpdateVersions(task.fUpdateVersions)
 {
 }
 void
@@ -127,6 +127,8 @@ OOPTask::Write (TPZStream & buf, int withclassid)
 	fTaskId.Write (buf);
 	//Logging purpose only
 	buf.Write (&fProc);		// Processor where the task should be
+    int updateversion = fUpdateVersions;
+    buf.Write(&updateversion,1);
 	// executed
 	fDependRequest.Write(buf,0);//, withclassid);
 #ifdef LOG4CXX
@@ -146,6 +148,9 @@ OOPTask::Read (TPZStream & buf, void *context)
 	// Finished OOPObjectId unpacking
 	//Logging purpose only
 	buf.Read (&fProc);
+    int updateversion;
+    buf.Read(&updateversion);
+    fUpdateVersions = (updateversion != 0);
 	fDependRequest.Read (buf, context);
 #ifdef LOG4CXX
 	stringstream sout;
@@ -210,6 +215,14 @@ void OOPTask::SetTaskManager(TPZAutoPointer<OOPTaskManager> TM)
 	fTM = TM;
 }
 
+/**
+ * @brief Sets the new version of the dependent data manually
+ */
+void OOPTask::SetDataVersion(int index, OOPDataVersion version)
+{
+    fDependRequest.SetVersion(index, version);
+    this->SetUpdateVersion(false);
+}
 
 TPZAutoPointer<OOPTaskManager> OOPTask::TM()
 {

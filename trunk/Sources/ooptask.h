@@ -107,6 +107,11 @@ public:
 	{
 		return fDependRequest;
 	}
+    
+    /**
+     * @brief Sets the new version of the dependent data manually
+     */
+    void SetDataVersion(int index, OOPDataVersion version);
 	/**
 	 * @brief Sets the id of current object
 	 * @param id Id to be set
@@ -170,6 +175,22 @@ public:
 	 */
 	virtual void Read (TPZStream & buf, void * context);
 	virtual void Write (TPZStream & buf, int withclassid);
+    
+    /** 
+     * @brief Returns true if the write dependent data should have their version increased after execution
+     */
+    bool ShouldUpdateVersion()
+    {
+        return fUpdateVersions;
+    }
+    
+    /**
+     * @brief Determines whether the task should update its write dependent objects after executioin
+     */
+    void SetUpdateVersion(bool update)
+    {
+        fUpdateVersions = update;
+    }
 	/**
 	 * @brief Returns the recurrence information
 	 */
@@ -199,8 +220,15 @@ public:
 	 */
 protected:
 	OOPAccessTag GetTag(int i);
-	/** @brief Parameter for recurrence process */
+	/** @brief Parameter indicating whether the task is recurrent or not */
 	bool fRecurrence;
+    
+    /**
+     * @brief Parameter indicating whether the task will increase the object versions automatically
+     * the default value is true
+     */
+    bool fUpdateVersions;
+    
 	/**
 	 * @brief Processor where the task should be executed
 	 */

@@ -20,7 +20,8 @@
 #include "pzsave.h"
 #include "pzstream.h"
 
-#include "boost/interprocess/sync/interprocess_semaphore.hpp"
+#include "TPZSemaphore.h"
+//#include "boost/interprocess/sync/interprocess_semaphore.hpp"
 
 
 class TPZSaveable;
@@ -175,11 +176,11 @@ public:
 	void FlushData();
 	void WaitWakeUpCall()
 	{
-		fServiceSemaphore->wait();
+		fServiceSemaphore->Wait();
 	}
 	void WakeUpCall()
 	{
-		fServiceSemaphore->post();
+		fServiceSemaphore->Post();
 	}
 	void SetKeepGoing(bool go);
 	int StartService();
@@ -209,7 +210,8 @@ private:
 	/**
 	 * @brief Semaphore for the DM service thread
 	 */
-	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
+    TPZSemaphore *fServiceSemaphore;
+//	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
 	
 	/**
 	 * @brief The mutex object around which we will be locking

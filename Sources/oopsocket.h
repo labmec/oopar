@@ -8,7 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+//#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <signal.h>
 #include <netdb.h>
 #include <sys/types.h>
@@ -18,6 +18,7 @@
 #include "socket.h"
 
 #include "oopsocketstorage.h"
+#include "TPZSemaphore.h"
 class OOPSocketStorageBuffer;
 
 #include <vector>
@@ -66,7 +67,8 @@ private:
     pthread_mutex_t notifyAll_mutex;
 	
     // semaforos globais
-    boost::interprocess::interprocess_semaphore *barrier;
+    TPZSemaphore *barrier;
+//    boost::interprocess::interprocess_semaphore *barrier;
     pthread_mutex_t mutex;
 	
 	

@@ -67,7 +67,8 @@ OOPDataManager::OOPDataManager(int Procid, TPZAutoPointer<OOPTaskManager> TM) : 
 	fLastCreated = 0;	// NUMOBJECTS * Procid;
 	fKeepGoing = true;
 	//sem_init(&fServiceSemaphore, 0, 0);
-	fServiceSemaphore = new boost::interprocess::interprocess_semaphore(0);
+    fServiceSemaphore = new TPZSemaphore;
+//	fServiceSemaphore = new boost::interprocess::interprocess_semaphore(0);
 	fServiceThread = 0;
 	pthread_mutex_init (&fMutex, 0);
 	

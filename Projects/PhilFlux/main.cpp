@@ -285,12 +285,10 @@ void InsertTasks(TPZAutoPointer<OOPTaskManager> TM, int numtasks)
 	cout << "Before waiting\n";
 	wt->Wait();
 	cout << "Got out of wait\n";
-	// At this point I have version access to victim
-    OOPAccessTagList &tags = wt->GetDependencyList();
     ver.SetLevelVersion(0, 1);
-	ver.IncrementLevel(numtasks+1);
-    tags.SetVersion(0, ver);
-    std::cout << "Setting the version of the object to " << ver << " class id " << tags.ObjectPtr(0)->ClassId() <<  std::endl;
+	ver.IncrementLevel(numtasks);
+    wt->SetDataVersion(0, ver);
+    std::cout << "Setting the version of the object to " << ver << " class id " << wt->GetDepObjPtr(0)->ClassId() <<  std::endl;
     //wt->TaskFinished();
 	//  obj->SetVersion(ver,wt->Id());
 	cout << "Before wait finish\n";
@@ -302,7 +300,7 @@ void InsertTasks(TPZAutoPointer<OOPTaskManager> TM, int numtasks)
 		OOPDataVersion stver;
         stver.SetLevelVersion(0, 1);
 		stver.IncrementLevel(-1);
-		stver.SetLevelVersion(1,it+1);
+		stver.SetLevelVersion(1,it);
 		cout << "Created the smalltask numproc " << numproc << "\n";
 		if((numproc>1) && it%(numproc-1)) 
 		{

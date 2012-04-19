@@ -5,9 +5,10 @@
 #define OOPWAITTASK_H
 
 
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+//#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 
-#include <ooptask.h>
+#include "ooptask.h"
+#include "TPZSemaphore.h"
 class OOPStorageBuffer;
 
 /**
@@ -23,11 +24,13 @@ class OOPWaitTask : public OOPTask
 	/**
 	 * @brief Semaphore for the Main Thread Execution
 	 */
-	boost::interprocess::interprocess_semaphore * fMainSemaphore;
+//	boost::interprocess::interprocess_semaphore * fMainSemaphore;
+	TPZSemaphore * fMainSemaphore;
 	/**
 	 * @brief Semaphore for the WaitTask execution
 	 */
-	boost::interprocess::interprocess_semaphore * fExecSemaphore;
+//	boost::interprocess::interprocess_semaphore * fExecSemaphore;
+	TPZSemaphore * fExecSemaphore;
 public:
 	OOPWaitTask() {  }
 	OOPWaitTask(int Procid);

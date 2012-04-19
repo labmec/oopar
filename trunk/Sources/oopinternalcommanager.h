@@ -8,7 +8,7 @@
 #ifndef OOPINTERNALCOMMANAGER_H_
 #define OOPINTERNALCOMMANAGER_H_
 
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+//#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 
 #include "oopcommmanager.h"
 #include "tpzautopointer.h"
@@ -78,7 +78,7 @@ public:
 	
     void WaitWakeUpCall()
     {
-  		fServiceSemaphore->wait();
+  		fServiceSemaphore->Wait();
     }
     void WakeUpCall();
 	
@@ -119,7 +119,8 @@ private:
 	 * @brief Semaphore for the CM service thread
 	 * We switched to boost because of Macintosh issues
 	 */
-	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
+    TPZSemaphore *fServiceSemaphore;
+//	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
 	
 	/**
 	 * @brief The mutex object around which we will be locking

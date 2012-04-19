@@ -64,7 +64,7 @@ void *OOPSocket::receiver(void * data)
                 SOCKET->receiveBuffer->push_back(envelope);
                 pthread_mutex_unlock(&SOCKET->mutex);
                 if(envelope.idOp == BARRIER)
-                	SOCKET->barrier->post();
+                	SOCKET->barrier->Post();
                 else {
                     pthread_mutex_lock(&SOCKET->notifyAll_mutex);
                     pthread_cond_broadcast(&SOCKET->notifyAll);
@@ -124,7 +124,8 @@ OOPSocket::OOPSocket()
     pthread_cond_init(&notifyAll, NULL);
     pthread_mutex_init(&notifyAll_mutex, NULL);
 	
-    barrier = new boost::interprocess::interprocess_semaphore(0);
+    barrier = new TPZSemaphore;
+//    barrier = new boost::interprocess::interprocess_semaphore(0);
 	
     threadRunning = 1;
     receiveBuffer = new vector<OOP_SOCKET_Envelope>();
@@ -286,7 +287,7 @@ int OOPSocket::Barrier()
     {
         while(count > 0)
         {
-        	barrier->wait();
+        	barrier->Wait();
             pthread_mutex_lock(&mutex);
             iter = receiveBuffer->begin();
             while(iter != receiveBuffer->end())

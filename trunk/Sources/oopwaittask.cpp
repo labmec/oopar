@@ -32,8 +32,10 @@ class OOPStorageBuffer;
 
 OOPWaitTask::OOPWaitTask(int Procid): OOPTask(Procid)
 {
-	fMainSemaphore = new boost::interprocess::interprocess_semaphore(0);
-	fExecSemaphore = new boost::interprocess::interprocess_semaphore(0);
+    fMainSemaphore = new TPZSemaphore;
+    fExecSemaphore = new TPZSemaphore;
+//	fMainSemaphore = new boost::interprocess::interprocess_semaphore(0);
+//	fExecSemaphore = new boost::interprocess::interprocess_semaphore(0);
 }
 
 OOPWaitTask::~OOPWaitTask()
@@ -72,7 +74,7 @@ OOPMReturnType OOPWaitTask::Execute()
 #endif
 	//this->IncrementWriteDependentData();
 	//sem_post(&fMainSemaphore);
-	fMainSemaphore->post();
+	fMainSemaphore->Post();
 #ifdef LOG4CXX
 	{
 		stringstream sout;
@@ -81,7 +83,7 @@ OOPMReturnType OOPWaitTask::Execute()
 	}
 #endif
 	//sem_wait(&fExecSemaphore);
-	fExecSemaphore->wait();
+	fExecSemaphore->Wait();
 #ifdef LOG4CXX
 	{
 		stringstream sout;
@@ -105,7 +107,7 @@ void OOPWaitTask::Finish()
 	}
 #endif
 	//sem_post(&fExecSemaphore);
-	fExecSemaphore->post();
+	fExecSemaphore->Post();
 }
 
 
@@ -124,7 +126,7 @@ void OOPWaitTask::Wait()
 	int retval = 0;
 	//sem_init(&fMainSemaphore, 0, 1);
 	//retval = sem_wait(&fMainSemaphore);
-	fMainSemaphore->wait();
+	fMainSemaphore->Wait();
 	if(retval == -1)
 	{
 #ifdef LOG4CXX

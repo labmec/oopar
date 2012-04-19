@@ -30,7 +30,8 @@ OOPInternalCommunicationManager::OOPInternalCommunicationManager(int procid, int
 	f_num_proc = numproc;
 	fNeighbours.Resize(numproc);
 	pthread_mutex_init (&fMutex, 0);
-	fServiceSemaphore = new boost::interprocess::interprocess_semaphore(0);
+    fServiceSemaphore = new TPZSemaphore;
+//	fServiceSemaphore = new boost::interprocess::interprocess_semaphore(0);
 	fServiceThread = 0;
 	fKeepGoing = true;
 #ifdef LOG4CXX
@@ -300,7 +301,7 @@ void OOPInternalCommunicationManager::JoinThread()
 void OOPInternalCommunicationManager::WakeUpCall()
 {
 	//sem_post(&fServiceSemaphore);
-	fServiceSemaphore->post();
+	fServiceSemaphore->Post();
 #ifdef LOG4CXX
 	std::stringstream sout;
 	sout << "Post wakeup Call for processor " << GetProcID();

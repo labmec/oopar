@@ -376,7 +376,7 @@ void OOPTaskManager::WaitWakeUpCall()
 #ifndef NONSTOPSERVICETHREAD
 	//std::cout << "Going to wait for wakeup call " << std::endl;
 	//sem_wait(&fServiceSemaphore);
-	fServiceSemaphore->wait();
+	fServiceSemaphore->Wait();
 #else
 	timeval now;
 	gettimeofday (&now, 0);
@@ -729,7 +729,8 @@ OOPTaskManager::OOPTaskManager (int proc): fTM(this), fNumberOfThreads (10)
 	fStopSending = false;
 	fKeepGoing = true;
 	//sem_init(&fServiceSemaphore, 0, 0);
-	fServiceSemaphore = new boost::interprocess::interprocess_semaphore(0);
+    fServiceSemaphore = new TPZSemaphore;
+//	fServiceSemaphore = new boost::interprocess::interprocess_semaphore(0);
 	pthread_mutex_init (&fMutex, 0);
 	//	fMutex = PTHREAD_MUTEX_INITIALIZER;
 	

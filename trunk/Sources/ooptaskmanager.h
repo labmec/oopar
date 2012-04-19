@@ -17,7 +17,8 @@
 
 #include <list>
 #include <set>
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+#include "TPZSemaphore.h"
+//#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 
 class OOPStorageBuffer;
 class OOPDataVersion;
@@ -215,7 +216,7 @@ public:
 	 * Semaphores avoid deadlocking in the cond_signal, cond_wait, mutex_lock and unlocking
 	 */
 	void WakeUpCall(){
-		fServiceSemaphore->post();
+		fServiceSemaphore->Post();
 	}
 	/**
 	 * @brief Returns true if the service thread has work to do
@@ -298,7 +299,8 @@ private:
 	/**
 	 * @brief Semaphore for the ServiceThread
 	 */
-	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
+//	boost::interprocess::interprocess_semaphore * fServiceSemaphore;
+	TPZSemaphore * fServiceSemaphore;
 	
 	/**
 	 * @brief Generate a unique id number

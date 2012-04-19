@@ -134,7 +134,10 @@ void *OOPTaskControl::ThreadExec(void *threadobj)
 		LOGPZ_DEBUG(tasklogger,sout.str().c_str());
 	}
 #endif
-	tc->fTask->IncrementWriteDependentData();
+    if (tc->fTask->ShouldUpdateVersion()) {
+        tc->fTask->IncrementWriteDependentData();
+    }
+    
 	tc->UpdateVersions();
 	
 	{
